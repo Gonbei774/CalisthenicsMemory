@@ -14,6 +14,105 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 
 ---
 
+## スクリーンショット
+
+### ホーム画面
+<p align="center">
+  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/01_home.png" width="250" alt="ホーム画面">
+</p>
+
+シンプルで直感的なホーム画面。4つの主要機能へすぐにアクセスできます。
+
+---
+
+### 📝 記録機能
+
+<p align="center">
+  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/02_record_unilateral.png" width="250" alt="片側種目の記録">
+  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/03_record_bilateral.png" width="250" alt="両側種目の記録">
+</p>
+
+**左**: 片側種目（ピストルスクワット、ワンアームプッシュアップなど）は左右別々に記録
+**右**: 両側種目（通常のプッシュアップ、スクワットなど）はシンプルに記録
+
+セット数を自由に調整でき、日付・時刻・コメントも追加可能です。
+
+---
+
+### 🏋️ ワークアウト機能
+
+<p align="center">
+  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/04_workout_select.png" width="250" alt="種目選択">
+  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/05_workout_config.png" width="250" alt="ワークアウト設定">
+  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/06_workout_in_progress.png" width="250" alt="ワークアウト実行中">
+</p>
+
+自動ガイド付きのワークアウトモード：
+
+1. **種目を選択** - 階層表示で見やすく整理
+2. **設定を調整** - 目標セット数・回数、タイマー、インターバルを設定
+3. **実行** - カウントダウンから実行、インターバルまで自動で進行
+
+トレーニングに集中できるよう、画面を見るだけでペースを管理できます。
+
+---
+
+### 📊 閲覧機能 - 一覧タブ
+
+<p align="center">
+  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/07_view_list.png" width="250" alt="記録一覧">
+</p>
+
+過去のトレーニング記録を時系列で確認。各セッションの詳細（日時・セット内容・コメント）が一目で分かります。タップで編集、長押しで削除も可能です。
+
+---
+
+### 📈 閲覧機能 - グラフタブ
+
+<p align="center">
+  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/08_view_graph_average.png" width="250" alt="グラフ（平均）">
+  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/09_view_graph_max.png" width="250" alt="グラフ（最大）">
+</p>
+
+**左**: 平均値の推移 - トレーニングの安定性を確認
+**右**: 最大値の推移 - 自己ベストの更新を追跡
+
+期間フィルター（1週間/1ヶ月/3ヶ月/全期間）で見たい範囲を絞り込めます。統計サマリーで総セット数、平均、ベスト、週間変化も確認できます。
+
+---
+
+### 🎯 閲覧機能 - 課題タブ
+
+<p align="center">
+  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/10_view_challenge_filtered.png" width="250" alt="課題タブ（フィルター）">
+  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/11_view_challenge_all.png" width="250" alt="課題タブ（全体）">
+</p>
+
+目標達成状況を視覚的に確認。プログレスバーの色で進捗が一目瞭然：
+
+- **紫（100%以上）**: 完璧にクリア ✓
+- **緑（75〜99%）**: もう少しでクリア
+- **黄（50〜74%）**: 道半ば
+- **赤（0〜49%）**: まだまだ
+
+種目別にフィルターして、特定のトレーニングの進捗を集中的にチェックできます。
+
+---
+
+### ⚙️ 種目管理 & 設定
+
+<p align="center">
+  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/12_create_exercise_list.png" width="250" alt="種目管理">
+  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/13_create_exercise_dialog.png" width="250" alt="種目作成">
+  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/14_settings.png" width="250" alt="設定画面">
+</p>
+
+**左**: 種目とグループを階層表示。レベル（1〜10）で段階的に管理
+**中央**: 種目作成画面。タイプ（回数/時間）、左右、課題を柔軟に設定
+**右**: データ管理画面。JSON形式でバックアップ・復元が可能
+
+---
+
 ## 主な機能
 
 ### トレーニング記録
