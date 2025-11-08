@@ -15,6 +15,11 @@
 .cxx
 local.properties
 
+# Keystore files (NEVER commit these!)
+*.keystore
+*.jks
+keystore.properties
+
 # Kotlin compiler logs
 .kotlin/
 
