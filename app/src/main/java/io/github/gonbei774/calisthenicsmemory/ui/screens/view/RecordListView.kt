@@ -1,0 +1,380 @@
+package io.github.gonbei774.calisthenicsmemory.ui.screens.view
+
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import io.github.gonbei774.calisthenicsmemory.R
+import io.github.gonbei774.calisthenicsmemory.data.Exercise
+import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
+import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+
+// 一覧表示コンポーネント
+@Composable
+fun RecordListView(
+    sessions: List<SessionInfo>,
+    exercises: List<Exercise>,
+    selectedExerciseFilter: Exercise?, // フィルター状態の確認用（空メッセージ表示に使用）
+    onExerciseClick: (Exercise) -> Unit,
+    onRecordClick: (TrainingRecord) -> Unit,
+    onSessionLongPress: (SessionInfo) -> Unit,
+    onDeleteClick: (SessionInfo) -> Unit
+) {
+    if (sessions.isEmpty() && selectedExerciseFilter == null) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = stringResource(R.string.no_records_yet),
+                fontSize = 18.sp,
+                color = Slate400
+            )
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // 説明文
+            item {
+                Text(
+                    text = stringResource(R.string.tap_to_edit_hint),
+                    fontSize = 14.sp,
+                    color = Slate400,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+            }
+
+            if (sessions.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.no_records_for_exercise),
+                            fontSize = 16.sp,
+                            color = Slate400
+                        )
+                    }
+                }
+            } else {
+                items(
+                    items = sessions,
+                    key = { session -> "${session.exerciseId}-${session.date}-${session.time}" }
+                ) { session ->
+                    SessionCard(
+                        session = session,
+                        exercise = exercises.find { it.id == session.exerciseId },
+                        onExerciseClick = { exercise ->
+                            onExerciseClick(exercise)
+                        },
+                        onRecordClick = onRecordClick,
+                        onSessionLongPress = { onSessionLongPress(session) },
+                        onDeleteClick = { onDeleteClick(session) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun SessionCard(
+    session: SessionInfo,
+    exercise: Exercise?,
+    onExerciseClick: (Exercise) -> Unit,
+    onRecordClick: (TrainingRecord) -> Unit,
+    onSessionLongPress: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = {},
+                onLongClick = onSessionLongPress
+            ),
+        colors = CardDefaults.cardColors(
+            containerColor = Slate800
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            // Header
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    // 種目名をクリッカブルに
+                    Text(
+                        text = exercise?.name ?: stringResource(R.string.unknown_exercise),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (exercise != null) Purple600 else Color.White,
+                        modifier = Modifier.clickable(enabled = exercise != null) {
+                            exercise?.let { onExerciseClick(it) }
+                        }
+                    )
+                    Text(
+                        text = "${session.date} ${session.time}",
+                        fontSize = 14.sp,
+                        color = Slate400
+                    )
+                }
+
+                IconButton(onClick = onDeleteClick) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = stringResource(R.string.delete),
+                        tint = Red600
+                    )
+                }
+            }
+
+            // Comment
+            if (session.comment.isNotBlank()) {
+                Row(
+                    modifier = Modifier.padding(bottom = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = "💬",
+                        fontSize = 14.sp
+                    )
+                    Text(
+                        text = session.comment,
+                        fontSize = 14.sp,
+                        color = Slate300,
+                        fontStyle = FontStyle.Italic
+                    )
+                }
+            }
+
+            // Sets
+            Column(
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                session.records.forEach { record ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Slate700
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        onClick = { onRecordClick(record) }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(R.string.set_number, record.setNumber),
+                                fontSize = 14.sp,
+                                color = Slate300
+                            )
+
+                            // Unilateral/Bilateral 対応
+                            if (record.valueLeft != null) {
+                                // Unilateral: 左右表示
+                                Column(
+                                    horizontalAlignment = Alignment.End,
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.right_value_short, record.valueRight, if (exercise?.type == "Dynamic") stringResource(R.string.unit_reps) else stringResource(R.string.unit_seconds)),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Green400
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.left_value_short, record.valueLeft!!, if (exercise?.type == "Dynamic") stringResource(R.string.unit_reps) else stringResource(R.string.unit_seconds)),
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Purple600
+                                    )
+                                }
+                            } else {
+                                // Bilateral: 従来通り
+                                Text(
+                                    text = "${record.valueRight}${if (exercise?.type == "Dynamic") stringResource(R.string.unit_reps) else stringResource(R.string.unit_seconds)}",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Green400
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SessionEditDialog(
+    session: SessionInfo,
+    onDismiss: () -> Unit,
+    onConfirm: (String, String, String) -> Unit
+) {
+    var editDate by remember { mutableStateOf(session.date) }
+    var editTime by remember { mutableStateOf(session.time) }
+    var editComment by remember { mutableStateOf(session.comment) }
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
+
+    val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.edit_session_info)) },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedButton(
+                    onClick = { showDatePicker = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.date_format, editDate))
+                }
+
+                OutlinedButton(
+                    onClick = { showTimePicker = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.time_format, editTime))
+                }
+
+                OutlinedTextField(
+                    value = editComment,
+                    onValueChange = { editComment = it },
+                    label = { Text(stringResource(R.string.comment)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 3
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirm(editDate, editTime, editComment)
+                }
+            ) {
+                Text(stringResource(R.string.save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+
+    // Date Picker
+    if (showDatePicker) {
+        val currentDate = try {
+            LocalDate.parse(editDate, dateFormatter)
+        } catch (e: Exception) {
+            LocalDate.now()
+        }
+
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = currentDate.toEpochDay() * 86400000
+        )
+
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        val newDate = LocalDate.ofEpochDay(millis / 86400000)
+                        editDate = newDate.format(dateFormatter)
+                    }
+                    showDatePicker = false
+                }) {
+                    Text(stringResource(R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    // Time Picker
+    if (showTimePicker) {
+        val currentTime = try {
+            LocalTime.parse(editTime, timeFormatter)
+        } catch (e: Exception) {
+            LocalTime.now()
+        }
+
+        val timePickerState = rememberTimePickerState(
+            initialHour = currentTime.hour,
+            initialMinute = currentTime.minute,
+            is24Hour = true
+        )
+
+        AlertDialog(
+            onDismissRequest = { showTimePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    val newTime = LocalTime.of(timePickerState.hour, timePickerState.minute)
+                    editTime = newTime.format(timeFormatter)
+                    showTimePicker = false
+                }) {
+                    Text(stringResource(R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTimePicker = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+            text = {
+                TimePicker(state = timePickerState)
+            }
+        )
+    }
+}

@@ -1,0 +1,24 @@
+# Android Studio
+*.iml
+.gradle
+/local.properties
+/.idea/
+.DS_Store
+
+# ビルド生成物
+/build
+/app/build
+/captures
+
+# その他
+.externalNativeBuild
+.cxx
+local.properties
+
+# Kotlin compiler logs
+.kotlin/
+
+# 開発用ドキュメント（非公開）
+CLAUDE.md
+DEVELOPMENT_HISTORY.md
+MIGRATION_STATUS.md

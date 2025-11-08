@@ -1,0 +1,316 @@
+<resources>
+    <!-- App Name -->
+    <string name="app_name">Calisthenics Memory</string>
+
+    <!-- Common -->
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="add">Add</string>
+    <string name="create">Create</string>
+    <string name="back">Back</string>
+    <string name="close">Close</string>
+    <string name="search">Search</string>
+    <string name="select">Select</string>
+    <string name="settings">Settings</string>
+    <string name="comment">Comment</string>
+    <string name="comment_optional">Comment (Optional)</string>
+    <string name="level">Level</string>
+    <string name="group">Group</string>
+    <string name="none">None</string>
+    <string name="type">Type</string>
+    <string name="menu">Menu</string>
+    <string name="loading">Loading...</string>
+
+    <!-- Home Screen -->
+    <string name="bodyweight_training">Bodyweight Training</string>
+    <string name="home_create">Create</string>
+    <string name="home_record">Record</string>
+    <string name="home_workout">Workout</string>
+    <string name="home_view">View</string>
+
+    <!-- Create Screen -->
+    <string name="exercise_creation">Exercise Creation</string>
+    <string name="no_exercises">No exercises yet\nAdd one using the + button below</string>
+    <string name="exercise_name">Exercise Name</string>
+    <string name="set_challenge">Set Challenge</string>
+    <string name="sets_count">Sets</string>
+    <string name="reps_or_seconds">%s</string> <!-- Will be replaced with "Reps" or "Seconds" -->
+    <string name="reps">Reps</string>
+    <string name="seconds">Seconds</string>
+    <string name="per_side">(Per Side)</string>
+    <string name="target_format">%1$d sets × %2$d %3$s</string>
+    <string name="target_format_unilateral">%1$d sets × %2$d %3$s (per side)</string>
+    <string name="laterality">Laterality</string>
+    <string name="bilateral">Bilateral</string>
+    <string name="unilateral">Unilateral</string>
+    <string name="bilateral_example">e.g., Push-ups, Squats</string>
+    <string name="unilateral_example">e.g., Pistol Squats, One-arm Push-ups</string>
+    <string name="one_sided">One-sided</string>
+    <string name="group_optional">Group (Optional)</string>
+    <string name="new_group_name">New Group Name</string>
+    <string name="new_group">+ New Group</string>
+    <string name="no_group">No Group</string>
+    <string name="edit_exercise">Edit Exercise</string>
+    <string name="create_new_group">Create New Group</string>
+    <string name="add_new_exercise">Add New Exercise</string>
+    <string name="create_type">Create Type</string>
+    <string name="exercise">Exercise</string>
+    <string name="group_name">Group Name</string>
+    <string name="already_exists">This %s name already exists</string>
+    <string name="rename_group">Rename Group</string>
+    <string name="delete_group">Delete Group</string>
+    <string name="delete_group_warning">Delete \"%s\"?\nExercises in this group will be moved to \"No Group\".</string>
+    <string name="delete_exercise_warning">Delete \"%s\"?\nAll records for this exercise will also be deleted.</string>
+    <string name="delete_confirmation">Delete Confirmation</string>
+    <string name="exercises_count">%d exercise(s)</string>
+    <string name="character_count">%1$d/%2$d</string>
+
+    <!-- Record Screen -->
+    <string name="training_record">Training Record</string>
+    <string name="no_exercises_registered">No exercises registered</string>
+    <string name="add_exercises_in_settings">Add exercises in settings</string>
+    <string name="go_to_settings">Go to Settings</string>
+    <string name="select_exercise">Select Exercise</string>
+    <string name="select_exercise_please">Please select an exercise</string>
+    <string name="select_from_top">Choose from \"Select Exercise\" above</string>
+    <string name="no_records_for_exercise">No records for this exercise</string>
+    <string name="target_display">Target: %1$d sets × %2$d %3$s</string>
+    <string name="target_display_unilateral">Target: %1$d sets × %2$d %3$s (per side)</string>
+    <string name="right">Right</string>
+    <string name="left">Left</string>
+    <string name="right_value">Right (%s)</string>
+    <string name="right_value_short">R: %1$d%2$s</string>
+    <string name="left_value">Left (%s)</string>
+    <string name="left_value_short">L: %1$d%2$s</string>
+    <string name="set_number_format">Set %d</string>
+    <string name="set_number_with_unit">Set %d (%s)</string>
+    <string name="date_format">Date: %s</string>
+    <string name="time_format">Time: %s</string>
+    <string name="record_button">Record</string>
+    <string name="reps_label">Reps</string>
+    <string name="time_label">Time</string>
+    <string name="dynamic_type">Reps</string>
+    <string name="isometric_type">Time</string>
+
+    <!-- View Screen -->
+    <string name="view_records">View Records</string>
+    <string name="list">List</string>
+    <string name="graph">Graph</string>
+    <string name="challenge">Challenge</string>
+    <string name="no_records_yet">No records yet</string>
+    <string name="tap_to_edit_long_press_for_menu">※ Tap set to edit, long press for menu</string>
+    <string name="tap_to_edit_hint">※ Tap set to edit, long press for menu</string>
+    <string name="unknown_exercise">Unknown Exercise</string>
+    <string name="edit_session_info">Edit Session Info</string>
+    <string name="delete_session">Delete Session</string>
+    <string name="delete_record_warning">Delete \"%1$s\" record?\n%2$s %3$s\n%4$d sets</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="edit_set_value">Edit Set Value</string>
+    <string name="value">Value</string>
+    <string name="right_value_label">Right Value</string>
+    <string name="left_value_label">Left Value</string>
+    <string name="edit_session_title">Edit Session Info</string>
+    <string name="show_all">Show All</string>
+    <string name="search_exercise">Search Exercise...</string>
+    <string name="filter_bottom_sheet_title">Select Exercise</string>
+    <string name="clear_filter">Clear Filter</string>
+
+    <!-- Period filters -->
+    <string name="period_1week">1 Week</string>
+    <string name="period_1month">1 Month</string>
+    <string name="period_3months">3 Months</string>
+    <string name="period_one_week">1 Week</string>
+    <string name="period_one_month">1 Month</string>
+    <string name="period_three_months">3 Months</string>
+
+    <!-- Graph Screen -->
+    <string name="display_data">Display Data</string>
+    <string name="graph_average">Average</string>
+    <string name="graph_max">Max</string>
+    <string name="graph_total">Total</string>
+    <string name="no_exercise_select_one">Please select an exercise\nChoose from \"Select Exercise\" above</string>
+    <string name="no_data">No data</string>
+    <string name="record_this_exercise">Record training for this exercise</string>
+    <string name="record_training_for_exercise">Record training for this exercise</string>
+    <string name="statistics_summary">Statistics Summary</string>
+    <string name="total_sets">Total Sets</string>
+    <string name="average">Average</string>
+    <string name="highest_record">Highest Record</string>
+    <string name="lowest_record">Lowest Record</string>
+    <string name="weekly_change">Weekly Change</string>
+    <string name="sets_format">%d sets</string>
+    <string name="change_format">%+d sets</string>
+    <string name="unit_reps">reps</string>
+    <string name="unit_seconds">sec</string>
+
+    <!-- Challenge Screen -->
+    <string name="no_challenge_set">No Challenge Set</string>
+    <string name="last_workout">Last Workout</string>
+    <string name="last_workout_none">Last Workout: None</string>
+    <string name="last_workout_date">Last Workout: %s</string>
+    <string name="no_exercises_available">No exercises available</string>
+    <string name="no_exercises_in_period">No exercises worked on in %s</string>
+    <string name="achievement_rate">%1$d%% (%2$d/%3$d%4$s)</string>
+
+    <!-- Settings Screen -->
+    <string name="data_management">📦 Data Management</string>
+    <string name="export_data">Export Data</string>
+    <string name="create_backup">Create Backup</string>
+    <string name="import_data">Import Data</string>
+    <string name="restore_from_backup">Restore from Backup</string>
+    <string name="warning_title">Warning</string>
+    <string name="import_warning">Importing will delete all existing data.</string>
+    <string name="data_overwrite_title">⚠️ Data Overwrite</string>
+    <string name="existing_data_will_be_deleted">All existing data will be deleted.</string>
+    <string name="cannot_undo">This action cannot be undone.</string>
+    <string name="import_confirm">Import</string>
+
+    <!-- ViewModel Messages -->
+    <string name="already_registered_format">\"%1$s (%2$s)\" is already registered</string>
+    <string name="dynamic_label">Reps</string>
+    <string name="isometric_label">Time</string>
+    <string name="exercise_added">Exercise added</string>
+    <string name="exercise_already_exists">Exercise already exists</string>
+    <string name="error_occurred">An error occurred</string>
+    <string name="already_in_use_format">\"%1$s (%2$s)\" is already in use</string>
+    <string name="exercise_updated">Exercise updated</string>
+    <string name="exercise_deleted">Exercise deleted</string>
+    <string name="sets_recorded">%d sets recorded!</string>
+    <string name="record_updated">Record updated</string>
+    <string name="record_deleted">Record deleted</string>
+    <string name="group_created">Group created</string>
+    <string name="group_already_exists">Group with the same name already exists</string>
+    <string name="group_renamed">Group renamed</string>
+    <string name="group_deleted">Group deleted</string>
+    <string name="export_complete">Export complete: %1$d groups, %2$d exercises, %3$d records</string>
+    <string name="export_error">Export error: %s</string>
+    <string name="import_complete">Import complete: %1$d groups, %2$d exercises, %3$d records</string>
+    <string name="import_error">Import error: %s</string>
+
+    <!-- Workout Screen (if exists) -->
+    <string name="workout_title">Workout</string>
+    <string name="no_exercises_yet_workout">No exercises yet</string>
+    <string name="no_group_workout">No Group</string>
+    <string name="one_sided_workout">One-sided</string>
+    <string name="target_label">Target:</string>
+    <string name="target_sets_label">Target Sets</string>
+    <string name="target_reps_label">Target Reps</string>
+    <string name="target_duration_label">Target Duration (sec)</string>
+    <string name="rep_duration_label">Rep Duration (sec)</string>
+    <string name="start_countdown_label">Start Countdown (sec)</string>
+    <string name="interval_duration_label">Interval Duration (sec)</string>
+    <string name="start_workout">Start</string>
+    <string name="back_button">Back</string>
+    <string name="preparing">Preparing</string>
+    <string name="skip_button">Skip</string>
+    <string name="workout_in_progress">Workout In Progress</string>
+    <string name="set_format">Set %1$d/%2$d</string>
+    <string name="set_format_with_side">Set %1$d/%2$d - %3$s</string>
+    <string name="side_right">Right</string>
+    <string name="side_left">Left</string>
+    <string name="reps_count">%d reps</string>
+    <string name="pause_button">Pause</string>
+    <string name="resume_button">Resume</string>
+    <string name="stop_button">Stop</string>
+    <string name="interval_label">Interval</string>
+    <string name="next_set_format">Next: Set %1$d/%2$d</string>
+    <string name="next_set_format_with_side">Next: Set %1$d/%2$d - %3$s</string>
+    <string name="minus_10sec">-10 sec</string>
+    <string name="plus_10sec">+10 sec</string>
+    <string name="workout_complete">Workout Complete</string>
+    <string name="comment_label">Comment</string>
+    <string name="record_workout">Record</string>
+    <string name="set_number">Set %d</string>
+    <string name="skipped_label">Skipped</string>
+    <string name="right_label">Right:</string>
+    <string name="left_label">Left:</string>
+    <string name="ten_seconds">10 sec</string>
+    <string name="workout_mode_comment">Workout Mode</string>
+    <string name="set_label">Set %d</string>
+    <string name="right_colon">Right:</string>
+    <string name="left_colon">Left:</string>
+    <string name="reps_input">Reps</string>
+    <string name="seconds_input">Seconds</string>
+
+    <!-- Level display -->
+    <string name="level_format">Lv.%d</string>
+    <!-- Additional missing strings -->
+    <string name="bilateral_label">Bilateral</string>
+    <string name="unilateral_label">Unilateral</string>
+
+    <!-- Common Labels -->
+    <string name="tab_list">List</string>
+    <string name="tab_graph">Graph</string>
+    <string name="tab_challenge">Challenge</string>
+    <string name="search_placeholder">Search</string>
+    <string name="clear">Clear</string>
+    <string name="value_label">Value</string>
+    <string name="right_with_unit">Right (%s)</string>
+    <string name="left_with_unit">Left (%s)</string>
+    <string name="target_with_unit">%1$d×%2$d%3$s</string>
+    <string name="graph_type_average">Average</string>
+    <string name="graph_type_max">Max</string>
+    <string name="graph_type_total">Total</string>
+
+    <!-- Additional hardcoded strings that need to be moved -->
+    <string name="no_exercises_add_with_plus">No exercises yet\nAdd one using the + button below</string>
+    <string name="delete_group_confirm_message">Delete \"%s\"?\nExercises in this group will be moved to \"No Group\".</string>
+    <string name="delete_exercise_confirm_message">Delete \"%s\"?\nAll records for this exercise will also be deleted.</string>
+    <string name="duplicate_exercise_name">This exercise name is already in use</string>
+    <string name="duplicate_group_name">This group name is already in use</string>
+    <string name="bilateral_with_parenthesis">Bilateral</string>
+    <string name="unilateral_with_parenthesis">Unilateral</string>
+    <string name="example_bilateral">e.g., Push-ups, Squats</string>
+    <string name="example_unilateral">e.g., Pistol Squats, One-arm Push-ups</string>
+    <string name="per_side_parenthesis">(per side)</string>
+    <string name="example_3">e.g., 3</string>
+    <string name="example_10">e.g., 10</string>
+    <string name="example_30">e.g., 30</string>
+    <string name="no_group_display">No Group</string>
+    <string name="new_group_plus">+ New Group</string>
+    <string name="level_display">Level: %d</string>
+    <string name="save_button">Save</string>
+    <string name="create_button">Create</string>
+    <string name="add_button">Add</string>
+    <string name="set_number_display">Set %d</string>
+    <string name="date_with_label">Date: %s</string>
+    <string name="time_with_label">Time: %s</string>
+    <string name="close_x">×</string>
+    <string name="select_exercise_filter">Select Exercise</string>
+    <string name="target_display_short">Target: %1$d sets × %2$d%3$s%4$s</string>
+    <string name="edit_exercise_title">Edit Exercise</string>
+    <string name="create_group_title">Create New Group</string>
+    <string name="add_exercise_title">Add New Exercise</string>
+
+    <!-- GraphView specific strings -->
+    <string name="graph_tooltip_unilateral">%1$s: Right %2$d%3$s / Left %4$d%5$s</string>
+    <string name="statistics_average_label">Average</string>
+    <string name="statistics_highest_label">Highest Record</string>
+    <string name="statistics_lowest_label">Lowest Record</string>
+    <string name="statistics_total_sets_label">Total Sets</string>
+    <string name="statistics_value_format">%1$d%2$s</string>
+    <string name="statistics_sets_count_format">%d sets</string>
+
+    <!-- Additional format strings for remaining hardcoded Japanese -->
+    <string name="multiplication_sign">×</string>
+    <string name="per_side_short">(per side)</string>
+    <string name="unknown_short">Unknown</string>
+    <string name="colon_separator">: </string>
+
+    <!-- Remaining hardcoded strings migration -->
+    <string name="set_ordinal_suffix">Set %d</string>
+    <string name="target_prefix">Target: </string>
+
+    <!-- ViewScreen & GraphView remaining strings -->
+    <string name="right_short">Right</string>
+    <string name="left_short">Left</string>
+    <string name="sets_suffix">sets</string>
+    <string name="best_record">Best</string>
+    <string name="worst_record">Lowest</string>
+    <string name="graph_tooltip_bilateral">%1$s: %2$d%3$s</string>
+    <string name="graph_tooltip_unilateral_detail">%1$s: R%2$d%4$s / L%3$d%4$s</string>
+</resources>
