@@ -1,0 +1,10 @@
+v1.0.0 - Initial Release
+
+Features:
+• Training record tracking (date, time, sets, reps/seconds)
+• Support for unilateral and bilateral exercises
+• Record viewing (List, Graph, and Challenge tabs)
+• Workout mode with automatic guidance and timers
+• Challenge achievement evaluation system
+• Data export/import (JSON format)
+• Multi-language support (Japanese, English)

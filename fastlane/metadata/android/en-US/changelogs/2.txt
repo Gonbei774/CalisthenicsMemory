@@ -1,0 +1,10 @@
+v1.1.0 - CSV Record Import/Export Feature
+
+New Features:
+• CSV record import/export functionality
+• Export input template for easy migration from analog records
+• Import adds to existing data without deletion
+
+Improvements:
+• Enhanced Settings screen UI
+• Optimized graph display
