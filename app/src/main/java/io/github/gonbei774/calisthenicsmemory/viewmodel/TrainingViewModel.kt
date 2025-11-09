@@ -81,7 +81,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     val exercises: StateFlow<List<Exercise>> = exerciseDao.getAllExercises()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Eagerly,
             initialValue = emptyList()
         )
 
@@ -89,7 +89,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     val groups: StateFlow<List<ExerciseGroup>> = groupDao.getAllGroups()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Eagerly,
             initialValue = emptyList()
         )
 
@@ -97,7 +97,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     val records: StateFlow<List<TrainingRecord>> = recordDao.getAllRecords()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Eagerly,
             initialValue = emptyList()
         )
 
@@ -355,7 +355,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             prepareHierarchicalData(groups, exercises, expanded)
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Eagerly,
             initialValue = emptyList()
         )
 
@@ -511,6 +511,171 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
                 withContext(Dispatchers.Main) {
                     _snackbarMessage.value = getString(R.string.import_complete, backupData.groups.size, backupData.exercises.size, backupData.records.size)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    _snackbarMessage.value = getString(R.string.import_error, e.message ?: "")
+                }
+            }
+        }
+    }
+
+    // ========================================
+    // CSV エクスポート・インポート機能
+    // ========================================
+
+    /**
+     * 記録入力用テンプレートCSVをエクスポート
+     * 種目リスト + コメント例
+     */
+    suspend fun exportRecordTemplate(): String = withContext(Dispatchers.IO) {
+        try {
+            val currentExercises = exercises.value
+
+            val csvBuilder = StringBuilder()
+
+            // ヘッダー
+            csvBuilder.appendLine("exerciseName,exerciseType,date,time,setNumber,valueRight,valueLeft,comment")
+
+            // 入力例（コメント - 英語のみ）
+            csvBuilder.appendLine("# Example: Multiple sets with same date/time (one session)")
+            csvBuilder.appendLine("# Wall Push-up,Dynamic,2025-11-09,10:00,1,20,,Morning session")
+            csvBuilder.appendLine("# Wall Push-up,Dynamic,2025-11-09,10:00,2,19,,Morning session")
+            csvBuilder.appendLine("# Wall Push-up,Dynamic,2025-11-09,10:00,3,15,,Morning session")
+            csvBuilder.appendLine("# Unilateral exercise example (with valueLeft)")
+            csvBuilder.appendLine("# One-leg Squat,Dynamic,2025-11-09,10:30,1,8,7,Right leg stronger")
+            csvBuilder.appendLine("#")
+
+            // 種目リスト（空欄テンプレート）
+            currentExercises.forEach { exercise ->
+                csvBuilder.appendLine("${exercise.name},${exercise.type},,,,,, ")
+            }
+
+            withContext(Dispatchers.Main) {
+                _snackbarMessage.value = getString(R.string.csv_template_exported, currentExercises.size)
+            }
+
+            csvBuilder.toString()
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                _snackbarMessage.value = getString(R.string.export_error, e.message ?: "")
+            }
+            throw e
+        }
+    }
+
+    /**
+     * CSVから記録をインポート（既存データに追加）
+     */
+    suspend fun importRecordsFromCsv(csvString: String) {
+        withContext(Dispatchers.IO) {
+            try {
+                val lines = csvString.lines()
+                    .filter { it.isNotBlank() && !it.startsWith("#") } // 空行とコメント行をスキップ
+
+                if (lines.isEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        _snackbarMessage.value = getString(R.string.csv_empty)
+                    }
+                    return@withContext
+                }
+
+                // ヘッダー行をスキップ
+                val dataLines = lines.drop(1)
+
+                var successCount = 0
+                var errorCount = 0
+                val errors = mutableListOf<String>()
+
+                dataLines.forEachIndexed { index, line ->
+                    try {
+                        val columns = line.split(",")
+                        if (columns.size < 8) {
+                            errors.add("Line ${index + 2}: Invalid format (not enough columns)")
+                            errorCount++
+                            return@forEachIndexed
+                        }
+
+                        val exerciseName = columns[0].trim()
+                        val exerciseType = columns[1].trim()
+                        val date = columns[2].trim()
+                        val time = columns[3].trim()
+                        val setNumberStr = columns[4].trim()
+                        val valueRightStr = columns[5].trim()
+                        val valueLeftStr = columns[6].trim()
+                        val comment = columns.getOrNull(7)?.trim() ?: ""
+
+                        // 必須フィールドチェック
+                        if (exerciseName.isEmpty() || exerciseType.isEmpty() ||
+                            date.isEmpty() || time.isEmpty() ||
+                            setNumberStr.isEmpty() || valueRightStr.isEmpty()) {
+                            errors.add("Line ${index + 2}: Missing required fields")
+                            errorCount++
+                            return@forEachIndexed
+                        }
+
+                        // 種目を検索
+                        val exercise = exercises.value.find {
+                            it.name == exerciseName && it.type == exerciseType
+                        }
+
+                        if (exercise == null) {
+                            errors.add("Line ${index + 2}: Exercise not found: $exerciseName ($exerciseType)")
+                            errorCount++
+                            return@forEachIndexed
+                        }
+
+                        // 数値変換
+                        val setNumber = setNumberStr.toIntOrNull()
+                        val valueRight = valueRightStr.toIntOrNull()
+                        val valueLeft = if (valueLeftStr.isEmpty()) null else valueLeftStr.toIntOrNull()
+
+                        if (setNumber == null || valueRight == null) {
+                            errors.add("Line ${index + 2}: Invalid number format")
+                            errorCount++
+                            return@forEachIndexed
+                        }
+
+                        // 重複チェック: 同じ(exerciseId, date, time, setNumber)が既に存在するかチェック
+                        val isDuplicate = records.value.any { existingRecord ->
+                            existingRecord.exerciseId == exercise.id &&
+                            existingRecord.date == date &&
+                            existingRecord.time == time &&
+                            existingRecord.setNumber == setNumber
+                        }
+
+                        if (isDuplicate) {
+                            errors.add("Line ${index + 2}: Duplicate record (same exercise, date, time, and set number)")
+                            errorCount++
+                            return@forEachIndexed
+                        }
+
+                        // レコード作成
+                        val record = TrainingRecord(
+                            exerciseId = exercise.id,
+                            valueRight = valueRight,
+                            valueLeft = valueLeft,
+                            setNumber = setNumber,
+                            date = date,
+                            time = time,
+                            comment = comment
+                        )
+
+                        recordDao.insertRecord(record)
+                        successCount++
+
+                    } catch (e: Exception) {
+                        errors.add("Line ${index + 2}: ${e.message}")
+                        errorCount++
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    if (errorCount == 0) {
+                        _snackbarMessage.value = getString(R.string.csv_import_success, successCount)
+                    } else {
+                        _snackbarMessage.value = getString(R.string.csv_import_partial, successCount, errorCount)
+                    }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {

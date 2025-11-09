@@ -314,4 +314,14 @@
     <string name="worst_record">最低記録</string>
     <string name="graph_tooltip_bilateral">%1$s: %2$d%3$s</string>
     <string name="graph_tooltip_unilateral_detail">%1$s: 右%2$d%4$s / 左%3$d%4$s</string>
+
+    <!-- CSV Import/Export -->
+    <string name="csv_template_exported">CSVテンプレートをエクスポートしました: %d種目</string>
+    <string name="csv_empty">CSVファイルが空です</string>
+    <string name="csv_import_success">%d件の記録をインポートしました</string>
+    <string name="csv_import_partial">%1$d件インポート完了、%2$d件エラー</string>
+    <string name="export_csv_template">CSVテンプレートをエクスポート</string>
+    <string name="import_csv_records">記録をインポート（CSV）</string>
+    <string name="csv_template_description">記録入力用テンプレートをダウンロード</string>
+    <string name="csv_import_description">CSVファイルから記録を追加</string>
 </resources>

@@ -40,7 +40,7 @@ fun SettingsScreenNew(
     var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
     var isLoading by remember { mutableStateOf(false) }
 
-    // エクスポート用ランチャー
+    // JSONエクスポート用ランチャー
     val exportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/json")
     ) { uri: Uri? ->
@@ -67,13 +67,67 @@ fun SettingsScreenNew(
         }
     }
 
-    // インポート用ランチャー
+    // JSONインポート用ランチャー
     val importLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         uri?.let {
             pendingImportUri = uri
             showImportWarning = true
+        }
+    }
+
+    // CSVテンプレートエクスポート用ランチャー
+    val csvExportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/csv")
+    ) { uri: Uri? ->
+        uri?.let {
+            scope.launch {
+                isLoading = true
+                try {
+                    withContext(Dispatchers.IO) {
+                        val csvData = viewModel.exportRecordTemplate()
+
+                        context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                            outputStream.write(csvData.toByteArray())
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        // ViewModelでエラーメッセージが設定される
+                    }
+                } finally {
+                    isLoading = false
+                }
+            }
+        }
+    }
+
+    // CSVインポート用ランチャー
+    val csvImportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        uri?.let {
+            scope.launch {
+                isLoading = true
+                try {
+                    withContext(Dispatchers.IO) {
+                        val csvData = context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                            inputStream.readBytes().decodeToString()
+                        } ?: ""
+
+                        if (csvData.isNotEmpty()) {
+                            viewModel.importRecordsFromCsv(csvData)
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        // ViewModelでエラーメッセージが設定される
+                    }
+                } finally {
+                    isLoading = false
+                }
+            }
         }
     }
 
@@ -138,7 +192,7 @@ fun SettingsScreenNew(
                         if (!isLoading) {
                             val dateTime = LocalDateTime.now()
                             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm")
-                            val fileName = "bodyweight_trainer_backup_${dateTime.format(formatter)}.json"
+                            val fileName = "calisthenics_memory_backup_${dateTime.format(formatter)}.json"
                             exportLauncher.launch(fileName)
                         }
                     }
@@ -215,7 +269,7 @@ fun SettingsScreenNew(
                 }
             }
 
-            // 注意書き
+            // 注意書き（JSONインポート用）
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -247,6 +301,95 @@ fun SettingsScreenNew(
                                 fontSize = 14.sp,
                                 color = Slate300,
                                 lineHeight = 20.sp
+                            )
+                        }
+                    }
+                }
+            }
+
+            // CSVテンプレートエクスポートボタン
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Slate800
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    onClick = {
+                        if (!isLoading) {
+                            val dateTime = LocalDateTime.now()
+                            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm")
+                            val fileName = "calisthenics_memory_template_${dateTime.format(formatter)}.csv"
+                            csvExportLauncher.launch(fileName)
+                        }
+                    }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "📋",
+                            fontSize = 32.sp
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.export_csv_template),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = stringResource(R.string.csv_template_description),
+                                fontSize = 14.sp,
+                                color = Slate400,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            // CSVインポートボタン
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Slate800
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    onClick = {
+                        if (!isLoading) {
+                            csvImportLauncher.launch(arrayOf("text/csv", "text/comma-separated-values"))
+                        }
+                    }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "📊",
+                            fontSize = 32.sp
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.import_csv_records),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = stringResource(R.string.csv_import_description),
+                                fontSize = 14.sp,
+                                color = Slate400,
+                                modifier = Modifier.padding(top = 4.dp)
                             )
                         }
                     }
