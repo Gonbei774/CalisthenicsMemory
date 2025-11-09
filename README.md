@@ -111,7 +111,7 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 
 **左**: 種目とグループを階層表示。レベル（1〜10）で段階的に管理
 **中央**: 種目作成画面。タイプ（回数/時間）、左右、課題を柔軟に設定
-**右**: データ管理画面。JSON形式でバックアップ・復元が可能
+**右**: データ管理画面。JSON形式でバックアップ・復元、CSV形式で記録インポートが可能
 
 ---
 
@@ -142,6 +142,7 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 ### バックアップ
 - JSON形式でデータをエクスポート
 - 別の端末へのデータ移行やバックアップに対応
+- CSV形式で記録をインポート（アナログ記録やメモアプリからの移行に便利）
 
 ### 多言語対応
 - 日本語・英語に対応
@@ -193,9 +194,16 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 ### 5. データをバックアップする
 「設定」画面からデータをエクスポート・インポートできます：
 
+**完全バックアップ（JSON）**
 - **エクスポート**: 「データをエクスポート」→ 保存先を選択
 - **インポート**: 「データをインポート」→ JSONファイルを選択
   - ⚠️ インポートすると既存データは削除されます
+
+**記録の追加（CSV）**
+- **テンプレートをダウンロード**: 「Export Input Template」で記録用CSVテンプレートを取得
+- **記録をインポート**: 「Import Records」でCSVファイルから記録を追加
+  - 既存データに追加されます（削除されません）
+  - アナログ記録やメモアプリからの移行に便利
 
 ---
 
@@ -297,7 +305,9 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 
 最新版は[Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases)からダウンロードできます。
 
-**[📦 v1.0.0をダウンロード](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.0.0/CalisthenicsMemory-v1.0.0.apk)**
+**[📦 v1.1.0をダウンロード](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.1.0/CalisthenicsMemory-v1.1.0.apk)**
+
+過去のバージョンが必要な場合は[Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases)ページからダウンロードできます。
 
 ### ⚠️ 免責事項
 
@@ -316,10 +326,10 @@ APKの改ざんがないか確認したい場合は、SHA256チェックサム�
 
 ```bash
 # ダウンロードしたAPKのSHA256を計算
-sha256sum CalisthenicsMemory-v1.0.0.apk
+sha256sum CalisthenicsMemory-v1.1.0.apk
 
 # 公式のSHA256と比較
-# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.0.0/CalisthenicsMemory-v1.0.0.apk.sha256
+# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.1.0/CalisthenicsMemory-v1.1.0.apk.sha256
 ```
 
 ---
@@ -363,4 +373,4 @@ cd CalisthenicsMemory
 
 ---
 
-**最終更新**: 2025年11月8日
+**最終更新**: 2025年11月9日
