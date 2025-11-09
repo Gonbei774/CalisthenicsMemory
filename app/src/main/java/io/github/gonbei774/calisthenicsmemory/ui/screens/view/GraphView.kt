@@ -127,7 +127,7 @@ fun GraphView(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // グラフタイプ選択
         item {
@@ -138,32 +138,24 @@ fun GraphView(
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = stringResource(R.string.display_data),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        GraphType.values().forEach { type ->
-                            FilterChip(
-                                selected = selectedGraphType == type,
-                                onClick = { selectedGraphType = type },
-                                label = { Text(stringResource(type.displayNameResId)) },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = Purple600,
-                                    selectedLabelColor = Color.White,
-                                    containerColor = Slate700,
-                                    labelColor = Slate300
-                                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    GraphType.values().forEach { type ->
+                        FilterChip(
+                            selected = selectedGraphType == type,
+                            onClick = { selectedGraphType = type },
+                            label = { Text(stringResource(type.displayNameResId)) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Purple600,
+                                selectedLabelColor = Color.White,
+                                containerColor = Slate700,
+                                labelColor = Slate300
                             )
-                        }
+                        )
                     }
                 }
             }
@@ -384,8 +376,8 @@ fun SimpleLineChart(
         val range = (maxValue - minValue).coerceAtLeast(1f)
 
         val leftPadding = 50.dp.toPx()
-        val bottomPadding = 40.dp.toPx()
-        val topPadding = 20.dp.toPx()
+        val bottomPadding = 16.dp.toPx()
+        val topPadding = 32.dp.toPx()
         val rightPadding = 30.dp.toPx()
 
         val graphWidth = size.width - leftPadding - rightPadding
@@ -578,16 +570,16 @@ fun SimpleLineChart(
 fun calculateYAxisLabels(min: Float, max: Float): List<Float> {
     val range = max
     val interval = when {
-        range < 10 -> 2f
-        range < 50 -> 10f
-        range < 100 -> 20f
-        else -> 50f
+        range < 10 -> 1f
+        range < 50 -> 5f
+        range < 100 -> 10f
+        else -> 25f
     }
 
     val adjustedMax = ((max / interval).toInt() + 1) * interval
 
-    return (0..4).map { i ->
-        (adjustedMax * i / 4).toFloat()
+    return (0..9).map { i ->
+        (adjustedMax * i / 9).toFloat()
     }
 }
 

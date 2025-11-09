@@ -163,7 +163,7 @@
     <string name="import_data">データをインポート</string>
     <string name="restore_from_backup">バックアップから復元</string>
     <string name="warning_title">注意</string>
-    <string name="import_warning">インポートすると既存のデータは全て削除されます。</string>
+    <string name="import_warning">インポート時に既存データは全削除されます。</string>
     <string name="data_overwrite_title">⚠️ データの上書き</string>
     <string name="existing_data_will_be_deleted">既存のデータは全て削除されます。</string>
     <string name="cannot_undo">インポート後は元に戻せません。</string>
@@ -320,14 +320,14 @@
     <string name="csv_empty">CSVファイルが空です</string>
     <string name="csv_import_success">%d件の記録をインポートしました</string>
     <string name="csv_import_partial">%1$d件インポート完了、%2$d件エラー</string>
-    <string name="export_csv_template">入力用テンプレートをエクスポート</string>
+    <string name="export_csv_template">種目リストをエクスポート</string>
     <string name="import_csv_records">記録をインポート</string>
     <string name="csv_template_description">記録入力用テンプレートをダウンロード</string>
-    <string name="csv_import_description">CSVファイルから記録を追加</string>
+    <string name="csv_import_description">CSVから記録を追加</string>
 
     <!-- Settings Screen Sections -->
     <string name="section_full_backup">完全バックアップ (JSON)</string>
-    <string name="section_full_backup_description">すべてのデータ（種目・記録・グループ）を保存・復元します。\n端末の機種変更時に使用。</string>
+    <string name="section_full_backup_description">全データの保存・復元。端末移行時に使用。</string>
     <string name="section_add_records">記録の追加 (CSV)</string>
-    <string name="section_add_records_description">既存のデータに記録を追加します。\nアナログ記録や他アプリからのデータ移行に使用。</string>
+    <string name="section_add_records_description">既存データに記録を追加。他アプリからの移行に使用。</string>
 </resources>
