@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -353,6 +354,21 @@ fun ExerciseItemCompact(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     modifier = Modifier.padding(top = 4.dp)
                 ) {
+                    // お気に入りバッジ
+                    if (exercise.isFavorite) {
+                        Surface(
+                            color = Color(0xFFFFD700).copy(alpha = 0.3f),
+                            shape = RoundedCornerShape(4.dp)
+                        ) {
+                            Text(
+                                text = "★",
+                                fontSize = 11.sp,
+                                color = Color(0xFFFFD700),
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+
                     // レベルバッジ（課題設定がある場合のみ）
                     if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
                         Surface(
@@ -456,6 +472,9 @@ fun UnifiedAddDialog(
     var newGroupName by remember { mutableStateOf("") }
     var isCreatingNewGroup by remember { mutableStateOf(false) }
 
+    // お気に入り状態（ローカル管理でリアルタイム反映）
+    var isFavorite by remember { mutableStateOf(exercise?.isFavorite ?: false) }
+
     // 課題設定用の状態
     var hasTarget by remember { mutableStateOf(exercise?.targetSets != null && exercise.targetValue != null) }
     var targetSets by remember { mutableStateOf(exercise?.targetSets?.toString() ?: "") }
@@ -490,15 +509,41 @@ fun UnifiedAddDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(
-                stringResource(
-                    when {
-                        exercise != null -> R.string.edit_exercise_title
-                        creationType == "group" -> R.string.create_group_title
-                        else -> R.string.add_exercise_title
-                    }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(
+                        when {
+                            exercise != null -> R.string.edit_exercise_title
+                            creationType == "group" -> R.string.create_group_title
+                            else -> R.string.add_exercise_title
+                        }
+                    ),
+                    modifier = Modifier.weight(1f)
                 )
-            )
+
+                // 星ボタン（種目作成・編集時に表示、グループ作成時は非表示）
+                if (creationType == "exercise") {
+                    IconButton(
+                        onClick = {
+                            isFavorite = !isFavorite
+                        }
+                    ) {
+                        Icon(
+                            imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                            contentDescription = if (isFavorite) {
+                                stringResource(R.string.remove_from_favorites)
+                            } else {
+                                stringResource(R.string.add_to_favorites)
+                            },
+                            tint = if (isFavorite) Color(0xFFFFD700) else Slate400
+                        )
+                    }
+                }
+            }
         },
         text = {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -804,7 +849,8 @@ fun UnifiedAddDialog(
                                     group = finalGroup,
                                     sortOrder = finalSortOrder,
                                     targetSets = finalTargetSets,
-                                    targetValue = finalTargetValue
+                                    targetValue = finalTargetValue,
+                                    isFavorite = isFavorite
                                 )
                             )
                             onDismiss()
@@ -829,7 +875,8 @@ fun UnifiedAddDialog(
                                 finalSortOrder,
                                 selectedLaterality,
                                 finalTargetSets,
-                                finalTargetValue
+                                finalTargetValue,
+                                isFavorite
                             )
                             onDismiss()
                         }

@@ -330,4 +330,9 @@
     <string name="section_full_backup_description">全データの保存・復元。端末移行時に使用。</string>
     <string name="section_add_records">記録の追加 (CSV)</string>
     <string name="section_add_records_description">既存データに記録を追加。他アプリからの移行に使用。</string>
+
+    <!-- Favorites -->
+    <string name="favorite">お気に入り</string>
+    <string name="add_to_favorites">お気に入りに追加</string>
+    <string name="remove_from_favorites">お気に入りから削除</string>
 </resources>

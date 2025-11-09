@@ -642,7 +642,7 @@ fun FilterBottomSheetContent(
             // 全て表示
             if (searchQuery.isEmpty()) {
                 item {
-                    FilterExerciseItem(
+                    FilterTextItem(
                         text = stringResource(R.string.show_all),
                         isSelected = selectedExercise == null,
                         onClick = onClearFilter
@@ -716,7 +716,7 @@ fun FilterBottomSheetContent(
                         group.exercises.forEach { exercise ->
                             item {
                                 FilterExerciseItem(
-                                    text = exercise.name,
+                                    exercise = exercise,
                                     isSelected = selectedExercise?.id == exercise.id,
                                     onClick = { onExerciseSelected(exercise) },
                                     modifier = Modifier.padding(start = 16.dp)
@@ -734,8 +734,116 @@ fun FilterBottomSheetContent(
     }
 }
 
+// Exerciseオブジェクト版（バッジ付き）
 @Composable
 fun FilterExerciseItem(
+    exercise: Exercise,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        onClick = onClick,
+        color = if (isSelected) Purple600.copy(alpha = 0.2f) else Color.Transparent,
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = exercise.name,
+                    fontSize = 16.sp,
+                    color = if (isSelected) Purple600 else Color.White,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                )
+
+                // バッジ行
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.padding(top = 4.dp)
+                ) {
+                    // お気に入りバッジ
+                    if (exercise.isFavorite) {
+                        Surface(
+                            color = Color(0xFFFFD700).copy(alpha = 0.3f),
+                            shape = RoundedCornerShape(4.dp)
+                        ) {
+                            Text(
+                                text = "★",
+                                fontSize = 11.sp,
+                                color = Color(0xFFFFD700),
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+
+                    // レベルバッジ
+                    if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
+                        Surface(
+                            color = Blue600.copy(alpha = 0.3f),
+                            shape = RoundedCornerShape(4.dp)
+                        ) {
+                            Text(
+                                text = "Lv.${exercise.sortOrder}",
+                                fontSize = 11.sp,
+                                color = Color.White,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+
+                    // タイプバッジ
+                    Surface(
+                        color = Slate600.copy(alpha = 0.3f),
+                        shape = RoundedCornerShape(4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
+                            fontSize = 11.sp,
+                            color = Color.White,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+
+                    // Unilateralバッジ
+                    if (exercise.laterality == "Unilateral") {
+                        Surface(
+                            color = Purple600.copy(alpha = 0.3f),
+                            shape = RoundedCornerShape(4.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.one_sided),
+                                fontSize = 11.sp,
+                                color = Color.White,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (isSelected) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null,
+                    tint = Purple600
+                )
+            }
+        }
+    }
+}
+
+// テキストのみ版（"全て表示"など用）
+@Composable
+fun FilterTextItem(
     text: String,
     isSelected: Boolean,
     onClick: () -> Unit,

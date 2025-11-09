@@ -388,6 +388,21 @@ fun WorkoutExerciseItem(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier.padding(top = 4.dp)
             ) {
+                // お気に入りバッジ
+                if (exercise.isFavorite) {
+                    Surface(
+                        color = Color(0xFFFFD700).copy(alpha = 0.3f),
+                        shape = RoundedCornerShape(4.dp)
+                    ) {
+                        Text(
+                            text = "★",
+                            fontSize = 11.sp,
+                            color = Color(0xFFFFD700),
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                        )
+                    }
+                }
+
                 // レベルバッジ
                 if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
                     Surface(

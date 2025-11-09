@@ -50,7 +50,8 @@ data class ExportExercise(
     val sortOrder: Int,
     val laterality: String,
     val targetSets: Int? = null,
-    val targetValue: Int? = null
+    val targetValue: Int? = null,
+    val isFavorite: Boolean = false  // お気に入り（デフォルト値で後方互換）
 )
 
 @Serializable
@@ -117,7 +118,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         sortOrder: Int = 0,
         laterality: String = "Bilateral",
         targetSets: Int? = null,
-        targetValue: Int? = null
+        targetValue: Int? = null,
+        isFavorite: Boolean = false
     ) {
         viewModelScope.launch {
             try {
@@ -139,7 +141,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     sortOrder = sortOrder,
                     laterality = laterality,
                     targetSets = targetSets,
-                    targetValue = targetValue
+                    targetValue = targetValue,
+                    isFavorite = isFavorite
                 )
                 exerciseDao.insertExercise(exercise)
                 _snackbarMessage.value = getString(R.string.exercise_added)
@@ -182,6 +185,20 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             try {
                 exerciseDao.deleteExercise(exercise)
                 _snackbarMessage.value = getString(R.string.exercise_deleted)
+            } catch (e: Exception) {
+                _snackbarMessage.value = getString(R.string.error_occurred)
+            }
+        }
+    }
+
+    fun toggleFavorite(exerciseId: Long) {
+        viewModelScope.launch {
+            try {
+                val exercise = exercises.value.find { it.id == exerciseId }
+                exercise?.let {
+                    val updated = it.copy(isFavorite = !it.isFavorite)
+                    exerciseDao.updateExercise(updated)
+                }
             } catch (e: Exception) {
                 _snackbarMessage.value = getString(R.string.error_occurred)
             }
@@ -364,6 +381,16 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         exercises: List<Exercise>,
         expandedGroups: Set<String>
     ): List<GroupWithExercises> {
+        // 0. お気に入りグループ（先頭に追加、0件でも表示）
+        val favoriteExercises = exercises.filter { it.isFavorite }.sortedBy { it.name }
+        val favoriteGroup = listOf(
+            GroupWithExercises(
+                groupName = "お気に入り",  // 固定グループ名
+                exercises = favoriteExercises,
+                isExpanded = "お気に入り" in expandedGroups
+            )
+        )
+
         // 1. groupsテーブルを基準にグループを表示（0件でも表示）
         val groupedExercises = groups.map { group ->
             val groupExercises = exercises.filter { it.group == group.name }
@@ -388,7 +415,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             emptyList()
         }
 
-        return groupedExercises + ungroupedGroup
+        // お気に入りグループを先頭に配置
+        return favoriteGroup + groupedExercises + ungroupedGroup
     }
 
     // ========================================
@@ -420,7 +448,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     sortOrder = exercise.sortOrder,
                     laterality = exercise.laterality,
                     targetSets = exercise.targetSets,
-                    targetValue = exercise.targetValue
+                    targetValue = exercise.targetValue,
+                    isFavorite = exercise.isFavorite
                 )
             }
 
@@ -438,7 +467,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             }
 
             val backupData = BackupData(
-                version = 1,
+                version = 2,  // お気に入り機能追加のためバージョンアップ
                 exportDate = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 app = "CalisthenicsMemory",
                 groups = exportGroups,
@@ -450,7 +479,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 _snackbarMessage.value = getString(R.string.export_complete, exportGroups.size, exportExercises.size, exportRecords.size)
             }
 
-            Json.encodeToString(backupData)
+            val json = Json { ignoreUnknownKeys = true }
+            json.encodeToString(backupData)
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
                 _snackbarMessage.value = getString(R.string.export_error, e.message ?: "")
@@ -465,7 +495,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     suspend fun importData(jsonString: String) {
         withContext(Dispatchers.IO) {
             try {
-                val backupData = Json.decodeFromString<BackupData>(jsonString)
+                val json = Json { ignoreUnknownKeys = true }
+                val backupData = json.decodeFromString<BackupData>(jsonString)
 
                 // 1. 既存データを全削除
                 database.clearAllTables()
@@ -489,7 +520,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         sortOrder = exportExercise.sortOrder,
                         laterality = exportExercise.laterality,
                         targetSets = exportExercise.targetSets,
-                        targetValue = exportExercise.targetValue
+                        targetValue = exportExercise.targetValue,
+                        isFavorite = exportExercise.isFavorite
                     )
                     exerciseDao.insertExercise(exercise)
                 }

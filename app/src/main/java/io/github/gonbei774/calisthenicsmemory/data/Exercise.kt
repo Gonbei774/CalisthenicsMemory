@@ -17,5 +17,6 @@ data class Exercise(
     val sortOrder: Int = 0,              // レベル（0〜10、0はグループなし時のデフォルト）
     val laterality: String = "Bilateral", // "Bilateral" or "Unilateral"（デフォルト: Bilateral）
     val targetSets: Int? = null,         // 目標セット数（任意）
-    val targetValue: Int? = null         // 目標値（回数or秒数、任意）
+    val targetValue: Int? = null,        // 目標値（回数or秒数、任意）
+    val isFavorite: Boolean = false      // お気に入り登録（デフォルト: false）
 )

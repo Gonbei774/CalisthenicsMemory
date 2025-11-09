@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [Exercise::class, TrainingRecord::class, ExerciseGroup::class],
-    version = 8,  // ← 変更: 7 → 8（インポート時のautoincrement修正）
+    version = 9,  // ← 変更: 8 → 9（Exercise.isFavorite追加）
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
