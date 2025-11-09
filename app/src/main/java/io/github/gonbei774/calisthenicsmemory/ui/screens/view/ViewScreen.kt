@@ -765,67 +765,48 @@ fun FilterExerciseItem(
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                 )
 
-                // バッジ行
+                // バッジ行（テキストのみ、スペース区切り）
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(top = 4.dp)
                 ) {
-                    // お気に入りバッジ
+                    // お気に入り
                     if (exercise.isFavorite) {
-                        Surface(
-                            color = Color(0xFFFFD700).copy(alpha = 0.3f),
-                            shape = RoundedCornerShape(4.dp)
-                        ) {
-                            Text(
-                                text = "★",
-                                fontSize = 11.sp,
-                                color = Color(0xFFFFD700),
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                            )
-                        }
-                    }
-
-                    // レベルバッジ
-                    if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
-                        Surface(
-                            color = Blue600.copy(alpha = 0.3f),
-                            shape = RoundedCornerShape(4.dp)
-                        ) {
-                            Text(
-                                text = "Lv.${exercise.sortOrder}",
-                                fontSize = 11.sp,
-                                color = Color.White,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                            )
-                        }
-                    }
-
-                    // タイプバッジ
-                    Surface(
-                        color = Slate600.copy(alpha = 0.3f),
-                        shape = RoundedCornerShape(4.dp)
-                    ) {
                         Text(
-                            text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
-                            fontSize = 11.sp,
-                            color = Color.White,
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            text = "★",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFFD700)
                         )
                     }
 
-                    // Unilateralバッジ
+                    // レベル
+                    if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
+                        Text(
+                            text = "Lv.${exercise.sortOrder}",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Blue600
+                        )
+                    }
+
+                    // タイプ
+                    Text(
+                        text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Slate400
+                    )
+
+                    // Unilateral
                     if (exercise.laterality == "Unilateral") {
-                        Surface(
-                            color = Purple600.copy(alpha = 0.3f),
-                            shape = RoundedCornerShape(4.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.one_sided),
-                                fontSize = 11.sp,
-                                color = Color.White,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                            )
-                        }
+                        Text(
+                            text = stringResource(R.string.one_sided),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Purple600
+                        )
                     }
                 }
             }
@@ -1051,20 +1032,14 @@ fun ChallengeExerciseCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // レベルバッジ（左側）
+                // レベル（左側）
                 if (exercise.sortOrder > 0) {
-                    Surface(
-                        color = Blue600.copy(alpha = 0.3f),
-                        shape = RoundedCornerShape(4.dp)
-                    ) {
-                        Text(
-                            text = "Lv.${exercise.sortOrder}",
-                            fontSize = 12.sp,
-                            color = Color.White,
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Text(
+                        text = "Lv.${exercise.sortOrder}",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Blue600
+                    )
                 }
 
                 // 種目名

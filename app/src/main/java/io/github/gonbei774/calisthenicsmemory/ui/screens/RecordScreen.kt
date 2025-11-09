@@ -373,64 +373,45 @@ fun ExerciseSelectionItem(
 
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(top = 4.dp)
                 ) {
-                    // お気に入りバッジ
+                    // お気に入り
                     if (exercise.isFavorite) {
-                        Surface(
-                            color = Color(0xFFFFD700).copy(alpha = 0.3f),
-                            shape = RoundedCornerShape(4.dp)
-                        ) {
-                            Text(
-                                text = "★",
-                                fontSize = 11.sp,
-                                color = Color(0xFFFFD700),
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
-                            )
-                        }
-                    }
-
-                    // レベルバッジ（課題設定がある場合のみ）
-                    if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
-                        Surface(
-                            color = Blue600.copy(alpha = 0.3f),
-                            shape = RoundedCornerShape(4.dp)
-                        ) {
-                            Text(
-                                text = "Lv.${exercise.sortOrder}",
-                                fontSize = 11.sp,
-                                color = Color.White,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
-                            )
-                        }
-                    }
-
-                    // タイプバッジ（回数制/時間制）
-                    Surface(
-                        color = Slate600.copy(alpha = 0.3f),
-                        shape = RoundedCornerShape(4.dp)
-                    ) {
                         Text(
-                            text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
-                            fontSize = 11.sp,
-                            color = Color.White,
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                            text = "★",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFFD700)
                         )
                     }
 
-                    // Unilateralバッジ
+                    // レベル（課題設定がある場合のみ）
+                    if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
+                        Text(
+                            text = "Lv.${exercise.sortOrder}",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Blue600
+                        )
+                    }
+
+                    // タイプ（回数制/時間制）
+                    Text(
+                        text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Slate400
+                    )
+
+                    // Unilateral
                     if (exercise.laterality == "Unilateral") {
-                        Surface(
-                            color = Purple600.copy(alpha = 0.3f),
-                            shape = RoundedCornerShape(4.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.one_sided),
-                                fontSize = 11.sp,
-                                color = Color.White,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
-                            )
-                        }
+                        Text(
+                            text = stringResource(R.string.one_sided),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Purple600
+                        )
                     }
                 }
 
@@ -449,6 +430,7 @@ fun ExerciseSelectionItem(
                                 stringResource(if (exercise.type == "Dynamic") R.string.unit_reps else R.string.unit_seconds)
                             ),
                             fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
                             color = Green400
                         )
                     }
