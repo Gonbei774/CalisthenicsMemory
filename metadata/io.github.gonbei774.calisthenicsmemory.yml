@@ -8,6 +8,7 @@ IssueTracker: https://github.com/Gonbei774/CalisthenicsMemory/issues
 Changelog: https://github.com/Gonbei774/CalisthenicsMemory/releases
 
 AutoName: Calisthenics Memory
+Summary: Simple bodyweight training tracker
 
 RepoType: git
 Repo: https://github.com/Gonbei774/CalisthenicsMemory.git
@@ -18,8 +19,14 @@ Builds:
     commit: v1.2.0
     subdir: app
     gradle:
-      - yes
-    prebuild: sed -i -e '/signingConfig/d' -e '/keystore/d' build.gradle.kts
+      - release
+    prebuild: |
+      sed -i '/^import java.util.Properties$/d' build.gradle.kts
+      sed -i '/^import java.io.FileInputStream$/d' build.gradle.kts
+      sed -i '/\/\/ Keystore設定を読み込み/,/^    }$/{/\/\/ Keystore設定を読み込み/,/^    }$/d}' build.gradle.kts
+      sed -i '/\/\/ 署名設定/,/^    }$/{/\/\/ 署名設定/,/^    }$/d}' build.gradle.kts
+      sed -i '/\/\/ リリースビルド時に署名を適用/d' build.gradle.kts
+      sed -i '/signingConfig = signingConfigs/d' build.gradle.kts
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
