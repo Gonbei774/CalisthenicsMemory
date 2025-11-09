@@ -2,33 +2,6 @@
 
 自重トレーニング記録アプリ - 自分の体重だけで行うトレーニングを記録・管理
 
-## インストール
-
-### 📥 APKダウンロード
-
-最新版は[Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases)からダウンロードできます。
-
-**[📦 v1.0.0をダウンロード](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.0.0/CalisthenicsMemory-v1.0.0.apk)**
-
-#### インストール手順
-
-1. 上記リンクからAPKファイルをダウンロード
-2. ダウンロードしたファイルをタップ
-3. 「提供元不明のアプリ」の許可を求められた場合は許可
-4. インストール完了
-
-#### セキュリティ確認
-
-APKの改ざんがないか確認したい場合は、SHA256チェックサムを検証してください：
-
-```bash
-# ダウンロードしたAPKのSHA256を計算
-sha256sum CalisthenicsMemory-v1.0.0.apk
-
-# 公式のSHA256と比較
-# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.0.0/CalisthenicsMemory-v1.0.0.apk.sha256
-```
-
 ---
 
 ## このアプリについて
@@ -315,6 +288,39 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 ## ライセンス
 
 このアプリはGNU General Public License v3.0の下で公開されています。詳細は[LICENSE](LICENSE)ファイルをご覧ください。
+
+---
+
+## インストール
+
+### 📥 APKダウンロード
+
+最新版は[Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases)からダウンロードできます。
+
+**[📦 v1.0.0をダウンロード](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.0.0/CalisthenicsMemory-v1.0.0.apk)**
+
+### ⚠️ 免責事項
+
+このアプリは無保証で提供されます。GPL-3.0ライセンスの下、現状有姿（AS IS）で配布されており、商品性や特定目的適合性について一切保証しません。使用に起因するいかなる損害についても責任を負いかねます。
+
+### インストール手順
+
+1. 上記リンクからAPKファイルをダウンロード
+2. ダウンロードしたファイルをタップ
+3. 「提供元不明のアプリ」の許可を求められた場合は許可
+4. インストール完了
+
+### セキュリティ確認
+
+APKの改ざんがないか確認したい場合は、SHA256チェックサムを検証してください：
+
+```bash
+# ダウンロードしたAPKのSHA256を計算
+sha256sum CalisthenicsMemory-v1.0.0.apk
+
+# 公式のSHA256と比較
+# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.0.0/CalisthenicsMemory-v1.0.0.apk.sha256
+```
 
 ---
 
