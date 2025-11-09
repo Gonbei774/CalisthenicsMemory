@@ -10,6 +10,7 @@ Complete Customization
 • Choose rep-based or time-based tracking
 • Set 10-level progressions to match your method
 • Support for unilateral (one-sided) exercises
+• Favorite exercises for quick access with star icon (★)
 
 Two Training Modes
 • Record Mode: Quickly log your workouts after training
