@@ -86,7 +86,7 @@
     <string name="left_value">Left (%s)</string>
     <string name="left_value_short">L: %1$d%2$s</string>
     <string name="set_number_format">Set %d</string>
-    <string name="set_number_with_unit">Set %d (%s)</string>
+    <string name="set_number_with_unit" formatted="false">Set %d (%s)</string>
     <string name="date_format">Date: %s</string>
     <string name="time_format">Time: %s</string>
     <string name="record_button">Record</string>
@@ -319,8 +319,14 @@
     <string name="csv_empty">CSV file is empty</string>
     <string name="csv_import_success">Successfully imported %d records</string>
     <string name="csv_import_partial">Imported %1$d records, %2$d errors occurred</string>
-    <string name="export_csv_template">Export CSV Template</string>
-    <string name="import_csv_records">Import Records (CSV)</string>
+    <string name="export_csv_template">Export Input Template</string>
+    <string name="import_csv_records">Import Records</string>
     <string name="csv_template_description">Download template for recording</string>
     <string name="csv_import_description">Add records from CSV file</string>
+
+    <!-- Settings Screen Sections -->
+    <string name="section_full_backup">Complete Backup (JSON)</string>
+    <string name="section_full_backup_description">Save and restore all data (exercises, records, groups).\nUse when changing devices.</string>
+    <string name="section_add_records">Add Records (CSV)</string>
+    <string name="section_add_records_description">Add records to existing data.\nUse for importing analog records or data from other apps.</string>
 </resources>

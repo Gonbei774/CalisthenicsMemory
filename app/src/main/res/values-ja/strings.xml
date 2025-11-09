@@ -86,7 +86,7 @@
     <string name="left_value">左 (%s)</string>
     <string name="left_value_short">左: %1$d%2$s</string>
     <string name="set_number_format">%dセット目</string>
-    <string name="set_number_with_unit">%dセット目 (%s)</string>
+    <string name="set_number_with_unit" formatted="false">%dセット目 (%s)</string>
     <string name="date_format">日付: %s</string>
     <string name="time_format">時刻: %s</string>
     <string name="record_button">記録する</string>
@@ -320,8 +320,14 @@
     <string name="csv_empty">CSVファイルが空です</string>
     <string name="csv_import_success">%d件の記録をインポートしました</string>
     <string name="csv_import_partial">%1$d件インポート完了、%2$d件エラー</string>
-    <string name="export_csv_template">CSVテンプレートをエクスポート</string>
-    <string name="import_csv_records">記録をインポート（CSV）</string>
+    <string name="export_csv_template">入力用テンプレートをエクスポート</string>
+    <string name="import_csv_records">記録をインポート</string>
     <string name="csv_template_description">記録入力用テンプレートをダウンロード</string>
     <string name="csv_import_description">CSVファイルから記録を追加</string>
+
+    <!-- Settings Screen Sections -->
+    <string name="section_full_backup">完全バックアップ (JSON)</string>
+    <string name="section_full_backup_description">すべてのデータ（種目・記録・グループ）を保存・復元します。\n端末の機種変更時に使用。</string>
+    <string name="section_add_records">記録の追加 (CSV)</string>
+    <string name="section_add_records_description">既存のデータに記録を追加します。\nアナログ記録や他アプリからのデータ移行に使用。</string>
 </resources>

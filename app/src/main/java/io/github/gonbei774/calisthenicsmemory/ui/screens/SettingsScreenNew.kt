@@ -169,7 +169,7 @@ fun SettingsScreenNew(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // セクションタイトル
+            // メインタイトル
             item {
                 Text(
                     text = stringResource(R.string.data_management),
@@ -178,6 +178,33 @@ fun SettingsScreenNew(
                     color = Color.White,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
+            }
+
+            // ========================================
+            // セクション1: 完全バックアップ (JSON)
+            // ========================================
+
+            // セクションタイトルと説明
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.section_full_backup),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.section_full_backup_description),
+                        fontSize = 14.sp,
+                        color = Slate400,
+                        lineHeight = 20.sp
+                    )
+                }
             }
 
             // エクスポートボタン
@@ -304,6 +331,33 @@ fun SettingsScreenNew(
                             )
                         }
                     }
+                }
+            }
+
+            // ========================================
+            // セクション2: 記録の追加 (CSV)
+            // ========================================
+
+            // セクションタイトルと説明
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.section_add_records),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.section_add_records_description),
+                        fontSize = 14.sp,
+                        color = Slate400,
+                        lineHeight = 20.sp
+                    )
                 }
             }
 

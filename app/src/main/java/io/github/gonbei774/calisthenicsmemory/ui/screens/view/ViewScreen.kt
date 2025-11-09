@@ -10,9 +10,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -702,7 +702,7 @@ fun FilterBottomSheetContent(
                                     imageVector = if (expandedGroups.contains(group.groupName)) {
                                         Icons.Default.KeyboardArrowDown
                                     } else {
-                                        Icons.Default.KeyboardArrowRight
+                                        Icons.AutoMirrored.Filled.KeyboardArrowRight
                                     },
                                     contentDescription = null,
                                     tint = Slate400
