@@ -501,14 +501,14 @@ fun SimpleLineChart(
                 val y = topPadding + graphHeight - ((point.value - minValue) / range * graphHeight)
 
                 drawCircle(
-                    color = Color.White,
-                    radius = 8.dp.toPx(),
+                    color = Color.White.copy(alpha = 0.4f),
+                    radius = 6.dp.toPx(),
                     center = Offset(x, y)
                 )
 
                 drawCircle(
-                    color = Green400,
-                    radius = 6.dp.toPx(),
+                    color = Green400.copy(alpha = 0.6f),
+                    radius = 4.dp.toPx(),
                     center = Offset(x, y)
                 )
             } catch (e: Exception) {
@@ -528,14 +528,14 @@ fun SimpleLineChart(
                         val y = topPadding + graphHeight - ((leftValue - minValue) / range * graphHeight)
 
                         drawCircle(
-                            color = Color.White,
-                            radius = 8.dp.toPx(),
+                            color = Color.White.copy(alpha = 0.4f),
+                            radius = 6.dp.toPx(),
                             center = Offset(x, y)
                         )
 
                         drawCircle(
-                            color = Purple600,
-                            radius = 6.dp.toPx(),
+                            color = Purple600.copy(alpha = 0.6f),
+                            radius = 4.dp.toPx(),
                             center = Offset(x, y)
                         )
                     } catch (e: Exception) {
