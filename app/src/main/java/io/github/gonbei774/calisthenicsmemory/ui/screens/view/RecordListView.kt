@@ -1,8 +1,6 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens.view
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -57,16 +56,6 @@ fun RecordListView(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // 説明文
-            item {
-                Text(
-                    text = stringResource(R.string.tap_to_edit_hint),
-                    fontSize = 14.sp,
-                    color = Slate400,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-            }
-
             if (sessions.isEmpty()) {
                 item {
                     Box(
@@ -103,7 +92,6 @@ fun RecordListView(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SessionCard(
     session: SessionInfo,
@@ -114,12 +102,7 @@ fun SessionCard(
     onDeleteClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .combinedClickable(
-                onClick = {},
-                onLongClick = onSessionLongPress
-            ),
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = Slate800
         ),
@@ -154,12 +137,21 @@ fun SessionCard(
                     )
                 }
 
-                IconButton(onClick = onDeleteClick) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = stringResource(R.string.delete),
-                        tint = Red600
-                    )
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    IconButton(onClick = onSessionLongPress) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.edit),
+                            tint = Blue600
+                        )
+                    }
+                    IconButton(onClick = onDeleteClick) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = stringResource(R.string.delete),
+                            tint = Red600
+                        )
+                    }
                 }
             }
 

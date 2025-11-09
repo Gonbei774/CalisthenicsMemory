@@ -17,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
@@ -372,83 +373,94 @@ fun WorkoutExerciseItem(
         shape = RoundedCornerShape(8.dp),
         onClick = onClick
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = exercise.name,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(top = 4.dp)
-            ) {
-                // お気に入り
-                if (exercise.isFavorite) {
-                    Text(
-                        text = "★",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFFFFD700)
-                    )
-                }
-
-                // レベル
-                if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
-                    Text(
-                        text = "Lv.${exercise.sortOrder}",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Blue600
-                    )
-                }
-
-                // タイプ
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
-                    fontSize = 12.sp,
+                    text = exercise.name,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Slate400
+                    color = Color.White
                 )
 
-                // Unilateral
-                if (exercise.laterality == "Unilateral") {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 4.dp)
+                ) {
+                    // お気に入り
+                    if (exercise.isFavorite) {
+                        Text(
+                            text = "★",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFFD700)
+                        )
+                    }
+
+                    // レベル
+                    if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
+                        Text(
+                            text = "Lv.${exercise.sortOrder}",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Blue600
+                        )
+                    }
+
+                    // タイプ
                     Text(
-                        text = stringResource(R.string.one_sided_workout),
+                        text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Purple600
+                        color = Slate400
                     )
+
+                    // Unilateral
+                    if (exercise.laterality == "Unilateral") {
+                        Text(
+                            text = stringResource(R.string.one_sided_workout),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Purple600
+                        )
+                    }
+                }
+
+                // 課題情報
+                if (exercise.targetSets != null && exercise.targetValue != null) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.padding(top = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val unit = if (exercise.type == "Dynamic") stringResource(R.string.unit_reps) else stringResource(R.string.unit_seconds)
+                        Text(
+                            text = stringResource(
+                                if (exercise.laterality == "Unilateral") R.string.target_format_unilateral else R.string.target_format,
+                                exercise.targetSets ?: 0,
+                                exercise.targetValue ?: 0,
+                                unit
+                            ),
+                            fontSize = 12.sp,
+                            color = Green400,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
 
-            // 課題情報
-            if (exercise.targetSets != null && exercise.targetValue != null) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier.padding(top = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    val unit = if (exercise.type == "Dynamic") stringResource(R.string.unit_reps) else stringResource(R.string.unit_seconds)
-                    Text(
-                        text = stringResource(
-                            if (exercise.laterality == "Unilateral") R.string.target_format_unilateral else R.string.target_format,
-                            exercise.targetSets ?: 0,
-                            exercise.targetValue ?: 0,
-                            unit
-                        ),
-                        fontSize = 12.sp,
-                        color = Green400,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+            Icon(
+                Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = stringResource(R.string.select),
+                tint = Orange600,
+                modifier = Modifier.rotate(180f)
+            )
         }
     }
 }
@@ -460,8 +472,8 @@ fun SettingsStep(
     onStartWorkout: (WorkoutSession) -> Unit,
     onBack: () -> Unit
 ) {
-    var sets by remember { mutableStateOf("") }
-    var targetValue by remember { mutableStateOf("") }
+    var sets by remember { mutableStateOf(exercise.targetSets?.toString() ?: "") }
+    var targetValue by remember { mutableStateOf(exercise.targetValue?.toString() ?: "") }
     var repDuration by remember { mutableStateOf("5") }
     var startInterval by remember { mutableStateOf("5") }
     var interval by remember { mutableStateOf("240") }

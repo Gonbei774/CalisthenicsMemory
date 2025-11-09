@@ -301,7 +301,7 @@ fun ViewScreen(
                             }
                         },
                         onSessionLongPress = { session ->
-                            showContextMenu = session
+                            showSessionEditDialog = session
                         },
                         onDeleteClick = { session ->
                             showDeleteDialog = session
