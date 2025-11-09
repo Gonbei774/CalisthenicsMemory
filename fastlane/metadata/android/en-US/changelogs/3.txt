@@ -1,0 +1,12 @@
+v1.2.0 - Favorite Feature and UI Improvements
+
+New Features:
+• Favorite exercise feature - mark exercises with star icon (★)
+• Favorites group displayed at top of exercise list
+• Star prefix (★) shown in exercise selection screens
+
+Improvements:
+• Enhanced graph data point visibility
+• Improved workout screen UI consistency
+• Better badge styling for visual consistency
+• Overall UI refinement and polish
