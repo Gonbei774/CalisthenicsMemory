@@ -10,9 +10,10 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 
 ### 特徴
 
-- **自由にカスタマイズ** - 種目を自由に作成、グループで整理、10段階のレベル管理
+- **自由にカスタマイズ** - 種目を自由に作成、グループで整理、10段階のレベル管理、お気に入り登録
 - **シンプル** - 必要な機能だけを厳選、直感的なUI
 - **2つのモード** - スピーディーな記録モードと、タイマー付き自動ガイドのワークアウトモード
+- **プライバシー重視** - 完全オフライン動作、データは端末内のみ
 
 ---
 
@@ -20,98 +21,132 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 
 ### ホーム画面
 <p align="center">
-  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/01_home.png" width="250" alt="ホーム画面">
+  <img src="screenshots/01_home.png" width="250" alt="ホーム画面">
 </p>
 
 シンプルで直感的なホーム画面。4つの主要機能へすぐにアクセスできます。
 
 ---
 
+### ⚙️ 種目管理
+
+<p align="center">
+  <img src="screenshots/02_create_favorites.png" width="250" alt="種目管理（お気に入り）">
+  <img src="screenshots/03_create_edit.png" width="250" alt="種目編集">
+</p>
+
+**左**: お気に入り登録した種目は専用グループで先頭表示。★マークで一目で分かる
+**右**: 種目作成・編集画面。タイプ（回数/時間）、左右、課題、レベルを柔軟に設定
+
+- グループで階層的に整理
+- レベル（1〜10）で段階的に管理
+- お気に入り登録でよく使う種目を素早くアクセス
+
+---
+
 ### 📝 記録機能
 
 <p align="center">
-  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/02_record_unilateral.png" width="250" alt="片側種目の記録">
-  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/03_record_bilateral.png" width="250" alt="両側種目の記録">
+  <img src="screenshots/04_record_select.png" width="250" alt="種目選択">
+  <img src="screenshots/05_record_bilateral.png" width="250" alt="両側種目の記録">
+  <img src="screenshots/06_record_unilateral.png" width="250" alt="片側種目の記録">
 </p>
 
-**左**: 片側種目（ピストルスクワット、ワンアームプッシュアップなど）は左右別々に記録
-**右**: 両側種目（通常のプッシュアップ、スクワットなど）はシンプルに記録
+**左**: 種目選択画面。お気に入りや階層グループで見やすく整理
+**中央**: 両側種目（通常のプッシュアップ、スクワットなど）はシンプルに記録
+**右**: 片側種目（ピストルスクワット、ワンアームプッシュアップなど）は左右別々に記録
 
-セット数を自由に調整でき、日付・時刻・コメントも追加可能です。
+- セット数を自由に調整可能
+- 日付・時刻・コメントも追加可能
+- スピーディーな入力で記録の手間を最小化
 
 ---
 
 ### 🏋️ ワークアウト機能
 
 <p align="center">
-  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/04_workout_select.png" width="250" alt="種目選択">
-  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/05_workout_config.png" width="250" alt="ワークアウト設定">
-  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/06_workout_in_progress.png" width="250" alt="ワークアウト実行中">
+  <img src="screenshots/07_workout_select.png" width="250" alt="種目選択">
+  <img src="screenshots/08_workout_config.png" width="250" alt="ワークアウト設定">
+  <img src="screenshots/09_workout_progress.png" width="250" alt="ワークアウト実行中">
 </p>
 
 自動ガイド付きのワークアウトモード：
 
-1. **種目を選択** - 階層表示で見やすく整理
-2. **設定を調整** - 目標セット数・回数、タイマー、インターバルを設定
+1. **種目を選択** - お気に入りや階層表示で見やすく整理
+2. **設定を調整** - 目標セット数・回数、1レップの時間、カウントダウン、インターバルを設定
 3. **実行** - カウントダウンから実行、インターバルまで自動で進行
 
-トレーニングに集中できるよう、画面を見るだけでペースを管理できます。
+トレーニングに集中できるよう、画面を見るだけでペースを管理できます。途中でスキップや中断も可能で、その時点までの記録を保存できます。
 
 ---
 
 ### 📊 閲覧機能 - 一覧タブ
 
 <p align="center">
-  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/07_view_list.png" width="250" alt="記録一覧">
+  <img src="screenshots/10_view_list.png" width="250" alt="記録一覧">
+  <img src="screenshots/11_view_list_unilateral.png" width="250" alt="片側種目の詳細">
 </p>
 
-過去のトレーニング記録を時系列で確認。各セッションの詳細（日時・セット内容・コメント）が一目で分かります。タップで編集、長押しで削除も可能です。
+**左**: 過去のトレーニング記録を時系列で確認
+**右**: 片側種目は左右の値を色分けして表示（緑=右、紫=左）
+
+- 各セッションの詳細（日時・セット内容・コメント）が一目で分かる
+- タップで編集、削除ボタンで削除可能
+- 期間フィルター（1週間/1ヶ月/3ヶ月/全期間）で絞り込み
 
 ---
 
 ### 📈 閲覧機能 - グラフタブ
 
 <p align="center">
-  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/08_view_graph_average.png" width="250" alt="グラフ（平均）">
-  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/09_view_graph_max.png" width="250" alt="グラフ（最大）">
+  <img src="screenshots/12_view_graph.png" width="250" alt="グラフ（片側種目）">
+  <img src="screenshots/13_view_graph_isometric.png" width="250" alt="グラフ（時間制種目）">
 </p>
 
-**左**: 平均値の推移 - トレーニングの安定性を確認
-**右**: 最大値の推移 - 自己ベストの更新を追跡
+**左**: 片側種目は左右を別々のライン（緑=右、紫=左）で表示
+**右**: 時間制種目（Plank など）も同様にグラフ化。合計値表示で総トレーニング時間を確認
 
-期間フィルター（1週間/1ヶ月/3ヶ月/全期間）で見たい範囲を絞り込めます。統計サマリーで総セット数、平均、ベスト、週間変化も確認できます。
+- 統計タイプ切り替え（平均/最大/合計）で多角的に分析
+- 期間フィルター（1週間/1ヶ月/3ヶ月/全期間）
+- 統計サマリーで総セット数、平均、ベスト、最低値を表示
 
 ---
 
 ### 🎯 閲覧機能 - 課題タブ
 
 <p align="center">
-  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/10_view_challenge_filtered.png" width="250" alt="課題タブ（フィルター）">
-  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/11_view_challenge_all.png" width="250" alt="課題タブ（全体）">
+  <img src="screenshots/14_view_challenge_complete.png" width="250" alt="課題タブ（達成済み）">
+  <img src="screenshots/15_view_challenge_progress.png" width="250" alt="課題タブ（進行中）">
 </p>
 
 目標達成状況を視覚的に確認。プログレスバーで進捗が一目瞭然：
 
-- **100%以上**: 完璧にクリア（達成マーク表示）
-- **75〜99%**: 良好な状態
-- **50〜74%**: もう少し
-- **0〜49%**: 頑張ろう
+- **100%以上**: 完璧にクリア（✓達成マーク表示、紫バー）
+- **75〜99%**: 良好な状態（紫バー）
+- **50〜74%**: もう少し（紫バー）
+- **0〜49%**: 頑張ろう（グレーバー）
 
-種目別にフィルターして、特定のトレーニングの進捗を集中的にチェックできます。
+お気に入りグループを含む全グループを階層表示。種目別にフィルターして、特定のトレーニングの進捗を集中的にチェックできます。
 
 ---
 
-### ⚙️ 種目管理 & 設定
+### ⚙️ 設定画面
 
 <p align="center">
-  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/12_create_exercise_list.png" width="250" alt="種目管理">
-  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/13_create_exercise_dialog.png" width="250" alt="種目作成">
-  <img src="fastlane/metadata/android/ja-JP/images/phoneScreenshots/14_settings.png" width="250" alt="設定画面">
+  <img src="screenshots/16_settings.png" width="250" alt="設定画面">
 </p>
 
-**左**: 種目とグループを階層表示。レベル（1〜10）で段階的に管理
-**中央**: 種目作成画面。タイプ（回数/時間）、左右、課題を柔軟に設定
-**右**: データ管理画面。JSON形式でバックアップ・復元、CSV形式で記録インポートが可能
+データ管理機能：
+
+**完全バックアップ（JSON）**
+- すべてのデータ（種目、グループ、記録）をエクスポート・インポート
+- 端末変更時のデータ移行に対応
+- ⚠️ インポート時は既存データを削除
+
+**記録の追加（CSV）**
+- テンプレートをダウンロードして記録を一括追加
+- アナログ記録やメモアプリからの移行に便利
+- 既存データに追加（削除されません）
 
 ---
 
@@ -120,7 +155,7 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 ### トレーニング記録
 - 日付・時刻・セット数・回数（または秒数）を記録
 - 両側種目（プッシュアップなど）と片側種目（ピストルスクワットなど）に対応
-- コメント機能で気づきをメモ
+- コメント機能で気づきやフォームのメモを記録
 
 ### 記録の閲覧
 3つのタブで記録を確認できます：
@@ -134,10 +169,11 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 - 上位N個のセットの合計で判定するため、柔軟な達成評価が可能
 - 達成率に応じてプログレスバーの色が変化
 
-### グループ管理
-- 種目をグループ分け（例：PUSHUPS、SQUATS、PULLUPS など）
+### グループ管理とお気に入り
+- 種目をグループ分け（例：Push-ups、Squats、Pull-ups など）
 - 階層表示で見やすく整理
 - レベル（1〜10）で段階的な進捗を管理
+- お気に入り登録でよく使う種目を専用グループに表示
 
 ### バックアップ
 - JSON形式でデータをエクスポート
@@ -153,50 +189,51 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 ## 使い方
 
 ### 1. 種目を作成する
-「作成」画面から新しい種目を追加します：
+「Create」画面から新しい種目を追加します：
 
-1. 種目名を入力（例：「Full Pushups」）
-2. タイプを選択（回数制 / 時間制）
-3. 左右を選択（両側 / 片側）
+1. 種目名を入力（例：「Wall Push-up」）
+2. タイプを選択（Dynamic: 回数制 / Isometric: 時間制）
+3. Lateralityを選択（Bilateral: 両側 / Unilateral: 片側）
 4. グループを選択（任意）
 5. レベルを設定（1〜10、任意）
 6. 課題を設定（目標セット数 × 目標値、任意）
+7. ★マークでお気に入り登録（任意）
 
 ### 2. トレーニングを記録する
-「記録」画面から記録を追加します：
+「Record」画面から記録を追加します：
 
-1. 種目を選択
+1. 種目を選択（お気に入りや階層表示から）
 2. セット数を設定
 3. 各セットの値を入力
 4. コメントを追加（任意）
 5. 日付・時刻を確認（必要に応じて変更）
-6. 「記録する」をタップ
+6. 「Record」をタップ
 
 ### 3. ワークアウトモードを使う
-「ワークアウト」画面から自動ガイド付きのトレーニングができます：
+「Workout」画面から自動ガイド付きのトレーニングができます：
 
 1. 種目を選択
 2. 目標セット数・回数を設定
 3. タイマー設定（1レップの時間、カウントダウン、インターバル）
-4. 「開始」をタップ
+4. 「Start」をタップ
 5. 自動でカウントダウン → 実行 → インターバル → 次のセット
 6. 完了後、記録を保存
 
 ### 4. 記録を閲覧する
-「閲覧」画面で過去の記録を確認します：
+「View Records」画面で過去の記録を確認します：
 
-- **一覧タブ**: セッション単位で表示、タップで編集・削除
-- **グラフタブ**: 折れ線グラフで進捗を可視化
-- **課題タブ**: 目標の達成状況をプログレスバーで表示
+- **List タブ**: セッション単位で表示、編集・削除可能
+- **Graph タブ**: 折れ線グラフで進捗を可視化
+- **Challenge タブ**: 目標の達成状況をプログレスバーで表示
 
 フィルター機能で種目・期間を絞り込めます。
 
 ### 5. データをバックアップする
-「設定」画面からデータをエクスポート・インポートできます：
+「Settings」画面からデータをエクスポート・インポートできます：
 
 **完全バックアップ（JSON）**
-- **エクスポート**: 「データをエクスポート」→ 保存先を選択
-- **インポート**: 「データをインポート」→ JSONファイルを選択
+- **エクスポート**: 「Export Data」→ 保存先を選択
+- **インポート**: 「Import Data」→ JSONファイルを選択
   - ⚠️ インポートすると既存データは削除されます
 
 **記録の追加（CSV）**
@@ -239,10 +276,10 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 ### 評価基準
 
 達成率に応じてプログレスバーの色が変わります：
-- **100%以上**: 完璧にクリア（達成マーク表示）
-- **75〜99%**: 良好な状態
-- **50〜74%**: もう少し
-- **0〜49%**: 頑張ろう
+- **100%以上**: 完璧にクリア（✓達成マーク表示、紫バー）
+- **75〜99%**: 良好な状態（紫バー）
+- **50〜74%**: もう少し（紫バー）
+- **0〜49%**: 頑張ろう（グレーバー）
 
 ---
 
@@ -250,28 +287,31 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 
 ### ホーム画面
 4つのボタンから各機能にアクセスできます：
-- **記録** - トレーニング記録を入力
-- **ワークアウト** - 自動ガイド付きトレーニング
-- **閲覧** - 過去の記録を確認
-- **作成** - 種目・グループを管理
+- **Create** - 種目・グループを管理
+- **Record** - トレーニング記録を入力
+- **Workout** - 自動ガイド付きトレーニング
+- **View** - 過去の記録を確認
 
-### 記録画面
+右下の⚙️ボタンから設定画面へアクセスできます。
+
+### 種目管理画面（Create）
+種目とグループを管理、課題を設定。お気に入り登録した種目は★マークで表示され、専用グループに配置されます。
+
+### 記録画面（Record）
 種目を選択 → セット数・値を入力 → 記録
 
-### ワークアウト画面
+### ワークアウト画面（Workout）
 種目選択 → 設定 → 準備 → 実行 → インターバル → 完了 → 記録
 
-### 閲覧画面
+### 閲覧画面（View Records）
 一覧 / グラフ / 課題の3タブで記録を確認
-
-### 作成画面
-種目とグループを管理、課題を設定
 
 ---
 
 ## ヒント
 
 ### 効果的な使い方
+- **お気に入り機能を活用**: よく使う種目を登録してアクセスを高速化
 - **レベルを活用**: 1〜10のレベルで段階的な進捗を管理
 - **課題を設定**: 明確な目標があるとモチベーション維持に効果的
 - **コメント機能**: フォームの気づきや体調をメモ
@@ -281,7 +321,7 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 - **平均**: トレーニングの安定性を確認
 - **最大**: 自己ベストの推移を確認
 - **合計**: トレーニングボリュームを確認
-- 片側種目は左右別々にラインで表示されます
+- 片側種目は左右別々にラインで表示されます（緑=右、紫=左）
 
 ---
 
@@ -289,7 +329,7 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 
 - **対応OS**: Android 8.0（API 26）以上
 - **ストレージ**: 約10MB
-- **インターネット**: 不要
+- **インターネット**: 不要（完全オフライン動作）
 
 ---
 
@@ -305,7 +345,7 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 
 最新版は[Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases)からダウンロードできます。
 
-**[📦 v1.1.0をダウンロード](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.1.0/CalisthenicsMemory-v1.1.0.apk)**
+**[📦 v1.2.0をダウンロード](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.2.0/CalisthenicsMemory-v1.2.0.apk)**
 
 過去のバージョンが必要な場合は[Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases)ページからダウンロードできます。
 
@@ -326,10 +366,10 @@ APKの改ざんがないか確認したい場合は、SHA256チェックサム�
 
 ```bash
 # ダウンロードしたAPKのSHA256を計算
-sha256sum CalisthenicsMemory-v1.1.0.apk
+sha256sum CalisthenicsMemory-v1.2.0.apk
 
 # 公式のSHA256と比較
-# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.1.0/CalisthenicsMemory-v1.1.0.apk.sha256
+# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.2.0/CalisthenicsMemory-v1.2.0.apk.sha256
 ```
 
 ---
@@ -340,7 +380,7 @@ sha256sum CalisthenicsMemory-v1.1.0.apk
 A: Convict Conditioning、StartBodyweight、または独自のプログラムなど、あらゆる自重トレーニング方法に対応しています。種目を自由に作成できるため、あなたのトレーニング哲学に合わせて使えます。
 
 ### Q: データはどこに保存されますか？
-A: アプリ内のローカルデータベース（SQLite）に保存されます。
+A: アプリ内のローカルデータベース（SQLite）に保存されます。インターネットに送信されることはなく、完全にオフラインで動作します。
 
 ### Q: バックアップは自動で取られますか？
 A: いいえ、手動でエクスポートする必要があります。定期的なバックアップをおすすめします。
@@ -353,6 +393,9 @@ A: はい、記録機能は課題設定なしでも使えます。課題タブ�
 
 ### Q: 多言語対応していますか？
 A: 日本語と英語に対応しています。デバイスの言語設定に応じて自動で切り替わります。
+
+### Q: お気に入り登録した種目はどこに表示されますか？
+A: お気に入り登録した種目は「お気に入り」グループに自動で表示されます。元のグループにも引き続き表示されるため、どちらからもアクセス可能です。
 
 ---
 
@@ -373,4 +416,4 @@ cd CalisthenicsMemory
 
 ---
 
-**最終更新**: 2025年11月9日
+**最終更新**: 2025年11月10日
