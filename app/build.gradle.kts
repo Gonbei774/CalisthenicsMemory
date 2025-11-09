@@ -51,6 +51,11 @@ android {
             )
             // リリースビルド時に署名を適用
             signingConfig = signingConfigs.getByName("release")
+            // 依存関係メタデータを無効化（F-Droid要件）
+            dependenciesInfo {
+                includeInApk = false
+                includeInBundle = false
+            }
         }
     }
 

@@ -1,0 +1,37 @@
+A simple bodyweight training tracker you can customize to match your needs.
+
+Create your own exercises, organize them into groups, and track progress your way. No rigid templates - adapt the app to your training method.
+
+FEATURES
+
+Complete Customization
+• Create any exercise with any name
+• Organize exercises into custom groups
+• Choose rep-based or time-based tracking
+• Set 10-level progressions to match your method
+• Support for unilateral (one-sided) exercises
+
+Two Training Modes
+• Record Mode: Quickly log your workouts after training
+• Workout Mode: Auto-guided training with built-in timers for countdown, execution, and rest intervals
+
+Training Records
+• Log date, time, sets, and reps/seconds
+• Add comments to track form notes and observations
+• Edit or delete past records
+
+Progress Tracking
+• List view: Browse all training sessions
+• Graph view: Visualize progress with average/max/total stats
+• Challenge view: Track goal achievement
+
+Goal System
+• Set targets like "3 sets × 50 reps"
+• Color-coded progress indicators
+
+Data Management
+• Export/import in JSON format
+• Your data stays on your device
+• No internet required
+
+Whether you follow Convict Conditioning, StartBodyweight, or your own custom program, this app adapts to your training philosophy.
