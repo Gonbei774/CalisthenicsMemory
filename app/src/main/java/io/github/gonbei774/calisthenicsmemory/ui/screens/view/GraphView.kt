@@ -318,7 +318,7 @@ fun LineChart(
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Box(modifier = Modifier.padding(16.dp)) {
+        Box(modifier = Modifier) {
             if (data.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -385,8 +385,8 @@ fun SimpleLineChart(
 
         val leftPadding = 50.dp.toPx()
         val bottomPadding = 40.dp.toPx()
-        val topPadding = 10.dp.toPx()
-        val rightPadding = 10.dp.toPx()
+        val topPadding = 20.dp.toPx()
+        val rightPadding = 30.dp.toPx()
 
         val graphWidth = size.width - leftPadding - rightPadding
         val graphHeight = size.height - topPadding - bottomPadding
