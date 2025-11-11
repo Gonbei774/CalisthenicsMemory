@@ -79,6 +79,7 @@ fun RecordListView(
                     SessionCard(
                         session = session,
                         exercise = exercises.find { it.id == session.exerciseId },
+                        isSelected = selectedExerciseFilter?.id == session.exerciseId,
                         onExerciseClick = { exercise ->
                             onExerciseClick(exercise)
                         },
@@ -96,6 +97,7 @@ fun RecordListView(
 fun SessionCard(
     session: SessionInfo,
     exercise: Exercise?,
+    isSelected: Boolean,
     onExerciseClick: (Exercise) -> Unit,
     onRecordClick: (TrainingRecord) -> Unit,
     onSessionLongPress: () -> Unit,
@@ -104,7 +106,7 @@ fun SessionCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = Slate800
+            containerColor = if (isSelected) Slate750 else Slate800
         ),
         shape = RoundedCornerShape(12.dp)
     ) {

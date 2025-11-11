@@ -285,7 +285,7 @@ fun ViewScreen(
                     RecordListView(
                         sessions = filteredSessions,
                         exercises = exercises,
-                        selectedExerciseFilter = null, // チップを上部に移動したのでnullに
+                        selectedExerciseFilter = selectedExerciseFilter,
                         onExerciseClick = { exercise ->
                             selectedExerciseFilter = exercise
                         },
@@ -1053,7 +1053,7 @@ fun ChallengeExerciseCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) Slate600 else Slate800
+            containerColor = if (isSelected) Slate750 else Slate800
         ),
         shape = RoundedCornerShape(12.dp),
         onClick = onClick
