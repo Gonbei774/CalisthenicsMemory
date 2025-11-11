@@ -335,4 +335,12 @@
     <string name="favorite">お気に入り</string>
     <string name="add_to_favorites">お気に入りに追加</string>
     <string name="remove_from_favorites">お気に入りから削除</string>
+
+    <!-- Language Settings -->
+    <string name="section_language">言語設定</string>
+    <string name="section_language_description">アプリの表示言語を変更できます。\nアプリを再起動すると反映されます。</string>
+    <string name="language_setting">言語 / Language</string>
+    <string name="current_language">現在: %s</string>
+    <string name="restart_required">変更を反映するにはアプリを再起動してください</string>
+    <string name="language_changed">言語を変更しました。アプリを再起動してください。</string>
 </resources>

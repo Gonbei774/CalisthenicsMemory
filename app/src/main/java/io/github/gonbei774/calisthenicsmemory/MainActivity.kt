@@ -1,9 +1,17 @@
 package io.github.gonbei774.calisthenicsmemory
 
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import io.github.gonbei774.calisthenicsmemory.data.AppLanguage
+import io.github.gonbei774.calisthenicsmemory.data.LanguagePreferences
+import java.util.Locale
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -25,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.gonbei774.calisthenicsmemory.ui.screens.HomeScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.RecordScreen
@@ -36,13 +45,48 @@ import io.github.gonbei774.calisthenicsmemory.ui.theme.CalisthenicsMemoryTheme
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 
 class MainActivity : ComponentActivity() {
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(updateBaseContextLocale(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             CalisthenicsMemoryTheme {
                 CalisthenicsMemoryApp()
             }
         }
+    }
+
+    /**
+     * Context の言語設定を更新する（全Androidバージョン対応）
+     */
+    private fun updateBaseContextLocale(context: Context): Context {
+        val languagePrefs = LanguagePreferences(context)
+        val selectedLanguage = languagePrefs.getLanguage()
+
+        android.util.Log.d("MainActivity", "Selected language: ${selectedLanguage.code}")
+
+        // システム設定に従う場合は何もしない
+        if (selectedLanguage == AppLanguage.SYSTEM) {
+            android.util.Log.d("MainActivity", "Using system language")
+            return context
+        }
+
+        val locale = when (selectedLanguage) {
+            AppLanguage.JAPANESE -> Locale("ja")
+            AppLanguage.ENGLISH -> Locale("en")
+            AppLanguage.SYSTEM -> return context
+        }
+
+        android.util.Log.d("MainActivity", "Setting locale to: ${locale.language}")
+        Locale.setDefault(locale)
+
+        val config = Configuration(context.resources.configuration)
+        config.setLocale(locale)
+
+        return context.createConfigurationContext(config)
     }
 }
 

@@ -334,4 +334,12 @@
     <string name="favorite">Favorite</string>
     <string name="add_to_favorites">Add to favorites</string>
     <string name="remove_from_favorites">Remove from favorites</string>
+
+    <!-- Language Settings -->
+    <string name="section_language">Language Settings</string>
+    <string name="section_language_description">Change the app display language.\nChanges will take effect after restarting the app.</string>
+    <string name="language_setting">Language</string>
+    <string name="current_language">Current: %s</string>
+    <string name="restart_required">Restart required to apply changes</string>
+    <string name="language_changed">Language changed. Please restart the app.</string>
 </resources>

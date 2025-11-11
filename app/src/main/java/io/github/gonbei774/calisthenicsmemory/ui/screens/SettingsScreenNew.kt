@@ -1,5 +1,6 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
+import android.app.Activity
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import io.github.gonbei774.calisthenicsmemory.R
+import io.github.gonbei774.calisthenicsmemory.data.AppLanguage
+import io.github.gonbei774.calisthenicsmemory.data.LanguagePreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +29,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -447,6 +451,133 @@ fun SettingsScreenNew(
                             )
                         }
                     }
+                }
+            }
+
+            // ========================================
+            // セクション3: 言語設定
+            // ========================================
+
+            // セクションタイトルと説明
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.section_language),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.section_language_description),
+                        fontSize = 14.sp,
+                        color = Slate400,
+                        lineHeight = 20.sp
+                    )
+                }
+            }
+
+            // 言語選択カード
+            item {
+                val languagePrefs = remember { LanguagePreferences(context) }
+                var selectedLanguage by remember { mutableStateOf(languagePrefs.getLanguage()) }
+                var showLanguageDialog by remember { mutableStateOf(false) }
+
+                // 現在のシステム言語を取得
+                val currentLocale = Locale.getDefault().language
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Slate800
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    onClick = { showLanguageDialog = true }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "🌐",
+                            fontSize = 32.sp
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.language_setting),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = stringResource(
+                                    R.string.current_language,
+                                    selectedLanguage.getDisplayName(currentLocale)
+                                ),
+                                fontSize = 14.sp,
+                                color = Slate400,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    }
+                }
+
+                // 言語選択ダイアログ
+                if (showLanguageDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showLanguageDialog = false },
+                        title = {
+                            Text(
+                                text = stringResource(R.string.language_setting),
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                AppLanguage.entries.forEach { language ->
+                                    Card(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = if (selectedLanguage == language) {
+                                                Purple600.copy(alpha = 0.3f)
+                                            } else {
+                                                Slate700
+                                            }
+                                        ),
+                                        onClick = {
+                                            android.util.Log.d("SettingsScreen", "Language selected: ${language.code}")
+                                            selectedLanguage = language
+                                            languagePrefs.setLanguage(language)
+                                            android.util.Log.d("SettingsScreen", "Language saved, recreating activity")
+                                            showLanguageDialog = false
+
+                                            // Activity を再作成して言語を適用
+                                            (context as? Activity)?.recreate()
+                                        }
+                                    ) {
+                                        Text(
+                                            text = language.getDisplayName(currentLocale),
+                                            modifier = Modifier.padding(16.dp),
+                                            color = Color.White,
+                                            fontSize = 16.sp
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(onClick = { showLanguageDialog = false }) {
+                                Text(stringResource(R.string.close))
+                            }
+                        }
+                    )
                 }
             }
 
