@@ -78,6 +78,11 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         return getApplication<Application>().getString(resId, *formatArgs)
     }
 
+    companion object {
+        // お気に入りグループの固定キー（UI側で翻訳される）
+        const val FAVORITE_GROUP_KEY = "★FAVORITES"
+    }
+
     // Exercises
     val exercises: StateFlow<List<Exercise>> = exerciseDao.getAllExercises()
         .stateIn(
@@ -382,12 +387,14 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         expandedGroups: Set<String>
     ): List<GroupWithExercises> {
         // 0. お気に入りグループ（先頭に追加、0件でも表示）
+        // 固定キーを使用（UI側で翻訳）
+        val favoriteGroupKey = FAVORITE_GROUP_KEY
         val favoriteExercises = exercises.filter { it.isFavorite }.sortedBy { it.name }
         val favoriteGroup = listOf(
             GroupWithExercises(
-                groupName = "お気に入り",  // 固定グループ名
+                groupName = favoriteGroupKey,
                 exercises = favoriteExercises,
-                isExpanded = "お気に入り" in expandedGroups
+                isExpanded = favoriteGroupKey in expandedGroups
             )
         )
 

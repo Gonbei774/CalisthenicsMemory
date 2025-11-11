@@ -272,7 +272,11 @@ fun ExpandableGroupCard(
                             tint = Color.White
                         )
                         Text(
-                            text = group.groupName ?: stringResource(R.string.no_group),
+                            text = when (group.groupName) {
+                                TrainingViewModel.FAVORITE_GROUP_KEY -> stringResource(R.string.favorite)
+                                null -> stringResource(R.string.no_group)
+                                else -> group.groupName
+                            },
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White

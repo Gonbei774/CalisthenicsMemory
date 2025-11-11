@@ -687,7 +687,11 @@ fun FilterBottomSheetContent(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = group.groupName ?: stringResource(R.string.no_group_display),
+                                        text = when (group.groupName) {
+                                            TrainingViewModel.FAVORITE_GROUP_KEY -> stringResource(R.string.favorite)
+                                            null -> stringResource(R.string.no_group_display)
+                                            else -> group.groupName
+                                        },
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color.White
@@ -944,7 +948,11 @@ fun ChallengeView(
                     // グループヘッダー
                     item {
                         Text(
-                            text = group.groupName ?: stringResource(R.string.no_group_display),
+                            text = when (group.groupName) {
+                                TrainingViewModel.FAVORITE_GROUP_KEY -> stringResource(R.string.favorite)
+                                null -> stringResource(R.string.no_group_display)
+                                else -> group.groupName
+                            },
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = Slate400,
