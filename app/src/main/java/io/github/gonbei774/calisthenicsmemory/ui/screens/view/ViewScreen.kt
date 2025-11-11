@@ -1053,7 +1053,7 @@ fun ChallengeExerciseCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) Slate600 else Slate700
+            containerColor = if (isSelected) Slate600 else Slate800
         ),
         shape = RoundedCornerShape(12.dp),
         onClick = onClick
@@ -1120,6 +1120,7 @@ fun ChallengeExerciseCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // 左：達成率
                     Text(
                         text = "${status.achievementRate}% ($actualTotal/$targetTotal$unit)",
                         fontSize = 14.sp,
@@ -1127,19 +1128,24 @@ fun ChallengeExerciseCard(
                         fontWeight = FontWeight.Bold
                     )
 
-                    if (trainingDaysInfo != null) {
+                    // 右：最終トレーニング日 (トレーニング日数)
+                    if (lastRecordDate != null) {
+                        val rightText = if (trainingDaysInfo != null) {
+                            stringResource(R.string.last_record_short, lastRecordDate) + " ($trainingDaysInfo)"
+                        } else {
+                            stringResource(R.string.last_record_short, lastRecordDate)
+                        }
+                        Text(
+                            text = rightText,
+                            fontSize = 14.sp,
+                            color = Color.White
+                        )
+                    } else if (trainingDaysInfo != null) {
+                        // 最終トレーニング日がない場合はトレーニング日数のみ
                         Text(
                             text = trainingDaysInfo,
-                            fontSize = 12.sp,
-                            color = Slate400
-                        )
-                    }
-
-                    if (lastRecordDate != null) {
-                        Text(
-                            text = stringResource(R.string.last_record_short, lastRecordDate),
-                            fontSize = 12.sp,
-                            color = Slate400
+                            fontSize = 14.sp,
+                            color = Color.White
                         )
                     }
                 }
@@ -1298,8 +1304,8 @@ fun calculateChallengeStatus(
     }
 
     if (clearSessions.isNotEmpty()) {
-        // 最も古いクリアセッションを採用
-        val (dateTime, rate) = clearSessions.first()
+        // 最も良いクリアセッションを採用
+        val (dateTime, rate) = clearSessions.maxBy { it.second }
         val parts = dateTime.split("-")
         val achievedDate = if (parts.size >= 3) "${parts[0]}-${parts[1]}-${parts[2]}" else null
 
