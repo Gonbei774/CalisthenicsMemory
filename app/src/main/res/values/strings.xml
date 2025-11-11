@@ -342,4 +342,8 @@
     <string name="current_language">Current: %s</string>
     <string name="restart_required">Restart required to apply changes</string>
     <string name="language_changed">Language changed. Please restart the app.</string>
+
+    <!-- Training Days Display -->
+    <string name="training_days_format">Training %s</string>
+    <string name="last_record_short">Last: %s</string>
 </resources>

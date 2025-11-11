@@ -343,4 +343,8 @@
     <string name="current_language">現在: %s</string>
     <string name="restart_required">変更を反映するにはアプリを再起動してください</string>
     <string name="language_changed">言語を変更しました。アプリを再起動してください。</string>
+
+    <!-- Training Days Display -->
+    <string name="training_days_format">トレーニング%s</string>
+    <string name="last_record_short">最後: %s</string>
 </resources>

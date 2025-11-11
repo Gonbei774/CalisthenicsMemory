@@ -966,6 +966,7 @@ fun ChallengeView(
                             ChallengeExerciseCard(
                                 exercise = exercise,
                                 records = records,
+                                selectedPeriod = selectedPeriod,
                                 isSelected = selectedExerciseFilter?.id == exercise.id,
                                 onClick = { onExerciseClick(exercise) }
                             )
@@ -1002,19 +1003,47 @@ enum class ChallengeResult {
 fun ChallengeExerciseCard(
     exercise: Exercise,
     records: List<TrainingRecord>,
+    selectedPeriod: Period?,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
     val hasChallenge = exercise.targetSets != null && exercise.targetValue != null
 
-    // 課題ありの場合、ステータスを計算
+    // 課題ありの場合、ステータスを計算（期間を考慮）
     val status = if (hasChallenge) {
-        remember(exercise, records) {
-            calculateChallengeStatus(exercise, records)
+        remember(exercise, records, selectedPeriod) {
+            calculateChallengeStatus(exercise, records, selectedPeriod)
         }
     } else null
 
-    // 最終記録日を取得
+    // 期間内のトレーニング日数を計算
+    val trainingDaysInfo = remember(exercise, records, selectedPeriod) {
+        if (selectedPeriod != null) {
+            val today = java.time.LocalDate.now()
+            val cutoffDate = today.minusDays(selectedPeriod.days.toLong() - 1)
+
+            val trainingDates = records
+                .filter { it.exerciseId == exercise.id }
+                .mapNotNull { record ->
+                    try {
+                        val recordDate = java.time.LocalDate.parse(record.date)
+                        if (recordDate >= cutoffDate && recordDate <= today) {
+                            record.date
+                        } else null
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+                .distinct()
+                .size
+
+            "$trainingDates/${selectedPeriod.days}"
+        } else {
+            null
+        }
+    }
+
+    // 最終記録日を取得（全期間で固定）
     val lastRecordDate = remember(exercise, records) {
         records.filter { it.exerciseId == exercise.id }
             .maxByOrNull { "${it.date} ${it.time}" }
@@ -1083,7 +1112,7 @@ fun ChallengeExerciseCard(
 
                 // 達成率と実績/目標
                 val targetTotal = exercise.targetSets!! * exercise.targetValue!!
-                val actualTotal = calculateActualTotal(exercise, records, status)
+                val actualTotal = calculateActualTotal(exercise, records, selectedPeriod)
                 val unit = stringResource(if (exercise.type == "Dynamic") R.string.unit_reps else R.string.unit_seconds)
 
                 Row(
@@ -1098,9 +1127,17 @@ fun ChallengeExerciseCard(
                         fontWeight = FontWeight.Bold
                     )
 
+                    if (trainingDaysInfo != null) {
+                        Text(
+                            text = trainingDaysInfo,
+                            fontSize = 12.sp,
+                            color = Slate400
+                        )
+                    }
+
                     if (lastRecordDate != null) {
                         Text(
-                            text = stringResource(R.string.last_workout_date, lastRecordDate),
+                            text = stringResource(R.string.last_record_short, lastRecordDate),
                             fontSize = 12.sp,
                             color = Slate400
                         )
@@ -1113,20 +1150,6 @@ fun ChallengeExerciseCard(
                     fontSize = 14.sp,
                     color = Slate400
                 )
-
-                if (lastRecordDate != null) {
-                    Text(
-                        text = stringResource(R.string.last_workout_date, lastRecordDate),
-                        fontSize = 12.sp,
-                        color = Slate400
-                    )
-                } else {
-                    Text(
-                        text = stringResource(R.string.last_workout_none),
-                        fontSize = 12.sp,
-                        color = Slate400
-                    )
-                }
             }
         }
     }
@@ -1136,10 +1159,24 @@ fun ChallengeExerciseCard(
 fun calculateActualTotal(
     exercise: Exercise,
     records: List<TrainingRecord>,
-    status: ChallengeStatus
+    period: Period? = null
 ): Int {
     val targetSets = exercise.targetSets ?: return 0
-    val exerciseRecords = records.filter { it.exerciseId == exercise.id }
+    var exerciseRecords = records.filter { it.exerciseId == exercise.id }
+
+    // 期間フィルター適用（指定されている場合）
+    if (period != null) {
+        val today = java.time.LocalDate.now()
+        val cutoffDate = today.minusDays(period.days.toLong() - 1)
+        exerciseRecords = exerciseRecords.filter { record ->
+            try {
+                val recordDate = java.time.LocalDate.parse(record.date)
+                recordDate >= cutoffDate && recordDate <= today
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
 
     if (exerciseRecords.isEmpty()) return 0
 
@@ -1176,7 +1213,8 @@ fun calculateActualTotal(
 // 課題ステータス計算関数
 fun calculateChallengeStatus(
     exercise: Exercise,
-    records: List<TrainingRecord>
+    records: List<TrainingRecord>,
+    period: Period? = null
 ): ChallengeStatus {
     val targetSets = exercise.targetSets ?: return ChallengeStatus(
         level = exercise.sortOrder,
@@ -1192,7 +1230,22 @@ fun calculateChallengeStatus(
     )
 
     // この種目の全記録を取得
-    val exerciseRecords = records.filter { it.exerciseId == exercise.id }
+    var exerciseRecords = records.filter { it.exerciseId == exercise.id }
+
+    // 期間フィルター適用（指定されている場合）
+    if (period != null) {
+        val today = java.time.LocalDate.now()
+        val cutoffDate = today.minusDays(period.days.toLong() - 1)
+        exerciseRecords = exerciseRecords.filter { record ->
+            try {
+                val recordDate = java.time.LocalDate.parse(record.date)
+                recordDate >= cutoffDate && recordDate <= today
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
     if (exerciseRecords.isEmpty()) {
         return ChallengeStatus(
             level = exercise.sortOrder,
