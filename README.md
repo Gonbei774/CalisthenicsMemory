@@ -1,6 +1,6 @@
 # Calisthenics Memory
 
-[🇬🇧 English](README.md) | [🇯🇵 日本語](README.ja.md)
+[🇬🇧 English](README.md) | [🇯🇵 日本語](README.ja.md) | [🇪🇸 Español](README.es.md) | [🇩🇪 Deutsch](README.de.md) | [🇨🇳 简体中文](README.zh-CN.md) | [🇫🇷 Français](README.fr.md)
 
 A simple and customizable bodyweight training tracking app
 
@@ -183,7 +183,7 @@ Check records in 3 tabs:
 - Import records in CSV format (convenient for migrating from analog records or note apps)
 
 ### Multi-Language Support
-- Support Japanese and English
+- Support English, Japanese, Spanish, German, Chinese (Simplified), and French
 - Automatically switches according to device language settings
 
 ---
@@ -394,7 +394,7 @@ A: Yes, it will be deleted. Be sure to export before uninstalling.
 A: Yes, the record feature can be used without challenge settings. It will not be displayed in the challenge tab, but the list and graphs work fine.
 
 ### Q: Is multi-language supported?
-A: Japanese and English are supported. It automatically switches according to device language settings.
+A: English, Japanese, Spanish, German, Chinese (Simplified), and French are supported. It automatically switches according to device language settings.
 
 ### Q: Where are favorite exercises displayed?
 A: Favorite exercises are automatically displayed in the "Favorites" group. They continue to be displayed in their original group, so you can access from either.
