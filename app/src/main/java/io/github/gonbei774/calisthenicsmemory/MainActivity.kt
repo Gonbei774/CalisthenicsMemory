@@ -77,6 +77,10 @@ class MainActivity : ComponentActivity() {
         val locale = when (selectedLanguage) {
             AppLanguage.JAPANESE -> Locale("ja")
             AppLanguage.ENGLISH -> Locale("en")
+            AppLanguage.SPANISH -> Locale("es")
+            AppLanguage.GERMAN -> Locale("de")
+            AppLanguage.CHINESE -> Locale("zh", "CN")
+            AppLanguage.FRENCH -> Locale("fr")
             AppLanguage.SYSTEM -> return context
         }
 

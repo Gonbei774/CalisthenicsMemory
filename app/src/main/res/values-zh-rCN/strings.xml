@@ -1,0 +1,349 @@
+<resources>
+    <!-- App Name -->
+    <string name="app_name">Calisthenics Memory</string>
+
+    <!-- Common -->
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="save">保存</string>
+    <string name="delete">删除</string>
+    <string name="edit">编辑</string>
+    <string name="add">添加</string>
+    <string name="create">创建</string>
+    <string name="back">返回</string>
+    <string name="close">关闭</string>
+    <string name="search">搜索</string>
+    <string name="select">选择</string>
+    <string name="settings">设置</string>
+    <string name="comment">备注</string>
+    <string name="comment_optional">备注（可选）</string>
+    <string name="level">级别</string>
+    <string name="group">分组</string>
+    <string name="none">无</string>
+    <string name="type">类型</string>
+    <string name="menu">菜单</string>
+    <string name="loading">加载中...</string>
+
+    <!-- Home Screen -->
+    <string name="bodyweight_training">自重训练</string>
+    <string name="home_create">创建</string>
+    <string name="home_record">记录</string>
+    <string name="home_workout">训练</string>
+    <string name="home_view">查看</string>
+
+    <!-- Create Screen -->
+    <string name="exercise_creation">创建动作</string>
+    <string name="no_exercises">还没有动作\n点击下方 + 按钮添加</string>
+    <string name="exercise_name">动作名称</string>
+    <string name="set_challenge">设定目标</string>
+    <string name="sets_count">组数</string>
+    <string name="reps_or_seconds">%s</string> <!-- Will be replaced with "Reps" or "Seconds" -->
+    <string name="reps">次数</string>
+    <string name="seconds">秒</string>
+    <string name="per_side">（每侧）</string>
+    <string name="target_format">%1$d组 × %2$d%3$s</string>
+    <string name="target_format_unilateral">%1$d组 × %2$d%3$s（每侧）</string>
+    <string name="laterality">单双侧</string>
+    <string name="bilateral">双侧</string>
+    <string name="unilateral">单侧</string>
+    <string name="bilateral_example">例如：俯卧撑、深蹲</string>
+    <string name="unilateral_example">例如：手枪深蹲、单手俯卧撑</string>
+    <string name="one_sided">单侧</string>
+    <string name="group_optional">分组（可选）</string>
+    <string name="new_group_name">新分组名称</string>
+    <string name="new_group">+ 新建分组</string>
+    <string name="no_group">无分组</string>
+    <string name="edit_exercise">编辑动作</string>
+    <string name="create_new_group">创建新分组</string>
+    <string name="add_new_exercise">添加新动作</string>
+    <string name="create_type">创建类型</string>
+    <string name="exercise">动作</string>
+    <string name="group_name">分组名称</string>
+    <string name="already_exists">此%s名称已存在</string>
+    <string name="rename_group">重命名分组</string>
+    <string name="delete_group">删除分组</string>
+    <string name="delete_group_warning">删除「%s」？\n该分组中的动作将移至「无分组」。</string>
+    <string name="delete_exercise_warning">删除「%s」？\n该动作的所有记录也将被删除。</string>
+    <string name="delete_confirmation">删除确认</string>
+    <string name="exercises_count">%d个动作</string>
+    <string name="character_count">%1$d/%2$d</string>
+
+    <!-- Record Screen -->
+    <string name="training_record">训练记录</string>
+    <string name="no_exercises_registered">还没有注册动作</string>
+    <string name="add_exercises_in_settings">在设置中添加动作</string>
+    <string name="go_to_settings">前往设置</string>
+    <string name="select_exercise">选择动作</string>
+    <string name="select_exercise_please">请选择动作</string>
+    <string name="select_from_top">从上方「选择动作」选择</string>
+    <string name="no_records_for_exercise">此动作暂无记录</string>
+    <string name="target_display">目标：%1$d组 × %2$d%3$s</string>
+    <string name="target_display_unilateral">目标：%1$d组 × %2$d%3$s（每侧）</string>
+    <string name="right">右侧</string>
+    <string name="left">左侧</string>
+    <string name="right_value">右侧（%s）</string>
+    <string name="right_value_short">右：%1$d%2$s</string>
+    <string name="left_value">左侧（%s）</string>
+    <string name="left_value_short">左：%1$d%2$s</string>
+    <string name="set_number_format">第%d组</string>
+    <string name="set_number_with_unit" formatted="false">第%d组（%s）</string>
+    <string name="date_format">日期：%s</string>
+    <string name="time_format">时间：%s</string>
+    <string name="record_button">记录</string>
+    <string name="reps_label">次数</string>
+    <string name="time_label">时间</string>
+    <string name="dynamic_type">次数</string>
+    <string name="isometric_type">时间</string>
+
+    <!-- View Screen -->
+    <string name="view_records">查看记录</string>
+    <string name="list">列表</string>
+    <string name="graph">图表</string>
+    <string name="challenge">挑战</string>
+    <string name="no_records_yet">还没有记录</string>
+    <string name="tap_to_edit_long_press_for_menu">※ 点击组别可编辑，长按显示菜单</string>
+    <string name="tap_to_edit_hint">※ 点击组别可编辑，长按显示菜单</string>
+    <string name="unknown_exercise">未知动作</string>
+    <string name="edit_session_info">编辑训练信息</string>
+    <string name="delete_session">删除训练</string>
+    <string name="delete_record_warning">删除「%1$s」记录？\n%2$s %3$s\n%4$d组</string>
+    <string name="date">日期</string>
+    <string name="time">时间</string>
+    <string name="edit_set_value">编辑组数值</string>
+    <string name="value">数值</string>
+    <string name="right_value_label">右侧数值</string>
+    <string name="left_value_label">左侧数值</string>
+    <string name="edit_session_title">编辑训练信息</string>
+    <string name="show_all">显示全部</string>
+    <string name="search_exercise">搜索动作...</string>
+    <string name="filter_bottom_sheet_title">选择动作</string>
+    <string name="clear_filter">清除筛选</string>
+
+    <!-- Period filters -->
+    <string name="period_1week">1周</string>
+    <string name="period_1month">1个月</string>
+    <string name="period_3months">3个月</string>
+    <string name="period_one_week">1周</string>
+    <string name="period_one_month">1个月</string>
+    <string name="period_three_months">3个月</string>
+
+    <!-- Graph Screen -->
+    <string name="display_data">显示数据</string>
+    <string name="graph_average">平均</string>
+    <string name="graph_max">最大</string>
+    <string name="graph_total">总计</string>
+    <string name="no_exercise_select_one">请选择动作\n从上方「选择动作」选择</string>
+    <string name="no_data">无数据</string>
+    <string name="record_this_exercise">记录此动作的训练</string>
+    <string name="record_training_for_exercise">记录此动作的训练</string>
+    <string name="statistics_summary">统计概览</string>
+    <string name="total_sets">总组数</string>
+    <string name="average">平均</string>
+    <string name="highest_record">最高记录</string>
+    <string name="lowest_record">最低记录</string>
+    <string name="weekly_change">周变化</string>
+    <string name="sets_format">%d组</string>
+    <string name="change_format">%+d组</string>
+    <string name="unit_reps">次</string>
+    <string name="unit_seconds">秒</string>
+
+    <!-- Challenge Screen -->
+    <string name="no_challenge_set">未设定挑战</string>
+    <string name="last_workout">上次训练</string>
+    <string name="last_workout_none">上次训练：无</string>
+    <string name="last_workout_date">上次训练：%s</string>
+    <string name="no_exercises_available">没有可用动作</string>
+    <string name="no_exercises_in_period">%s内未进行训练</string>
+    <string name="achievement_rate">%1$d%%（%2$d/%3$d%4$s）</string>
+
+    <!-- Settings Screen -->
+    <string name="data_management">📦 数据管理</string>
+    <string name="export_data">导出数据</string>
+    <string name="create_backup">创建备份</string>
+    <string name="import_data">导入数据</string>
+    <string name="restore_from_backup">从备份恢复</string>
+    <string name="warning_title">警告</string>
+    <string name="import_warning">导入将删除所有现有数据。</string>
+    <string name="data_overwrite_title">⚠️ 数据覆盖</string>
+    <string name="existing_data_will_be_deleted">所有现有数据将被删除。</string>
+    <string name="cannot_undo">此操作无法撤销。</string>
+    <string name="import_confirm">导入</string>
+
+    <!-- ViewModel Messages -->
+    <string name="already_registered_format">「%1$s（%2$s）」已注册</string>
+    <string name="dynamic_label">次数</string>
+    <string name="isometric_label">时间</string>
+    <string name="exercise_added">已添加动作</string>
+    <string name="exercise_already_exists">动作已存在</string>
+    <string name="error_occurred">发生错误</string>
+    <string name="already_in_use_format">「%1$s（%2$s）」已在使用</string>
+    <string name="exercise_updated">已更新动作</string>
+    <string name="exercise_deleted">已删除动作</string>
+    <string name="sets_recorded">已记录%d组！</string>
+    <string name="record_updated">已更新记录</string>
+    <string name="record_deleted">已删除记录</string>
+    <string name="group_created">已创建分组</string>
+    <string name="group_already_exists">相同名称的分组已存在</string>
+    <string name="group_renamed">已重命名分组</string>
+    <string name="group_deleted">已删除分组</string>
+    <string name="export_complete">导出完成：%1$d个分组，%2$d个动作，%3$d条记录</string>
+    <string name="export_error">导出错误：%s</string>
+    <string name="import_complete">导入完成：%1$d个分组，%2$d个动作，%3$d条记录</string>
+    <string name="import_error">导入错误：%s</string>
+
+    <!-- Workout Screen (if exists) -->
+    <string name="workout_title">训练</string>
+    <string name="no_exercises_yet_workout">还没有动作</string>
+    <string name="no_group_workout">无分组</string>
+    <string name="one_sided_workout">单侧</string>
+    <string name="target_label">目标：</string>
+    <string name="target_sets_label">目标组数</string>
+    <string name="target_reps_label">目标次数</string>
+    <string name="target_duration_label">目标时长（秒）</string>
+    <string name="rep_duration_label">单次时长（秒）</string>
+    <string name="start_countdown_label">开始倒计时（秒）</string>
+    <string name="interval_duration_label">间隔时长（秒）</string>
+    <string name="start_workout">开始</string>
+    <string name="back_button">返回</string>
+    <string name="preparing">准备中</string>
+    <string name="skip_button">跳过</string>
+    <string name="workout_in_progress">训练进行中</string>
+    <string name="set_format">第%1$d/%2$d组</string>
+    <string name="set_format_with_side">第%1$d/%2$d组 - %3$s</string>
+    <string name="side_right">右侧</string>
+    <string name="side_left">左侧</string>
+    <string name="reps_count">%d次</string>
+    <string name="pause_button">暂停</string>
+    <string name="resume_button">继续</string>
+    <string name="stop_button">停止</string>
+    <string name="interval_label">间隔</string>
+    <string name="next_set_format">下一组：第%1$d/%2$d组</string>
+    <string name="next_set_format_with_side">下一组：第%1$d/%2$d组 - %3$s</string>
+    <string name="minus_10sec">-10秒</string>
+    <string name="plus_10sec">+10秒</string>
+    <string name="workout_complete">训练完成</string>
+    <string name="comment_label">备注</string>
+    <string name="record_workout">记录</string>
+    <string name="set_number">第%d组</string>
+    <string name="skipped_label">已跳过</string>
+    <string name="right_label">右侧：</string>
+    <string name="left_label">左侧：</string>
+    <string name="ten_seconds">10秒</string>
+    <string name="workout_mode_comment">训练模式</string>
+    <string name="set_label">第%d组</string>
+    <string name="right_colon">右侧：</string>
+    <string name="left_colon">左侧：</string>
+    <string name="reps_input">次数</string>
+    <string name="seconds_input">秒</string>
+
+    <!-- Level display -->
+    <string name="level_format">等级%d</string>
+    <!-- Additional missing strings -->
+    <string name="bilateral_label">双侧</string>
+    <string name="unilateral_label">单侧</string>
+
+    <!-- Common Labels -->
+    <string name="tab_list">列表</string>
+    <string name="tab_graph">图表</string>
+    <string name="tab_challenge">挑战</string>
+    <string name="search_placeholder">搜索</string>
+    <string name="clear">清除</string>
+    <string name="value_label">数值</string>
+    <string name="right_with_unit">右侧（%s）</string>
+    <string name="left_with_unit">左侧（%s）</string>
+    <string name="target_with_unit">%1$d×%2$d%3$s</string>
+    <string name="graph_type_average">平均</string>
+    <string name="graph_type_max">最大</string>
+    <string name="graph_type_total">总计</string>
+
+    <!-- Additional hardcoded strings that need to be moved -->
+    <string name="no_exercises_add_with_plus">还没有动作\n点击下方 + 按钮添加</string>
+    <string name="delete_group_confirm_message">删除「%s」？\n该分组中的动作将移至「无分组」。</string>
+    <string name="delete_exercise_confirm_message">删除「%s」？\n该动作的所有记录也将被删除。</string>
+    <string name="duplicate_exercise_name">此动作名称已在使用</string>
+    <string name="duplicate_group_name">此分组名称已在使用</string>
+    <string name="bilateral_with_parenthesis">双侧</string>
+    <string name="unilateral_with_parenthesis">单侧</string>
+    <string name="example_bilateral">例如：俯卧撑、深蹲</string>
+    <string name="example_unilateral">例如：手枪深蹲、单手俯卧撑</string>
+    <string name="per_side_parenthesis">（每侧）</string>
+    <string name="example_3">例如：3</string>
+    <string name="example_10">例如：10</string>
+    <string name="example_30">例如：30</string>
+    <string name="no_group_display">无分组</string>
+    <string name="new_group_plus">+ 新建分组</string>
+    <string name="level_display">级别：%d</string>
+    <string name="save_button">保存</string>
+    <string name="create_button">创建</string>
+    <string name="add_button">添加</string>
+    <string name="set_number_display">第%d组</string>
+    <string name="date_with_label">日期：%s</string>
+    <string name="time_with_label">时间：%s</string>
+    <string name="close_x">×</string>
+    <string name="select_exercise_filter">选择动作</string>
+    <string name="target_display_short">目标：%1$d组 × %2$d%3$s%4$s</string>
+    <string name="edit_exercise_title">编辑动作</string>
+    <string name="create_group_title">创建新分组</string>
+    <string name="add_exercise_title">添加新动作</string>
+
+    <!-- GraphView specific strings -->
+    <string name="graph_tooltip_unilateral">%1$s：右侧%2$d%3$s / 左侧%4$d%5$s</string>
+    <string name="statistics_average_label">平均</string>
+    <string name="statistics_highest_label">最高记录</string>
+    <string name="statistics_lowest_label">最低记录</string>
+    <string name="statistics_total_sets_label">总组数</string>
+    <string name="statistics_value_format">%1$d%2$s</string>
+    <string name="statistics_sets_count_format">%d组</string>
+
+    <!-- Additional format strings for remaining hardcoded Japanese -->
+    <string name="multiplication_sign">×</string>
+    <string name="per_side_short">（每侧）</string>
+    <string name="unknown_short">未知</string>
+    <string name="colon_separator">：</string>
+
+    <!-- Remaining hardcoded strings migration -->
+    <string name="set_ordinal_suffix">第%d组</string>
+    <string name="target_prefix">目标：</string>
+
+    <!-- ViewScreen & GraphView remaining strings -->
+    <string name="right_short">右侧</string>
+    <string name="left_short">左侧</string>
+    <string name="sets_suffix">组</string>
+    <string name="best_record">最佳</string>
+    <string name="worst_record">最低</string>
+    <string name="graph_tooltip_bilateral">%1$s：%2$d%3$s</string>
+    <string name="graph_tooltip_unilateral_detail">%1$s：右%2$d%4$s / 左%3$d%4$s</string>
+
+    <!-- CSV Import/Export -->
+    <string name="csv_template_exported">已导出CSV模板：%d个动作</string>
+    <string name="csv_empty">CSV文件为空</string>
+    <string name="csv_import_success">成功导入%d条记录</string>
+    <string name="csv_import_partial">已导入%1$d条记录，发生%2$d个错误</string>
+    <string name="export_csv_template">导出输入模板</string>
+    <string name="import_csv_records">导入记录</string>
+    <string name="csv_template_description">下载记录模板</string>
+    <string name="csv_import_description">从CSV文件添加记录</string>
+
+    <!-- Settings Screen Sections -->
+    <string name="section_full_backup">完整备份（JSON）</string>
+    <string name="section_full_backup_description">保存和恢复所有数据（动作、记录、分组）。\n更换设备时使用。</string>
+    <string name="section_add_records">添加记录（CSV）</string>
+    <string name="section_add_records_description">向现有数据添加记录。\n用于导入纸质记录或其他应用的数据。</string>
+
+    <!-- Favorites -->
+    <string name="favorite">收藏</string>
+    <string name="add_to_favorites">添加到收藏</string>
+    <string name="remove_from_favorites">从收藏移除</string>
+
+    <!-- Language Settings -->
+    <string name="section_language">语言设置</string>
+    <string name="section_language_description">更改应用显示语言。\n重启应用后生效。</string>
+    <string name="language_setting">语言</string>
+    <string name="current_language">当前：%s</string>
+    <string name="restart_required">需要重启以应用更改</string>
+    <string name="language_changed">已更改语言。请重启应用。</string>
+
+    <!-- Training Days Display -->
+    <string name="training_days_format">训练%s</string>
+    <string name="last_record_short">上次：%s</string>
+</resources>

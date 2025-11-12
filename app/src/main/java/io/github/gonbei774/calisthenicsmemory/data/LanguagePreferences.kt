@@ -38,10 +38,14 @@ class LanguagePreferences(context: Context) {
 /**
  * アプリで選択可能な言語
  */
-enum class AppLanguage(val code: String, val displayNameJa: String, val displayNameEn: String) {
-    SYSTEM("system", "システム設定に従う", "Follow system"),
-    JAPANESE("ja", "日本語", "Japanese"),
-    ENGLISH("en", "English", "English");
+enum class AppLanguage(val code: String, val displayNameJa: String, val displayNameEn: String, val displayNameEs: String, val displayNameDe: String, val displayNameZh: String, val displayNameFr: String) {
+    SYSTEM("system", "システム設定に従う", "Follow system", "Seguir sistema", "Systemeinstellung folgen", "跟随系统", "Suivre le système"),
+    JAPANESE("ja", "日本語", "Japanese", "Japonés", "Japanisch", "日语", "Japonais"),
+    ENGLISH("en", "English", "English", "English", "English", "English", "English"),
+    SPANISH("es", "スペイン語", "Spanish", "Español", "Spanisch", "西班牙语", "Espagnol"),
+    GERMAN("de", "ドイツ語", "German", "Alemán", "Deutsch", "德语", "Allemand"),
+    CHINESE("zh", "中国語（簡体字）", "Chinese (Simplified)", "Chino (Simplificado)", "Chinesisch (vereinfacht)", "简体中文", "Chinois (Simplifié)"),
+    FRENCH("fr", "フランス語", "French", "Francés", "Französisch", "法语", "Français");
 
     companion object {
         fun fromCode(code: String): AppLanguage {
@@ -51,11 +55,15 @@ enum class AppLanguage(val code: String, val displayNameJa: String, val displayN
 
     /**
      * 現在の言語に応じた表示名を取得
-     * @param currentLanguageCode 現在の言語コード（"ja" or "en"）
+     * @param currentLanguageCode 現在の言語コード（"ja", "en", "es", "de", "zh", "fr"）
      */
     fun getDisplayName(currentLanguageCode: String): String {
         return when (currentLanguageCode) {
             "ja" -> displayNameJa
+            "es" -> displayNameEs
+            "de" -> displayNameDe
+            "zh" -> displayNameZh
+            "fr" -> displayNameFr
             else -> displayNameEn
         }
     }
