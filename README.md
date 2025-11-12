@@ -1,407 +1,409 @@
 # Calisthenics Memory
 
-シンプルで自由にカスタマイズできる自重トレーニング記録アプリ
+[🇬🇧 English](README.md) | [🇯🇵 日本語](README.ja.md)
+
+A simple and customizable bodyweight training tracking app
 
 ---
 
-## このアプリについて
+## About This App
 
-Calisthenics Memoryは、プッシュアップやスクワットなどの自重トレーニング（カリステニクス）を記録・管理するためのAndroidアプリです。種目を自由に作成し、グループで整理し、あなたのやり方で進捗を記録できます。
+Calisthenics Memory is an Android app for tracking and managing bodyweight exercises (calisthenics) such as push-ups and squats. Create exercises freely, organize them into groups, and track your progress your way.
 
-### 特徴
+### Features
 
-- **自由にカスタマイズ** - 種目を自由に作成、グループで整理、10段階のレベル管理、お気に入り登録
-- **シンプル** - 必要な機能だけを厳選、直感的なUI
-- **2つのモード** - スピーディーな記録モードと、タイマー付き自動ガイドのワークアウトモード
-- **プライバシー重視** - 完全オフライン動作、データは端末内のみ
+- **Fully Customizable** - Create exercises freely, organize by groups, manage with 10 levels, favorite registration
+- **Simple** - Carefully selected essential features with an intuitive UI
+- **Two Modes** - Speedy record mode and automatic guided workout mode with timer
+- **Privacy-Focused** - Completely offline operation, data stays on your device only
 
 ---
 
-## スクリーンショット
+## Screenshots
 
-### ホーム画面
+### Home Screen
 <p align="center">
-  <img src="screenshots/01_home.png" width="250" alt="ホーム画面">
+  <img src="screenshots/01_home.png" width="250" alt="Home Screen">
 </p>
 
-シンプルで直感的なホーム画面。4つの主要機能へすぐにアクセスできます。
+Simple and intuitive home screen. Quick access to 4 main features.
 
 ---
 
-### ⚙️ 種目管理
+### ⚙️ Exercise Management
 
 <p align="center">
-  <img src="screenshots/02_create_favorites.png" width="250" alt="種目管理（お気に入り）">
-  <img src="screenshots/03_create_edit.png" width="250" alt="種目編集">
+  <img src="screenshots/02_create_favorites.png" width="250" alt="Exercise Management (Favorites)">
+  <img src="screenshots/03_create_edit.png" width="250" alt="Exercise Editing">
 </p>
 
-**左**: お気に入り登録した種目は専用グループで先頭表示。★マークで一目で分かる
-**右**: 種目作成・編集画面。タイプ（回数/時間）、左右、課題、レベルを柔軟に設定
+**Left**: Favorite exercises are displayed at the top in a dedicated group. Easily identifiable with ★ marks.
+**Right**: Exercise creation/editing screen. Flexible settings for type (reps/time), laterality, challenges, and levels.
 
-- グループで階層的に整理
-- レベル（1〜10）で段階的に管理
-- お気に入り登録でよく使う種目を素早くアクセス
+- Organize hierarchically by groups
+- Manage progressively with levels (1-10)
+- Quick access to frequently used exercises with favorites
 
 ---
 
-### 📝 記録機能
+### 📝 Record Feature
 
 <p align="center">
-  <img src="screenshots/04_record_select.png" width="250" alt="種目選択">
-  <img src="screenshots/05_record_bilateral.png" width="250" alt="両側種目の記録">
-  <img src="screenshots/06_record_unilateral.png" width="250" alt="片側種目の記録">
+  <img src="screenshots/04_record_select.png" width="250" alt="Exercise Selection">
+  <img src="screenshots/05_record_bilateral.png" width="250" alt="Bilateral Exercise Recording">
+  <img src="screenshots/06_record_unilateral.png" width="250" alt="Unilateral Exercise Recording">
 </p>
 
-**左**: 種目選択画面。お気に入りや階層グループで見やすく整理
-**中央**: 両側種目（通常のプッシュアップ、スクワットなど）はシンプルに記録
-**右**: 片側種目（ピストルスクワット、ワンアームプッシュアップなど）は左右別々に記録
+**Left**: Exercise selection screen. Organized clearly with favorites and hierarchical groups.
+**Center**: Bilateral exercises (regular push-ups, squats, etc.) are recorded simply.
+**Right**: Unilateral exercises (pistol squats, one-arm push-ups, etc.) are recorded separately for left and right.
 
-- セット数を自由に調整可能
-- 日付・時刻・コメントも追加可能
-- スピーディーな入力で記録の手間を最小化
+- Freely adjustable number of sets
+- Add date, time, and comments
+- Minimize recording effort with speedy input
 
 ---
 
-### 🏋️ ワークアウト機能
+### 🏋️ Workout Feature
 
 <p align="center">
-  <img src="screenshots/07_workout_select.png" width="250" alt="種目選択">
-  <img src="screenshots/08_workout_config.png" width="250" alt="ワークアウト設定">
-  <img src="screenshots/09_workout_progress.png" width="250" alt="ワークアウト実行中">
+  <img src="screenshots/07_workout_select.png" width="250" alt="Exercise Selection">
+  <img src="screenshots/08_workout_config.png" width="250" alt="Workout Configuration">
+  <img src="screenshots/09_workout_progress.png" width="250" alt="Workout in Progress">
 </p>
 
-自動ガイド付きのワークアウトモード：
+Automatic guided workout mode:
 
-1. **種目を選択** - お気に入りや階層表示で見やすく整理
-2. **設定を調整** - 目標セット数・回数、1レップの時間、カウントダウン、インターバルを設定
-3. **実行** - カウントダウンから実行、インターバルまで自動で進行
+1. **Select Exercise** - Organized clearly with favorites and hierarchical display
+2. **Adjust Settings** - Set target sets/reps, time per rep, countdown, and intervals
+3. **Execute** - Automatic progression from countdown to execution, intervals
 
-トレーニングに集中できるよう、画面を見るだけでペースを管理できます。途中でスキップや中断も可能で、その時点までの記録を保存できます。
+Manage your pace just by looking at the screen to focus on training. Skip or stop midway, and save records up to that point.
 
 ---
 
-### 📊 閲覧機能 - 一覧タブ
+### 📊 View Feature - List Tab
 
 <p align="center">
-  <img src="screenshots/10_view_list.png" width="250" alt="記録一覧">
-  <img src="screenshots/11_view_list_unilateral.png" width="250" alt="片側種目の詳細">
+  <img src="screenshots/10_view_list.png" width="250" alt="Record List">
+  <img src="screenshots/11_view_list_unilateral.png" width="250" alt="Unilateral Exercise Details">
 </p>
 
-**左**: 過去のトレーニング記録を時系列で確認
-**右**: 片側種目は左右の値を色分けして表示（緑=右、紫=左）
+**Left**: Check past training records chronologically.
+**Right**: Unilateral exercises display left and right values color-coded (green=right, purple=left).
 
-- 各セッションの詳細（日時・セット内容・コメント）が一目で分かる
-- タップで編集、削除ボタンで削除可能
-- 期間フィルター（1週間/1ヶ月/3ヶ月/全期間）で絞り込み
+- Session details (date/time, set content, comments) at a glance
+- Tap to edit, delete button to remove
+- Filter by period (1 week/1 month/3 months/all time)
 
 ---
 
-### 📈 閲覧機能 - グラフタブ
+### 📈 View Feature - Graph Tab
 
 <p align="center">
-  <img src="screenshots/12_view_graph.png" width="250" alt="グラフ（片側種目）">
-  <img src="screenshots/13_view_graph_isometric.png" width="250" alt="グラフ（時間制種目）">
+  <img src="screenshots/12_view_graph.png" width="250" alt="Graph (Unilateral Exercise)">
+  <img src="screenshots/13_view_graph_isometric.png" width="250" alt="Graph (Isometric Exercise)">
 </p>
 
-**左**: 片側種目は左右を別々のライン（緑=右、紫=左）で表示
-**右**: 時間制種目（Plank など）も同様にグラフ化。合計値表示で総トレーニング時間を確認
+**Left**: Unilateral exercises display left and right as separate lines (green=right, purple=left).
+**Right**: Isometric exercises (Plank, etc.) are also graphed. Check total training time with sum display.
 
-- 統計タイプ切り替え（平均/最大/合計）で多角的に分析
-- 期間フィルター（1週間/1ヶ月/3ヶ月/全期間）
-- 統計サマリーで総セット数、平均、ベスト、最低値を表示
+- Switch statistics type (average/max/sum) for multifaceted analysis
+- Period filter (1 week/1 month/3 months/all time)
+- Statistics summary displays total sets, average, best, and lowest values
 
 ---
 
-### 🎯 閲覧機能 - 課題タブ
+### 🎯 View Feature - Challenge Tab
 
 <p align="center">
-  <img src="screenshots/14_view_challenge_complete.png" width="250" alt="課題タブ（達成済み）">
-  <img src="screenshots/15_view_challenge_progress.png" width="250" alt="課題タブ（進行中）">
+  <img src="screenshots/14_view_challenge_complete.png" width="250" alt="Challenge Tab (Complete)">
+  <img src="screenshots/15_view_challenge_progress.png" width="250" alt="Challenge Tab (In Progress)">
 </p>
 
-目標達成状況を視覚的に確認。プログレスバーで進捗が一目瞭然：
+Visually check goal achievement status. Progress bars show progress at a glance:
 
-- **100%以上**: 完璧にクリア（✓達成マーク表示）
-- **75〜99%**: 良好な状態
-- **50〜74%**: もう少し
-- **0〜49%**: 頑張ろう
+- **100% or more**: Perfectly cleared (✓ achievement mark displayed)
+- **75-99%**: Good condition
+- **50-74%**: Almost there
+- **0-49%**: Keep going
 
-お気に入りグループを含む全グループを階層表示。種目別にフィルターして、特定のトレーニングの進捗を集中的にチェックできます。
+Hierarchical display of all groups including favorites. Filter by exercise to focus on specific training progress.
 
 ---
 
-### ⚙️ 設定画面
+### ⚙️ Settings Screen
 
 <p align="center">
-  <img src="screenshots/16_settings.png" width="250" alt="設定画面">
+  <img src="screenshots/16_settings.png" width="250" alt="Settings Screen">
 </p>
 
-データ管理機能：
+Data management features:
 
-**完全バックアップ（JSON）**
-- すべてのデータ（種目、グループ、記録）をエクスポート・インポート
-- 端末変更時のデータ移行に対応
-- ⚠️ インポート時は既存データを削除
+**Complete Backup (JSON)**
+- Export/import all data (exercises, groups, records)
+- Support data migration when changing devices
+- ⚠️ Existing data is deleted on import
 
-**記録の追加（CSV）**
-- テンプレートをダウンロードして記録を一括追加
-- アナログ記録やメモアプリからの移行に便利
-- 既存データに追加（削除されません）
-
----
-
-## 主な機能
-
-### トレーニング記録
-- 日付・時刻・セット数・回数（または秒数）を記録
-- 両側種目（プッシュアップなど）と片側種目（ピストルスクワットなど）に対応
-- コメント機能で気づきやフォームのメモを記録
-
-### 記録の閲覧
-3つのタブで記録を確認できます：
-
-1. **一覧タブ** - 過去の記録を一覧表示、編集・削除も可能
-2. **グラフタブ** - 期間別にグラフで進捗を可視化（平均/最大/合計）
-3. **課題タブ** - 目標の達成状況を確認、4段階で評価
-
-### 課題設定
-- 目標セット数×目標値を設定（例：3セット × 50回）
-- 上位N個のセットの合計で判定するため、柔軟な達成評価が可能
-- 達成率に応じてプログレスバーの色が変化
-
-### グループ管理とお気に入り
-- 種目をグループ分け（例：Push-ups、Squats、Pull-ups など）
-- 階層表示で見やすく整理
-- レベル（1〜10）で段階的な進捗を管理
-- お気に入り登録でよく使う種目を専用グループに表示
-
-### バックアップ
-- JSON形式でデータをエクスポート
-- 別の端末へのデータ移行やバックアップに対応
-- CSV形式で記録をインポート（アナログ記録やメモアプリからの移行に便利）
-
-### 多言語対応
-- 日本語・英語に対応
-- デバイスの言語設定に自動で切り替わります
+**Add Records (CSV)**
+- Download template for bulk record addition
+- Convenient for migrating from analog records or note apps
+- Added to existing data (not deleted)
 
 ---
 
-## 使い方
+## Main Features
 
-### 1. 種目を作成する
-「Create」画面から新しい種目を追加します：
+### Training Records
+- Record date, time, sets, reps (or seconds)
+- Support bilateral exercises (push-ups, etc.) and unilateral exercises (pistol squats, etc.)
+- Comment feature for notes on form and insights
 
-1. 種目名を入力（例：「Wall Push-up」）
-2. タイプを選択（Dynamic: 回数制 / Isometric: 時間制）
-3. Lateralityを選択（Bilateral: 両側 / Unilateral: 片側）
-4. グループを選択（任意）
-5. レベルを設定（1〜10、任意）
-6. 課題を設定（目標セット数 × 目標値、任意）
-7. ★マークでお気に入り登録（任意）
+### Viewing Records
+Check records in 3 tabs:
 
-### 2. トレーニングを記録する
-「Record」画面から記録を追加します：
+1. **List Tab** - Display past records in a list, edit and delete possible
+2. **Graph Tab** - Visualize progress by period with graphs (average/max/sum)
+3. **Challenge Tab** - Check goal achievement status, evaluated in 4 stages
 
-1. 種目を選択（お気に入りや階層表示から）
-2. セット数を設定
-3. 各セットの値を入力
-4. コメントを追加（任意）
-5. 日付・時刻を確認（必要に応じて変更）
-6. 「Record」をタップ
+### Challenge Settings
+- Set target sets × target value (example: 3 sets × 50 reps)
+- Flexible achievement evaluation by judging with sum of top N sets
+- Progress bar color changes according to achievement rate
 
-### 3. ワークアウトモードを使う
-「Workout」画面から自動ガイド付きのトレーニングができます：
+### Group Management and Favorites
+- Group exercises (e.g., Push-ups, Squats, Pull-ups, etc.)
+- Organize clearly with hierarchical display
+- Manage progressive progress with levels (1-10)
+- Display frequently used exercises in a dedicated group with favorite registration
 
-1. 種目を選択
-2. 目標セット数・回数を設定
-3. タイマー設定（1レップの時間、カウントダウン、インターバル）
-4. 「Start」をタップ
-5. 自動でカウントダウン → 実行 → インターバル → 次のセット
-6. 完了後、記録を保存
+### Backup
+- Export data in JSON format
+- Support data migration to another device or backup
+- Import records in CSV format (convenient for migrating from analog records or note apps)
 
-### 4. 記録を閲覧する
-「View Records」画面で過去の記録を確認します：
-
-- **List タブ**: セッション単位で表示、編集・削除可能
-- **Graph タブ**: 折れ線グラフで進捗を可視化
-- **Challenge タブ**: 目標の達成状況をプログレスバーで表示
-
-フィルター機能で種目・期間を絞り込めます。
-
-### 5. データをバックアップする
-「Settings」画面からデータをエクスポート・インポートできます：
-
-**完全バックアップ（JSON）**
-- **エクスポート**: 「Export Data」→ 保存先を選択
-- **インポート**: 「Import Data」→ JSONファイルを選択
-  - ⚠️ インポートすると既存データは削除されます
-
-**記録の追加（CSV）**
-- **テンプレートをダウンロード**: 「Export Input Template」で記録用CSVテンプレートを取得
-- **記録をインポート**: 「Import Records」でCSVファイルから記録を追加
-  - 既存データに追加されます（削除されません）
-  - アナログ記録やメモアプリからの移行に便利
+### Multi-Language Support
+- Support Japanese and English
+- Automatically switches according to device language settings
 
 ---
 
-## 課題判定の仕組み
+## How to Use
 
-### 基本ルール
-目標を達成したかどうかは、**上位N個のセットの合計**で判定します。
+### 1. Create Exercises
+Add new exercises from the "Create" screen:
 
-**例：目標が「2セット × 20回」の場合**
+1. Enter exercise name (example: "Wall Push-up")
+2. Select type (Dynamic: rep-based / Isometric: time-based)
+3. Select laterality (Bilateral: both sides / Unilateral: one side)
+4. Select group (optional)
+5. Set level (1-10, optional)
+6. Set challenge (target sets × target value, optional)
+7. Favorite registration with ★ mark (optional)
 
-**クリアパターン**:
-- 20回 + 20回 + 5回 → 上位2個の合計 = 40回（100%）
-- 25回 + 16回 + 10回 → 上位2個の合計 = 41回（102%）
+### 2. Record Training
+Add records from the "Record" screen:
 
-**未クリアパターン**:
-- 15回 + 15回 + 15回 → 上位2個の合計 = 30回（75%）
+1. Select exercise (from favorites or hierarchical display)
+2. Set number of sets
+3. Enter values for each set
+4. Add comment (optional)
+5. Check date and time (change if necessary)
+6. Tap "Record"
 
-### 片側種目の場合
-左右それぞれで上位N個を計算し、平均で評価します。
+### 3. Use Workout Mode
+Automatic guided training from the "Workout" screen:
 
-**例：目標が「2セット × 20回（片方あたり）」の場合**
+1. Select exercise
+2. Set target sets and reps
+3. Timer settings (time per rep, countdown, interval)
+4. Tap "Start"
+5. Automatic countdown → execution → interval → next set
+6. Save record after completion
 
-**両側クリア**:
-- 右: 20回 + 20回 = 40回（100%）
-- 左: 19回 + 21回 = 40回（100%）
-- **平均: 100%** → クリア
+### 4. View Records
+Check past records on the "View Records" screen:
 
-**片側のみクリア**:
-- 右: 20回 + 20回 = 40回（100%）
-- 左: 15回 + 15回 = 30回（75%）
-- **平均: 87.5%** → 未クリア
+- **List Tab**: Display by session, edit and delete possible
+- **Graph Tab**: Visualize progress with line graphs
+- **Challenge Tab**: Display goal achievement status with progress bars
 
-### 評価基準
+Filter by exercise and period.
 
-達成率に応じてプログレスバーの色が変わります：
-- **100%以上**: 完璧にクリア（✓達成マーク表示）
-- **75〜99%**: 良好な状態
-- **50〜74%**: もう少し
-- **0〜49%**: 頑張ろう
+### 5. Backup Data
+Export and import data from the "Settings" screen:
 
----
+**Complete Backup (JSON)**
+- **Export**: "Export Data" → Select save destination
+- **Import**: "Import Data" → Select JSON file
+  - ⚠️ Existing data is deleted on import
 
-## 画面構成
-
-### ホーム画面
-4つのボタンから各機能にアクセスできます：
-- **Create** - 種目・グループを管理
-- **Record** - トレーニング記録を入力
-- **Workout** - 自動ガイド付きトレーニング
-- **View** - 過去の記録を確認
-
-右下の⚙️ボタンから設定画面へアクセスできます。
-
-### 種目管理画面（Create）
-種目とグループを管理、課題を設定。お気に入り登録した種目は★マークで表示され、専用グループに配置されます。
-
-### 記録画面（Record）
-種目を選択 → セット数・値を入力 → 記録
-
-### ワークアウト画面（Workout）
-種目選択 → 設定 → 準備 → 実行 → インターバル → 完了 → 記録
-
-### 閲覧画面（View Records）
-一覧 / グラフ / 課題の3タブで記録を確認
+**Add Records (CSV)**
+- **Download Template**: Get record CSV template with "Export Input Template"
+- **Import Records**: Add records from CSV file with "Import Records"
+  - Added to existing data (not deleted)
+  - Convenient for migrating from analog records or note apps
 
 ---
 
-## ヒント
+## Challenge Judgment Mechanism
 
-### 効果的な使い方
-- **お気に入り機能を活用**: よく使う種目を登録してアクセスを高速化
-- **レベルを活用**: 1〜10のレベルで段階的な進捗を管理
-- **課題を設定**: 明確な目標があるとモチベーション維持に効果的
-- **コメント機能**: フォームの気づきや体調をメモ
-- **定期的にバックアップ**: データをエクスポートして保存
+### Basic Rules
+Goal achievement is judged by the **sum of the top N sets**.
 
-### グラフの見方
-- **平均**: トレーニングの安定性を確認
-- **最大**: 自己ベストの推移を確認
-- **合計**: トレーニングボリュームを確認
-- 片側種目は左右別々にラインで表示されます（緑=右、紫=左）
+**Example: When the goal is "2 sets × 20 reps"**
+
+**Clear Pattern**:
+- 20 reps + 20 reps + 5 reps → Sum of top 2 = 40 reps (100%)
+- 25 reps + 16 reps + 10 reps → Sum of top 2 = 41 reps (102%)
+
+**Not Clear Pattern**:
+- 15 reps + 15 reps + 15 reps → Sum of top 2 = 30 reps (75%)
+
+### For Unilateral Exercises
+Calculate top N for left and right respectively, and evaluate by average.
+
+**Example: When the goal is "2 sets × 20 reps (per side)"**
+
+**Both Sides Clear**:
+- Right: 20 reps + 20 reps = 40 reps (100%)
+- Left: 19 reps + 21 reps = 40 reps (100%)
+- **Average: 100%** → Clear
+
+**Only One Side Clear**:
+- Right: 20 reps + 20 reps = 40 reps (100%)
+- Left: 15 reps + 15 reps = 30 reps (75%)
+- **Average: 87.5%** → Not Clear
+
+### Evaluation Criteria
+
+Progress bar color changes according to achievement rate:
+- **100% or more**: Perfectly cleared (✓ achievement mark displayed)
+- **75-99%**: Good condition
+- **50-74%**: Almost there
+- **0-49%**: Keep going
 
 ---
 
-## 動作環境
+## Screen Structure
 
-- **対応OS**: Android 8.0（API 26）以上
-- **ストレージ**: 約10MB
-- **インターネット**: 不要（完全オフライン動作）
+### Home Screen
+Access each feature from 4 buttons:
+- **Create** - Manage exercises and groups
+- **Record** - Input training records
+- **Workout** - Automatic guided training
+- **View** - Check past records
+
+Access the settings screen from the ⚙️ button in the bottom right.
+
+### Exercise Management Screen (Create)
+Manage exercises and groups, set challenges. Favorite exercises are displayed with ★ marks and placed in a dedicated group.
+
+### Record Screen (Record)
+Select exercise → Enter sets and values → Record
+
+### Workout Screen (Workout)
+Select exercise → Settings → Preparation → Execution → Interval → Complete → Record
+
+### View Screen (View Records)
+Check records in 3 tabs: List / Graph / Challenge
 
 ---
 
-## ライセンス
+## Tips
 
-このアプリはGNU General Public License v3.0の下で公開されています。詳細は[LICENSE](LICENSE)ファイルをご覧ください。
+### Effective Usage
+- **Utilize Favorites**: Register frequently used exercises for faster access
+- **Utilize Levels**: Manage progressive progress with levels 1-10
+- **Set Challenges**: Clear goals are effective for maintaining motivation
+- **Comment Feature**: Note insights on form and physical condition
+- **Regular Backups**: Export and save data
+
+### How to Read Graphs
+- **Average**: Check training stability
+- **Max**: Check progress of personal best
+- **Sum**: Check training volume
+- Unilateral exercises display left and right as separate lines (green=right, purple=left)
 
 ---
 
-## インストール
+## System Requirements
 
-### 📥 APKダウンロード
+- **Supported OS**: Android 8.0 (API 26) or higher
+- **Storage**: Approximately 10MB
+- **Internet**: Not required (completely offline operation)
 
-最新版は[Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases)からダウンロードできます。
+---
 
-**[📦 v1.2.0をダウンロード](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.2.0/CalisthenicsMemory-v1.2.0.apk)**
+## License
 
-過去のバージョンが必要な場合は[Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases)ページからダウンロードできます。
+This app is released under the GNU General Public License v3.0. See the [LICENSE](LICENSE) file for details.
 
-### ⚠️ 免責事項
+---
 
-このアプリは無保証で提供されます。GPL-3.0ライセンスの下、現状有姿（AS IS）で配布されており、商品性や特定目的適合性について一切保証しません。使用に起因するいかなる損害についても責任を負いかねます。
+## Installation
 
-### インストール手順
+### 📥 APK Download
 
-1. 上記リンクからAPKファイルをダウンロード
-2. ダウンロードしたファイルをタップ
-3. 「提供元不明のアプリ」の許可を求められた場合は許可
-4. インストール完了
+The latest version can be downloaded from [Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases).
 
-### セキュリティ確認
+**[📦 Download v1.2.0](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.2.0/app-release.apk)**
 
-APKの改ざんがないか確認したい場合は、SHA256チェックサムを検証してください：
+If you need a previous version, you can download it from the [Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases) page.
+
+### ⚠️ Disclaimer
+
+This app is provided without warranty. Distributed under the GPL-3.0 license on an "AS IS" basis, with no warranty of merchantability or fitness for a particular purpose. We are not responsible for any damages arising from use.
+
+### Installation Steps
+
+1. Download APK file from the link above
+2. Tap the downloaded file
+3. Allow "Install from unknown sources" if prompted
+4. Installation complete
+
+### Security Verification
+
+If you want to verify that the APK has not been tampered with, please verify the SHA256 checksum:
 
 ```bash
-# ダウンロードしたAPKのSHA256を計算
-sha256sum CalisthenicsMemory-v1.2.0.apk
+# Calculate SHA256 of downloaded APK
+sha256sum app-release.apk
 
-# 公式のSHA256と比較
-# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.2.0/CalisthenicsMemory-v1.2.0.apk.sha256
+# Compare with official SHA256
+# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.2.0/app-release.apk.sha256
 ```
 
 ---
 
-## よくある質問
+## FAQ
 
-### Q: どんなトレーニング方法に対応していますか？
-A: Convict Conditioning、StartBodyweight、または独自のプログラムなど、あらゆる自重トレーニング方法に対応しています。種目を自由に作成できるため、あなたのトレーニング哲学に合わせて使えます。
+### Q: What training methods are supported?
+A: Any bodyweight training method is supported, including Convict Conditioning, StartBodyweight, or your own custom programs. You can create exercises freely, so you can use it according to your training philosophy.
 
-### Q: データはどこに保存されますか？
-A: アプリ内のローカルデータベース（SQLite）に保存されます。インターネットに送信されることはなく、完全にオフラインで動作します。
+### Q: Where is data stored?
+A: It is stored in a local database (SQLite) inside the app. It is never sent to the internet and operates completely offline.
 
-### Q: バックアップは自動で取られますか？
-A: いいえ、手動でエクスポートする必要があります。定期的なバックアップをおすすめします。
+### Q: Are backups taken automatically?
+A: No, you need to export manually. We recommend regular backups.
 
-### Q: アプリをアンインストールするとデータは消えますか？
-A: はい、消えます。アンインストール前に必ずエクスポートしてください。
+### Q: Will data be deleted if I uninstall the app?
+A: Yes, it will be deleted. Be sure to export before uninstalling.
 
-### Q: 課題を設定しなくても使えますか？
-A: はい、記録機能は課題設定なしでも使えます。課題タブには表示されませんが、一覧・グラフは問題なく使えます。
+### Q: Can I use it without setting challenges?
+A: Yes, the record feature can be used without challenge settings. It will not be displayed in the challenge tab, but the list and graphs work fine.
 
-### Q: 多言語対応していますか？
-A: 日本語と英語に対応しています。デバイスの言語設定に応じて自動で切り替わります。
+### Q: Is multi-language supported?
+A: Japanese and English are supported. It automatically switches according to device language settings.
 
-### Q: お気に入り登録した種目はどこに表示されますか？
-A: お気に入り登録した種目は「お気に入り」グループに自動で表示されます。元のグループにも引き続き表示されるため、どちらからもアクセス可能です。
+### Q: Where are favorite exercises displayed?
+A: Favorite exercises are automatically displayed in the "Favorites" group. They continue to be displayed in their original group, so you can access from either.
 
 ---
 
-## 開発
+## Development
 
-### ビルド方法
+### Build Instructions
 
 ```bash
 git clone https://github.com/Gonbei774/CalisthenicsMemory.git
@@ -409,11 +411,11 @@ cd CalisthenicsMemory
 ./gradlew assembleDebug
 ```
 
-### 要件
-- JDK 17以上
-- Android SDK（API 26以上）
-- Gradle（プロジェクトに含まれる）
+### Requirements
+- JDK 17 or higher
+- Android SDK (API 26 or higher)
+- Gradle (included in the project)
 
 ---
 
-**最終更新**: 2025年11月10日
+**Last Updated**: November 10, 2025
