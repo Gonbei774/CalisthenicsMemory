@@ -85,8 +85,8 @@ Calisthenics Memory是一款Android应用，用于记录和管理俯卧撑和深
 ### 📊 查看功能 - 列表标签
 
 <p align="center">
-  <img src="screenshots/10_view_list.png" width="250" alt="记录列表">
-  <img src="screenshots/11_view_list_unilateral.png" width="250" alt="单侧动作详情">
+  <img src="screenshots/11_view_list.png" width="250" alt="记录列表">
+  <img src="screenshots/12_view_list_unilateral.png" width="250" alt="单侧动作详情">
 </p>
 
 **左图**：按时间顺序查看过去的训练记录。
@@ -101,8 +101,8 @@ Calisthenics Memory是一款Android应用，用于记录和管理俯卧撑和深
 ### 📈 查看功能 - 图表标签
 
 <p align="center">
-  <img src="screenshots/12_view_graph.png" width="250" alt="图表（单侧动作）">
-  <img src="screenshots/13_view_graph_isometric.png" width="250" alt="图表（静态动作）">
+  <img src="screenshots/13_view_graph.png" width="250" alt="图表（单侧动作）">
+  <img src="screenshots/14_view_graph_max.png" width="250" alt="图表（静态动作）">
 </p>
 
 **左图**：单侧动作将左右显示为单独的线（绿色=右侧，紫色=左侧）。
@@ -117,8 +117,8 @@ Calisthenics Memory是一款Android应用，用于记录和管理俯卧撑和深
 ### 🎯 查看功能 - 挑战标签
 
 <p align="center">
-  <img src="screenshots/14_view_challenge_complete.png" width="250" alt="挑战标签（已完成）">
-  <img src="screenshots/15_view_challenge_progress.png" width="250" alt="挑战标签（进行中）">
+  <img src="screenshots/15_view_challenge_complete.png" width="250" alt="挑战标签（已完成）">
+  <img src="screenshots/16_view_challenge_progress.png" width="250" alt="挑战标签（进行中）">
 </p>
 
 直观查看目标达成状态。进度条一目了然显示进度：
@@ -135,7 +135,7 @@ Calisthenics Memory是一款Android应用，用于记录和管理俯卧撑和深
 ### ⚙️ 设置屏幕
 
 <p align="center">
-  <img src="screenshots/16_settings.png" width="250" alt="设置屏幕">
+  <img src="screenshots/17_settings.png" width="250" alt="设置屏幕">
 </p>
 
 数据管理功能：

@@ -85,8 +85,8 @@ Gestiona tu ritmo solo mirando la pantalla para enfocarte en el entrenamiento. S
 ### 📊 Función de Consulta - Pestaña de Lista
 
 <p align="center">
-  <img src="screenshots/10_view_list.png" width="250" alt="Lista de Registros">
-  <img src="screenshots/11_view_list_unilateral.png" width="250" alt="Detalles de Ejercicio Unilateral">
+  <img src="screenshots/11_view_list.png" width="250" alt="Lista de Registros">
+  <img src="screenshots/12_view_list_unilateral.png" width="250" alt="Detalles de Ejercicio Unilateral">
 </p>
 
 **Izquierda**: Revisa los registros de entrenamiento pasados cronológicamente.
@@ -101,8 +101,8 @@ Gestiona tu ritmo solo mirando la pantalla para enfocarte en el entrenamiento. S
 ### 📈 Función de Consulta - Pestaña de Gráfica
 
 <p align="center">
-  <img src="screenshots/12_view_graph.png" width="250" alt="Gráfica (Ejercicio Unilateral)">
-  <img src="screenshots/13_view_graph_isometric.png" width="250" alt="Gráfica (Ejercicio Isométrico)">
+  <img src="screenshots/13_view_graph.png" width="250" alt="Gráfica (Ejercicio Unilateral)">
+  <img src="screenshots/14_view_graph_max.png" width="250" alt="Gráfica (Ejercicio Isométrico)">
 </p>
 
 **Izquierda**: Los ejercicios unilaterales muestran izquierda y derecha como líneas separadas (verde=derecho, morado=izquierdo).
@@ -117,8 +117,8 @@ Gestiona tu ritmo solo mirando la pantalla para enfocarte en el entrenamiento. S
 ### 🎯 Función de Consulta - Pestaña de Desafío
 
 <p align="center">
-  <img src="screenshots/14_view_challenge_complete.png" width="250" alt="Pestaña de Desafío (Completo)">
-  <img src="screenshots/15_view_challenge_progress.png" width="250" alt="Pestaña de Desafío (En Progreso)">
+  <img src="screenshots/15_view_challenge_complete.png" width="250" alt="Pestaña de Desafío (Completo)">
+  <img src="screenshots/16_view_challenge_progress.png" width="250" alt="Pestaña de Desafío (En Progreso)">
 </p>
 
 Verifica visualmente el estado de logro de objetivos. Las barras de progreso muestran el progreso de un vistazo:
@@ -135,7 +135,7 @@ Visualización jerárquica de todos los grupos incluyendo favoritos. Filtra por 
 ### ⚙️ Pantalla de Configuración
 
 <p align="center">
-  <img src="screenshots/16_settings.png" width="250" alt="Pantalla de Configuración">
+  <img src="screenshots/17_settings.png" width="250" alt="Pantalla de Configuración">
 </p>
 
 Funciones de gestión de datos:

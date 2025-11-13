@@ -70,6 +70,7 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
   <img src="screenshots/07_workout_select.png" width="250" alt="種目選択">
   <img src="screenshots/08_workout_config.png" width="250" alt="ワークアウト設定">
   <img src="screenshots/09_workout_progress.png" width="250" alt="ワークアウト実行中">
+  <img src="screenshots/10_workout_complete.png" width="250" alt="ワークアウト完了">
 </p>
 
 自動ガイド付きのワークアウトモード：
@@ -77,6 +78,7 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 1. **種目を選択** - お気に入りや階層表示で見やすく整理
 2. **設定を調整** - 目標セット数・回数、1レップの時間、カウントダウン、インターバルを設定
 3. **実行** - カウントダウンから実行、インターバルまで自動で進行
+4. **完了** - サマリーを確認して記録を保存
 
 トレーニングに集中できるよう、画面を見るだけでペースを管理できます。途中でスキップや中断も可能で、その時点までの記録を保存できます。
 
@@ -85,8 +87,8 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 ### 📊 閲覧機能 - 一覧タブ
 
 <p align="center">
-  <img src="screenshots/10_view_list.png" width="250" alt="記録一覧">
-  <img src="screenshots/11_view_list_unilateral.png" width="250" alt="片側種目の詳細">
+  <img src="screenshots/11_view_list.png" width="250" alt="記録一覧">
+  <img src="screenshots/12_view_list_unilateral.png" width="250" alt="片側種目の詳細">
 </p>
 
 **左**: 過去のトレーニング記録を時系列で確認
@@ -101,8 +103,8 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 ### 📈 閲覧機能 - グラフタブ
 
 <p align="center">
-  <img src="screenshots/12_view_graph.png" width="250" alt="グラフ（片側種目）">
-  <img src="screenshots/13_view_graph_isometric.png" width="250" alt="グラフ（時間制種目）">
+  <img src="screenshots/13_view_graph.png" width="250" alt="グラフ（片側種目）">
+  <img src="screenshots/14_view_graph_max.png" width="250" alt="グラフ（時間制種目）">
 </p>
 
 **左**: 片側種目は左右を別々のライン（緑=右、紫=左）で表示
@@ -117,8 +119,8 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 ### 🎯 閲覧機能 - 課題タブ
 
 <p align="center">
-  <img src="screenshots/14_view_challenge_complete.png" width="250" alt="課題タブ（達成済み）">
-  <img src="screenshots/15_view_challenge_progress.png" width="250" alt="課題タブ（進行中）">
+  <img src="screenshots/15_view_challenge_complete.png" width="250" alt="課題タブ（達成済み）">
+  <img src="screenshots/16_view_challenge_progress.png" width="250" alt="課題タブ（進行中）">
 </p>
 
 目標達成状況を視覚的に確認。プログレスバーで進捗が一目瞭然：
@@ -135,7 +137,8 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 ### ⚙️ 設定画面
 
 <p align="center">
-  <img src="screenshots/16_settings.png" width="250" alt="設定画面">
+  <img src="screenshots/17_settings.png" width="250" alt="設定画面">
+  <img src="screenshots/18_settings_language.png" width="250" alt="言語選択">
 </p>
 
 データ管理とアプリ設定：
@@ -143,6 +146,7 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 **言語選択**
 - 設定から直接アプリの言語を変更可能
 - 対応言語：日本語、英語、スペイン語、ドイツ語、中国語（簡体字）、フランス語
+- 設定画面（左）と言語選択ダイアログ（右）
 
 **完全バックアップ（JSON）**
 - すべてのデータ（種目、グループ、記録）をエクスポート・インポート

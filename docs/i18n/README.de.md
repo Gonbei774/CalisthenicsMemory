@@ -85,8 +85,8 @@ Verwalte dein Tempo einfach durch einen Blick auf den Bildschirm, um dich auf da
 ### 📊 Ansichtsfunktion - Listentab
 
 <p align="center">
-  <img src="screenshots/10_view_list.png" width="250" alt="Aufzeichnungsliste">
-  <img src="screenshots/11_view_list_unilateral.png" width="250" alt="Einseitige Übungsdetails">
+  <img src="screenshots/11_view_list.png" width="250" alt="Aufzeichnungsliste">
+  <img src="screenshots/12_view_list_unilateral.png" width="250" alt="Einseitige Übungsdetails">
 </p>
 
 **Links**: Überprüfe vergangene Trainingsaufzeichnungen chronologisch.
@@ -101,8 +101,8 @@ Verwalte dein Tempo einfach durch einen Blick auf den Bildschirm, um dich auf da
 ### 📈 Ansichtsfunktion - Diagrammtab
 
 <p align="center">
-  <img src="screenshots/12_view_graph.png" width="250" alt="Diagramm (Einseitige Übung)">
-  <img src="screenshots/13_view_graph_isometric.png" width="250" alt="Diagramm (Isometrische Übung)">
+  <img src="screenshots/13_view_graph.png" width="250" alt="Diagramm (Einseitige Übung)">
+  <img src="screenshots/14_view_graph_max.png" width="250" alt="Diagramm (Isometrische Übung)">
 </p>
 
 **Links**: Einseitige Übungen zeigen links und rechts als separate Linien (grün=rechts, lila=links).
@@ -117,8 +117,8 @@ Verwalte dein Tempo einfach durch einen Blick auf den Bildschirm, um dich auf da
 ### 🎯 Ansichtsfunktion - Herausforderungstab
 
 <p align="center">
-  <img src="screenshots/14_view_challenge_complete.png" width="250" alt="Herausforderungstab (Abgeschlossen)">
-  <img src="screenshots/15_view_challenge_progress.png" width="250" alt="Herausforderungstab (In Bearbeitung)">
+  <img src="screenshots/15_view_challenge_complete.png" width="250" alt="Herausforderungstab (Abgeschlossen)">
+  <img src="screenshots/16_view_challenge_progress.png" width="250" alt="Herausforderungstab (In Bearbeitung)">
 </p>
 
 Überprüfe visuell den Erreichungsstatus von Zielen. Fortschrittsbalken zeigen den Fortschritt auf einen Blick:
@@ -135,7 +135,7 @@ Hierarchische Anzeige aller Gruppen einschließlich Favoriten. Filtere nach Übu
 ### ⚙️ Einstellungsbildschirm
 
 <p align="center">
-  <img src="screenshots/16_settings.png" width="250" alt="Einstellungsbildschirm">
+  <img src="screenshots/17_settings.png" width="250" alt="Einstellungsbildschirm">
 </p>
 
 Datenverwaltungsfunktionen:

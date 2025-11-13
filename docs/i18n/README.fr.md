@@ -85,8 +85,8 @@ Gérez votre rythme simplement en regardant l'écran pour vous concentrer sur l'
 ### 📊 Fonction de Consultation - Onglet Liste
 
 <p align="center">
-  <img src="screenshots/10_view_list.png" width="250" alt="Liste d'Enregistrements">
-  <img src="screenshots/11_view_list_unilateral.png" width="250" alt="Détails d'Exercice Unilatéral">
+  <img src="screenshots/11_view_list.png" width="250" alt="Liste d'Enregistrements">
+  <img src="screenshots/12_view_list_unilateral.png" width="250" alt="Détails d'Exercice Unilatéral">
 </p>
 
 **Gauche** : Vérifiez les enregistrements d'entraînement passés chronologiquement.
@@ -101,8 +101,8 @@ Gérez votre rythme simplement en regardant l'écran pour vous concentrer sur l'
 ### 📈 Fonction de Consultation - Onglet Graphique
 
 <p align="center">
-  <img src="screenshots/12_view_graph.png" width="250" alt="Graphique (Exercice Unilatéral)">
-  <img src="screenshots/13_view_graph_isometric.png" width="250" alt="Graphique (Exercice Isométrique)">
+  <img src="screenshots/13_view_graph.png" width="250" alt="Graphique (Exercice Unilatéral)">
+  <img src="screenshots/14_view_graph_max.png" width="250" alt="Graphique (Exercice Isométrique)">
 </p>
 
 **Gauche** : Les exercices unilatéraux affichent gauche et droite comme des lignes séparées (vert=droit, violet=gauche).
@@ -117,8 +117,8 @@ Gérez votre rythme simplement en regardant l'écran pour vous concentrer sur l'
 ### 🎯 Fonction de Consultation - Onglet Défi
 
 <p align="center">
-  <img src="screenshots/14_view_challenge_complete.png" width="250" alt="Onglet Défi (Complet)">
-  <img src="screenshots/15_view_challenge_progress.png" width="250" alt="Onglet Défi (En Cours)">
+  <img src="screenshots/15_view_challenge_complete.png" width="250" alt="Onglet Défi (Complet)">
+  <img src="screenshots/16_view_challenge_progress.png" width="250" alt="Onglet Défi (En Cours)">
 </p>
 
 Vérifiez visuellement l'état d'atteinte des objectifs. Les barres de progression montrent le progrès en un coup d'œil :
@@ -135,7 +135,7 @@ Affichage hiérarchique de tous les groupes y compris les favoris. Filtrez par e
 ### ⚙️ Écran des Paramètres
 
 <p align="center">
-  <img src="screenshots/16_settings.png" width="250" alt="Écran des Paramètres">
+  <img src="screenshots/17_settings.png" width="250" alt="Écran des Paramètres">
 </p>
 
 Fonctions de gestion des données :

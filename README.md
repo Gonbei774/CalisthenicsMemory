@@ -70,6 +70,7 @@ Simple and intuitive home screen. Quick access to 4 main features.
   <img src="screenshots/07_workout_select.png" width="250" alt="Exercise Selection">
   <img src="screenshots/08_workout_config.png" width="250" alt="Workout Configuration">
   <img src="screenshots/09_workout_progress.png" width="250" alt="Workout in Progress">
+  <img src="screenshots/10_workout_complete.png" width="250" alt="Workout Complete">
 </p>
 
 Automatic guided workout mode:
@@ -77,6 +78,7 @@ Automatic guided workout mode:
 1. **Select Exercise** - Organized clearly with favorites and hierarchical display
 2. **Adjust Settings** - Set target sets/reps, time per rep, countdown, and intervals
 3. **Execute** - Automatic progression from countdown to execution, intervals
+4. **Complete** - Review summary and save records
 
 Manage your pace just by looking at the screen to focus on training. Skip or stop midway, and save records up to that point.
 
@@ -85,8 +87,8 @@ Manage your pace just by looking at the screen to focus on training. Skip or sto
 ### 📊 View Feature - List Tab
 
 <p align="center">
-  <img src="screenshots/10_view_list.png" width="250" alt="Record List">
-  <img src="screenshots/11_view_list_unilateral.png" width="250" alt="Unilateral Exercise Details">
+  <img src="screenshots/11_view_list.png" width="250" alt="Record List">
+  <img src="screenshots/12_view_list_unilateral.png" width="250" alt="Unilateral Exercise Details">
 </p>
 
 **Left**: Check past training records chronologically.
@@ -101,12 +103,12 @@ Manage your pace just by looking at the screen to focus on training. Skip or sto
 ### 📈 View Feature - Graph Tab
 
 <p align="center">
-  <img src="screenshots/12_view_graph.png" width="250" alt="Graph (Unilateral Exercise)">
-  <img src="screenshots/13_view_graph_isometric.png" width="250" alt="Graph (Isometric Exercise)">
+  <img src="screenshots/13_view_graph.png" width="250" alt="Graph (Average)">
+  <img src="screenshots/14_view_graph_max.png" width="250" alt="Graph (Max)">
 </p>
 
-**Left**: Unilateral exercises display left and right as separate lines (green=right, purple=left).
-**Right**: Isometric exercises (Plank, etc.) are also graphed. Check total training time with sum display.
+**Left**: Average statistics view - check training stability. Unilateral exercises display left and right as separate lines (green=right, purple=left).
+**Right**: Max statistics view - check progress of personal best records.
 
 - Switch statistics type (average/max/sum) for multifaceted analysis
 - Period filter (1 week/1 month/3 months/all time)
@@ -117,8 +119,8 @@ Manage your pace just by looking at the screen to focus on training. Skip or sto
 ### 🎯 View Feature - Challenge Tab
 
 <p align="center">
-  <img src="screenshots/14_view_challenge_complete.png" width="250" alt="Challenge Tab (Complete)">
-  <img src="screenshots/15_view_challenge_progress.png" width="250" alt="Challenge Tab (In Progress)">
+  <img src="screenshots/15_view_challenge_complete.png" width="250" alt="Challenge Tab (Complete)">
+  <img src="screenshots/16_view_challenge_progress.png" width="250" alt="Challenge Tab (In Progress)">
 </p>
 
 Visually check goal achievement status. Progress bars show progress at a glance:
@@ -135,7 +137,8 @@ Hierarchical display of all groups including favorites. Filter by exercise to fo
 ### ⚙️ Settings Screen
 
 <p align="center">
-  <img src="screenshots/16_settings.png" width="250" alt="Settings Screen">
+  <img src="screenshots/17_settings.png" width="250" alt="Settings Screen">
+  <img src="screenshots/18_settings_language.png" width="250" alt="Language Selection">
 </p>
 
 Data management and app configuration:
@@ -143,6 +146,7 @@ Data management and app configuration:
 **Language Selection**
 - Change app language directly from Settings
 - Available languages: English, Japanese, Spanish, German, Chinese (Simplified), French
+- Settings screen (left) and language selection dialog (right)
 
 **Complete Backup (JSON)**
 - Export/import all data (exercises, groups, records)
