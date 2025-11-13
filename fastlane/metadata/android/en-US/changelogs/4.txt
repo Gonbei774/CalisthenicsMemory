@@ -1,0 +1,12 @@
+v1.3.0 - Language Selection and Challenge Tab Enhancements
+
+New Features:
+• In-app language selection - change language directly from Settings
+• Challenge tab period filter (1 week / 1 month / 3 months / All)
+• Training days count display for each period
+
+Improvements:
+• Fixed favorite group name to support language switching
+• Enhanced challenge tab UI consistency and selection colors
+• Fixed achievement rate calculation logic
+• Updated F-Droid metadata
