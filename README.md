@@ -138,7 +138,11 @@ Hierarchical display of all groups including favorites. Filter by exercise to fo
   <img src="screenshots/16_settings.png" width="250" alt="Settings Screen">
 </p>
 
-Data management features:
+Data management and app configuration:
+
+**Language Selection**
+- Change app language directly from Settings
+- Available languages: English, Japanese, Spanish, German, Chinese (Simplified), French
 
 **Complete Backup (JSON)**
 - Export/import all data (exercises, groups, records)
@@ -184,7 +188,8 @@ Check records in 3 tabs:
 
 ### Multi-Language Support
 - Support English, Japanese, Spanish, German, Chinese (Simplified), and French
-- Automatically switches according to device language settings
+- In-app language selection available from Settings screen
+- Also automatically switches according to device language settings
 
 ---
 
@@ -347,7 +352,7 @@ This app is released under the GNU General Public License v3.0. See the [LICENSE
 
 The latest version can be downloaded from [Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases).
 
-**[📦 Download v1.2.0](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.2.0/app-release.apk)**
+**[📦 Download v1.3.0](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.3.0/app-release.apk)**
 
 If you need a previous version, you can download it from the [Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases) page.
 
@@ -371,7 +376,7 @@ If you want to verify that the APK has not been tampered with, please verify the
 sha256sum app-release.apk
 
 # Compare with official SHA256
-# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.2.0/app-release.apk.sha256
+# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.3.0/app-release.apk.sha256
 ```
 
 ---
@@ -394,7 +399,7 @@ A: Yes, it will be deleted. Be sure to export before uninstalling.
 A: Yes, the record feature can be used without challenge settings. It will not be displayed in the challenge tab, but the list and graphs work fine.
 
 ### Q: Is multi-language supported?
-A: English, Japanese, Spanish, German, Chinese (Simplified), and French are supported. It automatically switches according to device language settings.
+A: English, Japanese, Spanish, German, Chinese (Simplified), and French are supported. You can change the language directly from the Settings screen, or it will automatically switch according to device language settings.
 
 ### Q: Where are favorite exercises displayed?
 A: Favorite exercises are automatically displayed in the "Favorites" group. They continue to be displayed in their original group, so you can access from either.
@@ -418,4 +423,4 @@ cd CalisthenicsMemory
 
 ---
 
-**Last Updated**: November 10, 2025
+**Last Updated**: November 13, 2025

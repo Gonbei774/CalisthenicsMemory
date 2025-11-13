@@ -1,0 +1,38 @@
+Un rastreador de entrenamiento con peso corporal simple que puede personalizar según sus necesidades.
+
+Cree sus propios ejercicios, organícelos en grupos y rastree el progreso a su manera. Sin plantillas rígidas: adapte la aplicación a su método de entrenamiento.
+
+CARACTERÍSTICAS
+
+Personalización Completa
+• Cree cualquier ejercicio con cualquier nombre
+• Organice ejercicios en grupos personalizados
+• Elija seguimiento basado en repeticiones o tiempo
+• Establezca progresiones de 10 niveles para adaptarse a su método
+• Soporte para ejercicios unilaterales (un brazo/una pierna)
+• Ejercicios favoritos para acceso rápido con icono de estrella (★)
+
+Dos Modos de Entrenamiento
+• Modo de Registro: Registre rápidamente sus entrenamientos después de entrenar
+• Modo de Entrenamiento: Entrenamiento autoguiado con temporizadores integrados para cuenta regresiva, ejecución e intervalos de descanso
+
+Registros de Entrenamiento
+• Registre fecha, hora, series y repeticiones/segundos
+• Agregue comentarios para rastrear notas de forma y observaciones
+• Edite o elimine registros pasados
+
+Seguimiento del Progreso
+• Vista de lista: Explore todas las sesiones de entrenamiento
+• Vista de gráfico: Visualice el progreso con estadísticas de promedio/máximo/total
+• Vista de desafío: Rastree el logro de objetivos
+
+Sistema de Objetivos
+• Establezca objetivos como "3 series × 50 repeticiones"
+• Indicadores de progreso codificados por color
+
+Gestión de Datos
+• Exportar/importar en formato JSON
+• Sus datos permanecen en su dispositivo
+• No se requiere internet
+
+Ya sea que siga Convict Conditioning, StartBodyweight o su propio programa personalizado, esta aplicación se adapta a su filosofía de entrenamiento.

@@ -1,0 +1,11 @@
+v1.3.0 - Selección de Idioma y Mejoras en la Pestaña de Desafíos
+
+Nuevas Funciones:
+• Selección de idioma dentro de la app - cambia el idioma directamente desde Configuración
+• Filtro de período existente extendido a la pestaña de Desafíos
+• Visualización del número de días de entrenamiento para cada período
+
+Mejoras:
+• Nombre del grupo de favoritos adaptado para cambio de idioma
+• Consistencia mejorada de la UI y colores de selección en la pestaña de Desafíos
+• Corrección de la lógica de cálculo de tasa de logro

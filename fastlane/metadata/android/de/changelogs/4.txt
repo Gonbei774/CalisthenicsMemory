@@ -1,0 +1,11 @@
+v1.3.0 - Sprachauswahl und Verbesserungen der Zieltab
+
+Neue Funktionen:
+• Sprachauswahl in der App - Sprache direkt in den Einstellungen ändern
+• Vorhandener Periodenfilter wurde auf die Zieltab erweitert
+• Anzeige der Trainingstage für jeden Zeitraum
+
+Verbesserungen:
+• Favoritengruppenname wurde für Sprachwechsel angepasst
+• Verbesserte UI-Konsistenz und Auswahlfarben der Zieltab
+• Korrektur der Zielerreichungslogik

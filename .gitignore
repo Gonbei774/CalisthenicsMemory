@@ -23,12 +23,8 @@ keystore.properties
 # Kotlin compiler logs
 .kotlin/
 
-# 開発用ドキュメント（非公開）
+# プロジェクト設定（Claude Code用、非公開）
 CLAUDE.md
-DEVELOPMENT_HISTORY.md
-MIGRATION_STATUS.md
-IMPLEMENTATION_LOG.md
-FDROID_SUBMISSION.md
 
-# テストデータ
-test_data*.json
+# 開発用ドキュメント・テストデータ（非公開）
+dev-docs/

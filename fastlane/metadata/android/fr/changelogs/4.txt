@@ -1,0 +1,11 @@
+v1.3.0 - Sélection de Langue et Améliorations de l'Onglet Objectifs
+
+Nouvelles Fonctionnalités :
+• Sélection de langue dans l'application - changez la langue directement depuis les Paramètres
+• Filtre de période existant étendu à l'onglet Objectifs
+• Affichage du nombre de jours d'entraînement pour chaque période
+
+Améliorations :
+• Nom du groupe de favoris adapté pour le changement de langue
+• Cohérence améliorée de l'interface et des couleurs de sélection de l'onglet Objectifs
+• Correction de la logique de calcul du taux de réussite

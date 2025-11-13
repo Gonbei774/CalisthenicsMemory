@@ -138,7 +138,11 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
   <img src="screenshots/16_settings.png" width="250" alt="設定画面">
 </p>
 
-データ管理機能：
+データ管理とアプリ設定：
+
+**言語選択**
+- 設定から直接アプリの言語を変更可能
+- 対応言語：日本語、英語、スペイン語、ドイツ語、中国語（簡体字）、フランス語
 
 **完全バックアップ（JSON）**
 - すべてのデータ（種目、グループ、記録）をエクスポート・インポート
@@ -184,7 +188,8 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 
 ### 多言語対応
 - 日本語・英語・スペイン語・ドイツ語・中国語（簡体字）・フランス語に対応
-- デバイスの言語設定に自動で切り替わります
+- 設定画面からアプリ内で言語を選択可能
+- デバイスの言語設定に応じた自動切り替えにも対応
 
 ---
 
@@ -347,7 +352,7 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 
 最新版は[Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases)からダウンロードできます。
 
-**[📦 v1.2.0をダウンロード](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.2.0/app-release.apk)**
+**[📦 v1.3.0をダウンロード](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.3.0/app-release.apk)**
 
 過去のバージョンが必要な場合は[Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases)ページからダウンロードできます。
 
@@ -371,7 +376,7 @@ APKの改ざんがないか確認したい場合は、SHA256チェックサム�
 sha256sum app-release.apk
 
 # 公式のSHA256と比較
-# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.2.0/app-release.apk.sha256
+# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.3.0/app-release.apk.sha256
 ```
 
 ---
@@ -394,7 +399,7 @@ A: はい、消えます。アンインストール前に必ずエクスポー�
 A: はい、記録機能は課題設定なしでも使えます。課題タブには表示されませんが、一覧・グラフは問題なく使えます。
 
 ### Q: 多言語対応していますか？
-A: 日本語・英語・スペイン語・ドイツ語・中国語（簡体字）・フランス語に対応しています。デバイスの言語設定に応じて自動で切り替わります。
+A: 日本語・英語・スペイン語・ドイツ語・中国語（簡体字）・フランス語に対応しています。設定画面から直接言語を変更できるほか、デバイスの言語設定に応じた自動切り替えにも対応しています。
 
 ### Q: お気に入り登録した種目はどこに表示されますか？
 A: お気に入り登録した種目は「お気に入り」グループに自動で表示されます。元のグループにも引き続き表示されるため、どちらからもアクセス可能です。
@@ -418,4 +423,4 @@ cd CalisthenicsMemory
 
 ---
 
-**最終更新**: 2025年11月10日
+**最終更新**: 2025年11月13日
