@@ -23,7 +23,7 @@ Calisthenics Memory ist eine Android-App zum Aufzeichnen und Verwalten von Eigen
 
 ### Startbildschirm
 <p align="center">
-  <img src="screenshots/01_home.png" width="250" alt="Startbildschirm">
+  <img src="../../screenshots/01_home.png" width="250" alt="Startbildschirm">
 </p>
 
 Einfacher und intuitiver Startbildschirm. Schneller Zugriff auf 4 Hauptfunktionen.
@@ -33,8 +33,8 @@ Einfacher und intuitiver Startbildschirm. Schneller Zugriff auf 4 Hauptfunktione
 ### ⚙️ Übungsverwaltung
 
 <p align="center">
-  <img src="screenshots/02_create_favorites.png" width="250" alt="Übungsverwaltung (Favoriten)">
-  <img src="screenshots/03_create_edit.png" width="250" alt="Übungsbearbeitung">
+  <img src="../../screenshots/02_create_favorites.png" width="250" alt="Übungsverwaltung (Favoriten)">
+  <img src="../../screenshots/03_create_edit.png" width="250" alt="Übungsbearbeitung">
 </p>
 
 **Links**: Favorisierte Übungen werden oben in einer eigenen Gruppe angezeigt. Leicht erkennbar mit ★-Markierungen.
@@ -49,9 +49,9 @@ Einfacher und intuitiver Startbildschirm. Schneller Zugriff auf 4 Hauptfunktione
 ### 📝 Aufzeichnungsfunktion
 
 <p align="center">
-  <img src="screenshots/04_record_select.png" width="250" alt="Übungsauswahl">
-  <img src="screenshots/05_record_bilateral.png" width="250" alt="Aufzeichnung beidseitiger Übungen">
-  <img src="screenshots/06_record_unilateral.png" width="250" alt="Aufzeichnung einseitiger Übungen">
+  <img src="../../screenshots/04_record_select.png" width="250" alt="Übungsauswahl">
+  <img src="../../screenshots/05_record_bilateral.png" width="250" alt="Aufzeichnung beidseitiger Übungen">
+  <img src="../../screenshots/06_record_unilateral.png" width="250" alt="Aufzeichnung einseitiger Übungen">
 </p>
 
 **Links**: Übungsauswahlbildschirm. Klar organisiert mit Favoriten und hierarchischen Gruppen.
@@ -67,9 +67,9 @@ Einfacher und intuitiver Startbildschirm. Schneller Zugriff auf 4 Hauptfunktione
 ### 🏋️ Trainingsfunktion
 
 <p align="center">
-  <img src="screenshots/07_workout_select.png" width="250" alt="Übungsauswahl">
-  <img src="screenshots/08_workout_config.png" width="250" alt="Trainingskonfiguration">
-  <img src="screenshots/09_workout_progress.png" width="250" alt="Training läuft">
+  <img src="../../screenshots/07_workout_select.png" width="250" alt="Übungsauswahl">
+  <img src="../../screenshots/08_workout_config.png" width="250" alt="Trainingskonfiguration">
+  <img src="../../screenshots/09_workout_progress.png" width="250" alt="Training läuft">
 </p>
 
 Automatischer geführter Trainingsmodus:
@@ -85,8 +85,8 @@ Verwalte dein Tempo einfach durch einen Blick auf den Bildschirm, um dich auf da
 ### 📊 Ansichtsfunktion - Listentab
 
 <p align="center">
-  <img src="screenshots/11_view_list.png" width="250" alt="Aufzeichnungsliste">
-  <img src="screenshots/12_view_list_unilateral.png" width="250" alt="Einseitige Übungsdetails">
+  <img src="../../screenshots/11_view_list.png" width="250" alt="Aufzeichnungsliste">
+  <img src="../../screenshots/12_view_list_unilateral.png" width="250" alt="Einseitige Übungsdetails">
 </p>
 
 **Links**: Überprüfe vergangene Trainingsaufzeichnungen chronologisch.
@@ -101,8 +101,8 @@ Verwalte dein Tempo einfach durch einen Blick auf den Bildschirm, um dich auf da
 ### 📈 Ansichtsfunktion - Diagrammtab
 
 <p align="center">
-  <img src="screenshots/13_view_graph.png" width="250" alt="Diagramm (Einseitige Übung)">
-  <img src="screenshots/14_view_graph_max.png" width="250" alt="Diagramm (Isometrische Übung)">
+  <img src="../../screenshots/13_view_graph.png" width="250" alt="Diagramm (Einseitige Übung)">
+  <img src="../../screenshots/14_view_graph_max.png" width="250" alt="Diagramm (Isometrische Übung)">
 </p>
 
 **Links**: Einseitige Übungen zeigen links und rechts als separate Linien (grün=rechts, lila=links).
@@ -117,8 +117,8 @@ Verwalte dein Tempo einfach durch einen Blick auf den Bildschirm, um dich auf da
 ### 🎯 Ansichtsfunktion - Herausforderungstab
 
 <p align="center">
-  <img src="screenshots/15_view_challenge_complete.png" width="250" alt="Herausforderungstab (Abgeschlossen)">
-  <img src="screenshots/16_view_challenge_progress.png" width="250" alt="Herausforderungstab (In Bearbeitung)">
+  <img src="../../screenshots/15_view_challenge_complete.png" width="250" alt="Herausforderungstab (Abgeschlossen)">
+  <img src="../../screenshots/16_view_challenge_progress.png" width="250" alt="Herausforderungstab (In Bearbeitung)">
 </p>
 
 Überprüfe visuell den Erreichungsstatus von Zielen. Fortschrittsbalken zeigen den Fortschritt auf einen Blick:
@@ -135,7 +135,7 @@ Hierarchische Anzeige aller Gruppen einschließlich Favoriten. Filtere nach Übu
 ### ⚙️ Einstellungsbildschirm
 
 <p align="center">
-  <img src="screenshots/17_settings.png" width="250" alt="Einstellungsbildschirm">
+  <img src="../../screenshots/17_settings.png" width="250" alt="Einstellungsbildschirm">
 </p>
 
 Datenverwaltungsfunktionen:

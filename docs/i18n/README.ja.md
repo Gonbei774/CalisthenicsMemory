@@ -23,7 +23,7 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 
 ### ホーム画面
 <p align="center">
-  <img src="screenshots/01_home.png" width="250" alt="ホーム画面">
+  <img src="../../screenshots/01_home.png" width="250" alt="ホーム画面">
 </p>
 
 シンプルで直感的なホーム画面。4つの主要機能へすぐにアクセスできます。
@@ -33,8 +33,8 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 ### ⚙️ 種目管理
 
 <p align="center">
-  <img src="screenshots/02_create_favorites.png" width="250" alt="種目管理（お気に入り）">
-  <img src="screenshots/03_create_edit.png" width="250" alt="種目編集">
+  <img src="../../screenshots/02_create_favorites.png" width="250" alt="種目管理（お気に入り）">
+  <img src="../../screenshots/03_create_edit.png" width="250" alt="種目編集">
 </p>
 
 **左**: お気に入り登録した種目は専用グループで先頭表示。★マークで一目で分かる
@@ -49,9 +49,9 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 ### 📝 記録機能
 
 <p align="center">
-  <img src="screenshots/04_record_select.png" width="250" alt="種目選択">
-  <img src="screenshots/05_record_bilateral.png" width="250" alt="両側種目の記録">
-  <img src="screenshots/06_record_unilateral.png" width="250" alt="片側種目の記録">
+  <img src="../../screenshots/04_record_select.png" width="250" alt="種目選択">
+  <img src="../../screenshots/05_record_bilateral.png" width="250" alt="両側種目の記録">
+  <img src="../../screenshots/06_record_unilateral.png" width="250" alt="片側種目の記録">
 </p>
 
 **左**: 種目選択画面。お気に入りや階層グループで見やすく整理
@@ -67,10 +67,10 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 ### 🏋️ ワークアウト機能
 
 <p align="center">
-  <img src="screenshots/07_workout_select.png" width="250" alt="種目選択">
-  <img src="screenshots/08_workout_config.png" width="250" alt="ワークアウト設定">
-  <img src="screenshots/09_workout_progress.png" width="250" alt="ワークアウト実行中">
-  <img src="screenshots/10_workout_complete.png" width="250" alt="ワークアウト完了">
+  <img src="../../screenshots/07_workout_select.png" width="250" alt="種目選択">
+  <img src="../../screenshots/08_workout_config.png" width="250" alt="ワークアウト設定">
+  <img src="../../screenshots/09_workout_progress.png" width="250" alt="ワークアウト実行中">
+  <img src="../../screenshots/10_workout_complete.png" width="250" alt="ワークアウト完了">
 </p>
 
 自動ガイド付きのワークアウトモード：
@@ -87,8 +87,8 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 ### 📊 閲覧機能 - 一覧タブ
 
 <p align="center">
-  <img src="screenshots/11_view_list.png" width="250" alt="記録一覧">
-  <img src="screenshots/12_view_list_unilateral.png" width="250" alt="片側種目の詳細">
+  <img src="../../screenshots/11_view_list.png" width="250" alt="記録一覧">
+  <img src="../../screenshots/12_view_list_unilateral.png" width="250" alt="片側種目の詳細">
 </p>
 
 **左**: 過去のトレーニング記録を時系列で確認
@@ -103,8 +103,8 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 ### 📈 閲覧機能 - グラフタブ
 
 <p align="center">
-  <img src="screenshots/13_view_graph.png" width="250" alt="グラフ（片側種目）">
-  <img src="screenshots/14_view_graph_max.png" width="250" alt="グラフ（時間制種目）">
+  <img src="../../screenshots/13_view_graph.png" width="250" alt="グラフ（片側種目）">
+  <img src="../../screenshots/14_view_graph_max.png" width="250" alt="グラフ（時間制種目）">
 </p>
 
 **左**: 片側種目は左右を別々のライン（緑=右、紫=左）で表示
@@ -119,8 +119,8 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 ### 🎯 閲覧機能 - 課題タブ
 
 <p align="center">
-  <img src="screenshots/15_view_challenge_complete.png" width="250" alt="課題タブ（達成済み）">
-  <img src="screenshots/16_view_challenge_progress.png" width="250" alt="課題タブ（進行中）">
+  <img src="../../screenshots/15_view_challenge_complete.png" width="250" alt="課題タブ（達成済み）">
+  <img src="../../screenshots/16_view_challenge_progress.png" width="250" alt="課題タブ（進行中）">
 </p>
 
 目標達成状況を視覚的に確認。プログレスバーで進捗が一目瞭然：
@@ -137,8 +137,8 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 ### ⚙️ 設定画面
 
 <p align="center">
-  <img src="screenshots/17_settings.png" width="250" alt="設定画面">
-  <img src="screenshots/18_settings_language.png" width="250" alt="言語選択">
+  <img src="../../screenshots/17_settings.png" width="250" alt="設定画面">
+  <img src="../../screenshots/18_settings_language.png" width="250" alt="言語選択">
 </p>
 
 データ管理とアプリ設定：

@@ -23,7 +23,7 @@ Calisthenics Memory est une application Android pour enregistrer et gérer les e
 
 ### Écran d'Accueil
 <p align="center">
-  <img src="screenshots/01_home.png" width="250" alt="Écran d'Accueil">
+  <img src="../../screenshots/01_home.png" width="250" alt="Écran d'Accueil">
 </p>
 
 Écran d'accueil simple et intuitif. Accès rapide à 4 fonctions principales.
@@ -33,8 +33,8 @@ Calisthenics Memory est une application Android pour enregistrer et gérer les e
 ### ⚙️ Gestion des Exercices
 
 <p align="center">
-  <img src="screenshots/02_create_favorites.png" width="250" alt="Gestion des Exercices (Favoris)">
-  <img src="screenshots/03_create_edit.png" width="250" alt="Édition d'Exercices">
+  <img src="../../screenshots/02_create_favorites.png" width="250" alt="Gestion des Exercices (Favoris)">
+  <img src="../../screenshots/03_create_edit.png" width="250" alt="Édition d'Exercices">
 </p>
 
 **Gauche** : Les exercices favoris sont affichés en haut dans un groupe dédié. Facilement identifiables avec des marques ★.
@@ -49,9 +49,9 @@ Calisthenics Memory est une application Android pour enregistrer et gérer les e
 ### 📝 Fonction d'Enregistrement
 
 <p align="center">
-  <img src="screenshots/04_record_select.png" width="250" alt="Sélection d'Exercice">
-  <img src="screenshots/05_record_bilateral.png" width="250" alt="Enregistrement d'Exercice Bilatéral">
-  <img src="screenshots/06_record_unilateral.png" width="250" alt="Enregistrement d'Exercice Unilatéral">
+  <img src="../../screenshots/04_record_select.png" width="250" alt="Sélection d'Exercice">
+  <img src="../../screenshots/05_record_bilateral.png" width="250" alt="Enregistrement d'Exercice Bilatéral">
+  <img src="../../screenshots/06_record_unilateral.png" width="250" alt="Enregistrement d'Exercice Unilatéral">
 </p>
 
 **Gauche** : Écran de sélection d'exercice. Organisé clairement avec favoris et groupes hiérarchiques.
@@ -67,9 +67,9 @@ Calisthenics Memory est une application Android pour enregistrer et gérer les e
 ### 🏋️ Fonction d'Entraînement
 
 <p align="center">
-  <img src="screenshots/07_workout_select.png" width="250" alt="Sélection d'Exercice">
-  <img src="screenshots/08_workout_config.png" width="250" alt="Configuration d'Entraînement">
-  <img src="screenshots/09_workout_progress.png" width="250" alt="Entraînement en Cours">
+  <img src="../../screenshots/07_workout_select.png" width="250" alt="Sélection d'Exercice">
+  <img src="../../screenshots/08_workout_config.png" width="250" alt="Configuration d'Entraînement">
+  <img src="../../screenshots/09_workout_progress.png" width="250" alt="Entraînement en Cours">
 </p>
 
 Mode d'entraînement automatique guidé :
@@ -85,8 +85,8 @@ Gérez votre rythme simplement en regardant l'écran pour vous concentrer sur l'
 ### 📊 Fonction de Consultation - Onglet Liste
 
 <p align="center">
-  <img src="screenshots/11_view_list.png" width="250" alt="Liste d'Enregistrements">
-  <img src="screenshots/12_view_list_unilateral.png" width="250" alt="Détails d'Exercice Unilatéral">
+  <img src="../../screenshots/11_view_list.png" width="250" alt="Liste d'Enregistrements">
+  <img src="../../screenshots/12_view_list_unilateral.png" width="250" alt="Détails d'Exercice Unilatéral">
 </p>
 
 **Gauche** : Vérifiez les enregistrements d'entraînement passés chronologiquement.
@@ -101,8 +101,8 @@ Gérez votre rythme simplement en regardant l'écran pour vous concentrer sur l'
 ### 📈 Fonction de Consultation - Onglet Graphique
 
 <p align="center">
-  <img src="screenshots/13_view_graph.png" width="250" alt="Graphique (Exercice Unilatéral)">
-  <img src="screenshots/14_view_graph_max.png" width="250" alt="Graphique (Exercice Isométrique)">
+  <img src="../../screenshots/13_view_graph.png" width="250" alt="Graphique (Exercice Unilatéral)">
+  <img src="../../screenshots/14_view_graph_max.png" width="250" alt="Graphique (Exercice Isométrique)">
 </p>
 
 **Gauche** : Les exercices unilatéraux affichent gauche et droite comme des lignes séparées (vert=droit, violet=gauche).
@@ -117,8 +117,8 @@ Gérez votre rythme simplement en regardant l'écran pour vous concentrer sur l'
 ### 🎯 Fonction de Consultation - Onglet Défi
 
 <p align="center">
-  <img src="screenshots/15_view_challenge_complete.png" width="250" alt="Onglet Défi (Complet)">
-  <img src="screenshots/16_view_challenge_progress.png" width="250" alt="Onglet Défi (En Cours)">
+  <img src="../../screenshots/15_view_challenge_complete.png" width="250" alt="Onglet Défi (Complet)">
+  <img src="../../screenshots/16_view_challenge_progress.png" width="250" alt="Onglet Défi (En Cours)">
 </p>
 
 Vérifiez visuellement l'état d'atteinte des objectifs. Les barres de progression montrent le progrès en un coup d'œil :
@@ -135,7 +135,7 @@ Affichage hiérarchique de tous les groupes y compris les favoris. Filtrez par e
 ### ⚙️ Écran des Paramètres
 
 <p align="center">
-  <img src="screenshots/17_settings.png" width="250" alt="Écran des Paramètres">
+  <img src="../../screenshots/17_settings.png" width="250" alt="Écran des Paramètres">
 </p>
 
 Fonctions de gestion des données :

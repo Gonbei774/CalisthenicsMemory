@@ -23,7 +23,7 @@ Calisthenics Memory es una aplicación Android para registrar y gestionar ejerci
 
 ### Pantalla de Inicio
 <p align="center">
-  <img src="screenshots/01_home.png" width="250" alt="Pantalla de Inicio">
+  <img src="../../screenshots/01_home.png" width="250" alt="Pantalla de Inicio">
 </p>
 
 Pantalla de inicio simple e intuitiva. Acceso rápido a 4 funciones principales.
@@ -33,8 +33,8 @@ Pantalla de inicio simple e intuitiva. Acceso rápido a 4 funciones principales.
 ### ⚙️ Gestión de Ejercicios
 
 <p align="center">
-  <img src="screenshots/02_create_favorites.png" width="250" alt="Gestión de Ejercicios (Favoritos)">
-  <img src="screenshots/03_create_edit.png" width="250" alt="Edición de Ejercicios">
+  <img src="../../screenshots/02_create_favorites.png" width="250" alt="Gestión de Ejercicios (Favoritos)">
+  <img src="../../screenshots/03_create_edit.png" width="250" alt="Edición de Ejercicios">
 </p>
 
 **Izquierda**: Los ejercicios favoritos se muestran en la parte superior en un grupo dedicado. Fácilmente identificables con marcas ★.
@@ -49,9 +49,9 @@ Pantalla de inicio simple e intuitiva. Acceso rápido a 4 funciones principales.
 ### 📝 Función de Registro
 
 <p align="center">
-  <img src="screenshots/04_record_select.png" width="250" alt="Selección de Ejercicio">
-  <img src="screenshots/05_record_bilateral.png" width="250" alt="Registro de Ejercicio Bilateral">
-  <img src="screenshots/06_record_unilateral.png" width="250" alt="Registro de Ejercicio Unilateral">
+  <img src="../../screenshots/04_record_select.png" width="250" alt="Selección de Ejercicio">
+  <img src="../../screenshots/05_record_bilateral.png" width="250" alt="Registro de Ejercicio Bilateral">
+  <img src="../../screenshots/06_record_unilateral.png" width="250" alt="Registro de Ejercicio Unilateral">
 </p>
 
 **Izquierda**: Pantalla de selección de ejercicio. Organizada claramente con favoritos y grupos jerárquicos.
@@ -67,9 +67,9 @@ Pantalla de inicio simple e intuitiva. Acceso rápido a 4 funciones principales.
 ### 🏋️ Función de Entrenamiento
 
 <p align="center">
-  <img src="screenshots/07_workout_select.png" width="250" alt="Selección de Ejercicio">
-  <img src="screenshots/08_workout_config.png" width="250" alt="Configuración de Entrenamiento">
-  <img src="screenshots/09_workout_progress.png" width="250" alt="Entrenamiento en Progreso">
+  <img src="../../screenshots/07_workout_select.png" width="250" alt="Selección de Ejercicio">
+  <img src="../../screenshots/08_workout_config.png" width="250" alt="Configuración de Entrenamiento">
+  <img src="../../screenshots/09_workout_progress.png" width="250" alt="Entrenamiento en Progreso">
 </p>
 
 Modo de entrenamiento automático guiado:
@@ -85,8 +85,8 @@ Gestiona tu ritmo solo mirando la pantalla para enfocarte en el entrenamiento. S
 ### 📊 Función de Consulta - Pestaña de Lista
 
 <p align="center">
-  <img src="screenshots/11_view_list.png" width="250" alt="Lista de Registros">
-  <img src="screenshots/12_view_list_unilateral.png" width="250" alt="Detalles de Ejercicio Unilateral">
+  <img src="../../screenshots/11_view_list.png" width="250" alt="Lista de Registros">
+  <img src="../../screenshots/12_view_list_unilateral.png" width="250" alt="Detalles de Ejercicio Unilateral">
 </p>
 
 **Izquierda**: Revisa los registros de entrenamiento pasados cronológicamente.
@@ -101,8 +101,8 @@ Gestiona tu ritmo solo mirando la pantalla para enfocarte en el entrenamiento. S
 ### 📈 Función de Consulta - Pestaña de Gráfica
 
 <p align="center">
-  <img src="screenshots/13_view_graph.png" width="250" alt="Gráfica (Ejercicio Unilateral)">
-  <img src="screenshots/14_view_graph_max.png" width="250" alt="Gráfica (Ejercicio Isométrico)">
+  <img src="../../screenshots/13_view_graph.png" width="250" alt="Gráfica (Ejercicio Unilateral)">
+  <img src="../../screenshots/14_view_graph_max.png" width="250" alt="Gráfica (Ejercicio Isométrico)">
 </p>
 
 **Izquierda**: Los ejercicios unilaterales muestran izquierda y derecha como líneas separadas (verde=derecho, morado=izquierdo).
@@ -117,8 +117,8 @@ Gestiona tu ritmo solo mirando la pantalla para enfocarte en el entrenamiento. S
 ### 🎯 Función de Consulta - Pestaña de Desafío
 
 <p align="center">
-  <img src="screenshots/15_view_challenge_complete.png" width="250" alt="Pestaña de Desafío (Completo)">
-  <img src="screenshots/16_view_challenge_progress.png" width="250" alt="Pestaña de Desafío (En Progreso)">
+  <img src="../../screenshots/15_view_challenge_complete.png" width="250" alt="Pestaña de Desafío (Completo)">
+  <img src="../../screenshots/16_view_challenge_progress.png" width="250" alt="Pestaña de Desafío (En Progreso)">
 </p>
 
 Verifica visualmente el estado de logro de objetivos. Las barras de progreso muestran el progreso de un vistazo:
@@ -135,7 +135,7 @@ Visualización jerárquica de todos los grupos incluyendo favoritos. Filtra por 
 ### ⚙️ Pantalla de Configuración
 
 <p align="center">
-  <img src="screenshots/17_settings.png" width="250" alt="Pantalla de Configuración">
+  <img src="../../screenshots/17_settings.png" width="250" alt="Pantalla de Configuración">
 </p>
 
 Funciones de gestión de datos:
