@@ -1,6 +1,6 @@
 # Calisthenics Memory
 
-[🇬🇧 English](README.md) | [🇯🇵 日本語](README.ja.md) | [🇪🇸 Español](README.es.md) | [🇩🇪 Deutsch](README.de.md) | [🇨🇳 简体中文](README.zh-CN.md) | [🇫🇷 Français](README.fr.md)
+[🇬🇧 English](README.md) | [🇯🇵 日本語](docs/i18n/README.ja.md) | [🇪🇸 Español](docs/i18n/README.es.md) | [🇩🇪 Deutsch](docs/i18n/README.de.md) | [🇨🇳 简体中文](docs/i18n/README.zh-CN.md) | [🇫🇷 Français](docs/i18n/README.fr.md)
 
 A simple and customizable bodyweight training tracking app
 
