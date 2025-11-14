@@ -3,11 +3,11 @@ package io.github.gonbei774.calisthenicsmemory.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.AppDatabase
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.ExerciseGroup
 import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
+import io.github.gonbei774.calisthenicsmemory.ui.UiMessage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -73,11 +73,6 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     private val recordDao = database.trainingRecordDao()
     private val groupDao = database.exerciseGroupDao()
 
-    // Helper function to get string resources
-    private fun getString(resId: Int, vararg formatArgs: Any): String {
-        return getApplication<Application>().getString(resId, *formatArgs)
-    }
-
     companion object {
         // お気に入りグループの固定キー（UI側で翻訳される）
         const val FAVORITE_GROUP_KEY = "★FAVORITES"
@@ -107,9 +102,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             initialValue = emptyList()
         )
 
-    // Snackbar message
-    private val _snackbarMessage = MutableStateFlow<String?>(null)
-    val snackbarMessage: StateFlow<String?> = _snackbarMessage.asStateFlow()
+    // Snackbar message (UiMessage型で言語変更に追従)
+    private val _snackbarMessage = MutableStateFlow<UiMessage?>(null)
+    val snackbarMessage: StateFlow<UiMessage?> = _snackbarMessage.asStateFlow()
 
     fun clearSnackbarMessage() {
         _snackbarMessage.value = null
@@ -134,8 +129,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 }
 
                 if (isDuplicate) {
-                    val typeLabel = getString(if (type == "Dynamic") R.string.dynamic_label else R.string.isometric_label)
-                    _snackbarMessage.value = getString(R.string.already_registered_format, name, typeLabel)
+                    _snackbarMessage.value = UiMessage.AlreadyRegistered(name, type)
                     return@launch
                 }
 
@@ -150,11 +144,11 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     isFavorite = isFavorite
                 )
                 exerciseDao.insertExercise(exercise)
-                _snackbarMessage.value = getString(R.string.exercise_added)
+                _snackbarMessage.value = UiMessage.ExerciseAdded
             } catch (e: SQLiteConstraintException) {
-                _snackbarMessage.value = getString(R.string.exercise_already_exists)
+                _snackbarMessage.value = UiMessage.ExerciseAlreadyExists
             } catch (e: Exception) {
-                _snackbarMessage.value = getString(R.string.error_occurred)
+                _snackbarMessage.value = UiMessage.ErrorOccurred
             }
         }
     }
@@ -170,17 +164,16 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 }
 
                 if (isDuplicate) {
-                    val typeLabel = getString(if (exercise.type == "Dynamic") R.string.dynamic_label else R.string.isometric_label)
-                    _snackbarMessage.value = getString(R.string.already_in_use_format, exercise.name, typeLabel)
+                    _snackbarMessage.value = UiMessage.AlreadyInUse(exercise.name, exercise.type)
                     return@launch
                 }
 
                 exerciseDao.updateExercise(exercise)
-                _snackbarMessage.value = getString(R.string.exercise_updated)
+                _snackbarMessage.value = UiMessage.ExerciseUpdated
             } catch (e: SQLiteConstraintException) {
-                _snackbarMessage.value = getString(R.string.exercise_already_exists)
+                _snackbarMessage.value = UiMessage.ExerciseAlreadyExists
             } catch (e: Exception) {
-                _snackbarMessage.value = getString(R.string.error_occurred)
+                _snackbarMessage.value = UiMessage.ErrorOccurred
             }
         }
     }
@@ -189,9 +182,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             try {
                 exerciseDao.deleteExercise(exercise)
-                _snackbarMessage.value = getString(R.string.exercise_deleted)
+                _snackbarMessage.value = UiMessage.ExerciseDeleted
             } catch (e: Exception) {
-                _snackbarMessage.value = getString(R.string.error_occurred)
+                _snackbarMessage.value = UiMessage.ErrorOccurred
             }
         }
     }
@@ -205,7 +198,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     exerciseDao.updateExercise(updated)
                 }
             } catch (e: Exception) {
-                _snackbarMessage.value = getString(R.string.error_occurred)
+                _snackbarMessage.value = UiMessage.ErrorOccurred
             }
         }
     }
@@ -233,9 +226,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     )
                 }
                 recordDao.insertRecords(records)
-                _snackbarMessage.value = getString(R.string.sets_recorded, values.size)
+                _snackbarMessage.value = UiMessage.SetsRecorded(values.size)
             } catch (e: Exception) {
-                _snackbarMessage.value = getString(R.string.error_occurred)
+                _snackbarMessage.value = UiMessage.ErrorOccurred
             }
         }
     }
@@ -264,9 +257,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     )
                 }
                 recordDao.insertRecords(records)
-                _snackbarMessage.value = getString(R.string.sets_recorded, valuesRight.size)
+                _snackbarMessage.value = UiMessage.SetsRecorded(valuesRight.size)
             } catch (e: Exception) {
-                _snackbarMessage.value = getString(R.string.error_occurred)
+                _snackbarMessage.value = UiMessage.ErrorOccurred
             }
         }
     }
@@ -275,9 +268,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             try {
                 recordDao.updateRecord(record)
-                _snackbarMessage.value = getString(R.string.record_updated)
+                _snackbarMessage.value = UiMessage.RecordUpdated
             } catch (e: Exception) {
-                _snackbarMessage.value = getString(R.string.error_occurred)
+                _snackbarMessage.value = UiMessage.ErrorOccurred
             }
         }
     }
@@ -286,9 +279,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             try {
                 recordDao.deleteSession(exerciseId, date, time)
-                _snackbarMessage.value = getString(R.string.record_deleted)
+                _snackbarMessage.value = UiMessage.RecordDeleted
             } catch (e: Exception) {
-                _snackbarMessage.value = getString(R.string.error_occurred)
+                _snackbarMessage.value = UiMessage.ErrorOccurred
             }
         }
     }
@@ -302,9 +295,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             try {
                 val group = ExerciseGroup(name = name)
                 groupDao.insertGroup(group)
-                _snackbarMessage.value = getString(R.string.group_created)
+                _snackbarMessage.value = UiMessage.GroupCreated
             } catch (e: Exception) {
-                _snackbarMessage.value = getString(R.string.group_already_exists)
+                _snackbarMessage.value = UiMessage.GroupAlreadyExists
             }
         }
     }
@@ -324,9 +317,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     exerciseDao.updateExercise(exercise.copy(group = newName))
                 }
 
-                _snackbarMessage.value = getString(R.string.group_renamed)
+                _snackbarMessage.value = UiMessage.GroupRenamed
             } catch (e: Exception) {
-                _snackbarMessage.value = getString(R.string.error_occurred)
+                _snackbarMessage.value = UiMessage.ErrorOccurred
             }
         }
     }
@@ -343,9 +336,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     exerciseDao.updateExercise(exercise.copy(group = null, sortOrder = 0))
                 }
 
-                _snackbarMessage.value = getString(R.string.group_deleted)
+                _snackbarMessage.value = UiMessage.GroupDeleted
             } catch (e: Exception) {
-                _snackbarMessage.value = getString(R.string.error_occurred)
+                _snackbarMessage.value = UiMessage.ErrorOccurred
             }
         }
     }
@@ -483,14 +476,14 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             )
 
             withContext(Dispatchers.Main) {
-                _snackbarMessage.value = getString(R.string.export_complete, exportGroups.size, exportExercises.size, exportRecords.size)
+                _snackbarMessage.value = UiMessage.ExportComplete(exportGroups.size, exportExercises.size, exportRecords.size)
             }
 
             val json = Json { ignoreUnknownKeys = true }
             json.encodeToString(backupData)
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
-                _snackbarMessage.value = getString(R.string.export_error, e.message ?: "")
+                _snackbarMessage.value = UiMessage.ExportError(e.message ?: "")
             }
             throw e
         }
@@ -549,11 +542,11 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 }
 
                 withContext(Dispatchers.Main) {
-                    _snackbarMessage.value = getString(R.string.import_complete, backupData.groups.size, backupData.exercises.size, backupData.records.size)
+                    _snackbarMessage.value = UiMessage.ImportComplete(backupData.groups.size, backupData.exercises.size, backupData.records.size)
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    _snackbarMessage.value = getString(R.string.import_error, e.message ?: "")
+                    _snackbarMessage.value = UiMessage.ImportError(e.message ?: "")
                 }
             }
         }
@@ -591,13 +584,13 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             }
 
             withContext(Dispatchers.Main) {
-                _snackbarMessage.value = getString(R.string.csv_template_exported, currentExercises.size)
+                _snackbarMessage.value = UiMessage.CsvTemplateExported(currentExercises.size)
             }
 
             csvBuilder.toString()
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
-                _snackbarMessage.value = getString(R.string.export_error, e.message ?: "")
+                _snackbarMessage.value = UiMessage.ExportError(e.message ?: "")
             }
             throw e
         }
@@ -614,7 +607,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
                 if (lines.isEmpty()) {
                     withContext(Dispatchers.Main) {
-                        _snackbarMessage.value = getString(R.string.csv_empty)
+                        _snackbarMessage.value = UiMessage.CsvEmpty
                     }
                     return@withContext
                 }
@@ -711,14 +704,14 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
                 withContext(Dispatchers.Main) {
                     if (errorCount == 0) {
-                        _snackbarMessage.value = getString(R.string.csv_import_success, successCount)
+                        _snackbarMessage.value = UiMessage.CsvImportSuccess(successCount)
                     } else {
-                        _snackbarMessage.value = getString(R.string.csv_import_partial, successCount, errorCount)
+                        _snackbarMessage.value = UiMessage.CsvImportPartial(successCount, errorCount)
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    _snackbarMessage.value = getString(R.string.import_error, e.message ?: "")
+                    _snackbarMessage.value = UiMessage.ImportError(e.message ?: "")
                 }
             }
         }

@@ -33,8 +33,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import io.github.gonbei774.calisthenicsmemory.ui.UiMessage
 import io.github.gonbei774.calisthenicsmemory.ui.screens.HomeScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.RecordScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.CreateScreen
@@ -94,6 +96,44 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * UiMessageを現在の言語の文字列に変換
+ * UI層で文字列リソースを取得することで、言語変更に即座に対応
+ */
+@Composable
+fun UiMessage.toMessageString(): String {
+    return when (this) {
+        is UiMessage.ExerciseAdded -> stringResource(R.string.exercise_added)
+        is UiMessage.ExerciseUpdated -> stringResource(R.string.exercise_updated)
+        is UiMessage.ExerciseDeleted -> stringResource(R.string.exercise_deleted)
+        is UiMessage.ExerciseAlreadyExists -> stringResource(R.string.exercise_already_exists)
+        is UiMessage.AlreadyRegistered -> {
+            val typeLabel = stringResource(if (type == "Dynamic") R.string.dynamic_label else R.string.isometric_label)
+            stringResource(R.string.already_registered_format, name, typeLabel)
+        }
+        is UiMessage.AlreadyInUse -> {
+            val typeLabel = stringResource(if (type == "Dynamic") R.string.dynamic_label else R.string.isometric_label)
+            stringResource(R.string.already_in_use_format, name, typeLabel)
+        }
+        is UiMessage.SetsRecorded -> stringResource(R.string.sets_recorded, count)
+        is UiMessage.RecordUpdated -> stringResource(R.string.record_updated)
+        is UiMessage.RecordDeleted -> stringResource(R.string.record_deleted)
+        is UiMessage.GroupCreated -> stringResource(R.string.group_created)
+        is UiMessage.GroupRenamed -> stringResource(R.string.group_renamed)
+        is UiMessage.GroupDeleted -> stringResource(R.string.group_deleted)
+        is UiMessage.GroupAlreadyExists -> stringResource(R.string.group_already_exists)
+        is UiMessage.ExportComplete -> stringResource(R.string.export_complete, groupCount, exerciseCount, recordCount)
+        is UiMessage.ImportComplete -> stringResource(R.string.import_complete, groupCount, exerciseCount, recordCount)
+        is UiMessage.ExportError -> stringResource(R.string.export_error, errorMessage)
+        is UiMessage.ImportError -> stringResource(R.string.import_error, errorMessage)
+        is UiMessage.CsvTemplateExported -> stringResource(R.string.csv_template_exported, exerciseCount)
+        is UiMessage.CsvEmpty -> stringResource(R.string.csv_empty)
+        is UiMessage.CsvImportSuccess -> stringResource(R.string.csv_import_success, successCount)
+        is UiMessage.CsvImportPartial -> stringResource(R.string.csv_import_partial, successCount, errorCount)
+        is UiMessage.ErrorOccurred -> stringResource(R.string.error_occurred)
+    }
+}
+
 @Composable
 fun CalisthenicsMemoryApp() {
     val viewModel: TrainingViewModel = viewModel()
@@ -103,8 +143,11 @@ fun CalisthenicsMemoryApp() {
     // Snackbar message handling
     val snackbarMessage by viewModel.snackbarMessage.collectAsState()
 
+    // UiMessageを文字列に変換（Composable関数内で実行）
+    val messageString = snackbarMessage?.toMessageString()
+
     LaunchedEffect(snackbarMessage) {
-        snackbarMessage?.let { message ->
+        messageString?.let { message ->
             snackbarHostState.showSnackbar(
                 message = message,
                 duration = SnackbarDuration.Short
