@@ -792,10 +792,9 @@ fun ExecutingStep(
 
                         // Dynamic: 目標達成時に自動遷移
                         if (currentCount >= currentSet.targetValue) {
-                            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 300)
+                            playTripleBeepTwice(toneGenerator)
                             currentSet.actualValue = currentCount
                             currentSet.isCompleted = true
-                            delay(300L)
                             onSetComplete(session)
                             return@LaunchedEffect
                         }
@@ -804,10 +803,9 @@ fun ExecutingStep(
 
                 // Isometric: 目標達成時に自動遷移
                 if (session.exercise.type == "Isometric" && elapsedTime >= currentSet.targetValue) {
-                    toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 300)
+                    playTripleBeepTwice(toneGenerator)
                     currentSet.actualValue = elapsedTime
                     currentSet.isCompleted = true
-                    delay(300L)
                     onSetComplete(session)
                     return@LaunchedEffect
                 }
@@ -1430,6 +1428,22 @@ fun saveWorkoutRecords(
                 time = now,
                 comment = session.comment.ifEmpty { workoutModeComment }
             )
+        }
+    }
+}
+
+// ピピピ、ピピピ、ピピピ（3連×3セット）のビープ音を再生
+suspend fun playTripleBeepTwice(toneGenerator: ToneGenerator) {
+    // 3セット繰り返す
+    repeat(3) { setIndex ->
+        repeat(3) {
+            toneGenerator.startTone(ToneGenerator.TONE_DTMF_9, 150)
+            delay(150L)
+            delay(100L) // ビープ間の間隔
+        }
+        // 最後のセット以外は間隔を入れる
+        if (setIndex < 2) {
+            delay(150L) // セット間の間隔
         }
     }
 }
