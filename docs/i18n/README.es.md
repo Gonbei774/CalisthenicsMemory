@@ -136,19 +136,25 @@ Visualización jerárquica de todos los grupos incluyendo favoritos. Filtra por 
 
 <p align="center">
   <img src="../../screenshots/17_settings.png" width="250" alt="Pantalla de Configuración">
+  <img src="../../screenshots/18_settings_language.png" width="250" alt="Selección de Idioma">
 </p>
 
-Funciones de gestión de datos:
+Gestión de datos y configuración de la aplicación:
 
 **Copia de Seguridad Completa (JSON)**
 - Exportar/importar todos los datos (ejercicios, grupos, registros)
 - Soporta migración de datos al cambiar de dispositivo
 - ⚠️ Los datos existentes se eliminan al importar
 
-**Añadir Registros (CSV)**
-- Descarga plantilla para añadir registros en masa
+**Gestión Parcial de Datos (CSV)**
+- Exporta e importa grupos, ejercicios o registros individualmente
+- A diferencia de la copia de seguridad JSON, puedes gestionar solo los datos que necesitas
+- **Exportación CSV**: Exporta grupos, ejercicios, registros o plantilla de registros por separado
+- **Importación CSV**: Importa grupos, ejercicios o registros con detección automática de formato
+- Vista previa de datos antes de importar
 - Conveniente para migrar desde registros analógicos o aplicaciones de notas
-- Añadido a datos existentes (no eliminados)
+
+**Selección de Idioma**
 
 ---
 

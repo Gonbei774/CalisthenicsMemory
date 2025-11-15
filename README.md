@@ -143,20 +143,23 @@ Hierarchical display of all groups including favorites. Filter by exercise to fo
 
 Data management and app configuration:
 
-**Language Selection**
-- Change app language directly from Settings
-- Available languages: English, Japanese, Spanish, German, Chinese (Simplified), French
-- Settings screen (left) and language selection dialog (right)
-
 **Complete Backup (JSON)**
 - Export/import all data (exercises, groups, records)
 - Support data migration when changing devices
 - ⚠️ Existing data is deleted on import
 
-**Add Records (CSV)**
-- Download template for bulk record addition
+**Partial Data Management (CSV)**
+- Export and import groups, exercises, or records individually
+- Unlike JSON backup, you can manage only the data you need
+- **CSV Export**: Export groups, exercises, records, or record template separately
+- **CSV Import**: Import groups, exercises, or records with automatic format detection
+- Preview data before importing
 - Convenient for migrating from analog records or note apps
-- Added to existing data (not deleted)
+
+**Language Selection**
+- Change app language directly from Settings
+- Available languages: English, Japanese, Spanish, German, Chinese (Simplified), French
+- Settings screen (left) and language selection dialog (right)
 
 ---
 

@@ -136,19 +136,25 @@ Hierarchische Anzeige aller Gruppen einschließlich Favoriten. Filtere nach Übu
 
 <p align="center">
   <img src="../../screenshots/17_settings.png" width="250" alt="Einstellungsbildschirm">
+  <img src="../../screenshots/18_settings_language.png" width="250" alt="Sprachauswahl">
 </p>
 
-Datenverwaltungsfunktionen:
+Datenverwaltung und App-Konfiguration:
 
 **Vollständige Sicherung (JSON)**
 - Exportiere/importiere alle Daten (Übungen, Gruppen, Aufzeichnungen)
 - Unterstützt Datenmigration beim Gerätewechsel
 - ⚠️ Vorhandene Daten werden beim Import gelöscht
 
-**Aufzeichnungen Hinzufügen (CSV)**
-- Lade Vorlage für Massenhinzufügung von Aufzeichnungen herunter
+**Teilweise Datenverwaltung (CSV)**
+- Exportiere und importiere Gruppen, Übungen oder Aufzeichnungen einzeln
+- Im Gegensatz zur JSON-Sicherung können Sie nur die benötigten Daten verwalten
+- **CSV-Export**: Exportiere Gruppen, Übungen, Aufzeichnungen oder Aufzeichnungsvorlage separat
+- **CSV-Import**: Importiere Gruppen, Übungen oder Aufzeichnungen mit automatischer Formaterkennung
+- Vorschau der Daten vor dem Import
 - Praktisch für Migration von analogen Aufzeichnungen oder Notiz-Apps
-- Zu vorhandenen Daten hinzugefügt (nicht gelöscht)
+
+**Sprachauswahl**
 
 ---
 

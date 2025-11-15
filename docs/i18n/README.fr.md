@@ -136,19 +136,25 @@ Affichage hiérarchique de tous les groupes y compris les favoris. Filtrez par e
 
 <p align="center">
   <img src="../../screenshots/17_settings.png" width="250" alt="Écran des Paramètres">
+  <img src="../../screenshots/18_settings_language.png" width="250" alt="Sélection de la Langue">
 </p>
 
-Fonctions de gestion des données :
+Gestion des données et configuration de l'application :
 
 **Sauvegarde Complète (JSON)**
 - Exportez/importez toutes les données (exercices, groupes, enregistrements)
 - Supporte la migration des données lors du changement d'appareil
 - ⚠️ Les données existantes sont supprimées lors de l'importation
 
-**Ajouter des Enregistrements (CSV)**
-- Téléchargez le modèle pour l'ajout en masse d'enregistrements
+**Gestion Partielle des Données (CSV)**
+- Exportez et importez groupes, exercices ou enregistrements individuellement
+- Contrairement à la sauvegarde JSON, vous pouvez gérer uniquement les données dont vous avez besoin
+- **Exportation CSV** : Exportez groupes, exercices, enregistrements ou modèle d'enregistrement séparément
+- **Importation CSV** : Importez groupes, exercices ou enregistrements avec détection automatique du format
+- Prévisualisation des données avant l'importation
 - Pratique pour migrer depuis des enregistrements analogiques ou des applications de notes
-- Ajouté aux données existantes (non supprimées)
+
+**Sélection de la Langue**
 
 ---
 
