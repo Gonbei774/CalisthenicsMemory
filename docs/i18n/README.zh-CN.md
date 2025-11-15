@@ -347,7 +347,7 @@ Calisthenics Memory是一款Android应用，用于记录和管理俯卧撑和深
 
 最新版本可从[Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases)下载。
 
-**[📦 下载v1.3.0](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.3.0/app-release.apk)**
+**[📦 下载v1.4.0](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.4.0/app-release.apk)**
 
 如需旧版本，可从[Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases)页面下载。
 
@@ -371,7 +371,7 @@ Calisthenics Memory是一款Android应用，用于记录和管理俯卧撑和深
 sha256sum app-release.apk
 
 # 与官方SHA256比较
-# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.3.0/app-release.apk.sha256
+# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.4.0/app-release.apk.sha256
 ```
 
 ---

@@ -1,0 +1,1 @@
+Enhanced CSV import/export to support full data backup (exercises, groups, records). Added auto-format detection, data preview, and confirmation dialogs. Completed 6-language support. Improved workout alarm with triple beep. Fixed language switching issues.

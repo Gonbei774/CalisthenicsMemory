@@ -356,7 +356,7 @@ Calisthenics Memoryは、プッシュアップやスクワットなどの自重�
 
 最新版は[Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases)からダウンロードできます。
 
-**[📦 v1.3.0をダウンロード](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.3.0/app-release.apk)**
+**[📦 v1.4.0をダウンロード](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.4.0/app-release.apk)**
 
 過去のバージョンが必要な場合は[Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases)ページからダウンロードできます。
 
@@ -380,7 +380,7 @@ APKの改ざんがないか確認したい場合は、SHA256チェックサム�
 sha256sum app-release.apk
 
 # 公式のSHA256と比較
-# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.3.0/app-release.apk.sha256
+# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.4.0/app-release.apk.sha256
 ```
 
 ---
@@ -427,4 +427,4 @@ cd CalisthenicsMemory
 
 ---
 
-**最終更新**: 2025年11月13日
+**最終更新**: 2025年11月15日

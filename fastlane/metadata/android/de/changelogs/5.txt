@@ -1,0 +1,1 @@
+Erweiterte CSV-Import/Export-Funktion unterstützt vollständige Datensicherung (Übungen, Gruppen, Aufzeichnungen). Automatische Formaterkennung, Datenvorschau und Bestätigungsdialoge hinzugefügt. 6 Sprachen vollständig unterstützt. Workout-Alarm mit dreifachem Signalton verbessert. Probleme beim Sprachwechsel behoben.

@@ -356,7 +356,7 @@ This app is released under the GNU General Public License v3.0. See the [LICENSE
 
 The latest version can be downloaded from [Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases).
 
-**[📦 Download v1.3.0](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.3.0/app-release.apk)**
+**[📦 Download v1.4.0](https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.4.0/app-release.apk)**
 
 If you need a previous version, you can download it from the [Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases) page.
 
@@ -380,7 +380,7 @@ If you want to verify that the APK has not been tampered with, please verify the
 sha256sum app-release.apk
 
 # Compare with official SHA256
-# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.3.0/app-release.apk.sha256
+# https://github.com/Gonbei774/CalisthenicsMemory/releases/download/v1.4.0/app-release.apk.sha256
 ```
 
 ---
@@ -427,4 +427,4 @@ cd CalisthenicsMemory
 
 ---
 
-**Last Updated**: November 13, 2025
+**Last Updated**: November 15, 2025
