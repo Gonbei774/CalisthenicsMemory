@@ -164,6 +164,16 @@
     <string name="restore_from_backup">Restaurer depuis une Sauvegarde</string>
     <string name="warning_title">Avertissement</string>
     <string name="import_warning">L\'importation supprimera toutes les données existantes.</string>
+    <string name="import_data_preview_title">📋 Confirmer l\'Importation</string>
+    <string name="file_name">Nom du Fichier</string>
+    <string name="data_contents">Contenu des Données</string>
+    <string name="groups">Groupes</string>
+    <string name="exercises">Exercices</string>
+    <string name="records">Enregistrements</string>
+    <string name="count_items">%d éléments</string>
+    <string name="count_records">%d enregistrements</string>
+    <string name="import_data_preview_message">Voulez-vous procéder à l\'importation de ces données ?</string>
+    <string name="next">Suivant</string>
     <string name="data_overwrite_title">⚠️ Écrasement des Données</string>
     <string name="existing_data_will_be_deleted">Toutes les données existantes seront supprimées.</string>
     <string name="cannot_undo">Cette action ne peut pas être annulée.</string>

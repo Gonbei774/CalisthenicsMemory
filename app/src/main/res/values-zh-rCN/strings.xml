@@ -164,6 +164,16 @@
     <string name="restore_from_backup">从备份恢复</string>
     <string name="warning_title">警告</string>
     <string name="import_warning">导入将删除所有现有数据。</string>
+    <string name="import_data_preview_title">📋 确认导入</string>
+    <string name="file_name">文件名</string>
+    <string name="data_contents">数据内容</string>
+    <string name="groups">分组</string>
+    <string name="exercises">动作</string>
+    <string name="records">记录</string>
+    <string name="count_items">%d项</string>
+    <string name="count_records">%d条记录</string>
+    <string name="import_data_preview_message">您是否要继续导入这些数据？</string>
+    <string name="next">下一步</string>
     <string name="data_overwrite_title">⚠️ 数据覆盖</string>
     <string name="existing_data_will_be_deleted">所有现有数据将被删除。</string>
     <string name="cannot_undo">此操作无法撤销。</string>

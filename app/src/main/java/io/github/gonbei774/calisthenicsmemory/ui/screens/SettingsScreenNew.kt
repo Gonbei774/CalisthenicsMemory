@@ -24,7 +24,9 @@ import io.github.gonbei774.calisthenicsmemory.data.AppLanguage
 import io.github.gonbei774.calisthenicsmemory.data.LanguagePreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
+import io.github.gonbei774.calisthenicsmemory.viewmodel.BackupData
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.json.Json
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
@@ -40,8 +42,13 @@ fun SettingsScreenNew(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    var showDataPreview by remember { mutableStateOf(false) }
     var showImportWarning by remember { mutableStateOf(false) }
     var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
+    var importFileName by remember { mutableStateOf<String?>(null) }
+    var importGroupCount by remember { mutableStateOf(0) }
+    var importExerciseCount by remember { mutableStateOf(0) }
+    var importRecordCount by remember { mutableStateOf(0) }
     var isLoading by remember { mutableStateOf(false) }
 
     // JSONエクスポート用ランチャー
@@ -76,8 +83,48 @@ fun SettingsScreenNew(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         uri?.let {
-            pendingImportUri = uri
-            showImportWarning = true
+            scope.launch {
+                isLoading = true
+                try {
+                    withContext(Dispatchers.IO) {
+                        // ファイル名を取得
+                        val fileName = context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                            val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                            cursor.moveToFirst()
+                            cursor.getString(nameIndex)
+                        } ?: "unknown.json"
+
+                        // JSONを読み込んで解析
+                        val jsonData = context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                            inputStream.readBytes().decodeToString()
+                        } ?: ""
+
+                        if (jsonData.isNotEmpty()) {
+                            val json = Json { ignoreUnknownKeys = true }
+                            val backupData = json.decodeFromString<BackupData>(jsonData)
+
+                            withContext(Dispatchers.Main) {
+                                // データ情報を保存
+                                pendingImportUri = uri
+                                importFileName = fileName
+                                importGroupCount = backupData.groups.size
+                                importExerciseCount = backupData.exercises.size
+                                importRecordCount = backupData.records.size
+
+                                // データ確認ダイアログを表示
+                                showDataPreview = true
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        // JSONパースエラーを表示（エラーメッセージはシンプルに）
+                        android.util.Log.e("SettingsScreen", "Failed to read import file", e)
+                    }
+                } finally {
+                    isLoading = false
+                }
+            }
         }
     }
 
@@ -599,7 +646,165 @@ fun SettingsScreenNew(
         }
     }
 
-    // インポート警告ダイアログ
+    // 第1段階: データ確認ダイアログ
+    if (showDataPreview) {
+        AlertDialog(
+            onDismissRequest = {
+                showDataPreview = false
+                pendingImportUri = null
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.import_data_preview_title),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // ファイル名
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Slate700
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.file_name),
+                                fontSize = 14.sp,
+                                color = Slate400,
+                                modifier = Modifier.padding(bottom = 6.dp)
+                            )
+                            Text(
+                                text = importFileName ?: "unknown.json",
+                                fontSize = 16.sp,
+                                color = Color.White,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+
+                    // データ件数
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Slate700
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.data_contents),
+                                fontSize = 14.sp,
+                                color = Slate400,
+                                modifier = Modifier.padding(bottom = 4.dp)
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.groups),
+                                    fontSize = 16.sp,
+                                    color = Slate300
+                                )
+                                Text(
+                                    text = stringResource(R.string.count_items, importGroupCount),
+                                    fontSize = 16.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.exercises),
+                                    fontSize = 16.sp,
+                                    color = Slate300
+                                )
+                                Text(
+                                    text = stringResource(R.string.count_items, importExerciseCount),
+                                    fontSize = 16.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.records),
+                                    fontSize = 16.sp,
+                                    color = Slate300
+                                )
+                                Text(
+                                    text = stringResource(R.string.count_records, importRecordCount),
+                                    fontSize = 16.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+
+                    Text(
+                        text = stringResource(R.string.import_data_preview_message),
+                        fontSize = 16.sp,
+                        color = Slate300,
+                        lineHeight = 22.sp
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        // 第2段階の警告ダイアログへ
+                        showDataPreview = false
+                        showImportWarning = true
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = Purple600
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.next),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDataPreview = false
+                        pendingImportUri = null
+                    }
+                ) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    // 第2段階: インポート警告ダイアログ
     if (showImportWarning) {
         AlertDialog(
             onDismissRequest = {

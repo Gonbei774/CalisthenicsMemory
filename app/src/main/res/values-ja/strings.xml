@@ -164,6 +164,16 @@
     <string name="restore_from_backup">バックアップから復元</string>
     <string name="warning_title">注意</string>
     <string name="import_warning">インポート時に既存データは全削除されます。</string>
+    <string name="import_data_preview_title">📋 インポート内容の確認</string>
+    <string name="file_name">ファイル名</string>
+    <string name="data_contents">データ内容</string>
+    <string name="groups">グループ</string>
+    <string name="exercises">種目</string>
+    <string name="records">記録</string>
+    <string name="count_items">%d個</string>
+    <string name="count_records">%d件</string>
+    <string name="import_data_preview_message">このデータをインポートしますか？</string>
+    <string name="next">次へ</string>
     <string name="data_overwrite_title">⚠️ データの上書き</string>
     <string name="existing_data_will_be_deleted">既存のデータは全て削除されます。</string>
     <string name="cannot_undo">インポート後は元に戻せません。</string>

@@ -164,6 +164,16 @@
     <string name="restore_from_backup">Restaurar desde Copia de Seguridad</string>
     <string name="warning_title">Advertencia</string>
     <string name="import_warning">Importar eliminará todos los datos existentes.</string>
+    <string name="import_data_preview_title">📋 Confirmar Importación</string>
+    <string name="file_name">Nombre del Archivo</string>
+    <string name="data_contents">Contenido de Datos</string>
+    <string name="groups">Grupos</string>
+    <string name="exercises">Ejercicios</string>
+    <string name="records">Registros</string>
+    <string name="count_items">%d elementos</string>
+    <string name="count_records">%d registros</string>
+    <string name="import_data_preview_message">¿Desea proceder con la importación de estos datos?</string>
+    <string name="next">Siguiente</string>
     <string name="data_overwrite_title">⚠️ Sobrescritura de Datos</string>
     <string name="existing_data_will_be_deleted">Todos los datos existentes serán eliminados.</string>
     <string name="cannot_undo">Esta acción no se puede deshacer.</string>

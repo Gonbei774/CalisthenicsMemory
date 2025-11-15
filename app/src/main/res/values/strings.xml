@@ -164,6 +164,16 @@
     <string name="restore_from_backup">Restore from Backup</string>
     <string name="warning_title">Warning</string>
     <string name="import_warning">Importing will delete all existing data.</string>
+    <string name="import_data_preview_title">📋 Confirm Import</string>
+    <string name="file_name">File Name</string>
+    <string name="data_contents">Data Contents</string>
+    <string name="groups">Groups</string>
+    <string name="exercises">Exercises</string>
+    <string name="records">Records</string>
+    <string name="count_items">%d items</string>
+    <string name="count_records">%d records</string>
+    <string name="import_data_preview_message">Do you want to proceed with importing this data?</string>
+    <string name="next">Next</string>
     <string name="data_overwrite_title">⚠️ Data Overwrite</string>
     <string name="existing_data_will_be_deleted">All existing data will be deleted.</string>
     <string name="cannot_undo">This action cannot be undone.</string>

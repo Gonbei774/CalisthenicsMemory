@@ -164,6 +164,16 @@
     <string name="restore_from_backup">Aus Sicherung wiederherstellen</string>
     <string name="warning_title">Warnung</string>
     <string name="import_warning">Beim Importieren werden alle vorhandenen Daten gelöscht.</string>
+    <string name="import_data_preview_title">📋 Import bestätigen</string>
+    <string name="file_name">Dateiname</string>
+    <string name="data_contents">Dateninhalt</string>
+    <string name="groups">Gruppen</string>
+    <string name="exercises">Übungen</string>
+    <string name="records">Aufzeichnungen</string>
+    <string name="count_items">%d Elemente</string>
+    <string name="count_records">%d Aufzeichnungen</string>
+    <string name="import_data_preview_message">Möchten Sie mit dem Import dieser Daten fortfahren?</string>
+    <string name="next">Weiter</string>
     <string name="data_overwrite_title">⚠️ Daten überschreiben</string>
     <string name="existing_data_will_be_deleted">Alle vorhandenen Daten werden gelöscht.</string>
     <string name="cannot_undo">Diese Aktion kann nicht rückgängig gemacht werden.</string>
