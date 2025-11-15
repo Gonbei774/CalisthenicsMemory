@@ -395,4 +395,12 @@
     <!-- Training Days Display -->
     <string name="training_days_format">トレーニング%s</string>
     <string name="last_record_short">最後: %s</string>
+
+    <!-- Backup Before Import -->
+    <string name="backup_before_import_title">インポート前の確認</string>
+    <string name="backup_before_import_message">現在のデータをバックアップしますか？</string>
+    <string name="backup_and_continue">バックアップして続行</string>
+    <string name="skip_and_continue">スキップして続行</string>
+    <string name="backup_saved_successfully">バックアップをDownloadsフォルダに保存しました</string>
+    <string name="backup_failed">バックアップに失敗しました</string>
 </resources>

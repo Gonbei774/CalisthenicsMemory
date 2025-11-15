@@ -99,6 +99,14 @@ sealed class UiMessage {
     /** CSVインポート部分的成功 */
     data class CsvImportPartial(val successCount: Int, val errorCount: Int) : UiMessage()
 
+    // ===== バックアップ関連 =====
+
+    /** バックアップ保存成功 */
+    object BackupSaved : UiMessage()
+
+    /** バックアップ失敗 */
+    object BackupFailed : UiMessage()
+
     // ===== エラー =====
 
     /** 一般的なエラー */

@@ -400,4 +400,6 @@
     <string name="backup_before_import_message">¿Hacer una copia de seguridad de los datos actuales?</string>
     <string name="backup_and_continue">Hacer copia y continuar</string>
     <string name="skip_and_continue">Omitir y continuar</string>
+    <string name="backup_saved_successfully">Copia de seguridad guardada en la carpeta Descargas</string>
+    <string name="backup_failed">Error al guardar la copia de seguridad</string>
 </resources>

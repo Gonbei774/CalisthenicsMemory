@@ -110,6 +110,14 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         _snackbarMessage.value = null
     }
 
+    fun showBackupResult(success: Boolean) {
+        _snackbarMessage.value = if (success) {
+            UiMessage.BackupSaved
+        } else {
+            UiMessage.BackupFailed
+        }
+    }
+
     // Exercise operations
     fun addExercise(
         name: String,

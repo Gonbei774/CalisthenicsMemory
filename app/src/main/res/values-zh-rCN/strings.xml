@@ -400,4 +400,6 @@
     <string name="backup_before_import_message">是否备份当前数据？</string>
     <string name="backup_and_continue">备份并继续</string>
     <string name="skip_and_continue">跳过并继续</string>
+    <string name="backup_saved_successfully">备份已保存到下载文件夹</string>
+    <string name="backup_failed">备份失败</string>
 </resources>

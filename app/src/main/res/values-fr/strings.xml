@@ -400,4 +400,6 @@
     <string name="backup_before_import_message">Sauvegarder les données actuelles ?</string>
     <string name="backup_and_continue">Sauvegarder et continuer</string>
     <string name="skip_and_continue">Ignorer et continuer</string>
+    <string name="backup_saved_successfully">Sauvegarde enregistrée dans le dossier Téléchargements</string>
+    <string name="backup_failed">Échec de la sauvegarde</string>
 </resources>
