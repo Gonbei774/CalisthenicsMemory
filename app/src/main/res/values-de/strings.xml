@@ -394,4 +394,10 @@
     <!-- Training Days Display -->
     <string name="training_days_format">Training %s</string>
     <string name="last_record_short">Letztes: %s</string>
+
+    <!-- Backup Before Import -->
+    <string name="backup_before_import_title">Bestätigung vor Import</string>
+    <string name="backup_before_import_message">Aktuelle Daten sichern?</string>
+    <string name="backup_and_continue">Sichern &amp; Fortfahren</string>
+    <string name="skip_and_continue">Überspringen &amp; Fortfahren</string>
 </resources>

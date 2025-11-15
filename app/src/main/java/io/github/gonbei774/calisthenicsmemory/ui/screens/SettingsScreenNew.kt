@@ -45,6 +45,8 @@ fun SettingsScreenNew(
     val scope = rememberCoroutineScope()
 
     var showDataPreview by remember { mutableStateOf(false) }
+    var showBackupConfirmation by remember { mutableStateOf(false) }
+    var backupImportType by remember { mutableStateOf<String?>(null) } // "JSON" or "CSV"
     var showImportWarning by remember { mutableStateOf(false) }
     var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
     var importFileName by remember { mutableStateOf<String?>(null) }
@@ -387,7 +389,7 @@ fun SettingsScreenNew(
                     onClick = {
                         if (!isLoading) {
                             val dateTime = LocalDateTime.now()
-                            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm")
+                            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")
                             val fileName = "calisthenics_memory_backup_${dateTime.format(formatter)}.json"
                             exportLauncher.launch(fileName)
                         }
@@ -892,9 +894,10 @@ fun SettingsScreenNew(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        // 第2段階の警告ダイアログへ
+                        // バックアップ確認ダイアログへ
                         showDataPreview = false
-                        showImportWarning = true
+                        backupImportType = "JSON"
+                        showBackupConfirmation = true
                     },
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = Purple600
@@ -993,6 +996,146 @@ fun SettingsScreenNew(
                     onClick = {
                         showImportWarning = false
                         pendingImportUri = null
+                    }
+                ) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    // バックアップ確認ダイアログ
+    if (showBackupConfirmation) {
+        AlertDialog(
+            onDismissRequest = {
+                showBackupConfirmation = false
+                backupImportType = null
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.backup_before_import_title),
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.backup_before_import_message),
+                        fontSize = 16.sp,
+                        lineHeight = 22.sp
+                    )
+
+                    // バックアップして続行（推奨）
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                isLoading = true
+                                showBackupConfirmation = false
+
+                                // バックアップを実行
+                                val backupSuccess = saveAutoBackup(context, viewModel)
+
+                                // バックアップ結果をSnackbarで通知
+                                viewModel.showBackupResult(backupSuccess)
+
+                                // バックアップが失敗してもインポートは続行
+                                try {
+                                    if (backupImportType == "JSON") {
+                                        withContext(Dispatchers.Main) {
+                                            showImportWarning = true
+                                        }
+                                    } else if (backupImportType == "CSV") {
+                                        // CSVインポート実行（ヘルパー関数使用）
+                                        pendingCsvString?.let { csvData ->
+                                            val report = executeCsvImport(viewModel, csvData, csvImportType)
+                                            withContext(Dispatchers.Main) {
+                                                if (report != null) {
+                                                    importReport = report
+                                                    showImportResult = true
+                                                }
+                                            }
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    android.util.Log.e("SettingsScreen", "Import error after backup", e)
+                                } finally {
+                                    withContext(Dispatchers.Main) {
+                                        isLoading = false
+                                        pendingCsvString = null
+                                        backupImportType = null
+                                    }
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Purple600
+                        )
+                    ) {
+                        Text(
+                            text = stringResource(R.string.backup_and_continue),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    }
+
+                    // スキップして続行
+                    OutlinedButton(
+                        onClick = {
+                            showBackupConfirmation = false
+                            if (backupImportType == "JSON") {
+                                showImportWarning = true
+                            } else if (backupImportType == "CSV") {
+                                // CSVインポート実行（ヘルパー関数使用）
+                                pendingCsvString?.let { csvData ->
+                                    scope.launch {
+                                        isLoading = true
+                                        try {
+                                            val report = executeCsvImport(viewModel, csvData, csvImportType)
+                                            withContext(Dispatchers.Main) {
+                                                if (report != null) {
+                                                    importReport = report
+                                                    showImportResult = true
+                                                }
+                                            }
+                                        } catch (e: Exception) {
+                                            android.util.Log.e("SettingsScreen", "CSV import error", e)
+                                        } finally {
+                                            isLoading = false
+                                            pendingCsvString = null
+                                        }
+                                    }
+                                }
+                            }
+                            backupImportType = null
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text(
+                            text = stringResource(R.string.skip_and_continue),
+                            fontSize = 16.sp
+                        )
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showBackupConfirmation = false
+                        pendingImportUri = null
+                        pendingCsvString = null
+                        backupImportType = null
                     }
                 ) {
                     Text(stringResource(R.string.cancel))
@@ -1269,34 +1412,10 @@ fun SettingsScreenNew(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        pendingCsvString?.let { csvData ->
-                            scope.launch {
-                                isLoading = true
-                                try {
-                                    val report = withContext(Dispatchers.IO) {
-                                        when (csvImportType) {
-                                            CsvType.GROUPS -> viewModel.importGroups(csvData)
-                                            CsvType.EXERCISES -> viewModel.importExercises(csvData)
-                                            CsvType.RECORDS -> viewModel.importRecordsFromCsv(csvData)
-                                            else -> null
-                                        }
-                                    }
-
-                                    withContext(Dispatchers.Main) {
-                                        if (report != null) {
-                                            importReport = report
-                                            showImportResult = true
-                                        }
-                                    }
-                                } catch (e: Exception) {
-                                    android.util.Log.e("SettingsScreen", "CSV import error", e)
-                                } finally {
-                                    isLoading = false
-                                    showCsvImportPreview = false
-                                    pendingCsvString = null
-                                }
-                            }
-                        }
+                        // バックアップ確認ダイアログへ
+                        showCsvImportPreview = false
+                        backupImportType = "CSV"
+                        showBackupConfirmation = true
                     },
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = Purple600
@@ -1561,5 +1680,64 @@ fun detectCsvType(csvString: String): CsvType? {
         firstLine.startsWith("name,type,group,sortOrder") -> CsvType.EXERCISES
         firstLine.startsWith("exerciseName,exerciseType") -> CsvType.RECORDS
         else -> null
+    }
+}
+
+/**
+ * バックアップを自動保存する関数
+ * @return 成功: true, 失敗: false
+ */
+suspend fun saveAutoBackup(
+    context: android.content.Context,
+    viewModel: TrainingViewModel
+): Boolean {
+    return try {
+        withContext(Dispatchers.IO) {
+            val jsonData = viewModel.exportData()
+            val dateTime = LocalDateTime.now()
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")
+            val fileName = "backup_${dateTime.format(formatter)}.json"
+
+            // MediaStoreを使ってDownloadsフォルダに保存
+            val contentValues = android.content.ContentValues().apply {
+                put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "application/json")
+                put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, android.os.Environment.DIRECTORY_DOWNLOADS)
+            }
+
+            val uri = context.contentResolver.insert(
+                android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                contentValues
+            )
+
+            uri?.let {
+                context.contentResolver.openOutputStream(it)?.use { outputStream ->
+                    outputStream.write(jsonData.toByteArray())
+                }
+            }
+
+            uri != null
+        }
+    } catch (e: Exception) {
+        android.util.Log.e("SettingsScreen", "Auto backup failed", e)
+        false
+    }
+}
+
+/**
+ * CSVインポートを実行する関数
+ */
+suspend fun executeCsvImport(
+    viewModel: TrainingViewModel,
+    csvData: String,
+    csvImportType: CsvType?
+): CsvImportReport? {
+    return withContext(Dispatchers.IO) {
+        when (csvImportType) {
+            CsvType.GROUPS -> viewModel.importGroups(csvData)
+            CsvType.EXERCISES -> viewModel.importExercises(csvData)
+            CsvType.RECORDS -> viewModel.importRecordsFromCsv(csvData)
+            else -> null
+        }
     }
 }
