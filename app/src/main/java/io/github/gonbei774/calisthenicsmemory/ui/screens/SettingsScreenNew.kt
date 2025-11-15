@@ -777,13 +777,52 @@ fun SettingsScreenNew(
                 val workoutPrefs = remember { io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences(context) }
                 var startCountdown by remember { mutableStateOf(workoutPrefs.getStartCountdown()) }
                 var setInterval by remember { mutableStateOf(workoutPrefs.getSetInterval()) }
+                var repDuration by remember { mutableStateOf(workoutPrefs.getRepDuration()) }
                 var showStartCountdownDialog by remember { mutableStateOf(false) }
                 var showSetIntervalDialog by remember { mutableStateOf(false) }
+                var showRepDurationDialog by remember { mutableStateOf(false) }
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    // 1レップの時間設定
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Slate800
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        onClick = { showRepDurationDialog = true }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(20.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "🔢",
+                                fontSize = 32.sp
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = stringResource(R.string.rep_duration_setting),
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = stringResource(R.string.current_rep_duration, repDuration),
+                                    fontSize = 14.sp,
+                                    color = Slate400,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
+                        }
+                    }
+
                     // 開始カウントダウン設定
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -951,6 +990,55 @@ fun SettingsScreenNew(
                         },
                         dismissButton = {
                             TextButton(onClick = { showSetIntervalDialog = false }) {
+                                Text(stringResource(R.string.cancel))
+                            }
+                        }
+                    )
+                }
+
+                // 1レップの時間設定ダイアログ
+                if (showRepDurationDialog) {
+                    var inputValue by remember { mutableStateOf(repDuration.toString()) }
+
+                    AlertDialog(
+                        onDismissRequest = { showRepDurationDialog = false },
+                        title = {
+                            Text(
+                                text = stringResource(R.string.rep_duration_dialog_title),
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        text = {
+                            OutlinedTextField(
+                                value = inputValue,
+                                onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) inputValue = it },
+                                label = { Text(stringResource(R.string.enter_seconds)) },
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Purple600,
+                                    focusedLabelColor = Purple600,
+                                    cursorColor = Purple600
+                                )
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    val newValue = inputValue.toIntOrNull() ?: io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences.DEFAULT_REP_DURATION
+                                    workoutPrefs.setRepDuration(newValue)
+                                    repDuration = newValue
+                                    showRepDurationDialog = false
+                                },
+                                colors = ButtonDefaults.textButtonColors(
+                                    contentColor = Purple600
+                                )
+                            ) {
+                                Text(stringResource(R.string.save))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showRepDurationDialog = false }) {
                                 Text(stringResource(R.string.cancel))
                             }
                         }

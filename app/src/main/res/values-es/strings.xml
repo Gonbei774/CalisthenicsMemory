@@ -409,11 +409,14 @@
     <string name="workout_settings">Configuración de Entrenamiento</string>
     <string name="start_countdown_setting">Cuenta Regresiva Inicial</string>
     <string name="set_interval_setting">Intervalo entre Series</string>
+    <string name="rep_duration_setting">Duración de Repetición</string>
     <string name="current_start_countdown">Actual: %d segundos</string>
     <string name="current_set_interval">Actual: %d segundos</string>
+    <string name="current_rep_duration">Actual: %d segundos</string>
     <string name="seconds_suffix">segundos</string>
     <string name="start_countdown_dialog_title">Cuenta Regresiva Inicial</string>
     <string name="set_interval_dialog_title">Intervalo entre Series</string>
+    <string name="rep_duration_dialog_title">Duración de Repetición</string>
     <string name="enter_seconds">Ingresar segundos</string>
     <string name="seconds_format">%d segundos</string>
 </resources>
