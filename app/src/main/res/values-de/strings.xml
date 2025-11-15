@@ -402,4 +402,18 @@
     <string name="skip_and_continue">Überspringen &amp; Fortfahren</string>
     <string name="backup_saved_successfully">Backup im Downloads-Ordner gespeichert</string>
     <string name="backup_failed">Backup fehlgeschlagen</string>
+
+    <!-- Workout Settings -->
+    <string name="section_workout_settings">Workout-Einstellungen</string>
+    <string name="section_workout_settings_description">Standard-Timer-Einstellungen für Workouts konfigurieren.</string>
+    <string name="workout_settings">Workout-Einstellungen</string>
+    <string name="start_countdown_setting">Start-Countdown</string>
+    <string name="set_interval_setting">Satzpause</string>
+    <string name="current_start_countdown">Aktuell: %d Sekunden</string>
+    <string name="current_set_interval">Aktuell: %d Sekunden</string>
+    <string name="seconds_suffix">Sekunden</string>
+    <string name="start_countdown_dialog_title">Start-Countdown</string>
+    <string name="set_interval_dialog_title">Satzpause</string>
+    <string name="enter_seconds">Sekunden eingeben</string>
+    <string name="seconds_format">%d Sekunden</string>
 </resources>

@@ -745,6 +745,219 @@ fun SettingsScreenNew(
                 }
             }
 
+            // ========================================
+            // セクション4: ワークアウト設定
+            // ========================================
+
+            // セクションタイトルと説明
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.section_workout_settings),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.section_workout_settings_description),
+                        fontSize = 14.sp,
+                        color = Slate400,
+                        lineHeight = 20.sp
+                    )
+                }
+            }
+
+            // ワークアウト設定カード
+            item {
+                val workoutPrefs = remember { io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences(context) }
+                var startCountdown by remember { mutableStateOf(workoutPrefs.getStartCountdown()) }
+                var setInterval by remember { mutableStateOf(workoutPrefs.getSetInterval()) }
+                var showStartCountdownDialog by remember { mutableStateOf(false) }
+                var showSetIntervalDialog by remember { mutableStateOf(false) }
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // 開始カウントダウン設定
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Slate800
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        onClick = { showStartCountdownDialog = true }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(20.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "⏱️",
+                                fontSize = 32.sp
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = stringResource(R.string.start_countdown_setting),
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = stringResource(R.string.current_start_countdown, startCountdown),
+                                    fontSize = 14.sp,
+                                    color = Slate400,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    // セット間インターバル設定
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Slate800
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        onClick = { showSetIntervalDialog = true }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(20.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "⏸️",
+                                fontSize = 32.sp
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = stringResource(R.string.set_interval_setting),
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = stringResource(R.string.current_set_interval, setInterval),
+                                    fontSize = 14.sp,
+                                    color = Slate400,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // 開始カウントダウン設定ダイアログ
+                if (showStartCountdownDialog) {
+                    var inputValue by remember { mutableStateOf(startCountdown.toString()) }
+
+                    AlertDialog(
+                        onDismissRequest = { showStartCountdownDialog = false },
+                        title = {
+                            Text(
+                                text = stringResource(R.string.start_countdown_dialog_title),
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        text = {
+                            OutlinedTextField(
+                                value = inputValue,
+                                onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) inputValue = it },
+                                label = { Text(stringResource(R.string.enter_seconds)) },
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Purple600,
+                                    focusedLabelColor = Purple600,
+                                    cursorColor = Purple600
+                                )
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    val newValue = inputValue.toIntOrNull() ?: io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences.DEFAULT_START_COUNTDOWN
+                                    workoutPrefs.setStartCountdown(newValue)
+                                    startCountdown = newValue
+                                    showStartCountdownDialog = false
+                                },
+                                colors = ButtonDefaults.textButtonColors(
+                                    contentColor = Purple600
+                                )
+                            ) {
+                                Text(stringResource(R.string.save))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showStartCountdownDialog = false }) {
+                                Text(stringResource(R.string.cancel))
+                            }
+                        }
+                    )
+                }
+
+                // セット間インターバル設定ダイアログ
+                if (showSetIntervalDialog) {
+                    var inputValue by remember { mutableStateOf(setInterval.toString()) }
+
+                    AlertDialog(
+                        onDismissRequest = { showSetIntervalDialog = false },
+                        title = {
+                            Text(
+                                text = stringResource(R.string.set_interval_dialog_title),
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        text = {
+                            OutlinedTextField(
+                                value = inputValue,
+                                onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) inputValue = it },
+                                label = { Text(stringResource(R.string.enter_seconds)) },
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Purple600,
+                                    focusedLabelColor = Purple600,
+                                    cursorColor = Purple600
+                                )
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    val newValue = inputValue.toIntOrNull() ?: io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences.DEFAULT_SET_INTERVAL
+                                    workoutPrefs.setSetInterval(newValue)
+                                    setInterval = newValue
+                                    showSetIntervalDialog = false
+                                },
+                                colors = ButtonDefaults.textButtonColors(
+                                    contentColor = Purple600
+                                )
+                            ) {
+                                Text(stringResource(R.string.save))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showSetIntervalDialog = false }) {
+                                Text(stringResource(R.string.cancel))
+                            }
+                        }
+                    )
+                }
+            }
+
             // ローディング表示
             if (isLoading) {
                 item {

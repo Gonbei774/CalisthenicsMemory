@@ -27,7 +27,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
+import io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import androidx.compose.ui.platform.LocalContext
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import kotlinx.coroutines.delay
 import java.time.LocalDate
@@ -476,11 +478,14 @@ fun SettingsStep(
     onStartWorkout: (WorkoutSession) -> Unit,
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
+    val workoutPrefs = remember { WorkoutPreferences(context) }
+
     var sets by remember { mutableStateOf(exercise.targetSets?.toString() ?: "") }
     var targetValue by remember { mutableStateOf(exercise.targetValue?.toString() ?: "") }
     var repDuration by remember { mutableStateOf("5") }
-    var startInterval by remember { mutableStateOf("5") }
-    var interval by remember { mutableStateOf("240") }
+    var startInterval by remember { mutableStateOf(workoutPrefs.getStartCountdown().toString()) }
+    var interval by remember { mutableStateOf(workoutPrefs.getSetInterval().toString()) }
 
     Column(
         modifier = Modifier
