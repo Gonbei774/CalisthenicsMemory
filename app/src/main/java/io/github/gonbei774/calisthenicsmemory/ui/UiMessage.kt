@@ -84,6 +84,9 @@ sealed class UiMessage {
 
     // ===== CSV 関連 =====
 
+    /** CSVエクスポート成功（グループ/種目） */
+    data class CsvExportSuccess(val type: String, val count: Int) : UiMessage()
+
     /** CSVテンプレートがエクスポートされた */
     data class CsvTemplateExported(val exerciseCount: Int) : UiMessage()
 

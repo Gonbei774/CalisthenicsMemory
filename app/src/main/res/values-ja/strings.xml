@@ -326,18 +326,56 @@
     <string name="graph_tooltip_unilateral_detail">%1$s: 右%2$d%4$s / 左%3$d%4$s</string>
 
     <!-- CSV Import/Export -->
+    <string name="csv_export_success">%1$sをエクスポートしました: %2$d件</string>
     <string name="csv_template_exported">CSVテンプレートをエクスポートしました: %d種目</string>
     <string name="csv_empty">CSVファイルが空です</string>
     <string name="csv_import_success">%d件の記録をインポートしました</string>
     <string name="csv_import_partial">%1$d件インポート完了、%2$d件エラー</string>
     <string name="export_csv_template">種目リストをエクスポート</string>
-    <string name="import_csv_records">記録をインポート</string>
+    <string name="csv_import">CSVインポート</string>
     <string name="csv_template_description">記録入力用テンプレートをダウンロード</string>
-    <string name="csv_import_description">CSVから記録を追加</string>
+    <string name="csv_import_description">グループ、種目、記録を自動判定してインポート</string>
+
+    <!-- CSV Export Dialog -->
+    <string name="csv_export">CSV エクスポート</string>
+    <string name="csv_export_description">グループ、種目、記録、または記録テンプレートをエクスポート</string>
+    <string name="csv_export_groups">グループ</string>
+    <string name="csv_export_groups_description">全てのグループをエクスポート</string>
+    <string name="csv_export_exercises">種目</string>
+    <string name="csv_export_exercises_description">全ての種目をエクスポート</string>
+    <string name="csv_export_records">記録</string>
+    <string name="csv_export_records_description">全てのトレーニング記録をエクスポート</string>
+    <string name="csv_export_record_template">記録テンプレート</string>
+    <string name="csv_export_record_template_description">記録追加用のテンプレートをエクスポート</string>
+
+    <!-- CSV Import Preview Dialog -->
+    <string name="csv_import_preview">CSV インポートプレビュー</string>
+    <string name="csv_file">ファイル</string>
+    <string name="csv_type">種類</string>
+    <string name="csv_items">項目数</string>
+    <string name="import_action">インポート</string>
+    <string name="csv_import_mode">インポートモード</string>
+    <string name="csv_import_mode_merge">マージ（追加）</string>
+    <string name="csv_import_mode_merge_description">既存データを保持し、新しい項目を追加</string>
+    <string name="csv_import_mode_replace">置き換え</string>
+    <string name="csv_import_mode_replace_description">全ての既存データを削除して置き換え</string>
+    <string name="csv_import_button">インポート</string>
+
+    <!-- CSV Import Result Dialog -->
+    <string name="csv_import_completed">インポート完了</string>
+    <string name="csv_import_success_label">✅ 成功</string>
+    <string name="csv_import_skipped_label">⏭️ スキップ</string>
+    <string name="csv_import_error_label">❌ エラー</string>
+    <string name="csv_import_skipped_items">スキップ項目 (%d)</string>
+    <string name="csv_import_errors">エラー (%d)</string>
+    <string name="csv_import_more_items">... その他 %d件</string>
 
     <!-- Settings Screen Sections -->
     <string name="section_full_backup">完全バックアップ (JSON)</string>
     <string name="section_full_backup_description">全データの保存・復元。端末移行時に使用。</string>
+    <string name="section_partial_data_management">部分データ管理 (CSV)</string>
+    <string name="section_partial_data_management_description">グループ、種目、記録を個別にエクスポート・インポート。\nJSONバックアップと異なり、必要なデータだけを管理できます。</string>
+    <!-- Legacy key for compatibility -->
     <string name="section_add_records">記録の追加 (CSV)</string>
     <string name="section_add_records_description">既存データに記録を追加。他アプリからの移行に使用。</string>
 

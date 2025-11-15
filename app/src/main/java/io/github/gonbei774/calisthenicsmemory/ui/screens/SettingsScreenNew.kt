@@ -25,6 +25,8 @@ import io.github.gonbei774.calisthenicsmemory.data.LanguagePreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import io.github.gonbei774.calisthenicsmemory.viewmodel.BackupData
+import io.github.gonbei774.calisthenicsmemory.viewmodel.CsvImportReport
+import io.github.gonbei774.calisthenicsmemory.viewmodel.CsvType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import kotlinx.coroutines.launch
@@ -50,6 +52,16 @@ fun SettingsScreenNew(
     var importExerciseCount by remember { mutableStateOf(0) }
     var importRecordCount by remember { mutableStateOf(0) }
     var isLoading by remember { mutableStateOf(false) }
+
+    // CSV関連のダイアログとstate
+    var showCsvExportDialog by remember { mutableStateOf(false) }
+    var showCsvImportPreview by remember { mutableStateOf(false) }
+    var csvImportType by remember { mutableStateOf<CsvType?>(null) }
+    var csvImportDataCount by remember { mutableStateOf(0) }
+    var pendingCsvString by remember { mutableStateOf<String?>(null) }
+    var csvFileName by remember { mutableStateOf<String?>(null) }
+    var showImportResult by remember { mutableStateOf(false) }
+    var importReport by remember { mutableStateOf<CsvImportReport?>(null) }
 
     // JSONエクスポート用ランチャー
     val exportLauncher = rememberLauncherForActivityResult(
@@ -128,8 +140,86 @@ fun SettingsScreenNew(
         }
     }
 
-    // CSVテンプレートエクスポート用ランチャー
-    val csvExportLauncher = rememberLauncherForActivityResult(
+    // CSVエクスポート用ランチャー（グループ）
+    val csvExportGroupsLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/csv")
+    ) { uri: Uri? ->
+        uri?.let {
+            scope.launch {
+                isLoading = true
+                try {
+                    withContext(Dispatchers.IO) {
+                        val csvData = viewModel.exportGroups()
+
+                        context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                            outputStream.write(csvData.toByteArray())
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        // ViewModelでエラーメッセージが設定される
+                    }
+                } finally {
+                    isLoading = false
+                }
+            }
+        }
+    }
+
+    // CSVエクスポート用ランチャー（種目）
+    val csvExportExercisesLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/csv")
+    ) { uri: Uri? ->
+        uri?.let {
+            scope.launch {
+                isLoading = true
+                try {
+                    withContext(Dispatchers.IO) {
+                        val csvData = viewModel.exportExercises()
+
+                        context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                            outputStream.write(csvData.toByteArray())
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        // ViewModelでエラーメッセージが設定される
+                    }
+                } finally {
+                    isLoading = false
+                }
+            }
+        }
+    }
+
+    // CSVエクスポート用ランチャー（記録データ）
+    val csvExportRecordsLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/csv")
+    ) { uri: Uri? ->
+        uri?.let {
+            scope.launch {
+                isLoading = true
+                try {
+                    withContext(Dispatchers.IO) {
+                        val csvData = viewModel.exportRecords()
+
+                        context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                            outputStream.write(csvData.toByteArray())
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        // ViewModelでエラーメッセージが設定される
+                    }
+                } finally {
+                    isLoading = false
+                }
+            }
+        }
+    }
+
+    // CSVエクスポート用ランチャー（記録テンプレート）
+    val csvExportRecordTemplateLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("text/csv")
     ) { uri: Uri? ->
         uri?.let {
@@ -154,7 +244,7 @@ fun SettingsScreenNew(
         }
     }
 
-    // CSVインポート用ランチャー
+    // CSVインポート用ランチャー（自動判定機能付き）
     val csvImportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
@@ -163,17 +253,45 @@ fun SettingsScreenNew(
                 isLoading = true
                 try {
                     withContext(Dispatchers.IO) {
+                        // ファイル名を取得
+                        val fileName = context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                            val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                            cursor.moveToFirst()
+                            cursor.getString(nameIndex)
+                        } ?: "unknown.csv"
+
+                        // CSVを読み込む
                         val csvData = context.contentResolver.openInputStream(uri)?.use { inputStream ->
                             inputStream.readBytes().decodeToString()
                         } ?: ""
 
                         if (csvData.isNotEmpty()) {
-                            viewModel.importRecordsFromCsv(csvData)
+                            // CSV種類を自動判定
+                            val detectedType = detectCsvType(csvData)
+
+                            if (detectedType != null) {
+                                // データ件数をカウント
+                                val lines = csvData.lines().filter { it.isNotBlank() && !it.startsWith("#") }
+                                val dataCount = if (lines.size > 1) lines.size - 1 else 0 // ヘッダー行を除く
+
+                                withContext(Dispatchers.Main) {
+                                    csvImportType = detectedType
+                                    csvFileName = fileName
+                                    csvImportDataCount = dataCount
+                                    pendingCsvString = csvData
+                                    showCsvImportPreview = true
+                                }
+                            } else {
+                                withContext(Dispatchers.Main) {
+                                    // 判定失敗のエラーメッセージ
+                                    android.util.Log.e("SettingsScreen", "CSV type detection failed")
+                                }
+                            }
                         }
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
-                        // ViewModelでエラーメッセージが設定される
+                        android.util.Log.e("SettingsScreen", "CSV import error", e)
                     }
                 } finally {
                     isLoading = false
@@ -397,14 +515,14 @@ fun SettingsScreenNew(
                         .padding(vertical = 8.dp)
                 ) {
                     Text(
-                        text = stringResource(R.string.section_add_records),
+                        text = stringResource(R.string.section_partial_data_management),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
                     Text(
-                        text = stringResource(R.string.section_add_records_description),
+                        text = stringResource(R.string.section_partial_data_management_description),
                         fontSize = 14.sp,
                         color = Slate400,
                         lineHeight = 20.sp
@@ -412,7 +530,7 @@ fun SettingsScreenNew(
                 }
             }
 
-            // CSVテンプレートエクスポートボタン
+            // CSVエクスポートボタン
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -422,10 +540,7 @@ fun SettingsScreenNew(
                     shape = RoundedCornerShape(12.dp),
                     onClick = {
                         if (!isLoading) {
-                            val dateTime = LocalDateTime.now()
-                            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm")
-                            val fileName = "calisthenics_memory_template_${dateTime.format(formatter)}.csv"
-                            csvExportLauncher.launch(fileName)
+                            showCsvExportDialog = true
                         }
                     }
                 ) {
@@ -442,13 +557,13 @@ fun SettingsScreenNew(
                         )
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = stringResource(R.string.export_csv_template),
+                                text = stringResource(R.string.csv_export),
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
                             Text(
-                                text = stringResource(R.string.csv_template_description),
+                                text = stringResource(R.string.csv_export_description),
                                 fontSize = 14.sp,
                                 color = Slate400,
                                 modifier = Modifier.padding(top = 4.dp)
@@ -485,7 +600,7 @@ fun SettingsScreenNew(
                         )
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = stringResource(R.string.import_csv_records),
+                                text = stringResource(R.string.csv_import),
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
@@ -884,5 +999,567 @@ fun SettingsScreenNew(
                 }
             }
         )
+    }
+
+    // CSVエクスポート選択ダイアログ
+    if (showCsvExportDialog) {
+        AlertDialog(
+            onDismissRequest = { showCsvExportDialog = false },
+            title = {
+                Text(
+                    text = stringResource(R.string.csv_export),
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    // グループ
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Slate700
+                        ),
+                        onClick = {
+                            showCsvExportDialog = false
+                            val dateTime = LocalDateTime.now()
+                            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm")
+                            val fileName = "groups_${dateTime.format(formatter)}.csv"
+                            csvExportGroupsLauncher.launch(fileName)
+                        }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = "📁", fontSize = 24.sp)
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.csv_export_groups),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = stringResource(R.string.csv_export_groups_description),
+                                    fontSize = 14.sp,
+                                    color = Slate400
+                                )
+                            }
+                        }
+                    }
+
+                    // 種目
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Slate700
+                        ),
+                        onClick = {
+                            showCsvExportDialog = false
+                            val dateTime = LocalDateTime.now()
+                            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm")
+                            val fileName = "exercises_${dateTime.format(formatter)}.csv"
+                            csvExportExercisesLauncher.launch(fileName)
+                        }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = "💪", fontSize = 24.sp)
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.csv_export_exercises),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = stringResource(R.string.csv_export_exercises_description),
+                                    fontSize = 14.sp,
+                                    color = Slate400
+                                )
+                            }
+                        }
+                    }
+
+                    // 記録（実データ）
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Slate700
+                        ),
+                        onClick = {
+                            showCsvExportDialog = false
+                            val dateTime = LocalDateTime.now()
+                            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm")
+                            val fileName = "records_${dateTime.format(formatter)}.csv"
+                            csvExportRecordsLauncher.launch(fileName)
+                        }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = "📊", fontSize = 24.sp)
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.csv_export_records),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = stringResource(R.string.csv_export_records_description),
+                                    fontSize = 14.sp,
+                                    color = Slate400
+                                )
+                            }
+                        }
+                    }
+
+                    // 記録テンプレート
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Slate700
+                        ),
+                        onClick = {
+                            showCsvExportDialog = false
+                            val dateTime = LocalDateTime.now()
+                            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm")
+                            val fileName = "record_template_${dateTime.format(formatter)}.csv"
+                            csvExportRecordTemplateLauncher.launch(fileName)
+                        }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = "📋", fontSize = 24.sp)
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.csv_export_record_template),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = stringResource(R.string.csv_export_record_template_description),
+                                    fontSize = 14.sp,
+                                    color = Slate400
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showCsvExportDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    // CSVインポートプレビューダイアログ
+    if (showCsvImportPreview) {
+        AlertDialog(
+            onDismissRequest = {
+                showCsvImportPreview = false
+                pendingCsvString = null
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.csv_import_preview),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // ファイル情報
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Slate700
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            // ファイル名
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.csv_file),
+                                    fontSize = 14.sp,
+                                    color = Slate400
+                                )
+                                Text(
+                                    text = csvFileName ?: "unknown.csv",
+                                    fontSize = 14.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+
+                            // CSV種類
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.csv_type),
+                                    fontSize = 14.sp,
+                                    color = Slate400
+                                )
+                                Text(
+                                    text = getCsvTypeLocalizedString(csvImportType),
+                                    fontSize = 14.sp,
+                                    color = Green400,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            // データ件数
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.csv_items),
+                                    fontSize = 14.sp,
+                                    color = Slate400
+                                )
+                                Text(
+                                    text = "$csvImportDataCount",
+                                    fontSize = 14.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        pendingCsvString?.let { csvData ->
+                            scope.launch {
+                                isLoading = true
+                                try {
+                                    val report = withContext(Dispatchers.IO) {
+                                        when (csvImportType) {
+                                            CsvType.GROUPS -> viewModel.importGroups(csvData)
+                                            CsvType.EXERCISES -> viewModel.importExercises(csvData)
+                                            CsvType.RECORDS -> viewModel.importRecordsFromCsv(csvData)
+                                            else -> null
+                                        }
+                                    }
+
+                                    withContext(Dispatchers.Main) {
+                                        if (report != null) {
+                                            importReport = report
+                                            showImportResult = true
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    android.util.Log.e("SettingsScreen", "CSV import error", e)
+                                } finally {
+                                    isLoading = false
+                                    showCsvImportPreview = false
+                                    pendingCsvString = null
+                                }
+                            }
+                        }
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = Purple600
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.import_action),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showCsvImportPreview = false
+                        pendingCsvString = null
+                    }
+                ) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    // CSVインポート結果ダイアログ
+    if (showImportResult && importReport != null) {
+        val report = importReport!!
+        var showSkippedItems by remember { mutableStateOf(false) }
+        var showErrors by remember { mutableStateOf(false) }
+
+        AlertDialog(
+            onDismissRequest = {
+                showImportResult = false
+                importReport = null
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.csv_import_completed),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // サマリー
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Slate700
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(text = stringResource(R.string.csv_import_success_label), fontSize = 14.sp, color = Green400)
+                                Text(
+                                    text = "${report.successCount}",
+                                    fontSize = 14.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(text = stringResource(R.string.csv_import_skipped_label), fontSize = 14.sp, color = Slate400)
+                                Text(
+                                    text = "${report.skippedCount}",
+                                    fontSize = 14.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(text = stringResource(R.string.csv_import_error_label), fontSize = 14.sp, color = Red600)
+                                Text(
+                                    text = "${report.errorCount}",
+                                    fontSize = 14.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+
+                    // スキップ項目の詳細（折りたたみ可能）
+                    if (report.skippedCount > 0) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Slate700
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            onClick = { showSkippedItems = !showSkippedItems }
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.csv_import_skipped_items, report.skippedCount),
+                                        fontSize = 14.sp,
+                                        color = Slate300,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = if (showSkippedItems) "▼" else "▶",
+                                        fontSize = 12.sp,
+                                        color = Slate400
+                                    )
+                                }
+
+                                if (showSkippedItems) {
+                                    Column(
+                                        modifier = Modifier.padding(top = 8.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        report.skippedItems.take(10).forEach { item ->
+                                            Text(
+                                                text = "• $item",
+                                                fontSize = 12.sp,
+                                                color = Slate400,
+                                                lineHeight = 16.sp
+                                            )
+                                        }
+                                        if (report.skippedItems.size > 10) {
+                                            Text(
+                                                text = "... and ${report.skippedItems.size - 10} more",
+                                                fontSize = 12.sp,
+                                                color = Slate400
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // エラーの詳細（折りたたみ可能）
+                    if (report.errorCount > 0) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Red600.copy(alpha = 0.1f)
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            onClick = { showErrors = !showErrors }
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.csv_import_errors, report.errorCount),
+                                        fontSize = 14.sp,
+                                        color = Red600,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = if (showErrors) "▼" else "▶",
+                                        fontSize = 12.sp,
+                                        color = Slate400
+                                    )
+                                }
+
+                                if (showErrors) {
+                                    Column(
+                                        modifier = Modifier.padding(top = 8.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        report.errors.take(10).forEach { error ->
+                                            Text(
+                                                text = "• $error",
+                                                fontSize = 12.sp,
+                                                color = Red600.copy(alpha = 0.8f),
+                                                lineHeight = 16.sp
+                                            )
+                                        }
+                                        if (report.errors.size > 10) {
+                                            Text(
+                                                text = "... and ${report.errors.size - 10} more",
+                                                fontSize = 12.sp,
+                                                color = Red600.copy(alpha = 0.8f)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showImportResult = false
+                        importReport = null
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = Purple600
+                    )
+                ) {
+                    Text(stringResource(R.string.ok))
+                }
+            }
+        )
+    }
+}
+
+/**
+ * CSV種類を多言語化された文字列に変換する関数
+ */
+@Composable
+fun getCsvTypeLocalizedString(csvType: CsvType?): String {
+    return when (csvType) {
+        CsvType.GROUPS -> stringResource(R.string.groups)
+        CsvType.EXERCISES -> stringResource(R.string.exercises)
+        CsvType.RECORDS -> stringResource(R.string.records)
+        null -> stringResource(R.string.unknown_short)
+    }
+}
+
+/**
+ * CSV種類を自動判定する関数
+ */
+fun detectCsvType(csvString: String): CsvType? {
+    val firstLine = csvString.lines()
+        .filter { it.isNotBlank() && !it.startsWith("#") }
+        .firstOrNull() ?: return null
+
+    return when {
+        firstLine.trim() == "name" -> CsvType.GROUPS
+        firstLine.startsWith("name,type,group,sortOrder") -> CsvType.EXERCISES
+        firstLine.startsWith("exerciseName,exerciseType") -> CsvType.RECORDS
+        else -> null
     }
 }

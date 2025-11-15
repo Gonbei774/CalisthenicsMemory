@@ -557,6 +557,64 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     // ========================================
 
     /**
+     * グループCSVをエクスポート
+     */
+    suspend fun exportGroups(): String = withContext(Dispatchers.IO) {
+        try {
+            val currentGroups = groups.value
+
+            val csvBuilder = StringBuilder()
+            csvBuilder.appendLine("name")
+
+            currentGroups.forEach { group ->
+                csvBuilder.appendLine(group.name)
+            }
+
+            withContext(Dispatchers.Main) {
+                _snackbarMessage.value = UiMessage.CsvExportSuccess("Groups", currentGroups.size)
+            }
+
+            csvBuilder.toString()
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                _snackbarMessage.value = UiMessage.ExportError(e.message ?: "")
+            }
+            throw e
+        }
+    }
+
+    /**
+     * 種目CSVをエクスポート
+     */
+    suspend fun exportExercises(): String = withContext(Dispatchers.IO) {
+        try {
+            val currentExercises = exercises.value
+
+            val csvBuilder = StringBuilder()
+            csvBuilder.appendLine("name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite")
+
+            currentExercises.forEach { exercise ->
+                csvBuilder.appendLine(
+                    "${exercise.name},${exercise.type},${exercise.group ?: ""}," +
+                    "${exercise.sortOrder},${exercise.laterality}," +
+                    "${exercise.targetSets ?: ""},${exercise.targetValue ?: ""},${exercise.isFavorite}"
+                )
+            }
+
+            withContext(Dispatchers.Main) {
+                _snackbarMessage.value = UiMessage.CsvExportSuccess("Exercises", currentExercises.size)
+            }
+
+            csvBuilder.toString()
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                _snackbarMessage.value = UiMessage.ExportError(e.message ?: "")
+            }
+            throw e
+        }
+    }
+
+    /**
      * 記録入力用テンプレートCSVをエクスポート
      * 種目リスト + コメント例
      */
@@ -597,124 +655,346 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     }
 
     /**
-     * CSVから記録をインポート（既存データに追加）
+     * 実際の記録データをCSV形式でエクスポート
      */
-    suspend fun importRecordsFromCsv(csvString: String) {
-        withContext(Dispatchers.IO) {
-            try {
-                val lines = csvString.lines()
-                    .filter { it.isNotBlank() && !it.startsWith("#") } // 空行とコメント行をスキップ
+    suspend fun exportRecords(): String = withContext(Dispatchers.IO) {
+        try {
+            val currentRecords = records.value
+            val currentExercises = exercises.value
 
-                if (lines.isEmpty()) {
-                    withContext(Dispatchers.Main) {
-                        _snackbarMessage.value = UiMessage.CsvEmpty
-                    }
-                    return@withContext
-                }
+            // 種目IDから種目情報へのマップを作成
+            val exerciseMap = currentExercises.associateBy { it.id }
 
-                // ヘッダー行をスキップ
-                val dataLines = lines.drop(1)
+            val csvBuilder = StringBuilder()
 
-                var successCount = 0
-                var errorCount = 0
-                val errors = mutableListOf<String>()
+            // ヘッダー
+            csvBuilder.appendLine("exerciseName,exerciseType,date,time,setNumber,valueRight,valueLeft,comment")
 
-                dataLines.forEachIndexed { index, line ->
-                    try {
-                        val columns = line.split(",")
-                        if (columns.size < 8) {
-                            errors.add("Line ${index + 2}: Invalid format (not enough columns)")
-                            errorCount++
-                            return@forEachIndexed
-                        }
-
-                        val exerciseName = columns[0].trim()
-                        val exerciseType = columns[1].trim()
-                        val date = columns[2].trim()
-                        val time = columns[3].trim()
-                        val setNumberStr = columns[4].trim()
-                        val valueRightStr = columns[5].trim()
-                        val valueLeftStr = columns[6].trim()
-                        val comment = columns.getOrNull(7)?.trim() ?: ""
-
-                        // 必須フィールドチェック
-                        if (exerciseName.isEmpty() || exerciseType.isEmpty() ||
-                            date.isEmpty() || time.isEmpty() ||
-                            setNumberStr.isEmpty() || valueRightStr.isEmpty()) {
-                            errors.add("Line ${index + 2}: Missing required fields")
-                            errorCount++
-                            return@forEachIndexed
-                        }
-
-                        // 種目を検索
-                        val exercise = exercises.value.find {
-                            it.name == exerciseName && it.type == exerciseType
-                        }
-
-                        if (exercise == null) {
-                            errors.add("Line ${index + 2}: Exercise not found: $exerciseName ($exerciseType)")
-                            errorCount++
-                            return@forEachIndexed
-                        }
-
-                        // 数値変換
-                        val setNumber = setNumberStr.toIntOrNull()
-                        val valueRight = valueRightStr.toIntOrNull()
-                        val valueLeft = if (valueLeftStr.isEmpty()) null else valueLeftStr.toIntOrNull()
-
-                        if (setNumber == null || valueRight == null) {
-                            errors.add("Line ${index + 2}: Invalid number format")
-                            errorCount++
-                            return@forEachIndexed
-                        }
-
-                        // 重複チェック: 同じ(exerciseId, date, time, setNumber)が既に存在するかチェック
-                        val isDuplicate = records.value.any { existingRecord ->
-                            existingRecord.exerciseId == exercise.id &&
-                            existingRecord.date == date &&
-                            existingRecord.time == time &&
-                            existingRecord.setNumber == setNumber
-                        }
-
-                        if (isDuplicate) {
-                            errors.add("Line ${index + 2}: Duplicate record (same exercise, date, time, and set number)")
-                            errorCount++
-                            return@forEachIndexed
-                        }
-
-                        // レコード作成
-                        val record = TrainingRecord(
-                            exerciseId = exercise.id,
-                            valueRight = valueRight,
-                            valueLeft = valueLeft,
-                            setNumber = setNumber,
-                            date = date,
-                            time = time,
-                            comment = comment
+            // 記録データを出力（日付・時刻・セット番号で並べ替え）
+            currentRecords
+                .sortedWith(compareBy({ it.date }, { it.time }, { it.setNumber }))
+                .forEach { record ->
+                    val exercise = exerciseMap[record.exerciseId]
+                    if (exercise != null) {
+                        val valueLeft = record.valueLeft?.toString() ?: ""
+                        csvBuilder.appendLine(
+                            "${exercise.name},${exercise.type},${record.date},${record.time}," +
+                            "${record.setNumber},${record.valueRight},$valueLeft,${record.comment}"
                         )
+                    }
+                }
 
-                        recordDao.insertRecord(record)
-                        successCount++
+            withContext(Dispatchers.Main) {
+                _snackbarMessage.value = UiMessage.CsvExportSuccess("Records", currentRecords.size)
+            }
 
-                    } catch (e: Exception) {
-                        errors.add("Line ${index + 2}: ${e.message}")
+            csvBuilder.toString()
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                _snackbarMessage.value = UiMessage.ExportError(e.message ?: "")
+            }
+            throw e
+        }
+    }
+
+    /**
+     * グループCSVをインポート（マージモード）
+     */
+    suspend fun importGroups(csvString: String): CsvImportReport = withContext(Dispatchers.IO) {
+        var successCount = 0
+        var skippedCount = 0
+        var errorCount = 0
+        val skippedItems = mutableListOf<String>()
+        val errors = mutableListOf<String>()
+
+        try {
+            val lines = csvString.lines()
+                .filter { it.isNotBlank() && !it.startsWith("#") }
+
+            if (lines.isEmpty()) {
+                withContext(Dispatchers.Main) {
+                    _snackbarMessage.value = UiMessage.CsvEmpty
+                }
+                return@withContext CsvImportReport(CsvType.GROUPS, 0, 0, 0, emptyList(), emptyList())
+            }
+
+            // ヘッダー行をスキップ
+            val dataLines = lines.drop(1)
+
+            dataLines.forEachIndexed { index, line ->
+                try {
+                    val name = line.trim()
+
+                    if (name.isEmpty()) {
+                        errors.add("Line ${index + 2}: Group name is empty")
                         errorCount++
+                        return@forEachIndexed
                     }
-                }
 
-                withContext(Dispatchers.Main) {
-                    if (errorCount == 0) {
-                        _snackbarMessage.value = UiMessage.CsvImportSuccess(successCount)
-                    } else {
-                        _snackbarMessage.value = UiMessage.CsvImportPartial(successCount, errorCount)
+                    // 重複チェック
+                    val existing = groupDao.getGroupByName(name)
+                    if (existing != null) {
+                        skippedItems.add("\"$name\" (already exists)")
+                        skippedCount++
+                        return@forEachIndexed
                     }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    _snackbarMessage.value = UiMessage.ImportError(e.message ?: "")
+
+                    val group = ExerciseGroup(name = name)
+                    groupDao.insertGroup(group)
+                    successCount++
+
+                } catch (e: Exception) {
+                    errors.add("Line ${index + 2}: ${e.message}")
+                    errorCount++
                 }
             }
+
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                _snackbarMessage.value = UiMessage.ImportError(e.message ?: "")
+            }
         }
+
+        return@withContext CsvImportReport(CsvType.GROUPS, successCount, skippedCount, errorCount, skippedItems, errors)
+    }
+
+    /**
+     * 種目CSVをインポート（マージモード）
+     */
+    suspend fun importExercises(csvString: String): CsvImportReport = withContext(Dispatchers.IO) {
+        var successCount = 0
+        var skippedCount = 0
+        var errorCount = 0
+        val skippedItems = mutableListOf<String>()
+        val errors = mutableListOf<String>()
+
+        try {
+            val lines = csvString.lines()
+                .filter { it.isNotBlank() && !it.startsWith("#") }
+
+            if (lines.isEmpty()) {
+                withContext(Dispatchers.Main) {
+                    _snackbarMessage.value = UiMessage.CsvEmpty
+                }
+                return@withContext CsvImportReport(CsvType.EXERCISES, 0, 0, 0, emptyList(), emptyList())
+            }
+
+            // ヘッダー行をスキップ
+            val dataLines = lines.drop(1)
+
+            dataLines.forEachIndexed { index, line ->
+                try {
+                    val columns = line.split(",")
+                    if (columns.size < 8) {
+                        errors.add("Line ${index + 2}: Invalid format (expected 8 columns)")
+                        errorCount++
+                        return@forEachIndexed
+                    }
+
+                    val name = columns[0].trim()
+                    val type = columns[1].trim()
+                    val group = columns[2].trim().ifEmpty { null }
+                    val sortOrderStr = columns[3].trim()
+                    val laterality = columns[4].trim()
+                    val targetSetsStr = columns[5].trim()
+                    val targetValueStr = columns[6].trim()
+                    val isFavoriteStr = columns[7].trim()
+
+                    // 必須フィールドチェック
+                    if (name.isEmpty() || type.isEmpty() || laterality.isEmpty()) {
+                        errors.add("Line ${index + 2}: Missing required fields (name, type, or laterality)")
+                        errorCount++
+                        return@forEachIndexed
+                    }
+
+                    // バリデーション
+                    if (type !in listOf("Dynamic", "Isometric")) {
+                        errors.add("Line ${index + 2}: Invalid type \"$type\" (must be Dynamic or Isometric)")
+                        errorCount++
+                        return@forEachIndexed
+                    }
+
+                    if (laterality !in listOf("Bilateral", "Unilateral")) {
+                        errors.add("Line ${index + 2}: Invalid laterality \"$laterality\" (must be Bilateral or Unilateral)")
+                        errorCount++
+                        return@forEachIndexed
+                    }
+
+                    // グループの存在チェック
+                    if (group != null) {
+                        val groupExists = groupDao.getGroupByName(group) != null
+                        if (!groupExists) {
+                            errors.add("Line ${index + 2}: Group \"$group\" not found")
+                            errorCount++
+                            return@forEachIndexed
+                        }
+                    }
+
+                    // 数値変換
+                    val sortOrder = sortOrderStr.toIntOrNull() ?: 0
+                    val targetSets = targetSetsStr.toIntOrNull()
+                    val targetValue = targetValueStr.toIntOrNull()
+                    val isFavorite = isFavoriteStr.toBooleanStrictOrNull() ?: false
+
+                    // 重複チェック
+                    val existing = exercises.value.find {
+                        it.name == name && it.type == type
+                    }
+                    if (existing != null) {
+                        // laterality不一致の場合はスキップ
+                        if (existing.laterality != laterality) {
+                            skippedItems.add("\"$name, $type\" (laterality mismatch: existing=${existing.laterality}, CSV=$laterality)")
+                            skippedCount++
+                            return@forEachIndexed
+                        }
+                        // 完全一致の場合もスキップ
+                        skippedItems.add("\"$name, $type\" (already exists)")
+                        skippedCount++
+                        return@forEachIndexed
+                    }
+
+                    val exercise = Exercise(
+                        name = name,
+                        type = type,
+                        group = group,
+                        sortOrder = sortOrder,
+                        laterality = laterality,
+                        targetSets = targetSets,
+                        targetValue = targetValue,
+                        isFavorite = isFavorite
+                    )
+                    exerciseDao.insertExercise(exercise)
+                    successCount++
+
+                } catch (e: Exception) {
+                    errors.add("Line ${index + 2}: ${e.message}")
+                    errorCount++
+                }
+            }
+
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                _snackbarMessage.value = UiMessage.ImportError(e.message ?: "")
+            }
+        }
+
+        return@withContext CsvImportReport(CsvType.EXERCISES, successCount, skippedCount, errorCount, skippedItems, errors)
+    }
+
+    /**
+     * CSVから記録をインポート（マージモード）
+     */
+    suspend fun importRecordsFromCsv(csvString: String): CsvImportReport = withContext(Dispatchers.IO) {
+        var successCount = 0
+        var skippedCount = 0
+        var errorCount = 0
+        val skippedItems = mutableListOf<String>()
+        val errors = mutableListOf<String>()
+
+        try {
+            val lines = csvString.lines()
+                .filter { it.isNotBlank() && !it.startsWith("#") }
+
+            if (lines.isEmpty()) {
+                withContext(Dispatchers.Main) {
+                    _snackbarMessage.value = UiMessage.CsvEmpty
+                }
+                return@withContext CsvImportReport(CsvType.RECORDS, 0, 0, 1, emptyList(), listOf("CSV file is empty"))
+            }
+
+            // ヘッダー行をスキップ
+            val dataLines = lines.drop(1)
+
+            dataLines.forEachIndexed { index, line ->
+                try {
+                    val columns = line.split(",")
+                    if (columns.size < 8) {
+                        errors.add("Line ${index + 2}: Invalid format (not enough columns)")
+                        errorCount++
+                        return@forEachIndexed
+                    }
+
+                    val exerciseName = columns[0].trim()
+                    val exerciseType = columns[1].trim()
+                    val date = columns[2].trim()
+                    val time = columns[3].trim()
+                    val setNumberStr = columns[4].trim()
+                    val valueRightStr = columns[5].trim()
+                    val valueLeftStr = columns[6].trim()
+                    val comment = columns.getOrNull(7)?.trim() ?: ""
+
+                    // 必須フィールドチェック
+                    if (exerciseName.isEmpty() || exerciseType.isEmpty() ||
+                        date.isEmpty() || time.isEmpty() ||
+                        setNumberStr.isEmpty() || valueRightStr.isEmpty()) {
+                        errors.add("Line ${index + 2}: Missing required fields")
+                        errorCount++
+                        return@forEachIndexed
+                    }
+
+                    // 種目を検索
+                    val exercise = exercises.value.find {
+                        it.name == exerciseName && it.type == exerciseType
+                    }
+
+                    if (exercise == null) {
+                        errors.add("Line ${index + 2}: Exercise not found: $exerciseName ($exerciseType)")
+                        errorCount++
+                        return@forEachIndexed
+                    }
+
+                    // 数値変換
+                    val setNumber = setNumberStr.toIntOrNull()
+                    val valueRight = valueRightStr.toIntOrNull()
+                    val valueLeft = if (valueLeftStr.isEmpty()) null else valueLeftStr.toIntOrNull()
+
+                    if (setNumber == null || valueRight == null) {
+                        errors.add("Line ${index + 2}: Invalid number format")
+                        errorCount++
+                        return@forEachIndexed
+                    }
+
+                    // 重複チェック
+                    val isDuplicate = records.value.any { existingRecord ->
+                        existingRecord.exerciseId == exercise.id &&
+                        existingRecord.date == date &&
+                        existingRecord.time == time &&
+                        existingRecord.setNumber == setNumber
+                    }
+
+                    if (isDuplicate) {
+                        skippedItems.add("\"$exerciseName ($exerciseType)\" - $date $time Set $setNumber (already exists)")
+                        skippedCount++
+                        return@forEachIndexed
+                    }
+
+                    // レコード作成
+                    val record = TrainingRecord(
+                        exerciseId = exercise.id,
+                        valueRight = valueRight,
+                        valueLeft = valueLeft,
+                        setNumber = setNumber,
+                        date = date,
+                        time = time,
+                        comment = comment
+                    )
+
+                    recordDao.insertRecord(record)
+                    successCount++
+
+                } catch (e: Exception) {
+                    errors.add("Line ${index + 2}: ${e.message}")
+                    errorCount++
+                }
+            }
+
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                _snackbarMessage.value = UiMessage.ImportError(e.message ?: "")
+            }
+        }
+
+        return@withContext CsvImportReport(CsvType.RECORDS, successCount, skippedCount, errorCount, skippedItems, errors)
     }
 
 }

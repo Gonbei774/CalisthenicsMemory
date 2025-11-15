@@ -126,6 +126,7 @@ fun UiMessage.toMessageString(): String {
         is UiMessage.ImportComplete -> stringResource(R.string.import_complete, groupCount, exerciseCount, recordCount)
         is UiMessage.ExportError -> stringResource(R.string.export_error, errorMessage)
         is UiMessage.ImportError -> stringResource(R.string.import_error, errorMessage)
+        is UiMessage.CsvExportSuccess -> stringResource(R.string.csv_export_success, type, count)
         is UiMessage.CsvTemplateExported -> stringResource(R.string.csv_template_exported, exerciseCount)
         is UiMessage.CsvEmpty -> stringResource(R.string.csv_empty)
         is UiMessage.CsvImportSuccess -> stringResource(R.string.csv_import_success, successCount)

@@ -12,6 +12,9 @@ interface ExerciseDao {
     @Query("SELECT * FROM exercises WHERE id = :id")
     suspend fun getExerciseById(id: Long): Exercise?
 
+    @Query("SELECT * FROM exercises WHERE name = :name AND type = :type LIMIT 1")
+    suspend fun getExerciseByNameAndType(name: String, type: String): Exercise?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertExercise(exercise: Exercise): Long
 

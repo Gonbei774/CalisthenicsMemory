@@ -325,18 +325,56 @@
     <string name="graph_tooltip_unilateral_detail">%1$s: R%2$d%4$s / L%3$d%4$s</string>
 
     <!-- CSV Import/Export -->
+    <string name="csv_export_success">%1$s exported: %2$d items</string>
     <string name="csv_template_exported">CSV template exported: %d exercises</string>
     <string name="csv_empty">CSV file is empty</string>
     <string name="csv_import_success">Successfully imported %d records</string>
     <string name="csv_import_partial">Imported %1$d records, %2$d errors occurred</string>
     <string name="export_csv_template">Export Input Template</string>
-    <string name="import_csv_records">Import Records</string>
+    <string name="csv_import">CSV Import</string>
     <string name="csv_template_description">Download template for recording</string>
-    <string name="csv_import_description">Add records from CSV file</string>
+    <string name="csv_import_description">Import groups, exercises, or records (auto-detected)</string>
+
+    <!-- CSV Export Dialog -->
+    <string name="csv_export">CSV Export</string>
+    <string name="csv_export_description">Export groups, exercises, records, or record template</string>
+    <string name="csv_export_groups">Groups</string>
+    <string name="csv_export_groups_description">Export all exercise groups</string>
+    <string name="csv_export_exercises">Exercises</string>
+    <string name="csv_export_exercises_description">Export all exercises</string>
+    <string name="csv_export_records">Records</string>
+    <string name="csv_export_records_description">Export all training records</string>
+    <string name="csv_export_record_template">Record Template</string>
+    <string name="csv_export_record_template_description">Export template for adding records</string>
+
+    <!-- CSV Import Preview Dialog -->
+    <string name="csv_import_preview">CSV Import Preview</string>
+    <string name="csv_file">File</string>
+    <string name="csv_type">Type</string>
+    <string name="csv_items">Items</string>
+    <string name="import_action">Import</string>
+    <string name="csv_import_mode">Import Mode</string>
+    <string name="csv_import_mode_merge">Merge (Add)</string>
+    <string name="csv_import_mode_merge_description">Keep existing data, add new items</string>
+    <string name="csv_import_mode_replace">Replace</string>
+    <string name="csv_import_mode_replace_description">Delete all existing data and replace</string>
+    <string name="csv_import_button">Import</string>
+
+    <!-- CSV Import Result Dialog -->
+    <string name="csv_import_completed">Import Completed</string>
+    <string name="csv_import_success_label">✅ Success</string>
+    <string name="csv_import_skipped_label">⏭️ Skipped</string>
+    <string name="csv_import_error_label">❌ Errors</string>
+    <string name="csv_import_skipped_items">Skipped Items (%d)</string>
+    <string name="csv_import_errors">Errors (%d)</string>
+    <string name="csv_import_more_items">... and %d more</string>
 
     <!-- Settings Screen Sections -->
     <string name="section_full_backup">Complete Backup (JSON)</string>
     <string name="section_full_backup_description">Save and restore all data (exercises, records, groups).\nUse when changing devices.</string>
+    <string name="section_partial_data_management">Partial Data Management (CSV)</string>
+    <string name="section_partial_data_management_description">Export and import groups, exercises, or records individually.\nUnlike JSON backup, you can manage only the data you need.</string>
+    <!-- Legacy key for compatibility -->
     <string name="section_add_records">Add Records (CSV)</string>
     <string name="section_add_records_description">Add records to existing data.\nUse for importing analog records or data from other apps.</string>
 
