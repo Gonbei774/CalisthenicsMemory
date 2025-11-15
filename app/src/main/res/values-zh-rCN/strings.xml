@@ -325,18 +325,56 @@
     <string name="graph_tooltip_unilateral_detail">%1$s：右%2$d%4$s / 左%3$d%4$s</string>
 
     <!-- CSV Import/Export -->
+    <string name="csv_export_success">已导出%1$s：%2$d项</string>
     <string name="csv_template_exported">已导出CSV模板：%d个动作</string>
     <string name="csv_empty">CSV文件为空</string>
     <string name="csv_import_success">成功导入%d条记录</string>
     <string name="csv_import_partial">已导入%1$d条记录，发生%2$d个错误</string>
     <string name="export_csv_template">导出输入模板</string>
-    <string name="import_csv_records">导入记录</string>
+    <string name="csv_import">CSV 导入</string>
     <string name="csv_template_description">下载记录模板</string>
-    <string name="csv_import_description">从CSV文件添加记录</string>
+    <string name="csv_import_description">导入分组、动作或记录（自动检测）</string>
+
+    <!-- CSV Export Dialog -->
+    <string name="csv_export">CSV 导出</string>
+    <string name="csv_export_description">导出分组、动作、记录或记录模板</string>
+    <string name="csv_export_groups">分组</string>
+    <string name="csv_export_groups_description">导出所有分组</string>
+    <string name="csv_export_exercises">动作</string>
+    <string name="csv_export_exercises_description">导出所有动作</string>
+    <string name="csv_export_records">记录</string>
+    <string name="csv_export_records_description">导出所有训练记录</string>
+    <string name="csv_export_record_template">记录模板</string>
+    <string name="csv_export_record_template_description">导出添加记录用的模板</string>
+
+    <!-- CSV Import Preview Dialog -->
+    <string name="csv_import_preview">CSV 导入预览</string>
+    <string name="csv_file">文件</string>
+    <string name="csv_type">类型</string>
+    <string name="csv_items">项目数</string>
+    <string name="import_action">导入</string>
+    <string name="csv_import_mode">导入模式</string>
+    <string name="csv_import_mode_merge">合并（添加）</string>
+    <string name="csv_import_mode_merge_description">保留现有数据，添加新项目</string>
+    <string name="csv_import_mode_replace">替换</string>
+    <string name="csv_import_mode_replace_description">删除所有现有数据并替换</string>
+    <string name="csv_import_button">导入</string>
+
+    <!-- CSV Import Result Dialog -->
+    <string name="csv_import_completed">导入完成</string>
+    <string name="csv_import_success_label">✅ 成功</string>
+    <string name="csv_import_skipped_label">⏭️ 已跳过</string>
+    <string name="csv_import_error_label">❌ 错误</string>
+    <string name="csv_import_skipped_items">已跳过项目（%d）</string>
+    <string name="csv_import_errors">错误（%d）</string>
+    <string name="csv_import_more_items">... 以及其他 %d 项</string>
 
     <!-- Settings Screen Sections -->
     <string name="section_full_backup">完整备份（JSON）</string>
     <string name="section_full_backup_description">保存和恢复所有数据（动作、记录、分组）。\n更换设备时使用。</string>
+    <string name="section_partial_data_management">部分数据管理（CSV）</string>
+    <string name="section_partial_data_management_description">单独导出和导入分组、动作或记录。\n与JSON备份不同，您可以只管理所需的数据。</string>
+    <!-- Legacy key for compatibility -->
     <string name="section_add_records">添加记录（CSV）</string>
     <string name="section_add_records_description">向现有数据添加记录。\n用于导入纸质记录或其他应用的数据。</string>
 

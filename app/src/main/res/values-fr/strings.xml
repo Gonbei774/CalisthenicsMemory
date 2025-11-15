@@ -325,18 +325,56 @@
     <string name="graph_tooltip_unilateral_detail">%1$s : D%2$d%4$s / G%3$d%4$s</string>
 
     <!-- CSV Import/Export -->
+    <string name="csv_export_success">%1$s exporté : %2$d éléments</string>
     <string name="csv_template_exported">Modèle CSV exporté : %d exercices</string>
     <string name="csv_empty">Le fichier CSV est vide</string>
     <string name="csv_import_success">%d enregistrements importés avec succès</string>
     <string name="csv_import_partial">%1$d enregistrements importés, %2$d erreurs survenues</string>
     <string name="export_csv_template">Exporter le Modèle de Saisie</string>
-    <string name="import_csv_records">Importer les Enregistrements</string>
+    <string name="csv_import">Importer CSV</string>
     <string name="csv_template_description">Télécharger le modèle d\'enregistrement</string>
-    <string name="csv_import_description">Ajouter des enregistrements depuis un fichier CSV</string>
+    <string name="csv_import_description">Importer des groupes, exercices ou enregistrements (détection automatique)</string>
+
+    <!-- CSV Export Dialog -->
+    <string name="csv_export">Exporter CSV</string>
+    <string name="csv_export_description">Exporter des groupes, exercices, enregistrements ou modèle d\'enregistrements</string>
+    <string name="csv_export_groups">Groupes</string>
+    <string name="csv_export_groups_description">Exporter tous les groupes d\'exercices</string>
+    <string name="csv_export_exercises">Exercices</string>
+    <string name="csv_export_exercises_description">Exporter tous les exercices</string>
+    <string name="csv_export_records">Enregistrements</string>
+    <string name="csv_export_records_description">Exporter tous les enregistrements d\'entraînement</string>
+    <string name="csv_export_record_template">Modèle d\'Enregistrement</string>
+    <string name="csv_export_record_template_description">Exporter le modèle pour ajouter des enregistrements</string>
+
+    <!-- CSV Import Preview Dialog -->
+    <string name="csv_import_preview">Aperçu d\'Importation CSV</string>
+    <string name="csv_file">Fichier</string>
+    <string name="csv_type">Type</string>
+    <string name="csv_items">Éléments</string>
+    <string name="import_action">Importer</string>
+    <string name="csv_import_mode">Mode d\'Importation</string>
+    <string name="csv_import_mode_merge">Fusionner (Ajouter)</string>
+    <string name="csv_import_mode_merge_description">Conserver les données existantes, ajouter de nouveaux éléments</string>
+    <string name="csv_import_mode_replace">Remplacer</string>
+    <string name="csv_import_mode_replace_description">Supprimer toutes les données existantes et remplacer</string>
+    <string name="csv_import_button">Importer</string>
+
+    <!-- CSV Import Result Dialog -->
+    <string name="csv_import_completed">Importation Terminée</string>
+    <string name="csv_import_success_label">✅ Succès</string>
+    <string name="csv_import_skipped_label">⏭️ Ignorés</string>
+    <string name="csv_import_error_label">❌ Erreurs</string>
+    <string name="csv_import_skipped_items">Éléments Ignorés (%d)</string>
+    <string name="csv_import_errors">Erreurs (%d)</string>
+    <string name="csv_import_more_items">... et %d de plus</string>
 
     <!-- Settings Screen Sections -->
     <string name="section_full_backup">Sauvegarde Complète (JSON)</string>
     <string name="section_full_backup_description">Sauvegarder et restaurer toutes les données (exercices, enregistrements, groupes).\nUtilisez cette option lors du changement d\'appareil.</string>
+    <string name="section_partial_data_management">Gestion Partielle des Données (CSV)</string>
+    <string name="section_partial_data_management_description">Exporter et importer des groupes, exercices ou enregistrements individuellement.\nContrairement à la sauvegarde JSON, vous pouvez gérer uniquement les données dont vous avez besoin.</string>
+    <!-- Legacy key for compatibility -->
     <string name="section_add_records">Ajouter des Enregistrements (CSV)</string>
     <string name="section_add_records_description">Ajouter des enregistrements aux données existantes.\nUtilisez cette option pour importer des enregistrements papier ou des données d\'autres applications.</string>
 

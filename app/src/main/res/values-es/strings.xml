@@ -325,18 +325,56 @@
     <string name="graph_tooltip_unilateral_detail">%1$s: D%2$d%4$s / I%3$d%4$s</string>
 
     <!-- CSV Import/Export -->
+    <string name="csv_export_success">%1$s exportado: %2$d elementos</string>
     <string name="csv_template_exported">Plantilla CSV exportada: %d ejercicios</string>
     <string name="csv_empty">El archivo CSV está vacío</string>
     <string name="csv_import_success">Se importaron exitosamente %d registros</string>
     <string name="csv_import_partial">Se importaron %1$d registros, %2$d errores ocurrieron</string>
     <string name="export_csv_template">Exportar Plantilla de Entrada</string>
-    <string name="import_csv_records">Importar Registros</string>
+    <string name="csv_import">Importar CSV</string>
     <string name="csv_template_description">Descargar plantilla para registro</string>
-    <string name="csv_import_description">Añadir registros desde archivo CSV</string>
+    <string name="csv_import_description">Importar grupos, ejercicios o registros (detección automática)</string>
+
+    <!-- CSV Export Dialog -->
+    <string name="csv_export">Exportar CSV</string>
+    <string name="csv_export_description">Exportar grupos, ejercicios, registros o plantilla de registros</string>
+    <string name="csv_export_groups">Grupos</string>
+    <string name="csv_export_groups_description">Exportar todos los grupos de ejercicios</string>
+    <string name="csv_export_exercises">Ejercicios</string>
+    <string name="csv_export_exercises_description">Exportar todos los ejercicios</string>
+    <string name="csv_export_records">Registros</string>
+    <string name="csv_export_records_description">Exportar todos los registros de entrenamiento</string>
+    <string name="csv_export_record_template">Plantilla de Registro</string>
+    <string name="csv_export_record_template_description">Exportar plantilla para añadir registros</string>
+
+    <!-- CSV Import Preview Dialog -->
+    <string name="csv_import_preview">Vista Previa de Importación CSV</string>
+    <string name="csv_file">Archivo</string>
+    <string name="csv_type">Tipo</string>
+    <string name="csv_items">Elementos</string>
+    <string name="import_action">Importar</string>
+    <string name="csv_import_mode">Modo de Importación</string>
+    <string name="csv_import_mode_merge">Combinar (Añadir)</string>
+    <string name="csv_import_mode_merge_description">Mantener datos existentes, añadir nuevos elementos</string>
+    <string name="csv_import_mode_replace">Reemplazar</string>
+    <string name="csv_import_mode_replace_description">Eliminar todos los datos existentes y reemplazar</string>
+    <string name="csv_import_button">Importar</string>
+
+    <!-- CSV Import Result Dialog -->
+    <string name="csv_import_completed">Importación Completada</string>
+    <string name="csv_import_success_label">✅ Éxito</string>
+    <string name="csv_import_skipped_label">⏭️ Omitidos</string>
+    <string name="csv_import_error_label">❌ Errores</string>
+    <string name="csv_import_skipped_items">Elementos Omitidos (%d)</string>
+    <string name="csv_import_errors">Errores (%d)</string>
+    <string name="csv_import_more_items">... y %d más</string>
 
     <!-- Settings Screen Sections -->
     <string name="section_full_backup">Copia de Seguridad Completa (JSON)</string>
     <string name="section_full_backup_description">Guardar y restaurar todos los datos (ejercicios, registros, grupos).\nUsa esto cuando cambies de dispositivo.</string>
+    <string name="section_partial_data_management">Gestión Parcial de Datos (CSV)</string>
+    <string name="section_partial_data_management_description">Exportar e importar grupos, ejercicios o registros individualmente.\nA diferencia de la copia JSON, puedes gestionar solo los datos que necesites.</string>
+    <!-- Legacy key for compatibility -->
     <string name="section_add_records">Añadir Registros (CSV)</string>
     <string name="section_add_records_description">Añadir registros a los datos existentes.\nUsa esto para importar registros analógicos o datos de otras aplicaciones.</string>
 

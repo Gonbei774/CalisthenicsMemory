@@ -325,18 +325,56 @@
     <string name="graph_tooltip_unilateral_detail">%1$s: R%2$d%4$s / L%3$d%4$s</string>
 
     <!-- CSV Import/Export -->
+    <string name="csv_export_success">%1$s exportiert: %2$d Elemente</string>
     <string name="csv_template_exported">CSV-Vorlage exportiert: %d Übungen</string>
     <string name="csv_empty">CSV-Datei ist leer</string>
     <string name="csv_import_success">%d Aufzeichnungen erfolgreich importiert</string>
     <string name="csv_import_partial">%1$d Aufzeichnungen importiert, %2$d Fehler aufgetreten</string>
     <string name="export_csv_template">Eingabevorlage exportieren</string>
-    <string name="import_csv_records">Aufzeichnungen importieren</string>
+    <string name="csv_import">CSV-Import</string>
     <string name="csv_template_description">Vorlage für Aufzeichnung herunterladen</string>
-    <string name="csv_import_description">Aufzeichnungen aus CSV-Datei hinzufügen</string>
+    <string name="csv_import_description">Gruppen, Übungen oder Aufzeichnungen importieren (automatische Erkennung)</string>
+
+    <!-- CSV Export Dialog -->
+    <string name="csv_export">CSV-Export</string>
+    <string name="csv_export_description">Gruppen, Übungen, Aufzeichnungen oder Aufzeichnungsvorlage exportieren</string>
+    <string name="csv_export_groups">Gruppen</string>
+    <string name="csv_export_groups_description">Alle Übungsgruppen exportieren</string>
+    <string name="csv_export_exercises">Übungen</string>
+    <string name="csv_export_exercises_description">Alle Übungen exportieren</string>
+    <string name="csv_export_records">Aufzeichnungen</string>
+    <string name="csv_export_records_description">Alle Trainingsaufzeichnungen exportieren</string>
+    <string name="csv_export_record_template">Aufzeichnungsvorlage</string>
+    <string name="csv_export_record_template_description">Vorlage zum Hinzufügen von Aufzeichnungen exportieren</string>
+
+    <!-- CSV Import Preview Dialog -->
+    <string name="csv_import_preview">CSV-Importvorschau</string>
+    <string name="csv_file">Datei</string>
+    <string name="csv_type">Typ</string>
+    <string name="csv_items">Elemente</string>
+    <string name="import_action">Importieren</string>
+    <string name="csv_import_mode">Importmodus</string>
+    <string name="csv_import_mode_merge">Zusammenführen (Hinzufügen)</string>
+    <string name="csv_import_mode_merge_description">Vorhandene Daten behalten, neue Elemente hinzufügen</string>
+    <string name="csv_import_mode_replace">Ersetzen</string>
+    <string name="csv_import_mode_replace_description">Alle vorhandenen Daten löschen und ersetzen</string>
+    <string name="csv_import_button">Importieren</string>
+
+    <!-- CSV Import Result Dialog -->
+    <string name="csv_import_completed">Import abgeschlossen</string>
+    <string name="csv_import_success_label">✅ Erfolg</string>
+    <string name="csv_import_skipped_label">⏭️ Übersprungen</string>
+    <string name="csv_import_error_label">❌ Fehler</string>
+    <string name="csv_import_skipped_items">Übersprungene Elemente (%d)</string>
+    <string name="csv_import_errors">Fehler (%d)</string>
+    <string name="csv_import_more_items">... und %d weitere</string>
 
     <!-- Settings Screen Sections -->
     <string name="section_full_backup">Vollständige Sicherung (JSON)</string>
     <string name="section_full_backup_description">Alle Daten speichern und wiederherstellen (Übungen, Aufzeichnungen, Gruppen).\nVerwende dies beim Gerätewechsel.</string>
+    <string name="section_partial_data_management">Teilweise Datenverwaltung (CSV)</string>
+    <string name="section_partial_data_management_description">Gruppen, Übungen oder Aufzeichnungen einzeln exportieren und importieren.\nIm Gegensatz zur JSON-Sicherung können Sie nur die benötigten Daten verwalten.</string>
+    <!-- Legacy key for compatibility -->
     <string name="section_add_records">Aufzeichnungen hinzufügen (CSV)</string>
     <string name="section_add_records_description">Aufzeichnungen zu vorhandenen Daten hinzufügen.\nVerwende dies zum Importieren analoger Aufzeichnungen oder Daten aus anderen Apps.</string>
 
