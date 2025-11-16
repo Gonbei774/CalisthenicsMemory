@@ -25,11 +25,10 @@ The app operates completely offline—no internet connection required, no ads, n
 ## Screenshots
 
 <p align="center">
-  <img src="screenshots/1.png" width="200" alt="Home Screen">
-  <img src="screenshots/2.png" width="200" alt="Exercise Management">
-  <img src="screenshots/3.png" width="200" alt="Record Entry">
-  <img src="screenshots/4.png" width="200" alt="Workout Timer">
-  <img src="screenshots/5.png" width="200" alt="Progress Graph">
+  <img src="screenshots/1.png" width="200" alt="Exercise Management">
+  <img src="screenshots/2.png" width="200" alt="Record Entry">
+  <img src="screenshots/3.png" width="200" alt="Workout Timer">
+  <img src="screenshots/4.png" width="200" alt="Progress Graph">
 </p>
 
 ## Download
