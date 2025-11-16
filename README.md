@@ -1,12 +1,30 @@
+<p align="center">
+  <img src="icon.png" width="150" alt="Calisthenics Memory Icon">
+</p>
+
 # Calisthenics Memory
 
 A simple, privacy-focused bodyweight training tracker for Android.
+
+---
+
+<p align="center">
+  <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/">
+    <img src="https://fdroid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Gonbei774/CalisthenicsMemory/releases/latest">Download APK from GitHub Releases</a>
+</p>
+
+---
 
 ## About
 
 Calisthenics Memory helps you track and manage bodyweight exercises like push-ups, pull-ups, and squats. Create custom exercises, organize them into progressive levels, and monitor your progress over time.
 
-The app operates completely offline—no internet connection required, no ads, no tracking. Your training data stays on your device only.
+The app operates completely offline—no internet connection required, no ads, no tracking. Your data stays on your device only.
 
 ## Features
 
@@ -30,12 +48,6 @@ The app operates completely offline—no internet connection required, no ads, n
   <img src="screenshots/3.png" width="200" alt="Workout Timer">
   <img src="screenshots/4.png" width="200" alt="Progress Graph">
 </p>
-
-## Download
-
-[<img src="https://fdroid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/)
-
-Or download APK from [GitHub Releases](https://github.com/Gonbei774/CalisthenicsMemory/releases/latest)
 
 ## Requirements
 
