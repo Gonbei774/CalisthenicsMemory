@@ -14,10 +14,6 @@ A simple, privacy-focused bodyweight training tracker for Android.
   </a>
 </p>
 
-<p align="center">
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/latest">Download APK from Codeberg Releases</a>
-</p>
-
 ---
 
 ## About
