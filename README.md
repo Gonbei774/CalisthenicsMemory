@@ -16,6 +16,11 @@ A simple, privacy-focused bodyweight training tracker for Android.
 
 ---
 
+> **Note**: This repository has migrated to [Codeberg](https://codeberg.org/Gonbei774/CalisthenicsMemory).
+> This GitHub repository is maintained as a read-only mirror.
+
+---
+
 ## About
 
 Calisthenics Memory helps you track and manage bodyweight exercises like push-ups, pull-ups, and squats. Create custom exercises, organize them into progressive levels, and monitor your progress over time.
