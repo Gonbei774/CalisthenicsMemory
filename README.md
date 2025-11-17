@@ -15,7 +15,7 @@ A simple, privacy-focused bodyweight training tracker for Android.
 </p>
 
 <p align="center">
-  <a href="https://github.com/Gonbei774/CalisthenicsMemory/releases/latest">Download APK from GitHub Releases</a>
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/latest">Download APK from Codeberg Releases</a>
 </p>
 
 ---
@@ -58,7 +58,7 @@ The app operates completely offline—no internet connection required, no ads, n
 ## Building
 
 ```bash
-git clone https://github.com/Gonbei774/CalisthenicsMemory.git
+git clone https://codeberg.org/Gonbei774/CalisthenicsMemory.git
 cd CalisthenicsMemory
 ./gradlew assembleDebug
 ```
