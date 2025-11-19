@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2025-11-19
+
+### Added
+- **Customizable workout timer settings**
+  - Configure preparation time duration
+  - Configure rep duration for isometric exercises
+  - Adjustable settings in Settings screen
+
+### Improved
+- Enhanced app icon quality (converted from WebP to PNG format)
+- Simplified README and documentation structure
+- Removed redundant multi-language README files
+- Streamlined screenshot organization
+- UI/UX refinements across the app
+
 ## [1.4.0] - 2025-11-15
 
 ### Improved
@@ -89,8 +104,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
-[1.4.0]: https://github.com/Gonbei774/CalisthenicsMemory/releases/tag/v1.4.0
-[1.3.0]: https://github.com/Gonbei774/CalisthenicsMemory/releases/tag/v1.3.0
-[1.2.0]: https://github.com/Gonbei774/CalisthenicsMemory/releases/tag/v1.2.0
-[1.1.0]: https://github.com/Gonbei774/CalisthenicsMemory/releases/tag/v1.1.0
-[1.0.0]: https://github.com/Gonbei774/CalisthenicsMemory/releases/tag/v1.0.0
+[1.5.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.5.0
+[1.4.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.4.0
+[1.3.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.3.0
+[1.2.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.2.0
+[1.1.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.1.0
+[1.0.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.0.0

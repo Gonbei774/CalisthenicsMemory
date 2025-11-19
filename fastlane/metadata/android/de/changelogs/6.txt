@@ -1,0 +1,4 @@
+- Anpassbare Workout-Timer-Einstellungen hinzugefügt
+- Verbesserung der App-Icon-Qualität
+- Vereinfachung von README und Dokumentation
+- UI/UX-Verbesserungen

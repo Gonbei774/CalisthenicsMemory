@@ -1,0 +1,4 @@
+- Add customizable workout timer settings
+- Improve app icon quality
+- Simplify README and documentation
+- UI/UX improvements
