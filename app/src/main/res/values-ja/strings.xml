@@ -409,6 +409,12 @@
     <string name="backup_saved_successfully">バックアップをDownloadsフォルダに保存しました</string>
     <string name="backup_failed">バックアップに失敗しました</string>
 
+    <!-- Record Input Settings -->
+    <string name="section_record_input_settings">記録入力設定</string>
+    <string name="section_record_input_settings_description">記録入力時のデフォルト値を設定できます。</string>
+    <string name="auto_fill_target_setting">目標値を自動入力</string>
+    <string name="auto_fill_target_description">入力フィールドに目標値を自動で入力します</string>
+
     <!-- Workout Settings -->
     <string name="section_workout_settings">ワークアウト設定</string>
     <string name="section_workout_settings_description">ワークアウトのタイマーのデフォルト値を設定できます。</string>

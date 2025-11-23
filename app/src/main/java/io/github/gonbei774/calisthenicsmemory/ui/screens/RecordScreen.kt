@@ -42,6 +42,11 @@ fun RecordScreen(
 ) {
     val exercises by viewModel.exercises.collectAsState()
 
+    // 記録入力設定を取得
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val recordPrefs = remember { io.github.gonbei774.calisthenicsmemory.data.RecordPreferences(context) }
+    val autoFillEnabled = remember { recordPrefs.isAutoFillTargetEnabled() }
+
     var currentStep by remember { mutableStateOf(RecordStep.SelectExercise) }
     var selectedExercise by remember { mutableStateOf<Exercise?>(null) }
     var numberOfSets by remember { mutableIntStateOf(1) }
@@ -59,9 +64,16 @@ fun RecordScreen(
     val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
     // Update set values when number of sets changes
-    LaunchedEffect(numberOfSets) {
+    LaunchedEffect(numberOfSets, selectedExercise) {
+        // デフォルト値の計算（autoFillがONかつtargetValueが設定されている場合のみ）
+        val defaultValue = if (autoFillEnabled && selectedExercise?.targetValue != null) {
+            selectedExercise!!.targetValue.toString()
+        } else {
+            ""
+        }
+
         setValues = List(numberOfSets) { index ->
-            setValues.getOrElse(index) { "" }
+            setValues.getOrElse(index) { defaultValue }
         }
     }
 
@@ -77,9 +89,21 @@ fun RecordScreen(
                 onNavigateBack = onNavigateBack,
                 onExerciseSelected = { exercise ->
                     selectedExercise = exercise
+                    // デフォルト値の計算
+                    val defaultValue = if (autoFillEnabled && exercise.targetValue != null) {
+                        exercise.targetValue.toString()
+                    } else {
+                        ""
+                    }
+                    // セット数の初期化（autoFillがONかつtargetSetsが設定されている場合は目標セット数を使用）
+                    val initialSets = if (autoFillEnabled && exercise.targetSets != null) {
+                        exercise.targetSets!!
+                    } else {
+                        1
+                    }
                     // 値をリセット
-                    numberOfSets = 1
-                    setValues = List(1) { "" }
+                    numberOfSets = initialSets
+                    setValues = List(initialSets) { defaultValue }
                     comment = ""
                     selectedDate = LocalDate.now()
                     selectedTime = LocalTime.now()
@@ -107,12 +131,12 @@ fun RecordScreen(
                     selectedExercise = null
                 },
                 onNumberOfSetsChange = { newValue ->
-                    numberOfSets = newValue
-                    if (newValue < numberOfSets) {
-                        setValues = setValues.take(newValue)
+                    val defaultValue = if (autoFillEnabled && selectedExercise?.targetValue != null) {
+                        selectedExercise!!.targetValue.toString()
                     } else {
-                        setValues = setValues + listOf("")
+                        ""
                     }
+                    numberOfSets = newValue
                 },
                 onSetValueChange = { index, value ->
                     if (value.isEmpty() || value.all { it.isDigit() }) {
@@ -479,18 +503,30 @@ fun WorkoutInputScreen(
     // Unilateral判定
     val isUnilateral = exercise.laterality == "Unilateral"
 
+    // 記録入力設定を取得
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val recordPrefs = remember { io.github.gonbei774.calisthenicsmemory.data.RecordPreferences(context) }
+    val autoFillEnabled = remember { recordPrefs.isAutoFillTargetEnabled() }
+
+    // デフォルト値の計算（autoFillがONかつtargetValueが設定されている場合のみ）
+    val defaultValue = if (autoFillEnabled && exercise.targetValue != null) {
+        exercise.targetValue.toString()
+    } else {
+        ""
+    }
+
     // Unilateral用の左右別の値管理
-    var setValuesRight by remember { mutableStateOf(List(numberOfSets) { "" }) }
-    var setValuesLeft by remember { mutableStateOf(List(numberOfSets) { "" }) }
+    var setValuesRight by remember { mutableStateOf(List(numberOfSets) { defaultValue }) }
+    var setValuesLeft by remember { mutableStateOf(List(numberOfSets) { defaultValue }) }
 
     // セット数変更時の処理
     LaunchedEffect(numberOfSets) {
         if (isUnilateral) {
             setValuesRight = List(numberOfSets) { index ->
-                setValuesRight.getOrElse(index) { "" }
+                setValuesRight.getOrElse(index) { defaultValue }
             }
             setValuesLeft = List(numberOfSets) { index ->
-                setValuesLeft.getOrElse(index) { "" }
+                setValuesLeft.getOrElse(index) { defaultValue }
             }
         }
     }
@@ -747,7 +783,7 @@ fun WorkoutInputScreen(
                 // Bilateral: 従来通り1つの入力フィールド
                 items(numberOfSets) { index ->
                     OutlinedTextField(
-                        value = setValues.getOrElse(index) { "" },
+                        value = setValues.getOrElse(index) { defaultValue },
                         onValueChange = { value ->
                             onSetValueChange(index, value)
                         },

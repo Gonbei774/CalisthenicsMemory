@@ -408,6 +408,12 @@
     <string name="backup_saved_successfully">Backup saved to Downloads folder</string>
     <string name="backup_failed">Backup failed</string>
 
+    <!-- Record Input Settings -->
+    <string name="section_record_input_settings">Record Input Settings</string>
+    <string name="section_record_input_settings_description">Configure default values for record input.</string>
+    <string name="auto_fill_target_setting">Auto-fill Target Value</string>
+    <string name="auto_fill_target_description">Automatically fill input fields with target value</string>
+
     <!-- Workout Settings -->
     <string name="section_workout_settings">Workout Settings</string>
     <string name="section_workout_settings_description">Configure default workout timer settings.</string>

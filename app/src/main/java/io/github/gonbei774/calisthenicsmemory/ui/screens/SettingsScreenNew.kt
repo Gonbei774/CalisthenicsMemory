@@ -746,7 +746,89 @@ fun SettingsScreenNew(
             }
 
             // ========================================
-            // セクション4: ワークアウト設定
+            // セクション4: 記録入力設定
+            // ========================================
+
+            // セクションタイトルと説明
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.section_record_input_settings),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.section_record_input_settings_description),
+                        fontSize = 14.sp,
+                        color = Slate400,
+                        lineHeight = 20.sp
+                    )
+                }
+            }
+
+            // 記録入力設定カード
+            item {
+                val recordPrefs = remember { io.github.gonbei774.calisthenicsmemory.data.RecordPreferences(context) }
+                var autoFillTargetEnabled by remember { mutableStateOf(recordPrefs.isAutoFillTargetEnabled()) }
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Slate800
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    onClick = { }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "📝",
+                            fontSize = 32.sp
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.auto_fill_target_setting),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = stringResource(R.string.auto_fill_target_description),
+                                fontSize = 14.sp,
+                                color = if (autoFillTargetEnabled) Slate400 else Slate400.copy(alpha = 0.5f),
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                        Switch(
+                            checked = autoFillTargetEnabled,
+                            onCheckedChange = { enabled ->
+                                autoFillTargetEnabled = enabled
+                                recordPrefs.setAutoFillTargetEnabled(enabled)
+                            },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = Color.White,
+                                checkedTrackColor = Green600,
+                                uncheckedThumbColor = Color.White,
+                                uncheckedTrackColor = Slate600
+                            )
+                        )
+                    }
+                }
+            }
+
+            // ========================================
+            // セクション5: ワークアウト設定
             // ========================================
 
             // セクションタイトルと説明
