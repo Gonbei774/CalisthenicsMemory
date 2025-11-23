@@ -5,6 +5,7 @@ Erstellen Sie Ihre eigenen Übungen, organisieren Sie sie in Gruppen und verfolg
 FUNKTIONEN
 
 Vollständige Anpassung
+
 • Erstellen Sie beliebige Übungen mit beliebigen Namen
 • Organisieren Sie Übungen in benutzerdefinierten Gruppen
 • Wählen Sie zwischen wiederholungsbasierter oder zeitbasierter Aufzeichnung
@@ -13,24 +14,29 @@ Vollständige Anpassung
 • Favoriten-Übungen für schnellen Zugriff mit Stern-Symbol (★)
 
 Zwei Trainingsmodi
+
 • Aufzeichnungsmodus: Schnelles Protokollieren Ihrer Workouts nach dem Training
 • Trainingsmodus: Auto-geführtes Training mit integrierten Timern für Countdown, Ausführung und Pausen
 
 Trainingsaufzeichnungen
+
 • Protokollieren Sie Datum, Zeit, Sätze und Wiederholungen/Sekunden
 • Fügen Sie Kommentare hinzu, um Formnotizen und Beobachtungen zu verfolgen
 • Bearbeiten oder löschen Sie vergangene Aufzeichnungen
 
 Fortschrittsverfolgung
+
 • Listenansicht: Durchsuchen Sie alle Trainingseinheiten
 • Diagrammansicht: Visualisieren Sie den Fortschritt mit Durchschnitts-/Max-/Gesamtstatistiken
 • Zielansicht: Verfolgen Sie die Zielerreichung
 
 Zielsystem
+
 • Setzen Sie Ziele wie "3 Sätze × 50 Wiederholungen"
 • Farbcodierte Fortschrittsindikatoren
 
 Datenverwaltung
+
 • Exportieren/Importieren im JSON-Format
 • Ihre Daten bleiben auf Ihrem Gerät
 • Keine Internetverbindung erforderlich
