@@ -107,6 +107,11 @@ sealed class UiMessage {
     /** バックアップ失敗 */
     object BackupFailed : UiMessage()
 
+    // ===== クリップボード =====
+
+    /** クリップボードにコピーされた */
+    object CopiedToClipboard : UiMessage()
+
     // ===== エラー =====
 
     /** 一般的なエラー */

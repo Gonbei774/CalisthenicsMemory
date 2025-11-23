@@ -30,6 +30,10 @@
     <string name="home_record">記録</string>
     <string name="home_workout">ワークアウト</string>
     <string name="home_view">閲覧</string>
+    <string name="today">今日</string>
+    <string name="no_records_today">今日はまだ記録がありません</string>
+    <string name="view_details">詳細を見る →</string>
+    <string name="copied_to_clipboard">コピーしました</string>
 
     <!-- Create Screen -->
     <string name="exercise_creation">種目作成</string>

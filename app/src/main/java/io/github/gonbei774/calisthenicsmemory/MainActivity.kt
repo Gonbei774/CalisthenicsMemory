@@ -133,6 +133,7 @@ fun UiMessage.toMessageString(): String {
         is UiMessage.CsvImportPartial -> stringResource(R.string.csv_import_partial, successCount, errorCount)
         is UiMessage.BackupSaved -> stringResource(R.string.backup_saved_successfully)
         is UiMessage.BackupFailed -> stringResource(R.string.backup_failed)
+        is UiMessage.CopiedToClipboard -> stringResource(R.string.copied_to_clipboard)
         is UiMessage.ErrorOccurred -> stringResource(R.string.error_occurred)
     }
 }

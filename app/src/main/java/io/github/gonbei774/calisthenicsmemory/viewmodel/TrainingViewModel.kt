@@ -110,6 +110,10 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         _snackbarMessage.value = null
     }
 
+    fun showSnackbar(message: UiMessage) {
+        _snackbarMessage.value = message
+    }
+
     fun showBackupResult(success: Boolean) {
         _snackbarMessage.value = if (success) {
             UiMessage.BackupSaved

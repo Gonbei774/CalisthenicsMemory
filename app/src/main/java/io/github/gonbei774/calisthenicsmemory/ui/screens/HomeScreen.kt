@@ -1,143 +1,378 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.Screen
+import io.github.gonbei774.calisthenicsmemory.data.Exercise
+import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
+import io.github.gonbei774.calisthenicsmemory.ui.UiMessage
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
+import java.time.LocalDate
 
 @Composable
 fun HomeScreen(
-    onNavigate: (Screen) -> Unit
+    onNavigate: (Screen) -> Unit,
+    viewModel: TrainingViewModel = viewModel()
 ) {
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { onNavigate(Screen.Settings) },
-                containerColor = Slate600,
-                contentColor = Color.White
+    val exercises by viewModel.exercises.collectAsState()
+    val records by viewModel.records.collectAsState()
+
+    // Filter today's records
+    val todayDate = LocalDate.now().toString()
+    val todayRecords = remember(records, todayDate) {
+        records.filter { it.date == todayDate }
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Top
+    ) {
+        // Title
+        Text(
+            text = "Calisthenics Memory",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Dashboard Card
+        TodayDashboardCard(
+            records = todayRecords,
+            exercises = exercises,
+            onNavigateToView = { onNavigate(Screen.View) }
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Workout Button (with gradient)
+        MainButton(
+            text = stringResource(R.string.home_workout),
+            gradient = Brush.horizontalGradient(
+                colors = listOf(Orange600, Amber600)
+            ),
+            onClick = { onNavigate(Screen.Workout) }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Create Button (solid color)
+        MainButton(
+            text = stringResource(R.string.home_create),
+            color = Slate800,
+            onClick = { onNavigate(Screen.Create) }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Record Button (solid color)
+        MainButton(
+            text = stringResource(R.string.home_record),
+            color = Slate800,
+            onClick = { onNavigate(Screen.Record) }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Settings Button (solid color)
+        MainButton(
+            text = stringResource(R.string.settings),
+            color = Slate800,
+            onClick = { onNavigate(Screen.Settings) }
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun TodayDashboardCard(
+    records: List<TrainingRecord>,
+    exercises: List<Exercise>,
+    onNavigateToView: () -> Unit,
+    viewModel: TrainingViewModel = viewModel()
+) {
+    val formattedText = remember(records, exercises) {
+        formatRecordsForClipboard(records, exercises)
+    }
+
+    val formattedAnnotatedText = remember(records, exercises) {
+        formatRecordsForDisplay(records, exercises)
+    }
+
+    val clipboardManager = LocalClipboardManager.current
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = {},
+                onLongClick = {
+                    if (records.isNotEmpty()) {
+                        clipboardManager.setText(AnnotatedString(formattedText))
+                        viewModel.showSnackbar(UiMessage.CopiedToClipboard)
+                    }
+                }
+            ),
+        colors = CardDefaults.cardColors(containerColor = Slate800),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    Icons.Default.Settings,
-                    contentDescription = stringResource(R.string.settings),
-                    modifier = Modifier.size(28.dp)
+                Text(
+                    text = stringResource(R.string.today),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Slate400
                 )
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (records.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.no_records_today),
+                    fontSize = 14.sp,
+                    color = Slate300
+                )
+            } else {
+                Text(
+                    text = formattedAnnotatedText,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onNavigateToView) {
+                        Text(
+                            text = stringResource(R.string.view_details),
+                            color = Blue600,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+            }
         }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            // Title
-            Text(
-                text = stringResource(R.string.bodyweight_training),
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                modifier = Modifier.padding(bottom = 64.dp)
-            )
+    }
+}
 
-            // Create Button (旧: Settings Button)
-            GradientButton(
-                text = stringResource(R.string.home_create),
-                gradient = Brush.horizontalGradient(
-                    colors = listOf(Blue600, Cyan600)
-                ),
-                onClick = { onNavigate(Screen.Create) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-            )
+/**
+ * Format training records for clipboard copy
+ *
+ * Example: "Push-up: 12/11/10, Bridge: 20/20/20/30, Plank: 35s/32s/30s"
+ *
+ * Rules:
+ * - Group by exercise
+ * - Within each exercise, sort by time + set number
+ * - Merge multiple sessions into one
+ * - Unilateral: R6 L5/R5 L4 (セット間をスラッシュ)
+ * - Isometric: 35s/32s/30s
+ */
+fun formatRecordsForClipboard(
+    records: List<TrainingRecord>,
+    exercises: List<Exercise>
+): String {
+    if (records.isEmpty()) return ""
 
-            // Record Button
-            GradientButton(
-                text = stringResource(R.string.home_record),
-                gradient = Brush.horizontalGradient(
-                    colors = listOf(Green600, Emerald600)
-                ),
-                onClick = { onNavigate(Screen.Record) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-            )
+    val exerciseMap = exercises.associateBy { it.id }
 
-            // Workout Button
-            GradientButton(
-                text = stringResource(R.string.home_workout),
-                gradient = Brush.horizontalGradient(
-                    colors = listOf(Orange600, Amber600)
-                ),
-                onClick = { onNavigate(Screen.Workout) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-            )
+    // Group by exercise and sort by time + set number
+    val recordsByExercise = records
+        .groupBy { it.exerciseId }
+        .mapValues { (_, recs) ->
+            recs.sortedWith(compareBy({ it.time }, { it.setNumber }))
+        }
 
-            // View Button
-            GradientButton(
-                text = stringResource(R.string.home_view),
-                gradient = Brush.horizontalGradient(
-                    colors = listOf(Purple600, Pink600)
-                ),
-                onClick = { onNavigate(Screen.View) },
-                modifier = Modifier.fillMaxWidth()
-            )
+    return recordsByExercise.entries.joinToString(", ") { (exerciseId, sortedRecords) ->
+        val exercise = exerciseMap[exerciseId] ?: return@joinToString ""
+        val exerciseName = exercise.name
+
+        val valuesText = when {
+            // Unilateral exercise - format: R6 L5/R5 L4
+            exercise.laterality == "Unilateral" -> {
+                val pairs = sortedRecords.map { record ->
+                    "R${record.valueRight}" + (record.valueLeft?.let { " L$it" } ?: "")
+                }
+                pairs.joinToString("/")
+            }
+
+            // Isometric exercise - format: 35s/32s/30s
+            exercise.type == "Isometric" -> {
+                val values = sortedRecords.map { "${it.valueRight}s" }
+                values.joinToString("/")
+            }
+
+            // Dynamic Bilateral exercise - format: 12/11/10
+            else -> {
+                val values = sortedRecords.map { it.valueRight.toString() }
+                values.joinToString("/")
+            }
+        }
+
+        "$exerciseName: $valuesText"
+    }
+}
+
+/**
+ * Format training records for display with color coding
+ *
+ * Colors:
+ * - Exercise name: White
+ * - Values (bilateral/isometric): Green400
+ * - Right side values (unilateral): Green400
+ * - Left side values (unilateral): Purple600
+ */
+fun formatRecordsForDisplay(
+    records: List<TrainingRecord>,
+    exercises: List<Exercise>
+): AnnotatedString {
+    if (records.isEmpty()) return AnnotatedString("")
+
+    val exerciseMap = exercises.associateBy { it.id }
+
+    // Group by exercise and sort by time + set number
+    val recordsByExercise = records
+        .groupBy { it.exerciseId }
+        .mapValues { (_, recs) ->
+            recs.sortedWith(compareBy({ it.time }, { it.setNumber }))
+        }
+
+    return buildAnnotatedString {
+        recordsByExercise.entries.forEachIndexed { index, (exerciseId, sortedRecords) ->
+            val exercise = exerciseMap[exerciseId] ?: return@forEachIndexed
+
+            // Exercise name in White
+            withStyle(SpanStyle(color = Color.White)) {
+                append(exercise.name)
+                append(": ")
+            }
+
+            when {
+                // Unilateral exercise - format: R6 L5/R5 L4
+                exercise.laterality == "Unilateral" -> {
+                    sortedRecords.forEachIndexed { setIndex, record ->
+                        if (setIndex > 0) append("/")
+
+                        // Right value in Green400
+                        withStyle(SpanStyle(color = Green400)) {
+                            append("R${record.valueRight}")
+                        }
+
+                        // Left value in Purple600
+                        record.valueLeft?.let { leftValue ->
+                            append(" ")
+                            withStyle(SpanStyle(color = Purple600)) {
+                                append("L$leftValue")
+                            }
+                        }
+                    }
+                }
+
+                // Isometric exercise - format: 35s/32s/30s
+                exercise.type == "Isometric" -> {
+                    sortedRecords.forEachIndexed { setIndex, record ->
+                        if (setIndex > 0) append("/")
+                        withStyle(SpanStyle(color = Green400)) {
+                            append("${record.valueRight}s")
+                        }
+                    }
+                }
+
+                // Dynamic Bilateral exercise - format: 12/11/10
+                else -> {
+                    sortedRecords.forEachIndexed { setIndex, record ->
+                        if (setIndex > 0) append("/")
+                        withStyle(SpanStyle(color = Green400)) {
+                            append(record.valueRight.toString())
+                        }
+                    }
+                }
+            }
+
+            // Add comma separator between exercises
+            if (index < recordsByExercise.size - 1) {
+                append(", ")
+            }
         }
     }
 }
 
 @Composable
-fun GradientButton(
+fun MainButton(
     text: String,
-    gradient: Brush,
+    gradient: Brush? = null,
+    color: Color? = null,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier.height(64.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(64.dp),
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent
+            containerColor = color ?: Color.Transparent
         ),
         contentPadding = PaddingValues(0.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(1.dp),
+                .then(
+                    if (gradient != null) {
+                        Modifier.background(gradient)
+                    } else {
+                        Modifier
+                    }
+                ),
             contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(1.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = text,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-            }
+            Text(
+                text = text,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
         }
     }
 }
+

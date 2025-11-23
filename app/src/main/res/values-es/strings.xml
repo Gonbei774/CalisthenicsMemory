@@ -30,6 +30,10 @@
     <string name="home_record">Registrar</string>
     <string name="home_workout">Entrenar</string>
     <string name="home_view">Ver</string>
+    <string name="today">Hoy</string>
+    <string name="no_records_today">Aún no hay registros hoy</string>
+    <string name="view_details">Ver detalles →</string>
+    <string name="copied_to_clipboard">Copiado al portapapeles</string>
 
     <!-- Create Screen -->
     <string name="exercise_creation">Creación de Ejercicios</string>
