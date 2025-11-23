@@ -54,21 +54,19 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
-
             // Title
             Text(
                 text = "Calisthenics Memory",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
-                modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(64.dp))
+            Spacer(modifier = Modifier.height(48.dp))
 
             // Workout Button (with gradient)
             MainButton(
@@ -97,7 +95,7 @@ fun HomeScreen(
                 onClick = { onNavigate(Screen.Record) }
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // Dashboard Card
             TodayDashboardCard(
@@ -157,36 +155,36 @@ fun TodayDashboardCard(
         colors = CardDefaults.cardColors(containerColor = Slate800),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(20.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = stringResource(R.string.today),
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Slate400
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             if (records.isEmpty()) {
                 Text(
                     text = stringResource(R.string.no_records_today),
-                    fontSize = 14.sp,
+                    fontSize = 16.sp,
                     color = Slate300
                 )
             } else {
                 Text(
                     text = formattedAnnotatedText,
-                    fontSize = 14.sp,
-                    lineHeight = 20.sp
+                    fontSize = 18.sp,
+                    lineHeight = 26.sp
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -196,7 +194,7 @@ fun TodayDashboardCard(
                     Text(
                         text = stringResource(R.string.view_all_records),
                         color = Blue600,
-                        fontSize = 14.sp
+                        fontSize = 16.sp
                     )
                 }
             }
