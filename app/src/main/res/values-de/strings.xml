@@ -408,6 +408,12 @@
     <string name="backup_saved_successfully">Backup im Downloads-Ordner gespeichert</string>
     <string name="backup_failed">Backup fehlgeschlagen</string>
 
+    <!-- Record Input Settings -->
+    <string name="section_record_input_settings">Aufzeichnungseinstellungen</string>
+    <string name="section_record_input_settings_description">Standardwerte für die Aufzeichnungseingabe konfigurieren.</string>
+    <string name="auto_fill_target_setting">Zielwert automatisch ausfüllen</string>
+    <string name="auto_fill_target_description">Eingabefelder automatisch mit Zielwert ausfüllen</string>
+
     <!-- Workout Settings -->
     <string name="section_workout_settings">Workout-Einstellungen</string>
     <string name="section_workout_settings_description">Standard-Timer-Einstellungen für Workouts konfigurieren.</string>

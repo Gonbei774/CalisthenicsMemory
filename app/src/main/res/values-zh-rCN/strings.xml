@@ -408,6 +408,12 @@
     <string name="backup_saved_successfully">备份已保存到下载文件夹</string>
     <string name="backup_failed">备份失败</string>
 
+    <!-- Record Input Settings -->
+    <string name="section_record_input_settings">记录输入设置</string>
+    <string name="section_record_input_settings_description">配置记录输入的默认值。</string>
+    <string name="auto_fill_target_setting">自动填充目标值</string>
+    <string name="auto_fill_target_description">自动在输入字段中填充目标值</string>
+
     <!-- Workout Settings -->
     <string name="section_workout_settings">训练设置</string>
     <string name="section_workout_settings_description">配置训练计时器的默认值。</string>

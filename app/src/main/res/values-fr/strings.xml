@@ -408,6 +408,12 @@
     <string name="backup_saved_successfully">Sauvegarde enregistrée dans le dossier Téléchargements</string>
     <string name="backup_failed">Échec de la sauvegarde</string>
 
+    <!-- Record Input Settings -->
+    <string name="section_record_input_settings">Paramètres de Saisie des Enregistrements</string>
+    <string name="section_record_input_settings_description">Configurer les valeurs par défaut pour la saisie des enregistrements.</string>
+    <string name="auto_fill_target_setting">Remplissage automatique de la valeur cible</string>
+    <string name="auto_fill_target_description">Remplir automatiquement les champs avec la valeur cible</string>
+
     <!-- Workout Settings -->
     <string name="section_workout_settings">Paramètres d\'Entraînement</string>
     <string name="section_workout_settings_description">Configurer les valeurs par défaut du minuteur d\'entraînement.</string>
