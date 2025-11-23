@@ -68,12 +68,19 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(64.dp))
 
-            // Workout Button (with gradient)
+            // Record Button (solid color)
+            MainButton(
+                text = stringResource(R.string.home_record),
+                color = Slate800,
+                onClick = { onNavigate(Screen.Record) }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Workout Button (solid color)
             MainButton(
                 text = stringResource(R.string.home_workout),
-                gradient = Brush.horizontalGradient(
-                    colors = listOf(Orange600, Amber600)
-                ),
+                color = Slate800,
                 onClick = { onNavigate(Screen.Workout) }
             )
 
@@ -84,15 +91,6 @@ fun HomeScreen(
                 text = stringResource(R.string.home_create),
                 color = Slate800,
                 onClick = { onNavigate(Screen.Create) }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Record Button (solid color)
-            MainButton(
-                text = stringResource(R.string.home_record),
-                color = Slate800,
-                onClick = { onNavigate(Screen.Record) }
             )
 
             Spacer(modifier = Modifier.height(32.dp))
