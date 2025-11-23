@@ -24,6 +24,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.Screen
@@ -47,70 +49,78 @@ fun HomeScreen(
     val todayRecords = remember(records, todayDate) {
         records.filter { it.date == todayDate }
     }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Top
-    ) {
-        // Title
-        Text(
-            text = "Calisthenics Memory",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            textAlign = TextAlign.Center
-        )
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Top
+        ) {
+            Spacer(modifier = Modifier.height(24.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+            // Title
+            Text(
+                text = "Calisthenics Memory",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
 
-        // Dashboard Card
-        TodayDashboardCard(
-            records = todayRecords,
-            exercises = exercises,
-            onNavigateToView = { onNavigate(Screen.View) }
-        )
+            Spacer(modifier = Modifier.height(64.dp))
 
-        Spacer(modifier = Modifier.height(24.dp))
+            // Workout Button (with gradient)
+            MainButton(
+                text = stringResource(R.string.home_workout),
+                gradient = Brush.horizontalGradient(
+                    colors = listOf(Orange600, Amber600)
+                ),
+                onClick = { onNavigate(Screen.Workout) }
+            )
 
-        // Workout Button (with gradient)
-        MainButton(
-            text = stringResource(R.string.home_workout),
-            gradient = Brush.horizontalGradient(
-                colors = listOf(Orange600, Amber600)
-            ),
-            onClick = { onNavigate(Screen.Workout) }
-        )
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+            // Create Button (solid color)
+            MainButton(
+                text = stringResource(R.string.home_create),
+                color = Slate800,
+                onClick = { onNavigate(Screen.Create) }
+            )
 
-        // Create Button (solid color)
-        MainButton(
-            text = stringResource(R.string.home_create),
-            color = Slate800,
-            onClick = { onNavigate(Screen.Create) }
-        )
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+            // Record Button (solid color)
+            MainButton(
+                text = stringResource(R.string.home_record),
+                color = Slate800,
+                onClick = { onNavigate(Screen.Record) }
+            )
 
-        // Record Button (solid color)
-        MainButton(
-            text = stringResource(R.string.home_record),
-            color = Slate800,
-            onClick = { onNavigate(Screen.Record) }
-        )
+            Spacer(modifier = Modifier.height(24.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+            // Dashboard Card
+            TodayDashboardCard(
+                records = todayRecords,
+                exercises = exercises,
+                onNavigateToView = { onNavigate(Screen.View) }
+            )
+        }
 
-        // Settings Button (solid color)
-        MainButton(
-            text = stringResource(R.string.settings),
-            color = Slate800,
-            onClick = { onNavigate(Screen.Settings) }
-        )
+        // Settings Icon Button (bottom-right)
+        IconButton(
+            onClick = { onNavigate(Screen.Settings) },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = stringResource(R.string.settings),
+                tint = Slate400,
+                modifier = Modifier.size(28.dp)
+            )
+        }
     }
 }
 
@@ -174,20 +184,20 @@ fun TodayDashboardCard(
                     fontSize = 14.sp,
                     lineHeight = 20.sp
                 )
+            }
 
-                Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = onNavigateToView) {
-                        Text(
-                            text = stringResource(R.string.view_details),
-                            color = Blue600,
-                            fontSize = 14.sp
-                        )
-                    }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(onClick = onNavigateToView) {
+                    Text(
+                        text = stringResource(R.string.view_all_records),
+                        color = Blue600,
+                        fontSize = 14.sp
+                    )
                 }
             }
         }
@@ -253,12 +263,11 @@ fun formatRecordsForClipboard(
 
 /**
  * Format training records for display with color coding
+ * Display format: "Exercise name X sets" (one per line)
  *
  * Colors:
  * - Exercise name: White
- * - Values (bilateral/isometric): Green400
- * - Right side values (unilateral): Green400
- * - Left side values (unilateral): Purple600
+ * - Set count: Green400
  */
 fun formatRecordsForDisplay(
     records: List<TrainingRecord>,
@@ -268,68 +277,30 @@ fun formatRecordsForDisplay(
 
     val exerciseMap = exercises.associateBy { it.id }
 
-    // Group by exercise and sort by time + set number
+    // Group by exercise and count sets
     val recordsByExercise = records
         .groupBy { it.exerciseId }
-        .mapValues { (_, recs) ->
-            recs.sortedWith(compareBy({ it.time }, { it.setNumber }))
-        }
+        .mapValues { (_, recs) -> recs.size }
 
     return buildAnnotatedString {
-        recordsByExercise.entries.forEachIndexed { index, (exerciseId, sortedRecords) ->
+        recordsByExercise.entries.forEachIndexed { index, (exerciseId, setCount) ->
             val exercise = exerciseMap[exerciseId] ?: return@forEachIndexed
 
             // Exercise name in White
             withStyle(SpanStyle(color = Color.White)) {
                 append(exercise.name)
-                append(": ")
+                append(" ")
             }
 
-            when {
-                // Unilateral exercise - format: R6 L5/R5 L4
-                exercise.laterality == "Unilateral" -> {
-                    sortedRecords.forEachIndexed { setIndex, record ->
-                        if (setIndex > 0) append("/")
-
-                        // Right value in Green400
-                        withStyle(SpanStyle(color = Green400)) {
-                            append("R${record.valueRight}")
-                        }
-
-                        // Left value in Purple600
-                        record.valueLeft?.let { leftValue ->
-                            append(" ")
-                            withStyle(SpanStyle(color = Purple600)) {
-                                append("L$leftValue")
-                            }
-                        }
-                    }
-                }
-
-                // Isometric exercise - format: 35s/32s/30s
-                exercise.type == "Isometric" -> {
-                    sortedRecords.forEachIndexed { setIndex, record ->
-                        if (setIndex > 0) append("/")
-                        withStyle(SpanStyle(color = Green400)) {
-                            append("${record.valueRight}s")
-                        }
-                    }
-                }
-
-                // Dynamic Bilateral exercise - format: 12/11/10
-                else -> {
-                    sortedRecords.forEachIndexed { setIndex, record ->
-                        if (setIndex > 0) append("/")
-                        withStyle(SpanStyle(color = Green400)) {
-                            append(record.valueRight.toString())
-                        }
-                    }
-                }
+            // Set count in Green400
+            withStyle(SpanStyle(color = Green400)) {
+                val setsText = if (setCount == 1) "set" else "sets"
+                append("$setCount $setsText")
             }
 
-            // Add comma separator between exercises
+            // Add newline between exercises
             if (index < recordsByExercise.size - 1) {
-                append(", ")
+                append("\n")
             }
         }
     }

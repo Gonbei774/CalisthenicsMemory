@@ -26,13 +26,14 @@
 
     <!-- Home Screen -->
     <string name="bodyweight_training">Bodyweight Training</string>
-    <string name="home_create">Create</string>
-    <string name="home_record">Record</string>
+    <string name="home_create">Create Exercise</string>
+    <string name="home_record">Record Training</string>
     <string name="home_workout">Workout</string>
     <string name="home_view">View</string>
-    <string name="today">Today</string>
+    <string name="today">Today\'s Workout</string>
     <string name="no_records_today">No records yet today</string>
     <string name="view_details">View details →</string>
+    <string name="view_all_records">View all records →</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
 
     <!-- Create Screen -->

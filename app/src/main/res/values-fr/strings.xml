@@ -26,13 +26,14 @@
 
     <!-- Home Screen -->
     <string name="bodyweight_training">Entraînement au Poids du Corps</string>
-    <string name="home_create">Créer</string>
-    <string name="home_record">Enregistrer</string>
+    <string name="home_create">Créer un Exercice</string>
+    <string name="home_record">Enregistrer l\'Entraînement</string>
     <string name="home_workout">S\'entraîner</string>
     <string name="home_view">Consulter</string>
-    <string name="today">Aujourd\'hui</string>
+    <string name="today">Entraînement d\'Aujourd\'hui</string>
     <string name="no_records_today">Pas encore d\'enregistrements aujourd\'hui</string>
     <string name="view_details">Voir les détails →</string>
+    <string name="view_all_records">Voir tous les enregistrements →</string>
     <string name="copied_to_clipboard">Copié dans le presse-papiers</string>
 
     <!-- Create Screen -->

@@ -26,13 +26,14 @@
 
     <!-- Home Screen -->
     <string name="bodyweight_training">Eigengewichtstraining</string>
-    <string name="home_create">Erstellen</string>
-    <string name="home_record">Aufzeichnen</string>
+    <string name="home_create">Übung Erstellen</string>
+    <string name="home_record">Training Aufzeichnen</string>
     <string name="home_workout">Training</string>
     <string name="home_view">Ansehen</string>
-    <string name="today">Heute</string>
+    <string name="today">Heutiges Training</string>
     <string name="no_records_today">Noch keine Aufzeichnungen heute</string>
     <string name="view_details">Details anzeigen →</string>
+    <string name="view_all_records">Alle Aufzeichnungen anzeigen →</string>
     <string name="copied_to_clipboard">In Zwischenablage kopiert</string>
 
     <!-- Create Screen -->
