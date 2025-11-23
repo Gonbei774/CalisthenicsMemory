@@ -12,6 +12,9 @@ A simple, privacy-focused bodyweight training tracker for Android.
   <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/">
     <img src="https://fdroid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">
   </a>
+  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.gonbei774.calisthenicsmemory">
+    <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButton.png" alt="Get it on IzzyOnDroid" height="80">
+  </a>
 </p>
 
 ---
