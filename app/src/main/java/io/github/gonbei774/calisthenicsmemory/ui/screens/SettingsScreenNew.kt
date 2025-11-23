@@ -913,7 +913,7 @@ fun SettingsScreenNew(
                                 },
                                 colors = SwitchDefaults.colors(
                                     checkedThumbColor = Color.White,
-                                    checkedTrackColor = Purple600,
+                                    checkedTrackColor = Orange600,
                                     uncheckedThumbColor = Color.White,
                                     uncheckedTrackColor = Slate600
                                 )
@@ -963,7 +963,7 @@ fun SettingsScreenNew(
                                 },
                                 colors = SwitchDefaults.colors(
                                     checkedThumbColor = Color.White,
-                                    checkedTrackColor = Purple600,
+                                    checkedTrackColor = Orange600,
                                     uncheckedThumbColor = Color.White,
                                     uncheckedTrackColor = Slate600
                                 )
@@ -1013,7 +1013,7 @@ fun SettingsScreenNew(
                                 },
                                 colors = SwitchDefaults.colors(
                                     checkedThumbColor = Color.White,
-                                    checkedTrackColor = Purple600,
+                                    checkedTrackColor = Orange600,
                                     uncheckedThumbColor = Color.White,
                                     uncheckedTrackColor = Slate600
                                 )
@@ -1042,9 +1042,9 @@ fun SettingsScreenNew(
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Purple600,
-                                    focusedLabelColor = Purple600,
-                                    cursorColor = Purple600
+                                    focusedBorderColor = Orange600,
+                                    focusedLabelColor = Orange600,
+                                    cursorColor = Orange600
                                 )
                             )
                         },
@@ -1057,7 +1057,7 @@ fun SettingsScreenNew(
                                     showStartCountdownDialog = false
                                 },
                                 colors = ButtonDefaults.textButtonColors(
-                                    contentColor = Purple600
+                                    contentColor = Orange600
                                 )
                             ) {
                                 Text(stringResource(R.string.save))
@@ -1091,9 +1091,9 @@ fun SettingsScreenNew(
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Purple600,
-                                    focusedLabelColor = Purple600,
-                                    cursorColor = Purple600
+                                    focusedBorderColor = Orange600,
+                                    focusedLabelColor = Orange600,
+                                    cursorColor = Orange600
                                 )
                             )
                         },
@@ -1106,7 +1106,7 @@ fun SettingsScreenNew(
                                     showSetIntervalDialog = false
                                 },
                                 colors = ButtonDefaults.textButtonColors(
-                                    contentColor = Purple600
+                                    contentColor = Orange600
                                 )
                             ) {
                                 Text(stringResource(R.string.save))
@@ -1140,9 +1140,9 @@ fun SettingsScreenNew(
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Purple600,
-                                    focusedLabelColor = Purple600,
-                                    cursorColor = Purple600
+                                    focusedBorderColor = Orange600,
+                                    focusedLabelColor = Orange600,
+                                    cursorColor = Orange600
                                 )
                             )
                         },
@@ -1155,7 +1155,7 @@ fun SettingsScreenNew(
                                     showRepDurationDialog = false
                                 },
                                 colors = ButtonDefaults.textButtonColors(
-                                    contentColor = Purple600
+                                    contentColor = Orange600
                                 )
                             ) {
                                 Text(stringResource(R.string.save))
