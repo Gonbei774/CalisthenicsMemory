@@ -60,13 +60,13 @@ fun HomeScreen(
             // Title
             Text(
                 text = "Calisthenics Memory",
-                fontSize = 32.sp,
+                fontSize = 36.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(64.dp))
 
             // Workout Button (with gradient)
             MainButton(
