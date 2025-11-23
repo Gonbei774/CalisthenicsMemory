@@ -2,9 +2,9 @@ A simple bodyweight training tracker you can customize to match your needs.
 
 Create your own exercises, organize them into groups, and track progress your way. No rigid templates - adapt the app to your training method.
 
-FEATURES
+<b>FEATURES</b>
 
-Complete Customization
+<b>Complete Customization</b>
 
 • Create any exercise with any name
 • Organize exercises into custom groups
@@ -13,29 +13,29 @@ Complete Customization
 • Support for unilateral (one-sided) exercises
 • Favorite exercises for quick access with star icon (★)
 
-Two Training Modes
+<b>Two Training Modes</b>
 
 • Record Mode: Quickly log your workouts after training
 • Workout Mode: Auto-guided training with built-in timers for countdown, execution, and rest intervals
 
-Training Records
+<b>Training Records</b>
 
 • Log date, time, sets, and reps/seconds
 • Add comments to track form notes and observations
 • Edit or delete past records
 
-Progress Tracking
+<b>Progress Tracking</b>
 
 • List view: Browse all training sessions
 • Graph view: Visualize progress with average/max/total stats
 • Challenge view: Track goal achievement
 
-Goal System
+<b>Goal System</b>
 
 • Set targets like "3 sets × 50 reps"
 • Color-coded progress indicators
 
-Data Management
+<b>Data Management</b>
 
 • Export/import in JSON format
 • Your data stays on your device

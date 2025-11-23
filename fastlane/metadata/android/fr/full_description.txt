@@ -2,9 +2,9 @@ Un tracker simple d'entraînement au poids du corps que vous pouvez personnalise
 
 Créez vos propres exercices, organisez-les en groupes et suivez votre progression à votre manière. Pas de modèles rigides - adaptez l'application à votre méthode d'entraînement.
 
-FONCTIONNALITÉS
+<b>FONCTIONNALITÉS</b>
 
-Personnalisation Complète
+<b>Personnalisation Complète</b>
 
 • Créez n'importe quel exercice avec n'importe quel nom
 • Organisez les exercices en groupes personnalisés
@@ -13,29 +13,29 @@ Personnalisation Complète
 • Support pour les exercices unilatéraux (un bras/une jambe)
 • Exercices favoris pour un accès rapide avec l'icône étoile (★)
 
-Deux Modes d'Entraînement
+<b>Deux Modes d'Entraînement</b>
 
 • Mode Enregistrement : Enregistrez rapidement vos entraînements après l'effort
 • Mode Entraînement : Entraînement auto-guidé avec minuteurs intégrés pour le compte à rebours, l'exécution et les intervalles de repos
 
-Enregistrements d'Entraînement
+<b>Enregistrements d'Entraînement</b>
 
 • Enregistrez la date, l'heure, les séries et les répétitions/secondes
 • Ajoutez des commentaires pour suivre les notes de forme et les observations
 • Modifiez ou supprimez les enregistrements passés
 
-Suivi de Progression
+<b>Suivi de Progression</b>
 
 • Vue liste : Parcourez toutes les sessions d'entraînement
 • Vue graphique : Visualisez la progression avec les statistiques moyennes/max/totales
 • Vue objectifs : Suivez l'atteinte des objectifs
 
-Système d'Objectifs
+<b>Système d'Objectifs</b>
 
 • Définissez des objectifs comme "3 séries × 50 répétitions"
 • Indicateurs de progression codés par couleur
 
-Gestion des Données
+<b>Gestion des Données</b>
 
 • Exporter/importer au format JSON
 • Vos données restent sur votre appareil
