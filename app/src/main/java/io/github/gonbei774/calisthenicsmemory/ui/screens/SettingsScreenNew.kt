@@ -778,6 +778,9 @@ fun SettingsScreenNew(
                 var startCountdown by remember { mutableStateOf(workoutPrefs.getStartCountdown()) }
                 var setInterval by remember { mutableStateOf(workoutPrefs.getSetInterval()) }
                 var repDuration by remember { mutableStateOf(workoutPrefs.getRepDuration()) }
+                var startCountdownEnabled by remember { mutableStateOf(workoutPrefs.isStartCountdownEnabled()) }
+                var setIntervalEnabled by remember { mutableStateOf(workoutPrefs.isSetIntervalEnabled()) }
+                var repDurationEnabled by remember { mutableStateOf(workoutPrefs.isRepDurationEnabled()) }
                 var showStartCountdownDialog by remember { mutableStateOf(false) }
                 var showSetIntervalDialog by remember { mutableStateOf(false) }
                 var showRepDurationDialog by remember { mutableStateOf(false) }
@@ -793,7 +796,7 @@ fun SettingsScreenNew(
                             containerColor = Slate800
                         ),
                         shape = RoundedCornerShape(12.dp),
-                        onClick = { showRepDurationDialog = true }
+                        onClick = { if (repDurationEnabled) showRepDurationDialog = true }
                     ) {
                         Row(
                             modifier = Modifier
@@ -816,10 +819,23 @@ fun SettingsScreenNew(
                                 Text(
                                     text = stringResource(R.string.current_rep_duration, repDuration),
                                     fontSize = 14.sp,
-                                    color = Slate400,
+                                    color = if (repDurationEnabled) Slate400 else Slate400.copy(alpha = 0.5f),
                                     modifier = Modifier.padding(top = 4.dp)
                                 )
                             }
+                            Switch(
+                                checked = repDurationEnabled,
+                                onCheckedChange = { enabled ->
+                                    repDurationEnabled = enabled
+                                    workoutPrefs.setRepDurationEnabled(enabled)
+                                },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color.White,
+                                    checkedTrackColor = Purple600,
+                                    uncheckedThumbColor = Color.White,
+                                    uncheckedTrackColor = Slate600
+                                )
+                            )
                         }
                     }
 
@@ -830,7 +846,7 @@ fun SettingsScreenNew(
                             containerColor = Slate800
                         ),
                         shape = RoundedCornerShape(12.dp),
-                        onClick = { showStartCountdownDialog = true }
+                        onClick = { if (startCountdownEnabled) showStartCountdownDialog = true }
                     ) {
                         Row(
                             modifier = Modifier
@@ -853,10 +869,23 @@ fun SettingsScreenNew(
                                 Text(
                                     text = stringResource(R.string.current_start_countdown, startCountdown),
                                     fontSize = 14.sp,
-                                    color = Slate400,
+                                    color = if (startCountdownEnabled) Slate400 else Slate400.copy(alpha = 0.5f),
                                     modifier = Modifier.padding(top = 4.dp)
                                 )
                             }
+                            Switch(
+                                checked = startCountdownEnabled,
+                                onCheckedChange = { enabled ->
+                                    startCountdownEnabled = enabled
+                                    workoutPrefs.setStartCountdownEnabled(enabled)
+                                },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color.White,
+                                    checkedTrackColor = Purple600,
+                                    uncheckedThumbColor = Color.White,
+                                    uncheckedTrackColor = Slate600
+                                )
+                            )
                         }
                     }
 
@@ -867,7 +896,7 @@ fun SettingsScreenNew(
                             containerColor = Slate800
                         ),
                         shape = RoundedCornerShape(12.dp),
-                        onClick = { showSetIntervalDialog = true }
+                        onClick = { if (setIntervalEnabled) showSetIntervalDialog = true }
                     ) {
                         Row(
                             modifier = Modifier
@@ -890,10 +919,23 @@ fun SettingsScreenNew(
                                 Text(
                                     text = stringResource(R.string.current_set_interval, setInterval),
                                     fontSize = 14.sp,
-                                    color = Slate400,
+                                    color = if (setIntervalEnabled) Slate400 else Slate400.copy(alpha = 0.5f),
                                     modifier = Modifier.padding(top = 4.dp)
                                 )
                             }
+                            Switch(
+                                checked = setIntervalEnabled,
+                                onCheckedChange = { enabled ->
+                                    setIntervalEnabled = enabled
+                                    workoutPrefs.setSetIntervalEnabled(enabled)
+                                },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color.White,
+                                    checkedTrackColor = Purple600,
+                                    uncheckedThumbColor = Color.White,
+                                    uncheckedTrackColor = Slate600
+                                )
+                            )
                         }
                     }
                 }

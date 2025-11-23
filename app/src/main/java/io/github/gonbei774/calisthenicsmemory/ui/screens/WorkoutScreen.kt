@@ -483,9 +483,33 @@ fun SettingsStep(
 
     var sets by remember { mutableStateOf(exercise.targetSets?.toString() ?: "") }
     var targetValue by remember { mutableStateOf(exercise.targetValue?.toString() ?: "") }
-    var repDuration by remember { mutableStateOf(workoutPrefs.getRepDuration().toString()) }
-    var startInterval by remember { mutableStateOf(workoutPrefs.getStartCountdown().toString()) }
-    var interval by remember { mutableStateOf(workoutPrefs.getSetInterval().toString()) }
+    var repDuration by remember {
+        mutableStateOf(
+            if (workoutPrefs.isRepDurationEnabled()) {
+                workoutPrefs.getRepDuration().toString()
+            } else {
+                ""
+            }
+        )
+    }
+    var startInterval by remember {
+        mutableStateOf(
+            if (workoutPrefs.isStartCountdownEnabled()) {
+                workoutPrefs.getStartCountdown().toString()
+            } else {
+                ""
+            }
+        )
+    }
+    var interval by remember {
+        mutableStateOf(
+            if (workoutPrefs.isSetIntervalEnabled()) {
+                workoutPrefs.getSetInterval().toString()
+            } else {
+                ""
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
