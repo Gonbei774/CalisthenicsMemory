@@ -29,16 +29,17 @@ The app operates completely offline—no internet connection required, no ads, n
 
 ## Features
 
+- **Home Dashboard** - View today's training records at a glance, long-press to copy
 - **Fully Customizable** - Create exercises freely, organize by groups, manage with 10 levels
 - **Favorites** - Quick access to frequently used exercises
 - **Two Recording Modes**
-  - Record mode: Quick manual input
-  - Workout mode: Automatic guided training with timer
+  - Record mode: Quick manual input with optional auto-fill target values
+  - Workout mode: Automatic guided training with customizable timer settings
 - **Progress Tracking** - View records as lists, graphs, or challenge progress bars
 - **Unilateral/Bilateral Support** - Track left and right sides separately for one-sided exercises
 - **Challenge Goals** - Set target sets × reps and track achievement status
-- **Data Management** - Export/import in JSON or CSV format
-- **Multi-Language** - English, Japanese, Spanish, German, Chinese (Simplified), French
+- **Data Management** - Export/import in JSON or CSV format (complete backup support)
+- **Multi-Language** - English, Japanese, Spanish, German, Chinese (Simplified), French, Italian
 - **Privacy-First** - Completely offline operation, no permissions required
 
 ## Screenshots
@@ -72,4 +73,4 @@ This project is licensed under the GNU General Public License v3.0. See [LICENSE
 
 ---
 
-**Last Updated**: November 16, 2025
+**Last Updated**: November 24, 2025
