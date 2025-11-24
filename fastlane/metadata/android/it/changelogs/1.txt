@@ -1,0 +1,10 @@
+v1.0.0 - Rilascio Iniziale
+
+Funzionalità:
+• Monitoraggio registrazioni allenamento (data, ora, serie, ripetizioni/secondi)
+• Supporto per esercizi unilaterali e bilaterali
+• Visualizzazione registrazioni (schede Elenco, Grafico e Obiettivo)
+• Modalità allenamento con guida automatica e timer
+• Sistema di valutazione raggiungimento obiettivi
+• Esportazione/importazione dati (formato JSON)
+• Supporto multilingua (Giapponese, Inglese)

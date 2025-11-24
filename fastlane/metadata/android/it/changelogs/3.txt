@@ -1,0 +1,12 @@
+v1.2.0 - Funzionalità Preferiti e Miglioramenti UI
+
+Nuove Funzionalità:
+• Funzionalità esercizi preferiti - segna esercizi con icona stella (★)
+• Gruppo preferiti visualizzato in cima all'elenco esercizi
+• Prefisso stella (★) mostrato nelle schermate di selezione esercizi
+
+Miglioramenti:
+• Migliorata visibilità punti dati grafico
+• Migliorata coerenza UI schermata allenamento
+• Migliore stile badge per coerenza visiva
+• Perfezionamento e rifinitura generale dell'UI

@@ -1,0 +1,11 @@
+v1.3.0 - Selezione Lingua e Miglioramenti Scheda Obiettivo
+
+Nuove Funzionalità:
+• Selezione lingua nell'app - cambia lingua direttamente dalle Impostazioni
+• Esteso filtro periodo esistente alla scheda Obiettivo
+• Visualizzazione conteggio giorni di allenamento per ogni periodo
+
+Miglioramenti:
+• Corretto nome gruppo preferiti per supportare cambio lingua
+• Migliorata coerenza UI scheda obiettivo e colori selezione
+• Corretta logica calcolo tasso di raggiungimento

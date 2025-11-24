@@ -83,6 +83,7 @@ class MainActivity : ComponentActivity() {
             AppLanguage.GERMAN -> Locale("de")
             AppLanguage.CHINESE -> Locale("zh", "CN")
             AppLanguage.FRENCH -> Locale("fr")
+            AppLanguage.ITALIAN -> Locale("it")
             AppLanguage.SYSTEM -> return context
         }
 

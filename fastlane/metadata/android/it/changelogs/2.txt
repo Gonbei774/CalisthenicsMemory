@@ -1,0 +1,10 @@
+v1.1.0 - Funzionalità Importazione/Esportazione Registrazioni CSV
+
+Nuove Funzionalità:
+• Funzionalità importazione/esportazione registrazioni CSV
+• Esportazione template di input per facile migrazione da registrazioni analogiche
+• L'importazione aggiunge ai dati esistenti senza eliminazione
+
+Miglioramenti:
+• UI schermata Impostazioni migliorata
+• Visualizzazione grafico ottimizzata

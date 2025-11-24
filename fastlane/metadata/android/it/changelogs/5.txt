@@ -1,0 +1,1 @@
+Migliorata importazione/esportazione CSV per supportare backup dati completo (esercizi, gruppi, registrazioni). Aggiunti rilevamento automatico formato, anteprima dati e dialoghi di conferma. Completato supporto 6 lingue. Migliorato allarme allenamento con triplo segnale acustico. Corretti problemi cambio lingua.
