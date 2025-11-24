@@ -396,6 +396,10 @@
     <string name="restart_required">Restart required to apply changes</string>
     <string name="language_changed">Language changed. Please restart the app.</string>
 
+    <!-- Open Source Licenses -->
+    <string name="open_source_licenses">Open Source Licenses</string>
+    <string name="licenses_description">View licenses of libraries used in this app</string>
+
     <!-- Training Days Display -->
     <string name="training_days_format">Training %s</string>
     <string name="last_record_short">Last: %s</string>

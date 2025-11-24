@@ -397,6 +397,10 @@
     <string name="restart_required">変更を反映するにはアプリを再起動してください</string>
     <string name="language_changed">言語を変更しました。アプリを再起動してください。</string>
 
+    <!-- Open Source Licenses -->
+    <string name="open_source_licenses">オープンソースライセンス</string>
+    <string name="licenses_description">このアプリで使用しているライブラリのライセンスを表示</string>
+
     <!-- Training Days Display -->
     <string name="training_days_format">トレーニング%s</string>
     <string name="last_record_short">最後: %s</string>

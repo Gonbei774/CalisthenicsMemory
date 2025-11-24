@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     id("org.jetbrains.kotlin.plugin.serialization")
+    id("com.mikepenz.aboutlibraries.plugin")
 }
 
 android {
@@ -102,6 +103,10 @@ dependencies {
 
     // AppCompat for language settings
     implementation("androidx.appcompat:appcompat:1.7.0")
+
+    // AboutLibraries
+    implementation("com.mikepenz:aboutlibraries-core:11.2.3")
+    implementation("com.mikepenz:aboutlibraries-compose-m3:11.2.3")
 
     // Testing
     testImplementation("junit:junit:4.13.2")
