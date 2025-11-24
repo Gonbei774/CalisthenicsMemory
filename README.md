@@ -2,6 +2,10 @@
   <img src="icon.png" width="150" alt="Calisthenics Memory Icon">
 </p>
 
+> **📢 Important Notice**: Development has moved to **[Codeberg](https://codeberg.org/Gonbei774/CalisthenicsMemory)**
+>
+> This GitHub repository serves as a mirror for issue tracking and community visibility. For the latest code and releases, please visit our [Codeberg repository](https://codeberg.org/Gonbei774/CalisthenicsMemory).
+
 # Calisthenics Memory
 
 A simple, privacy-focused bodyweight training tracker for Android.
