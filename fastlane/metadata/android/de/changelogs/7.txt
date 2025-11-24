@@ -1,0 +1,1 @@
+Dashboard auf dem Startbildschirm mit heutigen Aufzeichnungen (lange drücken zum Kopieren). Funktion zum automatischen Ausfüllen des Zielwerts. Italienische Sprachunterstützung. Verbessertes Layout des Startbildschirms und Trainingseinstellungen.

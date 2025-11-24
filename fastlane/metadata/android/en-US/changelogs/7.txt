@@ -1,0 +1,1 @@
+Home screen dashboard with today's records (long-press to copy). Auto-fill target value feature. Italian language support. Improved home screen layout and workout settings.

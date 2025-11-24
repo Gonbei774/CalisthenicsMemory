@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2025-11-24
+
+### Added
+- **Home screen dashboard**
+  - Display today's training records on home screen
+  - Long-press to copy records to clipboard (format: "Exercise: reps/reps/reps")
+- **Auto-fill target value feature**
+  - Automatically fill target value in record input screen
+  - New toggle in Settings to enable/disable this feature
+- **Italian language support**
+  - Added Italian translation
+  - Now supports 7 languages: English, Japanese, German, Spanish, French, Chinese, Italian
+
+### Improved
+- **Home screen redesign**
+  - Reordered buttons (Record button moved to top)
+  - Added "View all records" link
+  - Increased title size and spacing
+  - Centered content layout
+- **Workout settings enhancement**
+  - Added enable/disable toggles for preparation time and rep duration
+  - Unified dialog colors to orange theme
+
 ## [1.5.0] - 2025-11-19
 
 ### Added
@@ -104,6 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.6.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.6.0
 [1.5.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.5.0
 [1.4.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.4.0
 [1.3.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.3.0

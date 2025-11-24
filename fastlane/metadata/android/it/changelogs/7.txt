@@ -1,0 +1,1 @@
+Dashboard della schermata iniziale con i record di oggi (premere a lungo per copiare). Funzione di riempimento automatico del valore target. Supporto lingua italiana. Layout migliorato della schermata iniziale e impostazioni allenamento.

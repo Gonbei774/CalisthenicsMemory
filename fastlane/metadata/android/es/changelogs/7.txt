@@ -1,0 +1,1 @@
+Panel de inicio con registros de hoy (presione prolongadamente para copiar). Función de autocompletar valor objetivo. Soporte de idioma italiano. Diseño mejorado de pantalla de inicio y configuración de entrenamiento.

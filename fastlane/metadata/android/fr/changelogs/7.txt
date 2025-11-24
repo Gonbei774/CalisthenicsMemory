@@ -1,0 +1,1 @@
+Tableau de bord d'accueil avec les enregistrements d'aujourd'hui (appui long pour copier). Fonction de remplissage automatique de la valeur cible. Support de la langue italienne. Amélioration de la mise en page de l'écran d'accueil et des paramètres d'entraînement.
