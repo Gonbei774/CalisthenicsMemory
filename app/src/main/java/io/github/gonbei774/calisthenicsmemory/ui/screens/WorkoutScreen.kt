@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -35,21 +36,6 @@ import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-
-// タイマー取得ヘルパー関数
-/**
- * 種目固有の休憩時間を取得する。種目に設定がない場合は全体設定を使用。
- */
-fun getRestInterval(exercise: Exercise, workoutPrefs: WorkoutPreferences): Int {
-    return exercise.restInterval ?: workoutPrefs.getSetInterval()
-}
-
-/**
- * 種目固有の1レップ時間を取得する。種目に設定がない場合は全体設定を使用。
- */
-fun getRepDuration(exercise: Exercise, workoutPrefs: WorkoutPreferences): Int {
-    return exercise.repDuration ?: workoutPrefs.getRepDuration()
-}
 
 // ワークアウトセットのデータ
 data class WorkoutSet(
@@ -496,19 +482,9 @@ fun SettingsStep(
     val context = LocalContext.current
     val workoutPrefs = remember { WorkoutPreferences(context) }
 
-    var sets by remember { mutableStateOf(exercise.targetSets?.toString() ?: "") }
-    var targetValue by remember { mutableStateOf(exercise.targetValue?.toString() ?: "") }
-
-    // 種目固有のタイマー設定を優先、なければ全体設定を使用
-    var repDuration by remember {
-        mutableStateOf(
-            if (exercise.type == "Dynamic") {
-                getRepDuration(exercise, workoutPrefs).toString()
-            } else {
-                ""
-            }
-        )
-    }
+    var sets by remember { mutableStateOf("") }
+    var targetValue by remember { mutableStateOf("") }
+    var repDuration by remember { mutableStateOf("") }
     var startInterval by remember {
         mutableStateOf(
             if (workoutPrefs.isStartCountdownEnabled()) {
@@ -518,9 +494,7 @@ fun SettingsStep(
             }
         )
     }
-    var interval by remember {
-        mutableStateOf(getRestInterval(exercise, workoutPrefs).toString())
-    }
+    var interval by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -609,6 +583,53 @@ fun SettingsStep(
                 focusedLabelColor = Orange600
             )
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 種目設定を適用ボタン
+        Button(
+            onClick = {
+                // セット数を反映
+                if (exercise.targetSets != null) {
+                    sets = exercise.targetSets.toString()
+                }
+                // 目標値を反映
+                if (exercise.targetValue != null) {
+                    targetValue = exercise.targetValue.toString()
+                }
+                // 1レップ時間を反映（Dynamic種目のみ）
+                if (exercise.type == "Dynamic" && exercise.repDuration != null) {
+                    repDuration = exercise.repDuration.toString()
+                }
+                // 休憩時間を反映（種目設定優先、なければ全体設定）
+                val restInt = exercise.restInterval ?: workoutPrefs.getSetInterval()
+                interval = restInt.toString()
+
+                // 開始カウントダウンは全体設定から取得（種目設定には無いため）
+                if (workoutPrefs.isStartCountdownEnabled()) {
+                    startInterval = workoutPrefs.getStartCountdown().toString()
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Orange600
+            ),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(R.string.apply_exercise_settings),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
 
         Spacer(modifier = Modifier.weight(1f))
 

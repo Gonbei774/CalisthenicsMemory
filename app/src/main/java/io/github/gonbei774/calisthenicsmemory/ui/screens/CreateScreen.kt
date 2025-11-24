@@ -526,6 +526,10 @@ fun UnifiedAddDialog(
     var targetSets by remember { mutableStateOf(exercise?.targetSets?.toString() ?: "") }
     var targetValue by remember { mutableStateOf(exercise?.targetValue?.toString() ?: "") }
 
+    // タイマー設定用の状態
+    var repDuration by remember { mutableStateOf(exercise?.repDuration?.toString() ?: "") }
+    var restInterval by remember { mutableStateOf(exercise?.restInterval?.toString() ?: "") }
+
     // グループ用の状態
     var groupName by remember { mutableStateOf("") }
 
@@ -862,6 +866,63 @@ fun UnifiedAddDialog(
                             )
                         }
                     }
+
+                    // タイマー設定（オプション）
+                    item {
+                        Text(
+                            text = stringResource(R.string.timer_settings_optional),
+                            fontSize = 14.sp,
+                            color = Slate400,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                        Text(
+                            text = stringResource(R.string.timer_settings_description),
+                            fontSize = 12.sp,
+                            color = Slate400,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+
+                    // 1レップ時間（Dynamic種目のみ）
+                    if (selectedType == "Dynamic") {
+                        item {
+                            OutlinedTextField(
+                                value = repDuration,
+                                onValueChange = {
+                                    if (it.isEmpty() || (it.all { char -> char.isDigit() } && it.toIntOrNull()?.let { num -> num in 1..60 } == true)) {
+                                        repDuration = it
+                                    }
+                                },
+                                label = { Text(stringResource(R.string.rep_duration_seconds)) },
+                                placeholder = { Text(stringResource(R.string.example_5_seconds)) },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                                )
+                            )
+                        }
+                    }
+
+                    // セット間インターバル
+                    item {
+                        OutlinedTextField(
+                            value = restInterval,
+                            onValueChange = {
+                                if (it.isEmpty() || (it.all { char -> char.isDigit() } && it.toIntOrNull()?.let { num -> num in 1..600 } == true)) {
+                                    restInterval = it
+                                }
+                            },
+                            label = { Text(stringResource(R.string.rest_interval_seconds)) },
+                            placeholder = { Text(stringResource(R.string.example_240_seconds)) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                                keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                            )
+                        )
+                    }
                 }
             }
         },
@@ -886,6 +947,8 @@ fun UnifiedAddDialog(
                             val finalTargetSets = if (hasTarget) targetSets.toIntOrNull() else null
                             val finalTargetValue = if (hasTarget) targetValue.toIntOrNull() else null
                             val finalSortOrder = if (hasTarget) selectedLevel else 0
+                            val finalRepDuration = repDuration.toIntOrNull()
+                            val finalRestInterval = restInterval.toIntOrNull()
 
                             viewModel.updateExercise(
                                 exercise.copy(
@@ -896,7 +959,9 @@ fun UnifiedAddDialog(
                                     sortOrder = finalSortOrder,
                                     targetSets = finalTargetSets,
                                     targetValue = finalTargetValue,
-                                    isFavorite = isFavorite
+                                    isFavorite = isFavorite,
+                                    repDuration = finalRepDuration,
+                                    restInterval = finalRestInterval
                                 )
                             )
                             onDismiss()
@@ -913,6 +978,8 @@ fun UnifiedAddDialog(
                             val finalTargetSets = if (hasTarget) targetSets.toIntOrNull() else null
                             val finalTargetValue = if (hasTarget) targetValue.toIntOrNull() else null
                             val finalSortOrder = if (hasTarget) selectedLevel else 0
+                            val finalRepDuration = repDuration.toIntOrNull()
+                            val finalRestInterval = restInterval.toIntOrNull()
 
                             viewModel.addExercise(
                                 exerciseName,
@@ -922,7 +989,9 @@ fun UnifiedAddDialog(
                                 selectedLaterality,
                                 finalTargetSets,
                                 finalTargetValue,
-                                isFavorite
+                                isFavorite,
+                                finalRestInterval,
+                                finalRepDuration
                             )
                             onDismiss()
                         }

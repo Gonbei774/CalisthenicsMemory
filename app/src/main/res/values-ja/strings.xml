@@ -413,26 +413,29 @@
     <string name="backup_saved_successfully">バックアップをDownloadsフォルダに保存しました</string>
     <string name="backup_failed">バックアップに失敗しました</string>
 
-    <!-- Record Input Settings -->
-    <string name="section_record_input_settings">記録入力設定</string>
-    <string name="section_record_input_settings_description">記録入力時のデフォルト値を設定できます。</string>
-    <string name="auto_fill_target_setting">目標値を自動入力</string>
-    <string name="auto_fill_target_description">入力フィールドに目標値を自動で入力します</string>
-
     <!-- Workout Settings -->
     <string name="section_workout_settings">ワークアウト設定</string>
     <string name="section_workout_settings_description">ワークアウトのタイマーのデフォルト値を設定できます。</string>
     <string name="workout_settings">ワークアウト設定</string>
     <string name="start_countdown_setting">開始カウントダウン</string>
     <string name="set_interval_setting">セット間インターバル</string>
-    <string name="rep_duration_setting">1レップの時間</string>
     <string name="current_start_countdown">現在: %d秒</string>
     <string name="current_set_interval">現在: %d秒</string>
-    <string name="current_rep_duration">現在: %d秒</string>
     <string name="seconds_suffix">秒</string>
     <string name="start_countdown_dialog_title">開始カウントダウン</string>
     <string name="set_interval_dialog_title">セット間インターバル</string>
-    <string name="rep_duration_dialog_title">1レップの時間</string>
     <string name="enter_seconds">秒数を入力</string>
     <string name="seconds_format">%d秒</string>
+
+    <!-- Timer Settings (Per-Exercise) -->
+    <string name="timer_settings_optional">タイマー設定（任意）</string>
+    <string name="timer_settings_description">この種目のタイマーを設定します。空欄の場合はデフォルト設定を使用します。</string>
+    <string name="rep_duration_seconds">1レップの時間（秒）</string>
+    <string name="rest_interval_seconds">セット間インターバル（秒）</string>
+    <string name="example_5_seconds">例: 5</string>
+    <string name="example_240_seconds">例: 240</string>
+
+    <!-- Apply Exercise Settings Button -->
+    <string name="apply_exercise_settings">種目設定を適用</string>
+    <string name="apply_target_values">目標値を反映</string>
 </resources>

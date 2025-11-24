@@ -786,89 +786,7 @@ fun SettingsScreenNew(
             }
 
             // ========================================
-            // セクション4: 記録入力設定
-            // ========================================
-
-            // セクションタイトルと説明
-            item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.section_record_input_settings),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                    Text(
-                        text = stringResource(R.string.section_record_input_settings_description),
-                        fontSize = 14.sp,
-                        color = Slate400,
-                        lineHeight = 20.sp
-                    )
-                }
-            }
-
-            // 記録入力設定カード
-            item {
-                val recordPrefs = remember { io.github.gonbei774.calisthenicsmemory.data.RecordPreferences(context) }
-                var autoFillTargetEnabled by remember { mutableStateOf(recordPrefs.isAutoFillTargetEnabled()) }
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Slate800
-                    ),
-                    shape = RoundedCornerShape(12.dp),
-                    onClick = { }
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "📝",
-                            fontSize = 32.sp
-                        )
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(R.string.auto_fill_target_setting),
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Text(
-                                text = stringResource(R.string.auto_fill_target_description),
-                                fontSize = 14.sp,
-                                color = if (autoFillTargetEnabled) Slate400 else Slate400.copy(alpha = 0.5f),
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
-                        }
-                        Switch(
-                            checked = autoFillTargetEnabled,
-                            onCheckedChange = { enabled ->
-                                autoFillTargetEnabled = enabled
-                                recordPrefs.setAutoFillTargetEnabled(enabled)
-                            },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = Color.White,
-                                checkedTrackColor = Green600,
-                                uncheckedThumbColor = Color.White,
-                                uncheckedTrackColor = Slate600
-                            )
-                        )
-                    }
-                }
-            }
-
-            // ========================================
-            // セクション5: ワークアウト設定
+            // セクション4: ワークアウト設定
             // ========================================
 
             // セクションタイトルと説明
@@ -899,68 +817,14 @@ fun SettingsScreenNew(
                 val workoutPrefs = remember { io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences(context) }
                 var startCountdown by remember { mutableStateOf(workoutPrefs.getStartCountdown()) }
                 var setInterval by remember { mutableStateOf(workoutPrefs.getSetInterval()) }
-                var repDuration by remember { mutableStateOf(workoutPrefs.getRepDuration()) }
                 var startCountdownEnabled by remember { mutableStateOf(workoutPrefs.isStartCountdownEnabled()) }
-                var setIntervalEnabled by remember { mutableStateOf(workoutPrefs.isSetIntervalEnabled()) }
-                var repDurationEnabled by remember { mutableStateOf(workoutPrefs.isRepDurationEnabled()) }
                 var showStartCountdownDialog by remember { mutableStateOf(false) }
                 var showSetIntervalDialog by remember { mutableStateOf(false) }
-                var showRepDurationDialog by remember { mutableStateOf(false) }
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // 1レップの時間設定
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Slate800
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        onClick = { if (repDurationEnabled) showRepDurationDialog = true }
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "🔢",
-                                fontSize = 32.sp
-                            )
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = stringResource(R.string.rep_duration_setting),
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                                Text(
-                                    text = stringResource(R.string.current_rep_duration, repDuration),
-                                    fontSize = 14.sp,
-                                    color = if (repDurationEnabled) Slate400 else Slate400.copy(alpha = 0.5f),
-                                    modifier = Modifier.padding(top = 4.dp)
-                                )
-                            }
-                            Switch(
-                                checked = repDurationEnabled,
-                                onCheckedChange = { enabled ->
-                                    repDurationEnabled = enabled
-                                    workoutPrefs.setRepDurationEnabled(enabled)
-                                },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = Color.White,
-                                    checkedTrackColor = Orange600,
-                                    uncheckedThumbColor = Color.White,
-                                    uncheckedTrackColor = Slate600
-                                )
-                            )
-                        }
-                    }
-
                     // 開始カウントダウン設定
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -1018,7 +882,7 @@ fun SettingsScreenNew(
                             containerColor = Slate800
                         ),
                         shape = RoundedCornerShape(12.dp),
-                        onClick = { if (setIntervalEnabled) showSetIntervalDialog = true }
+                        onClick = { showSetIntervalDialog = true }
                     ) {
                         Row(
                             modifier = Modifier
@@ -1041,23 +905,10 @@ fun SettingsScreenNew(
                                 Text(
                                     text = stringResource(R.string.current_set_interval, setInterval),
                                     fontSize = 14.sp,
-                                    color = if (setIntervalEnabled) Slate400 else Slate400.copy(alpha = 0.5f),
+                                    color = Slate400,
                                     modifier = Modifier.padding(top = 4.dp)
                                 )
                             }
-                            Switch(
-                                checked = setIntervalEnabled,
-                                onCheckedChange = { enabled ->
-                                    setIntervalEnabled = enabled
-                                    workoutPrefs.setSetIntervalEnabled(enabled)
-                                },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = Color.White,
-                                    checkedTrackColor = Orange600,
-                                    uncheckedThumbColor = Color.White,
-                                    uncheckedTrackColor = Slate600
-                                )
-                            )
                         }
                     }
                 }
@@ -1154,55 +1005,6 @@ fun SettingsScreenNew(
                         },
                         dismissButton = {
                             TextButton(onClick = { showSetIntervalDialog = false }) {
-                                Text(stringResource(R.string.cancel))
-                            }
-                        }
-                    )
-                }
-
-                // 1レップの時間設定ダイアログ
-                if (showRepDurationDialog) {
-                    var inputValue by remember { mutableStateOf(repDuration.toString()) }
-
-                    AlertDialog(
-                        onDismissRequest = { showRepDurationDialog = false },
-                        title = {
-                            Text(
-                                text = stringResource(R.string.rep_duration_dialog_title),
-                                fontWeight = FontWeight.Bold
-                            )
-                        },
-                        text = {
-                            OutlinedTextField(
-                                value = inputValue,
-                                onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) inputValue = it },
-                                label = { Text(stringResource(R.string.enter_seconds)) },
-                                singleLine = true,
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Orange600,
-                                    focusedLabelColor = Orange600,
-                                    cursorColor = Orange600
-                                )
-                            )
-                        },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    val newValue = inputValue.toIntOrNull() ?: io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences.DEFAULT_REP_DURATION
-                                    workoutPrefs.setRepDuration(newValue)
-                                    repDuration = newValue
-                                    showRepDurationDialog = false
-                                },
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = Orange600
-                                )
-                            ) {
-                                Text(stringResource(R.string.save))
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { showRepDurationDialog = false }) {
                                 Text(stringResource(R.string.cancel))
                             }
                         }
