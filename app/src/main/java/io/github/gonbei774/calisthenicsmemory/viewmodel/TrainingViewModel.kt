@@ -48,10 +48,13 @@ data class ExportExercise(
     val type: String,
     val group: String?,
     val sortOrder: Int,
+    val displayOrder: Int = 0,       // 表示順（デフォルト値で後方互換）
     val laterality: String,
     val targetSets: Int? = null,
     val targetValue: Int? = null,
-    val isFavorite: Boolean = false  // お気に入り（デフォルト値で後方互換）
+    val isFavorite: Boolean = false, // お気に入り（デフォルト値で後方互換）
+    val restInterval: Int? = null,   // 種目固有の休憩時間（デフォルト値で後方互換）
+    val repDuration: Int? = null     // 種目固有の1レップ時間（デフォルト値で後方互換）
 )
 
 @Serializable
@@ -131,7 +134,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         laterality: String = "Bilateral",
         targetSets: Int? = null,
         targetValue: Int? = null,
-        isFavorite: Boolean = false
+        isFavorite: Boolean = false,
+        restInterval: Int? = null,       // 種目固有の休憩時間（秒）
+        repDuration: Int? = null         // 種目固有の1レップ時間（秒）
     ) {
         viewModelScope.launch {
             try {
@@ -153,7 +158,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     laterality = laterality,
                     targetSets = targetSets,
                     targetValue = targetValue,
-                    isFavorite = isFavorite
+                    isFavorite = isFavorite,
+                    restInterval = restInterval,
+                    repDuration = repDuration
                 )
                 exerciseDao.insertExercise(exercise)
                 _snackbarMessage.value = UiMessage.ExerciseAdded
@@ -394,7 +401,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         // 0. お気に入りグループ（先頭に追加、0件でも表示）
         // 固定キーを使用（UI側で翻訳）
         val favoriteGroupKey = FAVORITE_GROUP_KEY
-        val favoriteExercises = exercises.filter { it.isFavorite }.sortedBy { it.name }
+        val favoriteExercises = exercises.filter { it.isFavorite }.sortedBy { it.displayOrder }
         val favoriteGroup = listOf(
             GroupWithExercises(
                 groupName = favoriteGroupKey,
@@ -408,7 +415,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             val groupExercises = exercises.filter { it.group == group.name }
             GroupWithExercises(
                 groupName = group.name,
-                exercises = groupExercises.sortedBy { it.sortOrder },
+                exercises = groupExercises.sortedBy { it.displayOrder },
                 isExpanded = group.name in expandedGroups  // 全て閉じた状態も可能
             )
         }.sortedBy { it.groupName }
@@ -419,7 +426,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             listOf(
                 GroupWithExercises(
                     groupName = null,
-                    exercises = ungroupedExercises.sortedBy { it.name },
+                    exercises = ungroupedExercises.sortedBy { it.displayOrder },
                     isExpanded = "ungrouped" in expandedGroups  // 全て閉じた状態も可能
                 )
             )
@@ -429,6 +436,54 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
         // お気に入りグループを先頭に配置
         return favoriteGroup + groupedExercises + ungroupedGroup
+    }
+
+    // ========================================
+    // 並び替え機能
+    // ========================================
+
+    /**
+     * 種目の並び順を変更する
+     * @param groupName グループ名（null = グループなし、FAVORITE_GROUP_KEY = お気に入り）
+     * @param fromIndex 移動元のインデックス
+     * @param toIndex 移動先のインデックス
+     */
+    fun reorderExercises(groupName: String?, fromIndex: Int, toIndex: Int) {
+        viewModelScope.launch {
+            // 対象グループの種目を取得
+            val targetExercises = when (groupName) {
+                FAVORITE_GROUP_KEY -> {
+                    // お気に入り
+                    exercises.value
+                        .filter { it.isFavorite }
+                        .sortedBy { it.displayOrder }
+                }
+                null -> {
+                    // グループなし
+                    exerciseDao.getUngroupedExercises()
+                }
+                else -> {
+                    // 通常グループ
+                    exerciseDao.getExercisesByGroup(groupName)
+                }
+            }
+
+            if (fromIndex < 0 || toIndex < 0 ||
+                fromIndex >= targetExercises.size ||
+                toIndex >= targetExercises.size) {
+                return@launch
+            }
+
+            // 並び替え
+            val reordered = targetExercises.toMutableList()
+            val item = reordered.removeAt(fromIndex)
+            reordered.add(toIndex, item)
+
+            // displayOrderを更新
+            reordered.forEachIndexed { index, exercise ->
+                exerciseDao.updateExercise(exercise.copy(displayOrder = index))
+            }
+        }
     }
 
     // ========================================
@@ -458,10 +513,13 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     type = exercise.type,
                     group = exercise.group,
                     sortOrder = exercise.sortOrder,
+                    displayOrder = exercise.displayOrder,
                     laterality = exercise.laterality,
                     targetSets = exercise.targetSets,
                     targetValue = exercise.targetValue,
-                    isFavorite = exercise.isFavorite
+                    isFavorite = exercise.isFavorite,
+                    restInterval = exercise.restInterval,
+                    repDuration = exercise.repDuration
                 )
             }
 
@@ -530,10 +588,13 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         type = exportExercise.type,
                         group = exportExercise.group,
                         sortOrder = exportExercise.sortOrder,
+                        displayOrder = exportExercise.displayOrder,
                         laterality = exportExercise.laterality,
                         targetSets = exportExercise.targetSets,
                         targetValue = exportExercise.targetValue,
-                        isFavorite = exportExercise.isFavorite
+                        isFavorite = exportExercise.isFavorite,
+                        restInterval = exportExercise.restInterval,
+                        repDuration = exportExercise.repDuration
                     )
                     exerciseDao.insertExercise(exercise)
                 }

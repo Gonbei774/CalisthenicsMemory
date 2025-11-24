@@ -15,8 +15,11 @@ data class Exercise(
     val type: String,
     val group: String? = null,           // グループ名（任意）
     val sortOrder: Int = 0,              // レベル（0〜10、0はグループなし時のデフォルト）
+    val displayOrder: Int = 0,           // 表示順（0, 1, 2...、並び替え機能用）
     val laterality: String = "Bilateral", // "Bilateral" or "Unilateral"（デフォルト: Bilateral）
     val targetSets: Int? = null,         // 目標セット数（任意）
     val targetValue: Int? = null,        // 目標値（回数or秒数、任意）
-    val isFavorite: Boolean = false      // お気に入り登録（デフォルト: false）
+    val isFavorite: Boolean = false,     // お気に入り登録（デフォルト: false）
+    val restInterval: Int? = null,       // 種目固有の休憩時間（秒、任意）
+    val repDuration: Int? = null         // 種目固有の1レップ時間（秒、任意）
 )

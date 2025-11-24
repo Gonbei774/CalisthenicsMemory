@@ -127,7 +127,8 @@ fun CreateScreen(
                         },
                         onExerciseDelete = { exercise ->
                             showDeleteDialog = exercise
-                        }
+                        },
+                        viewModel = viewModel
                     )
                 }
             }
@@ -240,7 +241,8 @@ fun ExpandableGroupCard(
     onExpandToggle: () -> Unit,
     onGroupMenuClick: () -> Unit,
     onExerciseEdit: (Exercise) -> Unit,
-    onExerciseDelete: (Exercise) -> Unit
+    onExerciseDelete: (Exercise) -> Unit,
+    viewModel: TrainingViewModel
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -314,12 +316,71 @@ fun ExpandableGroupCard(
                     modifier = Modifier.padding(start = 40.dp, end = 16.dp, bottom = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    group.exercises.forEach { exercise ->
-                        ExerciseItemCompact(
-                            exercise = exercise,
-                            onEdit = { onExerciseEdit(exercise) },
-                            onDelete = { onExerciseDelete(exercise) }
-                        )
+                    group.exercises.forEachIndexed { index, exercise ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // 並び替えボタン
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                // 上ボタン
+                                IconButton(
+                                    onClick = {
+                                        if (index > 0) {
+                                            viewModel.reorderExercises(
+                                                groupName = group.groupName,
+                                                fromIndex = index,
+                                                toIndex = index - 1
+                                            )
+                                        }
+                                    },
+                                    enabled = index > 0,
+                                    modifier = Modifier.size(24.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.KeyboardArrowUp,
+                                        contentDescription = "Move up",
+                                        tint = if (index > 0) Slate400 else Slate400.copy(alpha = 0.3f),
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+
+                                // 下ボタン
+                                IconButton(
+                                    onClick = {
+                                        if (index < group.exercises.size - 1) {
+                                            viewModel.reorderExercises(
+                                                groupName = group.groupName,
+                                                fromIndex = index,
+                                                toIndex = index + 1
+                                            )
+                                        }
+                                    },
+                                    enabled = index < group.exercises.size - 1,
+                                    modifier = Modifier.size(24.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.KeyboardArrowDown,
+                                        contentDescription = "Move down",
+                                        tint = if (index < group.exercises.size - 1) Slate400 else Slate400.copy(alpha = 0.3f),
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.width(4.dp))
+
+                            // 種目アイテム
+                            Box(modifier = Modifier.weight(1f)) {
+                                ExerciseItemCompact(
+                                    exercise = exercise,
+                                    onEdit = { onExerciseEdit(exercise) },
+                                    onDelete = { onExerciseDelete(exercise) }
+                                )
+                            }
+                        }
                     }
                 }
             }

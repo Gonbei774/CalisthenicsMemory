@@ -108,6 +108,9 @@ dependencies {
     implementation("com.mikepenz:aboutlibraries-core:11.2.3")
     implementation("com.mikepenz:aboutlibraries-compose-m3:11.2.3")
 
+    // Reorderable (drag and drop)
+    implementation("sh.calvin.reorderable:reorderable:2.4.0")
+
     // Testing
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")

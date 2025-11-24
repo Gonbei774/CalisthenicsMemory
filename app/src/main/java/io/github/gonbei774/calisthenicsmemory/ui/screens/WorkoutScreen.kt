@@ -36,6 +36,21 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
+// タイマー取得ヘルパー関数
+/**
+ * 種目固有の休憩時間を取得する。種目に設定がない場合は全体設定を使用。
+ */
+fun getRestInterval(exercise: Exercise, workoutPrefs: WorkoutPreferences): Int {
+    return exercise.restInterval ?: workoutPrefs.getSetInterval()
+}
+
+/**
+ * 種目固有の1レップ時間を取得する。種目に設定がない場合は全体設定を使用。
+ */
+fun getRepDuration(exercise: Exercise, workoutPrefs: WorkoutPreferences): Int {
+    return exercise.repDuration ?: workoutPrefs.getRepDuration()
+}
+
 // ワークアウトセットのデータ
 data class WorkoutSet(
     val setNumber: Int,
@@ -483,10 +498,12 @@ fun SettingsStep(
 
     var sets by remember { mutableStateOf(exercise.targetSets?.toString() ?: "") }
     var targetValue by remember { mutableStateOf(exercise.targetValue?.toString() ?: "") }
+
+    // 種目固有のタイマー設定を優先、なければ全体設定を使用
     var repDuration by remember {
         mutableStateOf(
-            if (workoutPrefs.isRepDurationEnabled()) {
-                workoutPrefs.getRepDuration().toString()
+            if (exercise.type == "Dynamic") {
+                getRepDuration(exercise, workoutPrefs).toString()
             } else {
                 ""
             }
@@ -502,13 +519,7 @@ fun SettingsStep(
         )
     }
     var interval by remember {
-        mutableStateOf(
-            if (workoutPrefs.isSetIntervalEnabled()) {
-                workoutPrefs.getSetInterval().toString()
-            } else {
-                ""
-            }
-        )
+        mutableStateOf(getRestInterval(exercise, workoutPrefs).toString())
     }
 
     Column(
