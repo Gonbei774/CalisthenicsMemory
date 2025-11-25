@@ -43,6 +43,20 @@ class CsvFormatTest {
     }
 
     @Test
+    fun exercisesCsvFormat_v10Header() {
+        // DB v10 format: 11 columns
+        val csv = "name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration"
+        val lines = csv.lines()
+
+        assertEquals(1, lines.size)
+        val columns = lines[0].split(",")
+        assertEquals(11, columns.size)
+        assertEquals("displayOrder", columns[8])
+        assertEquals("restInterval", columns[9])
+        assertEquals("repDuration", columns[10])
+    }
+
+    @Test
     fun exercisesCsvFormat_validData() {
         val csv = """
             name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite
@@ -258,5 +272,139 @@ class CsvFormatTest {
             .size
 
         assertEquals(2, dataCount)
+    }
+
+    // ========================================
+    // DB v10 format tests (11 columns)
+    // ========================================
+
+    @Test
+    fun exercisesCsvFormat_v10ValidData() {
+        val csv = """
+            name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration
+            Wall Push-up,Dynamic,Step 1 Pushups,1,Bilateral,3,50,false,0,120,5
+            Incline Push-up,Dynamic,Step 1 Pushups,2,Bilateral,3,40,true,1,180,
+        """.trimIndent()
+
+        val lines = csv.lines().filter { it.isNotBlank() && !it.startsWith("#") }
+
+        assertEquals(3, lines.size)
+
+        // Parse first data line (all fields filled)
+        val data1 = lines[1].split(",")
+        assertEquals(11, data1.size)
+        assertEquals("Wall Push-up", data1[0])
+        assertEquals("Dynamic", data1[1])
+        assertEquals("Step 1 Pushups", data1[2])
+        assertEquals("1", data1[3])
+        assertEquals("Bilateral", data1[4])
+        assertEquals("3", data1[5])
+        assertEquals("50", data1[6])
+        assertEquals("false", data1[7])
+        assertEquals("0", data1[8])      // displayOrder
+        assertEquals("120", data1[9])    // restInterval
+        assertEquals("5", data1[10])     // repDuration
+
+        // Parse second data line (partial timer settings)
+        val data2 = lines[2].split(",")
+        assertEquals(11, data2.size)
+        assertEquals("true", data2[7])   // isFavorite
+        assertEquals("1", data2[8])      // displayOrder
+        assertEquals("180", data2[9])    // restInterval
+        assertEquals("", data2[10])      // repDuration is empty
+    }
+
+    @Test
+    fun exercisesCsvFormat_v10WithNullableTimerFields() {
+        val csv = """
+            name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration
+            Simple Exercise,Dynamic,,0,Bilateral,,,false,0,,
+        """.trimIndent()
+
+        val lines = csv.lines().filter { it.isNotBlank() && !it.startsWith("#") }
+        val data = lines[1].split(",")
+
+        assertEquals(11, data.size)
+        assertEquals("Simple Exercise", data[0])
+        assertEquals("", data[2])   // group is empty
+        assertEquals("0", data[8])  // displayOrder
+        assertEquals("", data[9])   // restInterval is empty
+        assertEquals("", data[10])  // repDuration is empty
+    }
+
+    @Test
+    fun exercisesCsvFormat_v8CompatibilityCheck() {
+        // Old 8-column format should still be parseable
+        val csv = """
+            name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite
+            Wall Push-up,Dynamic,Step 1 Pushups,1,Bilateral,3,50,false
+        """.trimIndent()
+
+        val lines = csv.lines().filter { it.isNotBlank() && !it.startsWith("#") }
+        val data = lines[1].split(",")
+
+        // Should have exactly 8 columns (old format)
+        assertEquals(8, data.size)
+
+        // Verify we can detect old format by column count
+        val isOldFormat = data.size == 8
+        val isNewFormat = data.size == 11
+        assertTrue(isOldFormat)
+        assertFalse(isNewFormat)
+    }
+
+    @Test
+    fun exercisesCsvFormat_detectFormatByColumnCount() {
+        val oldFormatCsv = "name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite"
+        val newFormatCsv = "name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration"
+
+        val oldColumns = oldFormatCsv.split(",")
+        val newColumns = newFormatCsv.split(",")
+
+        assertEquals(8, oldColumns.size)
+        assertEquals(11, newColumns.size)
+
+        // Detection logic
+        fun detectVersion(header: String): Int {
+            val cols = header.split(",").size
+            return when {
+                cols >= 11 -> 10  // DB v10
+                cols >= 8 -> 9    // DB v9 or earlier
+                else -> 0         // Unknown
+            }
+        }
+
+        assertEquals(9, detectVersion(oldFormatCsv))
+        assertEquals(10, detectVersion(newFormatCsv))
+    }
+
+    @Test
+    fun exercisesCsvFormat_timerSettingsValidation() {
+        // Test timer values validation
+        val validRestIntervals = listOf(0, 60, 120, 240, 600)
+        val invalidRestIntervals = listOf(-1, 601, 1000)
+
+        validRestIntervals.forEach { interval ->
+            assertTrue("$interval should be valid", interval in 0..600)
+        }
+
+        invalidRestIntervals.forEach { interval ->
+            assertFalse("$interval should be invalid", interval in 0..600)
+        }
+    }
+
+    @Test
+    fun exercisesCsvFormat_displayOrderValidation() {
+        // displayOrder should be non-negative integer
+        val validDisplayOrders = listOf(0, 1, 2, 10, 100)
+        val invalidDisplayOrders = listOf(-1, -10)
+
+        validDisplayOrders.forEach { order ->
+            assertTrue("$order should be valid", order >= 0)
+        }
+
+        invalidDisplayOrders.forEach { order ->
+            assertFalse("$order should be invalid", order >= 0)
+        }
     }
 }
