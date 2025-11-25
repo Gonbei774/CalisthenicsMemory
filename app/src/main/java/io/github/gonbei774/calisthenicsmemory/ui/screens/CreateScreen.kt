@@ -320,6 +320,9 @@ fun ExpandableGroupCard(
                     modifier = Modifier.padding(start = 40.dp, end = 16.dp, bottom = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    // お気に入りグループでは並び替え不可
+                    val isFavoriteGroup = group.groupName == TrainingViewModel.FAVORITE_GROUP_KEY
+
                     group.exercises.forEachIndexed { index, exercise ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -332,7 +335,7 @@ fun ExpandableGroupCard(
                                 // 上ボタン
                                 IconButton(
                                     onClick = {
-                                        if (index > 0) {
+                                        if (!isFavoriteGroup && index > 0) {
                                             viewModel.reorderExercises(
                                                 groupName = group.groupName,
                                                 fromIndex = index,
@@ -340,13 +343,13 @@ fun ExpandableGroupCard(
                                             )
                                         }
                                     },
-                                    enabled = index > 0,
+                                    enabled = !isFavoriteGroup && index > 0,
                                     modifier = Modifier.size(24.dp)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.KeyboardArrowUp,
                                         contentDescription = "Move up",
-                                        tint = if (index > 0) Slate400 else Slate400.copy(alpha = 0.3f),
+                                        tint = if (!isFavoriteGroup && index > 0) Slate400 else Slate400.copy(alpha = 0.3f),
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
@@ -354,7 +357,7 @@ fun ExpandableGroupCard(
                                 // 下ボタン
                                 IconButton(
                                     onClick = {
-                                        if (index < group.exercises.size - 1) {
+                                        if (!isFavoriteGroup && index < group.exercises.size - 1) {
                                             viewModel.reorderExercises(
                                                 groupName = group.groupName,
                                                 fromIndex = index,
@@ -362,13 +365,13 @@ fun ExpandableGroupCard(
                                             )
                                         }
                                     },
-                                    enabled = index < group.exercises.size - 1,
+                                    enabled = !isFavoriteGroup && index < group.exercises.size - 1,
                                     modifier = Modifier.size(24.dp)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.KeyboardArrowDown,
                                         contentDescription = "Move down",
-                                        tint = if (index < group.exercises.size - 1) Slate400 else Slate400.copy(alpha = 0.3f),
+                                        tint = if (!isFavoriteGroup && index < group.exercises.size - 1) Slate400 else Slate400.copy(alpha = 0.3f),
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }

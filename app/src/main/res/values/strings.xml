@@ -425,6 +425,8 @@
     <string name="set_interval_dialog_title">Set Interval</string>
     <string name="enter_seconds">Enter seconds</string>
     <string name="seconds_format">%d seconds</string>
+    <string name="set_interval_note">Note: Exercise-specific settings take priority if configured.</string>
+    <string name="enter_seconds_max">Enter seconds (max %d)</string>
 
     <!-- Timer Settings (Per-Exercise) -->
     <string name="timer_settings_optional">Timer Settings (Optional)</string>

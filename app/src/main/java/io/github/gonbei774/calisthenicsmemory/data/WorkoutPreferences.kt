@@ -60,13 +60,31 @@ class WorkoutPreferences(context: Context) {
         prefs.edit().putBoolean(KEY_START_COUNTDOWN_ENABLED, enabled).apply()
     }
 
+    /**
+     * セット間インターバルの有効/無効を取得
+     * @return 有効: true, 無効: false（デフォルト: true）
+     */
+    fun isSetIntervalEnabled(): Boolean {
+        return prefs.getBoolean(KEY_SET_INTERVAL_ENABLED, true)
+    }
+
+    /**
+     * セット間インターバルの有効/無効を保存
+     * @param enabled 有効: true, 無効: false
+     */
+    fun setSetIntervalEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_SET_INTERVAL_ENABLED, enabled).apply()
+    }
+
     companion object {
         private const val PREFS_NAME = "workout_preferences"
         private const val KEY_START_COUNTDOWN = "start_countdown"
         private const val KEY_SET_INTERVAL = "set_interval"
         private const val KEY_START_COUNTDOWN_ENABLED = "start_countdown_enabled"
+        private const val KEY_SET_INTERVAL_ENABLED = "set_interval_enabled"
 
         const val DEFAULT_START_COUNTDOWN = 5
         const val DEFAULT_SET_INTERVAL = 240
+        const val MAX_SET_INTERVAL = 600  // 10分
     }
 }

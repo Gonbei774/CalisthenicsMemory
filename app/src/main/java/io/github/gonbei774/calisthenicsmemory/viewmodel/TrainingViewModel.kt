@@ -450,14 +450,13 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
      */
     fun reorderExercises(groupName: String?, fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {
+            // お気に入りグループでは並び替え不可（元のグループでの順序に影響するため）
+            if (groupName == FAVORITE_GROUP_KEY) {
+                return@launch
+            }
+
             // 対象グループの種目を取得
             val targetExercises = when (groupName) {
-                FAVORITE_GROUP_KEY -> {
-                    // お気に入り
-                    exercises.value
-                        .filter { it.isFavorite }
-                        .sortedBy { it.displayOrder }
-                }
                 null -> {
                     // グループなし
                     exerciseDao.getUngroupedExercises()

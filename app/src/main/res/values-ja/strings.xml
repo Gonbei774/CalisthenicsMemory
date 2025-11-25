@@ -426,6 +426,8 @@
     <string name="set_interval_dialog_title">セット間インターバル</string>
     <string name="enter_seconds">秒数を入力</string>
     <string name="seconds_format">%d秒</string>
+    <string name="set_interval_note">※種目ごとの設定がある場合はそちらが優先されます</string>
+    <string name="enter_seconds_max">秒数を入力（最大 %d）</string>
 
     <!-- Timer Settings (Per-Exercise) -->
     <string name="timer_settings_optional">タイマー設定（任意）</string>

@@ -818,6 +818,7 @@ fun SettingsScreenNew(
                 var startCountdown by remember { mutableStateOf(workoutPrefs.getStartCountdown()) }
                 var setInterval by remember { mutableStateOf(workoutPrefs.getSetInterval()) }
                 var startCountdownEnabled by remember { mutableStateOf(workoutPrefs.isStartCountdownEnabled()) }
+                var setIntervalEnabled by remember { mutableStateOf(workoutPrefs.isSetIntervalEnabled()) }
                 var showStartCountdownDialog by remember { mutableStateOf(false) }
                 var showSetIntervalDialog by remember { mutableStateOf(false) }
 
@@ -882,33 +883,55 @@ fun SettingsScreenNew(
                             containerColor = Slate800
                         ),
                         shape = RoundedCornerShape(12.dp),
-                        onClick = { showSetIntervalDialog = true }
+                        onClick = { if (setIntervalEnabled) showSetIntervalDialog = true }
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "⏸️",
-                                fontSize = 32.sp
-                            )
-                            Column(modifier = Modifier.weight(1f)) {
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(20.dp),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Text(
-                                    text = stringResource(R.string.set_interval_setting),
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
+                                    text = "⏸️",
+                                    fontSize = 32.sp
                                 )
-                                Text(
-                                    text = stringResource(R.string.current_set_interval, setInterval),
-                                    fontSize = 14.sp,
-                                    color = Slate400,
-                                    modifier = Modifier.padding(top = 4.dp)
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = stringResource(R.string.set_interval_setting),
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.current_set_interval, setInterval),
+                                        fontSize = 14.sp,
+                                        color = if (setIntervalEnabled) Slate400 else Slate400.copy(alpha = 0.5f),
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
+                                }
+                                Switch(
+                                    checked = setIntervalEnabled,
+                                    onCheckedChange = { enabled ->
+                                        setIntervalEnabled = enabled
+                                        workoutPrefs.setSetIntervalEnabled(enabled)
+                                    },
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = Color.White,
+                                        checkedTrackColor = Orange600,
+                                        uncheckedThumbColor = Color.White,
+                                        uncheckedTrackColor = Slate600
+                                    )
                                 )
                             }
+                            // 注意書き
+                            Text(
+                                text = stringResource(R.string.set_interval_note),
+                                fontSize = 12.sp,
+                                color = Slate400,
+                                modifier = Modifier.padding(start = 68.dp, end = 20.dp, bottom = 16.dp)
+                            )
                         }
                     }
                 }
@@ -965,6 +988,7 @@ fun SettingsScreenNew(
                 // セット間インターバル設定ダイアログ
                 if (showSetIntervalDialog) {
                     var inputValue by remember { mutableStateOf(setInterval.toString()) }
+                    val maxInterval = io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences.MAX_SET_INTERVAL
 
                     AlertDialog(
                         onDismissRequest = { showSetIntervalDialog = false },
@@ -977,8 +1001,16 @@ fun SettingsScreenNew(
                         text = {
                             OutlinedTextField(
                                 value = inputValue,
-                                onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) inputValue = it },
-                                label = { Text(stringResource(R.string.enter_seconds)) },
+                                onValueChange = { newValue ->
+                                    if (newValue.isEmpty() || newValue.all { c -> c.isDigit() }) {
+                                        // 上限チェック
+                                        val intValue = newValue.toIntOrNull()
+                                        if (intValue == null || intValue <= maxInterval) {
+                                            inputValue = newValue
+                                        }
+                                    }
+                                },
+                                label = { Text(stringResource(R.string.enter_seconds_max, maxInterval)) },
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = OutlinedTextFieldDefaults.colors(
@@ -991,7 +1023,8 @@ fun SettingsScreenNew(
                         confirmButton = {
                             TextButton(
                                 onClick = {
-                                    val newValue = inputValue.toIntOrNull() ?: io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences.DEFAULT_SET_INTERVAL
+                                    val newValue = (inputValue.toIntOrNull() ?: io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences.DEFAULT_SET_INTERVAL)
+                                        .coerceIn(1, maxInterval)
                                     workoutPrefs.setSetInterval(newValue)
                                     setInterval = newValue
                                     showSetIntervalDialog = false
