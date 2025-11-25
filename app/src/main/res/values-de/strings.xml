@@ -396,6 +396,10 @@
     <string name="restart_required">Neustart erforderlich um Änderungen anzuwenden</string>
     <string name="language_changed">Sprache geändert. Bitte starte die App neu.</string>
 
+    <!-- Open Source Licenses -->
+    <string name="open_source_licenses">Open Source Lizenzen</string>
+    <string name="licenses_description">Lizenzen der in dieser App verwendeten Bibliotheken anzeigen</string>
+
     <!-- Training Days Display -->
     <string name="training_days_format">Training %s</string>
     <string name="last_record_short">Letztes: %s</string>
@@ -421,4 +425,22 @@
     <string name="set_interval_dialog_title">Satzpause</string>
     <string name="enter_seconds">Sekunden eingeben</string>
     <string name="seconds_format">%d Sekunden</string>
+    <string name="set_interval_note">Hinweis: Übungsspezifische Einstellungen haben Vorrang, falls konfiguriert.</string>
+    <string name="enter_seconds_max">Sekunden eingeben (max %d)</string>
+
+    <!-- Timer Settings (Per-Exercise) -->
+    <string name="timer_settings_optional">Timer-Einstellungen (Optional)</string>
+    <string name="timer_settings_description">Timer für diese Übung konfigurieren. Leer lassen für Standardeinstellungen.</string>
+    <string name="rep_duration_seconds">Wiederholungsdauer (Sekunden)</string>
+    <string name="rest_interval_seconds">Pausenintervall (Sekunden)</string>
+    <string name="example_5_seconds">z.B. 5</string>
+    <string name="example_240_seconds">z.B. 240</string>
+
+    <!-- Apply Exercise Settings Button -->
+    <string name="apply_exercise_settings">Übungseinstellungen anwenden</string>
+    <string name="apply_target_values">Zielwerte anwenden</string>
+
+    <!-- App Info Section -->
+    <string name="section_app_info">App-Info</string>
+    <string name="section_app_info_description">App-Informationen und Lizenzen anzeigen.</string>
 </resources>

@@ -396,6 +396,10 @@
     <string name="restart_required">需要重启以应用更改</string>
     <string name="language_changed">已更改语言。请重启应用。</string>
 
+    <!-- Open Source Licenses -->
+    <string name="open_source_licenses">开源许可证</string>
+    <string name="licenses_description">查看此应用使用的库的许可证</string>
+
     <!-- Training Days Display -->
     <string name="training_days_format">训练%s</string>
     <string name="last_record_short">上次：%s</string>
@@ -421,4 +425,22 @@
     <string name="set_interval_dialog_title">组间间歇</string>
     <string name="enter_seconds">输入秒数</string>
     <string name="seconds_format">%d秒</string>
+    <string name="set_interval_note">注意：如果已配置，动作的特定设置优先。</string>
+    <string name="enter_seconds_max">输入秒数（最大 %d）</string>
+
+    <!-- Timer Settings (Per-Exercise) -->
+    <string name="timer_settings_optional">计时器设置（可选）</string>
+    <string name="timer_settings_description">为此动作配置计时器。留空则使用默认设置。</string>
+    <string name="rep_duration_seconds">单次时长（秒）</string>
+    <string name="rest_interval_seconds">组间间歇（秒）</string>
+    <string name="example_5_seconds">例如：5</string>
+    <string name="example_240_seconds">例如：240</string>
+
+    <!-- Apply Exercise Settings Button -->
+    <string name="apply_exercise_settings">应用动作设置</string>
+    <string name="apply_target_values">应用目标值</string>
+
+    <!-- App Info Section -->
+    <string name="section_app_info">应用信息</string>
+    <string name="section_app_info_description">查看应用信息和许可证。</string>
 </resources>

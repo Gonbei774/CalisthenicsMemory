@@ -396,6 +396,10 @@
     <string name="restart_required">Riavvio necessario per applicare le modifiche</string>
     <string name="language_changed">Lingua cambiata. Riavvia l\'app.</string>
 
+    <!-- Open Source Licenses -->
+    <string name="open_source_licenses">Licenze Open Source</string>
+    <string name="licenses_description">Visualizza le licenze delle librerie usate in questa app</string>
+
     <!-- Training Days Display -->
     <string name="training_days_format">Allenamento %s</string>
     <string name="last_record_short">Ultimo: %s</string>
@@ -421,4 +425,22 @@
     <string name="set_interval_dialog_title">Intervallo Serie</string>
     <string name="enter_seconds">Inserisci secondi</string>
     <string name="seconds_format">%d secondi</string>
+    <string name="set_interval_note">Nota: Le impostazioni specifiche dell\'esercizio hanno la priorità se configurate.</string>
+    <string name="enter_seconds_max">Inserisci secondi (max %d)</string>
+
+    <!-- Timer Settings (Per-Exercise) -->
+    <string name="timer_settings_optional">Impostazioni Timer (Opzionale)</string>
+    <string name="timer_settings_description">Configura i timer per questo esercizio. Lascia vuoto per usare le impostazioni predefinite.</string>
+    <string name="rep_duration_seconds">Durata Ripetizione (secondi)</string>
+    <string name="rest_interval_seconds">Intervallo di Riposo (secondi)</string>
+    <string name="example_5_seconds">es. 5</string>
+    <string name="example_240_seconds">es. 240</string>
+
+    <!-- Apply Exercise Settings Button -->
+    <string name="apply_exercise_settings">Applica Impostazioni Esercizio</string>
+    <string name="apply_target_values">Applica Valori Obiettivo</string>
+
+    <!-- App Info Section -->
+    <string name="section_app_info">Info App</string>
+    <string name="section_app_info_description">Visualizza informazioni dell\'app e licenze.</string>
 </resources>
