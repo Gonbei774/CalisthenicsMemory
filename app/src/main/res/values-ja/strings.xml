@@ -440,4 +440,8 @@
     <!-- Apply Exercise Settings Button -->
     <string name="apply_exercise_settings">種目設定を適用</string>
     <string name="apply_target_values">目標値を反映</string>
+
+    <!-- App Info Section -->
+    <string name="section_app_info">アプリ情報</string>
+    <string name="section_app_info_description">アプリの情報やライセンスを確認できます。</string>
 </resources>

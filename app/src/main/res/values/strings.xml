@@ -439,4 +439,8 @@
     <!-- Apply Exercise Settings Button -->
     <string name="apply_exercise_settings">Apply Exercise Settings</string>
     <string name="apply_target_values">Apply Target Values</string>
+
+    <!-- App Info Section -->
+    <string name="section_app_info">App Info</string>
+    <string name="section_app_info_description">View app information and licenses.</string>
 </resources>
