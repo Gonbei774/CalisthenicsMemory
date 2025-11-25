@@ -1,0 +1,1 @@
+Übungen neu anordnen mit Pfeiltasten. Timer-Einstellungen pro Übung (Pausenzeit, Rep-Dauer). Manuelle "Übungseinstellungen anwenden"-Taste ersetzt Auto-Fill. Vollbild-Übungsbearbeitungsdialog. Satzintervall-Umschalter in Einstellungen. Open-Source-Lizenzanzeige.

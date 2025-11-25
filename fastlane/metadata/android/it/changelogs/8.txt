@@ -1,0 +1,1 @@
+Riordinamento esercizi con pulsanti freccia. Impostazioni timer per esercizio (intervallo riposo, durata rep). Pulsante manuale "Applica impostazioni" sostituisce auto-fill. Dialogo modifica a schermo intero. Interruttore intervallo serie nelle impostazioni. Visualizzazione licenze open source.

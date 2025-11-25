@@ -1,0 +1,1 @@
+Réorganisation des exercices avec boutons fléchés. Paramètres de minuterie par exercice (temps de repos, durée de rep). Bouton "Appliquer les paramètres" remplace le remplissage auto. Dialogue d'édition en plein écran. Basculeur d'intervalle entre séries dans les paramètres. Affichage des licences open source.

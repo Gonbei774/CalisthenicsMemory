@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2025-11-26
+
+### Added
+- **Exercise reordering feature**
+  - Reorder exercises within groups using up/down arrow buttons
+  - Display order persisted in database (`displayOrder` field)
+  - Reordering disabled in Favorites group (to preserve original group order)
+
+- **Per-exercise timer settings**
+  - Configure rest interval per exercise (overrides global setting)
+  - Configure rep duration per exercise for Dynamic exercises
+  - Timer settings shown in full-screen exercise edit dialog
+
+- **Open-source licenses display**
+  - View third-party library licenses from Settings > App Info
+  - Uses AboutLibraries for accurate license information
+
+### Changed
+- **Manual "Apply Exercise Settings" button**
+  - Replaced auto-fill feature with explicit button
+  - Available in both Record and Workout screens
+  - More predictable user experience
+
+- **Full-screen exercise edit dialog**
+  - Exercise add/edit now uses full-screen dialog
+  - Better keyboard handling with `imePadding`
+  - Form sections organized in cards
+
+- **Set interval toggle in Settings**
+  - ON/OFF toggle for set interval feature
+  - Maximum value limited to 600 seconds (10 minutes)
+  - Note about per-exercise settings taking priority
+
+### Technical
+- Database schema version updated to 10 (added `displayOrder`, `restInterval`, `repDuration` fields)
+- CSV export format updated to 11 columns (backward compatible import)
+- Removed `RecordPreferences.kt` (replaced by manual apply button)
+
 ## [1.6.0] - 2025-11-24
 
 ### Added
@@ -127,6 +165,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.7.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.7.0
 [1.6.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.6.0
 [1.5.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.5.0
 [1.4.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.4.0

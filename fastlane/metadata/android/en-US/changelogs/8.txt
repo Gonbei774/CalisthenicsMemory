@@ -1,0 +1,1 @@
+Exercise reordering with arrow buttons. Per-exercise timer settings (rest interval, rep duration). Manual "Apply Exercise Settings" button replaces auto-fill. Full-screen exercise edit dialog. Set interval toggle in settings. Open-source licenses display.
