@@ -663,13 +663,14 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             val currentExercises = exercises.value
 
             val csvBuilder = StringBuilder()
-            csvBuilder.appendLine("name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite")
+            csvBuilder.appendLine("name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration")
 
             currentExercises.forEach { exercise ->
                 csvBuilder.appendLine(
                     "${exercise.name},${exercise.type},${exercise.group ?: ""}," +
                     "${exercise.sortOrder},${exercise.laterality}," +
-                    "${exercise.targetSets ?: ""},${exercise.targetValue ?: ""},${exercise.isFavorite}"
+                    "${exercise.targetSets ?: ""},${exercise.targetValue ?: ""},${exercise.isFavorite}," +
+                    "${exercise.displayOrder},${exercise.restInterval ?: ""},${exercise.repDuration ?: ""}"
                 )
             }
 
@@ -832,11 +833,14 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
     /**
      * 種目CSVをインポート（マージモード）
+     * - 8列（旧フォーマット）と11列（新フォーマット）の両方に対応
+     * - グループが存在しない場合は自動作成
      */
     suspend fun importExercises(csvString: String): CsvImportReport = withContext(Dispatchers.IO) {
         var successCount = 0
         var skippedCount = 0
         var errorCount = 0
+        var groupsCreatedCount = 0
         val skippedItems = mutableListOf<String>()
         val errors = mutableListOf<String>()
 
@@ -857,8 +861,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             dataLines.forEachIndexed { index, line ->
                 try {
                     val columns = line.split(",")
+                    // 8列（旧フォーマット）または11列（新フォーマット）を許容
                     if (columns.size < 8) {
-                        errors.add("Line ${index + 2}: Invalid format (expected 8 columns)")
+                        errors.add("Line ${index + 2}: Invalid format (expected at least 8 columns, got ${columns.size})")
                         errorCount++
                         return@forEachIndexed
                     }
@@ -871,6 +876,11 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     val targetSetsStr = columns[5].trim()
                     val targetValueStr = columns[6].trim()
                     val isFavoriteStr = columns[7].trim()
+
+                    // 新フィールド（9列目以降、オプション）
+                    val displayOrderStr = columns.getOrNull(8)?.trim() ?: ""
+                    val restIntervalStr = columns.getOrNull(9)?.trim() ?: ""
+                    val repDurationStr = columns.getOrNull(10)?.trim() ?: ""
 
                     // 必須フィールドチェック
                     if (name.isEmpty() || type.isEmpty() || laterality.isEmpty()) {
@@ -892,13 +902,14 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         return@forEachIndexed
                     }
 
-                    // グループの存在チェック
+                    // グループの存在チェック（なければ自動作成）
                     if (group != null) {
                         val groupExists = groupDao.getGroupByName(group) != null
                         if (!groupExists) {
-                            errors.add("Line ${index + 2}: Group \"$group\" not found")
-                            errorCount++
-                            return@forEachIndexed
+                            // グループを自動作成
+                            val newGroup = ExerciseGroup(name = group)
+                            groupDao.insertGroup(newGroup)
+                            groupsCreatedCount++
                         }
                     }
 
@@ -907,6 +918,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     val targetSets = targetSetsStr.toIntOrNull()
                     val targetValue = targetValueStr.toIntOrNull()
                     val isFavorite = isFavoriteStr.toBooleanStrictOrNull() ?: false
+                    val displayOrder = displayOrderStr.toIntOrNull() ?: 0
+                    val restInterval = restIntervalStr.toIntOrNull()
+                    val repDuration = repDurationStr.toIntOrNull()
 
                     // 重複チェック
                     val existing = exercises.value.find {
@@ -930,10 +944,13 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         type = type,
                         group = group,
                         sortOrder = sortOrder,
+                        displayOrder = displayOrder,
                         laterality = laterality,
                         targetSets = targetSets,
                         targetValue = targetValue,
-                        isFavorite = isFavorite
+                        isFavorite = isFavorite,
+                        restInterval = restInterval,
+                        repDuration = repDuration
                     )
                     exerciseDao.insertExercise(exercise)
                     successCount++
@@ -950,7 +967,15 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             }
         }
 
-        return@withContext CsvImportReport(CsvType.EXERCISES, successCount, skippedCount, errorCount, skippedItems, errors)
+        return@withContext CsvImportReport(
+            type = CsvType.EXERCISES,
+            successCount = successCount,
+            skippedCount = skippedCount,
+            errorCount = errorCount,
+            skippedItems = skippedItems,
+            errors = errors,
+            groupsCreatedCount = groupsCreatedCount
+        )
     }
 
     /**
