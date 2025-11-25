@@ -648,7 +648,7 @@ fun WorkoutInputScreen(
                 }
             }
 
-            // 青いボタン: 種目設定を適用
+            // 緑ボタン: 種目設定を適用
             if (exercise.targetSets != null || exercise.targetValue != null) {
                 item {
                     Button(
@@ -677,7 +677,7 @@ fun WorkoutInputScreen(
                             .fillMaxWidth()
                             .height(48.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Blue600,
+                            containerColor = Green600,
                             disabledContainerColor = Slate600
                         ),
                         enabled = exercise.targetSets != null || exercise.targetValue != null,
