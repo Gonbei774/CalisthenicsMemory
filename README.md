@@ -50,18 +50,35 @@ The app operates completely offline—no internet connection required, no ads, n
 
 ## Screenshots
 
-<table>
-  <tr>
-    <td align="center"><img src="screenshots/1.png" width="200"><br><b>Home</b><br>Today's workout at a glance</td>
-    <td align="center"><img src="screenshots/2.png" width="200"><br><b>Exercises</b><br>Organize with groups & favorites</td>
-    <td align="center"><img src="screenshots/3.png" width="200"><br><b>Record</b><br>Quick manual input</td>
-  </tr>
-  <tr>
-    <td align="center"><img src="screenshots/4.png" width="200"><br><b>Workout</b><br>Guided training with timer</td>
-    <td align="center"><img src="screenshots/5.png" width="200"><br><b>Graph</b><br>Track your progress</td>
-    <td align="center"><img src="screenshots/6.png" width="200"><br><b>Challenge</b><br>Goal achievement status</td>
-  </tr>
-</table>
+<p align="center">
+  <img src="screenshots/1.png" width="250"><br>
+  <b>Home</b> - Today's workout at a glance
+</p>
+
+<p align="center">
+  <img src="screenshots/2.png" width="250"><br>
+  <b>Exercises</b> - Organize with groups & favorites
+</p>
+
+<p align="center">
+  <img src="screenshots/3.png" width="250"><br>
+  <b>Record</b> - Quick manual input
+</p>
+
+<p align="center">
+  <img src="screenshots/4.png" width="250"><br>
+  <b>Workout</b> - Guided training with timer
+</p>
+
+<p align="center">
+  <img src="screenshots/5.png" width="250"><br>
+  <b>Graph</b> - Track your progress
+</p>
+
+<p align="center">
+  <img src="screenshots/6.png" width="250"><br>
+  <b>Challenge</b> - Goal achievement status
+</p>
 
 ## Requirements
 
