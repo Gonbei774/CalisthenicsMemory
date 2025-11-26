@@ -27,6 +27,12 @@ Calisthenics Memory helps you track and manage bodyweight exercises like push-up
 
 The app operates completely offline—no internet connection required, no ads, no tracking. Your data stays on your device only.
 
+## Key Points
+
+- **Full customization** - No locked features for custom exercises. Reps/time, unilateral/bilateral, goals, timers - all available for every exercise you create
+- **Two recording modes** - Quick manual input or guided workout with timers
+- **Offline only** - Your data never leaves your device
+
 ## Features
 
 - **Home Dashboard** - View today's training records at a glance, long-press to copy
@@ -44,16 +50,18 @@ The app operates completely offline—no internet connection required, no ads, n
 
 ## Screenshots
 
-<p align="center">
-  <img src="screenshots/1.png" width="200" alt="Home Screen">
-  <img src="screenshots/2.png" width="200" alt="Exercise Management">
-  <img src="screenshots/3.png" width="200" alt="Record Entry">
-</p>
-<p align="center">
-  <img src="screenshots/4.png" width="200" alt="Workout Timer">
-  <img src="screenshots/5.png" width="200" alt="Exercise Edit">
-  <img src="screenshots/6.png" width="200" alt="Workout Settings">
-</p>
+<table>
+  <tr>
+    <td align="center"><img src="screenshots/1.png" width="200"><br><b>Home</b><br>Today's workout at a glance</td>
+    <td align="center"><img src="screenshots/2.png" width="200"><br><b>Exercises</b><br>Organize with groups & favorites</td>
+    <td align="center"><img src="screenshots/3.png" width="200"><br><b>Record</b><br>Quick manual input</td>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshots/4.png" width="200"><br><b>Workout</b><br>Guided training with timer</td>
+    <td align="center"><img src="screenshots/5.png" width="200"><br><b>Graph</b><br>Track your progress</td>
+    <td align="center"><img src="screenshots/6.png" width="200"><br><b>Challenge</b><br>Goal achievement status</td>
+  </tr>
+</table>
 
 ## Requirements
 
@@ -77,4 +85,4 @@ This project is licensed under the GNU General Public License v3.0. See [LICENSE
 
 ---
 
-**Last Updated**: November 26, 2025
+**Last Updated**: November 27, 2025
