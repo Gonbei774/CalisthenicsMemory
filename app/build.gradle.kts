@@ -10,6 +10,12 @@ plugins {
     id("com.mikepenz.aboutlibraries.plugin")
 }
 
+// AboutLibraries: exclude timestamp for reproducible builds
+// See: https://codeberg.org/Gonbei774/CalisthenicsMemory/issues/2
+aboutLibraries {
+    excludeFields = arrayOf("generated")
+}
+
 android {
     namespace = "io.github.gonbei774.calisthenicsmemory"
     compileSdk = 35
