@@ -1,0 +1,1 @@
+Risolto il problema della build riproducibile per F-Droid escludendo il timestamp dai metadati di AboutLibraries.

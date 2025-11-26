@@ -1,0 +1,1 @@
+Behoben: Problem mit reproduzierbarem Build für F-Droid durch Ausschluss des Zeitstempels aus AboutLibraries-Metadaten.

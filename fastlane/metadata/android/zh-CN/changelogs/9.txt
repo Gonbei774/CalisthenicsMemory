@@ -1,0 +1,1 @@
+修复F-Droid可重复构建问题（从AboutLibraries元数据中排除时间戳）。

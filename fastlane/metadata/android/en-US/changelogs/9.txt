@@ -1,0 +1,1 @@
+Fix reproducible build issue for F-Droid by excluding timestamp from AboutLibraries metadata.
