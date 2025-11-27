@@ -1,0 +1,19 @@
+{
+  "uniqueId": "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel",
+  "artifactVersion": "2.8.3",
+  "name": "Lifecycle ViewModel (Kotlin Multiplatform)",
+  "description": "Android Lifecycle ViewModel for Kotlin Multiplatform",
+  "website": "https://github.com/JetBrains/compose-multiplatform",
+  "developers": [
+    {
+      "name": "JetBrains",
+      "organisationUrl": "https://www.jetbrains.com"
+    }
+  ],
+  "scm": {
+    "url": "https://github.com/JetBrains/compose-multiplatform"
+  },
+  "licenses": [
+    "Apache-2.0"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "uniqueId": "org.jetbrains.compose.ui:ui",
+  "artifactVersion": "1.7.0",
+  "name": "Compose Multiplatform UI",
+  "description": "Compose UI primitives for Kotlin Multiplatform",
+  "website": "https://github.com/JetBrains/compose-multiplatform",
+  "developers": [
+    {
+      "name": "JetBrains",
+      "organisationUrl": "https://www.jetbrains.com"
+    }
+  ],
+  "scm": {
+    "url": "https://github.com/JetBrains/compose-multiplatform"
+  },
+  "licenses": [
+    "Apache-2.0"
+  ]
+}

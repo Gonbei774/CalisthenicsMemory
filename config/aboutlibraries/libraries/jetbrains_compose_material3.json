@@ -1,0 +1,19 @@
+{
+  "uniqueId": "org.jetbrains.compose.material3:material3",
+  "artifactVersion": "1.6.11",
+  "name": "Compose Multiplatform Material3",
+  "description": "Compose Material3 Design Components for Kotlin Multiplatform",
+  "website": "https://github.com/JetBrains/compose-multiplatform",
+  "developers": [
+    {
+      "name": "JetBrains",
+      "organisationUrl": "https://www.jetbrains.com"
+    }
+  ],
+  "scm": {
+    "url": "https://github.com/JetBrains/compose-multiplatform"
+  },
+  "licenses": [
+    "Apache-2.0"
+  ]
+}
