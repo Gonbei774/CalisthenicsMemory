@@ -8,6 +8,10 @@ A simple, privacy-focused bodyweight training tracker for Android.
 
 ---
 
+🌐 [日本語](docs/readme/README.ja.md) | [Deutsch](docs/readme/README.de.md) | [Español](docs/readme/README.es.md) | [Français](docs/readme/README.fr.md) | [Italiano](docs/readme/README.it.md) | [简体中文](docs/readme/README.zh-CN.md)
+
+---
+
 <p align="center">
   <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/">
     <img src="https://fdroid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">

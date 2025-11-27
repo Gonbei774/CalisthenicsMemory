@@ -1,0 +1,105 @@
+<p align="center">
+  <img src="../../icon.png" width="150" alt="Calisthenics Memory Icon">
+</p>
+
+# Calisthenics Memory
+
+シンプルでプライバシー重視の自重トレーニング記録アプリ（Android向け）
+
+---
+
+<p align="center">
+  <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/">
+    <img src="https://fdroid.org/badge/get-it-on.png" alt="F-Droidで入手" height="80">
+  </a>
+</p>
+<p align="center">
+  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.gonbei774.calisthenicsmemory">
+    <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButton.png" alt="IzzyOnDroidで入手" height="54">
+  </a>
+</p>
+
+---
+
+🌐 [English](../../README.md) | [Deutsch](README.de.md) | [Español](README.es.md) | [Français](README.fr.md) | [Italiano](README.it.md) | [简体中文](README.zh-CN.md)
+
+---
+
+## 概要
+
+Calisthenics Memoryは、腕立て伏せ、懸垂、スクワットなどの自重トレーニングを記録・管理するアプリです。カスタム種目を作成し、段階的なレベルで整理し、進捗を追跡できます。
+
+完全オフラインで動作します。インターネット接続不要、広告なし、トラッキングなし。データは端末内にのみ保存されます。
+
+## 特徴
+
+- **完全カスタマイズ** - カスタム種目に制限なし。回数/時間、片側/両側、目標、タイマー設定がすべての種目で利用可能
+- **2つの記録モード** - 素早い手動入力またはタイマー付きガイドワークアウト
+- **オフライン専用** - データは端末から外に出ません
+
+## 機能一覧
+
+- **ホームダッシュボード** - 今日のトレーニング記録を一覧表示、長押しでコピー
+- **完全カスタマイズ可能** - 種目を自由に作成、グループで整理、10段階のレベル管理、矢印ボタンで並び替え
+- **お気に入り** - よく使う種目にすぐアクセス
+- **2つの記録モード**
+  - 記録モード: 「種目設定を適用」ボタンで素早く手動入力
+  - ワークアウトモード: 種目ごとのタイマー設定（休憩時間、レップ時間）による自動ガイド
+- **進捗追跡** - 記録を一覧、グラフ、課題の達成状況で確認
+- **片側/両側対応** - 片側種目では左右を別々に記録
+- **課題目標** - 目標セット数×回数を設定し、達成状況を追跡
+- **データ管理** - JSON/CSV形式でエクスポート・インポート（完全バックアップ対応）
+- **多言語対応** - 英語、日本語、スペイン語、ドイツ語、中国語（簡体字）、フランス語、イタリア語
+- **プライバシー重視** - 完全オフライン動作、権限不要
+
+## スクリーンショット
+
+<p align="center">
+  <img src="../../screenshots/1.png" width="250"><br>
+  <b>ホーム</b> - 今日のトレーニングを一目で確認
+</p>
+
+<p align="center">
+  <img src="../../screenshots/2.png" width="250"><br>
+  <b>種目</b> - グループとお気に入りで整理
+</p>
+
+<p align="center">
+  <img src="../../screenshots/3.png" width="250"><br>
+  <b>記録</b> - 素早い手動入力
+</p>
+
+<p align="center">
+  <img src="../../screenshots/4.png" width="250"><br>
+  <b>ワークアウト</b> - タイマー付きガイド
+</p>
+
+<p align="center">
+  <img src="../../screenshots/5.png" width="250"><br>
+  <b>グラフ</b> - 進捗を追跡
+</p>
+
+<p align="center">
+  <img src="../../screenshots/6.png" width="250"><br>
+  <b>課題</b> - 目標達成状況
+</p>
+
+## 動作環境
+
+- **Android** 8.0（API 26）以上
+- **ストレージ** 約10MB
+- **インターネット** 不要
+
+## ビルド方法
+
+```bash
+git clone https://codeberg.org/Gonbei774/CalisthenicsMemory.git
+cd CalisthenicsMemory
+./gradlew assembleDebug
+```
+
+JDK 17以上が必要です。
+
+## ライセンス
+
+このプロジェクトはGNU General Public License v3.0の下で公開されています。詳細は[LICENSE](../../LICENSE)をご覧ください。
