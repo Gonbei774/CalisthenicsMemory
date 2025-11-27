@@ -1,0 +1,19 @@
+{
+  "uniqueId": "sh.calvin.reorderable:reorderable",
+  "artifactVersion": "3.0.0",
+  "name": "Reorderable",
+  "description": "A simple library that allows you to reorder items in lists/grids/etc by drag and drop for Jetpack Compose and Compose Multiplatform.",
+  "website": "https://github.com/Calvin-LL/Reorderable",
+  "developers": [
+    {
+      "name": "Calvin Liang",
+      "organisationUrl": "https://github.com/Calvin-LL"
+    }
+  ],
+  "scm": {
+    "url": "https://github.com/Calvin-LL/Reorderable"
+  },
+  "licenses": [
+    "Apache-2.0"
+  ]
+}

@@ -14,6 +14,7 @@ plugins {
 // See: https://codeberg.org/Gonbei774/CalisthenicsMemory/issues/2
 aboutLibraries {
     excludeFields = arrayOf("generated")
+    configPath = "config/aboutlibraries"
 }
 
 android {
@@ -116,7 +117,7 @@ dependencies {
     implementation("com.mikepenz:aboutlibraries-compose-m3:11.2.3")
 
     // Reorderable (drag and drop)
-    implementation("sh.calvin.reorderable:reorderable:2.4.0")
+    implementation("sh.calvin.reorderable:reorderable:3.0.0")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

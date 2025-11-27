@@ -1,6 +1,7 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.*
@@ -29,6 +30,7 @@ import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
+import sh.calvin.reorderable.ReorderableColumn
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -316,76 +318,62 @@ fun ExpandableGroupCard(
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
-                Column(
-                    modifier = Modifier.padding(start = 40.dp, end = 16.dp, bottom = 16.dp),
+                // お気に入りグループでは並び替え不可
+                val isFavoriteGroup = group.groupName == TrainingViewModel.FAVORITE_GROUP_KEY
+
+                ReorderableColumn(
+                    list = group.exercises,
+                    onSettle = { fromIndex, toIndex ->
+                        if (!isFavoriteGroup) {
+                            viewModel.reorderExercises(
+                                groupName = group.groupName,
+                                fromIndex = fromIndex,
+                                toIndex = toIndex
+                            )
+                        }
+                    },
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    // お気に入りグループでは並び替え不可
-                    val isFavoriteGroup = group.groupName == TrainingViewModel.FAVORITE_GROUP_KEY
+                ) { index, exercise, isDragging ->
+                    key(exercise.id) {
+                        ReorderableItem {
+                            val elevation by animateDpAsState(
+                                targetValue = if (isDragging) 4.dp else 0.dp,
+                                label = "elevation"
+                            )
 
-                    group.exercises.forEachIndexed { index, exercise ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            // 並び替えボタン
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                // 上ボタン
-                                IconButton(
-                                    onClick = {
-                                        if (!isFavoriteGroup && index > 0) {
-                                            viewModel.reorderExercises(
-                                                groupName = group.groupName,
-                                                fromIndex = index,
-                                                toIndex = index - 1
-                                            )
-                                        }
-                                    },
-                                    enabled = !isFavoriteGroup && index > 0,
-                                    modifier = Modifier.size(24.dp)
-                                ) {
+                                // ドラッグハンドル（お気に入りグループ以外で表示）
+                                if (!isFavoriteGroup) {
                                     Icon(
-                                        imageVector = Icons.Default.KeyboardArrowUp,
-                                        contentDescription = "Move up",
-                                        tint = if (!isFavoriteGroup && index > 0) Slate400 else Slate400.copy(alpha = 0.3f),
-                                        modifier = Modifier.size(18.dp)
+                                        imageVector = Icons.Default.Menu,
+                                        contentDescription = "Drag to reorder",
+                                        tint = if (isDragging) Color.White else Slate400,
+                                        modifier = Modifier
+                                            .size(24.dp)
+                                            .longPressDraggableHandle()
                                     )
+                                    Spacer(modifier = Modifier.width(8.dp))
                                 }
 
-                                // 下ボタン
-                                IconButton(
-                                    onClick = {
-                                        if (!isFavoriteGroup && index < group.exercises.size - 1) {
-                                            viewModel.reorderExercises(
-                                                groupName = group.groupName,
-                                                fromIndex = index,
-                                                toIndex = index + 1
-                                            )
-                                        }
-                                    },
-                                    enabled = !isFavoriteGroup && index < group.exercises.size - 1,
-                                    modifier = Modifier.size(24.dp)
+                                // 種目アイテム
+                                Card(
+                                    modifier = Modifier.weight(1f),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = if (isDragging) Slate700.copy(alpha = 0.9f) else Slate700
+                                    ),
+                                    shape = RoundedCornerShape(8.dp),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = elevation)
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.KeyboardArrowDown,
-                                        contentDescription = "Move down",
-                                        tint = if (!isFavoriteGroup && index < group.exercises.size - 1) Slate400 else Slate400.copy(alpha = 0.3f),
-                                        modifier = Modifier.size(18.dp)
+                                    ExerciseItemCompactContent(
+                                        exercise = exercise,
+                                        onEdit = { onExerciseEdit(exercise) },
+                                        onDelete = { onExerciseDelete(exercise) }
                                     )
                                 }
-                            }
-
-                            Spacer(modifier = Modifier.width(4.dp))
-
-                            // 種目アイテム
-                            Box(modifier = Modifier.weight(1f)) {
-                                ExerciseItemCompact(
-                                    exercise = exercise,
-                                    onEdit = { onExerciseEdit(exercise) },
-                                    onDelete = { onExerciseDelete(exercise) }
-                                )
                             }
                         }
                     }
@@ -395,106 +383,99 @@ fun ExpandableGroupCard(
     }
 }
 
-// コンパクトな種目アイテム
-// コンパクトな種目アイテム
+// 種目アイテムの内容部分（Card内で使用）
 @Composable
-fun ExerciseItemCompact(
+fun ExerciseItemCompactContent(
     exercise: Exercise,
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Slate700),
-        shape = RoundedCornerShape(8.dp)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = exercise.name,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 4.dp)
-                ) {
-                    // お気に入り
-                    if (exercise.isFavorite) {
-                        Text(
-                            text = "★",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFFFFD700)
-                        )
-                    }
-
-                    // レベル（課題設定がある場合のみ）
-                    if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
-                        Text(
-                            text = "Lv.${exercise.sortOrder}",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Blue600
-                        )
-                    }
-
-                    // タイプ（回数制/時間制）
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = exercise.name,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 4.dp)
+            ) {
+                // お気に入り
+                if (exercise.isFavorite) {
                     Text(
-                        text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
+                        text = "★",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Slate400
+                        color = Color(0xFFFFD700)
                     )
-
-                    // Unilateral
-                    if (exercise.laterality == "Unilateral") {
-                        Text(
-                            text = stringResource(R.string.one_sided),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Purple600
-                        )
-                    }
                 }
 
-                // 課題バッジ
-                if (exercise.targetSets != null && exercise.targetValue != null) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.padding(top = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(
-                                if (exercise.laterality == "Unilateral") R.string.target_format_unilateral else R.string.target_format,
-                                exercise.targetSets!!,
-                                exercise.targetValue!!,
-                                stringResource(if (exercise.type == "Dynamic") R.string.unit_reps else R.string.unit_seconds)
-                            ),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Green400
-                        )
-                    }
+                // レベル（課題設定がある場合のみ）
+                if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
+                    Text(
+                        text = "Lv.${exercise.sortOrder}",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Blue600
+                    )
+                }
+
+                // タイプ（回数制/時間制）
+                Text(
+                    text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Slate400
+                )
+
+                // Unilateral
+                if (exercise.laterality == "Unilateral") {
+                    Text(
+                        text = stringResource(R.string.one_sided),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Purple600
+                    )
                 }
             }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                IconButton(onClick = onEdit) {
-                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit), tint = Blue600)
+            // 課題バッジ
+            if (exercise.targetSets != null && exercise.targetValue != null) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.padding(top = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(
+                            if (exercise.laterality == "Unilateral") R.string.target_format_unilateral else R.string.target_format,
+                            exercise.targetSets!!,
+                            exercise.targetValue!!,
+                            stringResource(if (exercise.type == "Dynamic") R.string.unit_reps else R.string.unit_seconds)
+                        ),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Green400
+                    )
                 }
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete), tint = Red600)
-                }
+            }
+        }
+
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            IconButton(onClick = onEdit) {
+                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit), tint = Blue600)
+            }
+            IconButton(onClick = onDelete) {
+                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete), tint = Red600)
             }
         }
     }
