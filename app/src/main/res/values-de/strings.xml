@@ -443,4 +443,16 @@
     <!-- App Info Section -->
     <string name="section_app_info">App-Info</string>
     <string name="section_app_info_description">App-Informationen und Lizenzen anzeigen.</string>
+    <string name="app_description">Eigengewichtstraining Aufzeichnungs-App</string>
+    <string name="app_version">Version</string>
+    <string name="app_author">Autor</string>
+    <string name="app_source_code">Quellcode</string>
+    <string name="app_feedback">Feedback</string>
+    <string name="codeberg_main">Codeberg</string>
+    <string name="github_mirror">GitHub</string>
+    <string name="feedback_description">Fehler melden oder Funktionen anfordern</string>
+    <string name="codeberg_description">Haupt-Repository</string>
+    <string name="github_description">Mirror-Repository</string>
+    <string name="report_issue_codeberg">Problem auf Codeberg melden</string>
+    <string name="report_issue_github">Problem auf GitHub melden</string>
 </resources>

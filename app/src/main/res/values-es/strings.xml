@@ -443,4 +443,16 @@
     <!-- App Info Section -->
     <string name="section_app_info">Información de la App</string>
     <string name="section_app_info_description">Ver información de la aplicación y licencias.</string>
+    <string name="app_description">App de registro de entrenamiento con peso corporal</string>
+    <string name="app_version">Versión</string>
+    <string name="app_author">Autor</string>
+    <string name="app_source_code">Código Fuente</string>
+    <string name="app_feedback">Comentarios</string>
+    <string name="codeberg_main">Codeberg</string>
+    <string name="github_mirror">GitHub</string>
+    <string name="feedback_description">Reportar errores o solicitar funciones</string>
+    <string name="codeberg_description">Repositorio principal</string>
+    <string name="github_description">Repositorio espejo</string>
+    <string name="report_issue_codeberg">Reportar problema en Codeberg</string>
+    <string name="report_issue_github">Reportar problema en GitHub</string>
 </resources>

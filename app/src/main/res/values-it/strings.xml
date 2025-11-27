@@ -443,4 +443,16 @@
     <!-- App Info Section -->
     <string name="section_app_info">Info App</string>
     <string name="section_app_info_description">Visualizza informazioni dell\'app e licenze.</string>
+    <string name="app_description">App per registrare allenamenti a corpo libero</string>
+    <string name="app_version">Versione</string>
+    <string name="app_author">Autore</string>
+    <string name="app_source_code">Codice Sorgente</string>
+    <string name="app_feedback">Feedback</string>
+    <string name="codeberg_main">Codeberg</string>
+    <string name="github_mirror">GitHub</string>
+    <string name="feedback_description">Segnala bug o richiedi funzionalità</string>
+    <string name="codeberg_description">Repository principale</string>
+    <string name="github_description">Repository mirror</string>
+    <string name="report_issue_codeberg">Segnala problema su Codeberg</string>
+    <string name="report_issue_github">Segnala problema su GitHub</string>
 </resources>

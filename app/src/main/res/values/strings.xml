@@ -443,4 +443,16 @@
     <!-- App Info Section -->
     <string name="section_app_info">App Info</string>
     <string name="section_app_info_description">View app information and licenses.</string>
+    <string name="app_description">Bodyweight training record app</string>
+    <string name="app_version">Version</string>
+    <string name="app_author">Author</string>
+    <string name="app_source_code">Source Code</string>
+    <string name="app_feedback">Feedback</string>
+    <string name="codeberg_main">Codeberg</string>
+    <string name="github_mirror">GitHub</string>
+    <string name="feedback_description">Report bugs or request features</string>
+    <string name="codeberg_description">Main repository</string>
+    <string name="github_description">Mirror repository</string>
+    <string name="report_issue_codeberg">Report issue on Codeberg</string>
+    <string name="report_issue_github">Report issue on GitHub</string>
 </resources>

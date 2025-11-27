@@ -443,4 +443,16 @@
     <!-- App Info Section -->
     <string name="section_app_info">应用信息</string>
     <string name="section_app_info_description">查看应用信息和许可证。</string>
+    <string name="app_description">自重训练记录应用</string>
+    <string name="app_version">版本</string>
+    <string name="app_author">作者</string>
+    <string name="app_source_code">源代码</string>
+    <string name="app_feedback">反馈</string>
+    <string name="codeberg_main">Codeberg</string>
+    <string name="github_mirror">GitHub</string>
+    <string name="feedback_description">报告错误或请求功能</string>
+    <string name="codeberg_description">主仓库</string>
+    <string name="github_description">镜像仓库</string>
+    <string name="report_issue_codeberg">在Codeberg上报告问题</string>
+    <string name="report_issue_github">在GitHub上报告问题</string>
 </resources>

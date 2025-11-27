@@ -444,4 +444,16 @@
     <!-- App Info Section -->
     <string name="section_app_info">アプリ情報</string>
     <string name="section_app_info_description">アプリの情報やライセンスを確認できます。</string>
+    <string name="app_description">自重トレーニング記録アプリ</string>
+    <string name="app_version">バージョン</string>
+    <string name="app_author">作者</string>
+    <string name="app_source_code">ソースコード</string>
+    <string name="app_feedback">フィードバック</string>
+    <string name="codeberg_main">Codeberg</string>
+    <string name="github_mirror">GitHub</string>
+    <string name="feedback_description">バグ報告・機能要望はこちら</string>
+    <string name="codeberg_description">メインリポジトリ</string>
+    <string name="github_description">ミラーリポジトリ</string>
+    <string name="report_issue_codeberg">Codebergで問題を報告する</string>
+    <string name="report_issue_github">GitHubで問題を報告する</string>
 </resources>

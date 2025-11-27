@@ -1,14 +1,18 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
 import android.app.Activity
+import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,9 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
+import io.github.gonbei774.calisthenicsmemory.BuildConfig
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.AppLanguage
 import io.github.gonbei774.calisthenicsmemory.data.LanguagePreferences
@@ -1033,39 +1039,219 @@ fun SettingsScreenNew(
                 }
             }
 
-            // オープンソースライセンスボタン
+            // アプリ情報カード（Auxioスタイル）
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
                         containerColor = Slate800
                     ),
-                    shape = RoundedCornerShape(12.dp),
-                    onClick = onNavigateToLicenses
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Row(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(20.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Text(
-                            text = "📄",
-                            fontSize = 32.sp
-                        )
-                        Column(modifier = Modifier.weight(1f)) {
+                        // アプリ名と説明（中央揃え）
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
                             Text(
-                                text = stringResource(R.string.open_source_licenses),
-                                fontSize = 18.sp,
+                                text = stringResource(R.string.app_name),
+                                fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
                             Text(
-                                text = stringResource(R.string.licenses_description),
+                                text = stringResource(R.string.app_description),
                                 fontSize = 14.sp,
                                 color = Slate400,
                                 modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+
+                        // バージョン
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Info,
+                                contentDescription = null,
+                                tint = Slate400,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.app_version),
+                                    fontSize = 16.sp,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = BuildConfig.VERSION_NAME,
+                                    fontSize = 14.sp,
+                                    color = Slate400
+                                )
+                            }
+                        }
+
+                        // ソースコード
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://codeberg.org/Gonbei774/CalisthenicsMemory"))
+                                    context.startActivity(intent)
+                                },
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "<>",
+                                fontSize = 20.sp,
+                                color = Slate400,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = stringResource(R.string.app_source_code),
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
+                        }
+
+                        // 使用許諾（ライセンス）
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onNavigateToLicenses() },
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "📄",
+                                fontSize = 20.sp
+                            )
+                            Text(
+                                text = stringResource(R.string.open_source_licenses),
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+            }
+
+            // 著者カード
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Slate800
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // セクションタイトル
+                        Text(
+                            text = stringResource(R.string.app_author),
+                            fontSize = 14.sp,
+                            color = Slate400
+                        )
+
+                        // 開発者
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Person,
+                                contentDescription = null,
+                                tint = Slate400,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Text(
+                                text = "Gonbei774",
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+            }
+
+            // フィードバックカード
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Slate800
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // セクションタイトル
+                        Text(
+                            text = stringResource(R.string.app_feedback),
+                            fontSize = 14.sp,
+                            color = Slate400
+                        )
+
+                        // Codebergで問題を報告
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://codeberg.org/Gonbei774/CalisthenicsMemory/issues"))
+                                    context.startActivity(intent)
+                                },
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "📝",
+                                fontSize = 20.sp
+                            )
+                            Text(
+                                text = stringResource(R.string.report_issue_codeberg),
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
+                        }
+
+                        // GitHubで問題を報告
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Gonbei774/CalisthenicsMemory/issues"))
+                                    context.startActivity(intent)
+                                },
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "📝",
+                                fontSize = 20.sp
+                            )
+                            Text(
+                                text = stringResource(R.string.report_issue_github),
+                                fontSize = 16.sp,
+                                color = Color.White
                             )
                         }
                     }
