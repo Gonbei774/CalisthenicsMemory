@@ -44,7 +44,7 @@ The app operates completely offline—no internet connection required, no ads, n
 - **Favorites** - Quick access to frequently used exercises
 - **Two Recording Modes**
   - Record mode: Quick manual input with "Apply Exercise Settings" button
-  - Workout mode: Automatic guided training with per-exercise timer settings (rest interval, rep duration)
+  - Workout mode: Automatic guided training with per-exercise timer settings (rest interval, rep duration), LED flash notification on set completion
 - **Progress Tracking** - View records as lists, graphs, or challenge progress bars
 - **Unilateral/Bilateral Support** - Track left and right sides separately for one-sided exercises
 - **Challenge Goals** - Set target sets × reps and track achievement status

@@ -44,7 +44,7 @@ L'application fonctionne entièrement hors ligne — aucune connexion Internet r
 - **Favoris** - Accès rapide aux exercices fréquemment utilisés
 - **Deux modes d'enregistrement**
   - Mode enregistrement : Saisie manuelle rapide avec le bouton "Appliquer les paramètres de l'exercice"
-  - Mode entraînement : Entraînement guidé automatique avec paramètres de minuterie par exercice (intervalle de repos, durée de répétition)
+  - Mode entraînement : Entraînement guidé automatique avec paramètres de minuterie par exercice (intervalle de repos, durée de répétition), notification flash LED à la fin de la série
 - **Suivi des progrès** - Visualisez les enregistrements sous forme de listes, graphiques ou barres de progression des défis
 - **Support unilatéral/bilatéral** - Suivez les côtés gauche et droit séparément pour les exercices unilatéraux
 - **Objectifs de défi** - Définissez des séries × répétitions cibles et suivez l'état d'accomplissement

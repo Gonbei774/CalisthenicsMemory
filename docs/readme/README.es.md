@@ -44,7 +44,7 @@ La aplicación funciona completamente sin conexión: no requiere internet, sin a
 - **Favoritos** - Acceso rápido a ejercicios frecuentes
 - **Dos modos de registro**
   - Modo registro: Entrada manual rápida con botón "Aplicar configuración del ejercicio"
-  - Modo entrenamiento: Entrenamiento guiado automático con ajustes de temporizador por ejercicio (intervalo de descanso, duración de repetición)
+  - Modo entrenamiento: Entrenamiento guiado automático con ajustes de temporizador por ejercicio (intervalo de descanso, duración de repetición), notificación de flash LED al completar serie
 - **Seguimiento del progreso** - Ve registros como listas, gráficos o barras de progreso de desafíos
 - **Soporte unilateral/bilateral** - Registra lados izquierdo y derecho por separado para ejercicios de un lado
 - **Objetivos de desafío** - Establece series × repeticiones objetivo y rastrea el estado de logro
