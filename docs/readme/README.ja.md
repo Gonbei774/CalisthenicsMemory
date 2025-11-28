@@ -8,6 +8,20 @@
 
 ---
 
+<div align="center">
+<table>
+<tr><td align="center">
+<h3>⚠️ このリポジトリは移転しました ⚠️</h3>
+<p>開発は<b><a href="https://codeberg.org/Gonbei774/CalisthenicsMemory">Codeberg</a></b>に移行しました</p>
+<p>このGitHubリポジトリは<b>読み取り専用ミラー</b>です。<br>
+最新のコード、リリース、コントリビューションはCodebergをご覧ください。<br>
+イシューはこちらでも受け付けています。</p>
+</td></tr>
+</table>
+</div>
+
+---
+
 <p align="center">
   <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/">
     <img src="https://fdroid.org/badge/get-it-on.png" alt="F-Droidで入手" height="80">

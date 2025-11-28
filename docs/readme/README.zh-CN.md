@@ -8,6 +8,20 @@
 
 ---
 
+<div align="center">
+<table>
+<tr><td align="center">
+<h3>⚠️ 此仓库已迁移 ⚠️</h3>
+<p>开发已迁移至 <b><a href="https://codeberg.org/Gonbei774/CalisthenicsMemory">Codeberg</a></b></p>
+<p>此 GitHub 仓库为<b>只读镜像</b>。<br>
+如需最新代码、发布版本和贡献，请访问 Codeberg。<br>
+为方便起见，此处也接受 Issue。</p>
+</td></tr>
+</table>
+</div>
+
+---
+
 <p align="center">
   <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/">
     <img src="https://fdroid.org/badge/get-it-on.png" alt="在 F-Droid 下载" height="80">

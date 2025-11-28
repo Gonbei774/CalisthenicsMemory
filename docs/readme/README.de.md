@@ -8,6 +8,20 @@ Eine einfache, datenschutzorientierte App zur Verfolgung von Eigengewichtsübung
 
 ---
 
+<div align="center">
+<table>
+<tr><td align="center">
+<h3>⚠️ Dieses Repository ist umgezogen ⚠️</h3>
+<p>Die Entwicklung wurde zu <b><a href="https://codeberg.org/Gonbei774/CalisthenicsMemory">Codeberg</a></b> verlagert</p>
+<p>Dieses GitHub-Repository ist ein <b>schreibgeschützter Spiegel</b>.<br>
+Für den neuesten Code, Releases und Beiträge besuche bitte Codeberg.<br>
+Issues werden hier zur Vereinfachung akzeptiert.</p>
+</td></tr>
+</table>
+</div>
+
+---
+
 <p align="center">
   <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/">
     <img src="https://fdroid.org/badge/get-it-on.png" alt="Jetzt bei F-Droid" height="80">

@@ -8,6 +8,7 @@ A simple, privacy-focused bodyweight training tracker for Android.
 
 ---
 
+<div align="center">
 <table>
 <tr><td align="center">
 <h3>⚠️ This Repository Has Moved ⚠️</h3>
@@ -17,6 +18,7 @@ For latest code, releases, and contributions, please visit Codeberg.<br>
 Issues are accepted here for convenience.</p>
 </td></tr>
 </table>
+</div>
 
 ---
 

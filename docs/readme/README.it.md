@@ -8,6 +8,20 @@ Un'app semplice e attenta alla privacy per tracciare gli allenamenti a corpo lib
 
 ---
 
+<div align="center">
+<table>
+<tr><td align="center">
+<h3>⚠️ Questo repository è stato spostato ⚠️</h3>
+<p>Lo sviluppo è stato spostato su <b><a href="https://codeberg.org/Gonbei774/CalisthenicsMemory">Codeberg</a></b></p>
+<p>Questo repository GitHub è un <b>mirror di sola lettura</b>.<br>
+Per il codice più recente, le release e i contributi, visita Codeberg.<br>
+Le issue sono accettate qui per comodità.</p>
+</td></tr>
+</table>
+</div>
+
+---
+
 <p align="center">
   <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/">
     <img src="https://fdroid.org/badge/get-it-on.png" alt="Disponibile su F-Droid" height="80">

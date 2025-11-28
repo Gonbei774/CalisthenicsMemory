@@ -8,6 +8,20 @@ Une application simple et respectueuse de la vie privée pour suivre les exercic
 
 ---
 
+<div align="center">
+<table>
+<tr><td align="center">
+<h3>⚠️ Ce dépôt a déménagé ⚠️</h3>
+<p>Le développement a été déplacé vers <b><a href="https://codeberg.org/Gonbei774/CalisthenicsMemory">Codeberg</a></b></p>
+<p>Ce dépôt GitHub est un <b>miroir en lecture seule</b>.<br>
+Pour le code le plus récent, les releases et les contributions, visitez Codeberg.<br>
+Les issues sont acceptées ici par commodité.</p>
+</td></tr>
+</table>
+</div>
+
+---
+
 <p align="center">
   <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/">
     <img src="https://fdroid.org/badge/get-it-on.png" alt="Télécharger sur F-Droid" height="80">
