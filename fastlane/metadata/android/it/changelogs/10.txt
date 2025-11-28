@@ -1,0 +1,1 @@
+Aggiunta notifica flash LED al completamento delle serie di allenamento. Sezione informazioni app ridisegnata con layout migliorato.

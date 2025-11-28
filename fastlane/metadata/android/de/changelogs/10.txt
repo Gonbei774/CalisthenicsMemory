@@ -1,0 +1,1 @@
+LED-Blitzbenachrichtigung hinzugefuegt, wenn Workout-Saetze abgeschlossen sind. App-Info-Bereich in den Einstellungen mit verbessertem Layout neu gestaltet.

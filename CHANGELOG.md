@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2025-11-29
+
+### Added
+- **LED flash notification for workout mode**
+  - Camera flash blinks when workout sets complete
+  - Visual notification even when phone is silent
+
+### Changed
+- **Redesigned app info section in Settings**
+  - Improved layout with cleaner organization
+  - Better visual hierarchy
+
+### Technical
+- Updated license screen with JetBrains KMP and Reorderable library entries
+
 ## [1.7.1] - 2025-11-26
 
 ### Fixed
@@ -172,6 +187,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.8.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.8.0
 [1.7.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.7.1
 [1.7.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.7.0
 [1.6.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.6.0
