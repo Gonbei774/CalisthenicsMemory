@@ -1,0 +1,105 @@
+<p align="center">
+  <img src="../../icon.png" width="150" alt="Calisthenics Memory Icon">
+</p>
+
+# Calisthenics Memory
+
+Eine einfache, datenschutzorientierte App zur Verfolgung von Eigengewichtsübungen für Android.
+
+---
+
+<p align="center">
+  <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/">
+    <img src="https://fdroid.org/badge/get-it-on.png" alt="Jetzt bei F-Droid" height="80">
+  </a>
+</p>
+<p align="center">
+  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.gonbei774.calisthenicsmemory">
+    <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButton.png" alt="Jetzt bei IzzyOnDroid" height="54">
+  </a>
+</p>
+
+---
+
+🌐 [English](../../README.md) | [日本語](README.ja.md) | [Español](README.es.md) | [Français](README.fr.md) | [Italiano](README.it.md) | [简体中文](README.zh-CN.md)
+
+---
+
+## Über die App
+
+Calisthenics Memory hilft dir, Eigengewichtsübungen wie Liegestütze, Klimmzüge und Kniebeugen zu verfolgen und zu verwalten. Erstelle benutzerdefinierte Übungen, organisiere sie in progressiven Stufen und verfolge deinen Fortschritt.
+
+Die App funktioniert komplett offline – keine Internetverbindung erforderlich, keine Werbung, kein Tracking. Deine Daten bleiben nur auf deinem Gerät.
+
+## Hauptmerkmale
+
+- **Vollständige Anpassung** - Keine gesperrten Funktionen für benutzerdefinierte Übungen. Wiederholungen/Zeit, unilateral/bilateral, Ziele, Timer - alles verfügbar für jede Übung
+- **Zwei Aufzeichnungsmodi** - Schnelle manuelle Eingabe oder geführtes Training mit Timern
+- **Nur offline** - Deine Daten verlassen niemals dein Gerät
+
+## Funktionen
+
+- **Home-Dashboard** - Heutige Trainingseinträge auf einen Blick, lange drücken zum Kopieren
+- **Vollständig anpassbar** - Übungen frei erstellen, nach Gruppen organisieren, mit 10 Stufen verwalten, mit Pfeiltasten umsortieren
+- **Favoriten** - Schneller Zugriff auf häufig verwendete Übungen
+- **Zwei Aufzeichnungsmodi**
+  - Aufzeichnungsmodus: Schnelle manuelle Eingabe mit "Übungseinstellungen anwenden"-Taste
+  - Trainingsmodus: Automatisch geführtes Training mit übungsspezifischen Timer-Einstellungen (Pausenzeit, Wiederholungsdauer)
+- **Fortschrittsverfolgung** - Einträge als Listen, Grafiken oder Herausforderungs-Fortschrittsbalken anzeigen
+- **Unilateral/Bilateral-Unterstützung** - Linke und rechte Seite separat für einseitige Übungen verfolgen
+- **Herausforderungsziele** - Zielsätze × Wiederholungen festlegen und Erfüllungsstatus verfolgen
+- **Datenverwaltung** - Export/Import im JSON- oder CSV-Format (vollständige Backup-Unterstützung)
+- **Mehrsprachig** - Englisch, Japanisch, Spanisch, Deutsch, Chinesisch (vereinfacht), Französisch, Italienisch
+- **Datenschutz-orientiert** - Komplett offline, keine Berechtigungen erforderlich
+
+## Screenshots
+
+<p align="center">
+  <img src="../../screenshots/1.png" width="250"><br>
+  <b>Home</b> - Heutiges Training auf einen Blick
+</p>
+
+<p align="center">
+  <img src="../../screenshots/2.png" width="250"><br>
+  <b>Übungen</b> - Mit Gruppen & Favoriten organisieren
+</p>
+
+<p align="center">
+  <img src="../../screenshots/3.png" width="250"><br>
+  <b>Aufzeichnen</b> - Schnelle manuelle Eingabe
+</p>
+
+<p align="center">
+  <img src="../../screenshots/4.png" width="250"><br>
+  <b>Training</b> - Geführtes Training mit Timer
+</p>
+
+<p align="center">
+  <img src="../../screenshots/5.png" width="250"><br>
+  <b>Grafik</b> - Fortschritt verfolgen
+</p>
+
+<p align="center">
+  <img src="../../screenshots/6.png" width="250"><br>
+  <b>Herausforderung</b> - Zielerreichungsstatus
+</p>
+
+## Anforderungen
+
+- **Android** 8.0 (API 26) oder höher
+- **Speicher** ~10MB
+- **Internet** Nicht erforderlich
+
+## Erstellen
+
+```bash
+git clone https://codeberg.org/Gonbei774/CalisthenicsMemory.git
+cd CalisthenicsMemory
+./gradlew assembleDebug
+```
+
+JDK 17 oder höher erforderlich.
+
+## Lizenz
+
+Dieses Projekt ist unter der GNU General Public License v3.0 lizenziert. Siehe [LICENSE](../../LICENSE) für Details.

@@ -48,10 +48,13 @@ data class ExportExercise(
     val type: String,
     val group: String?,
     val sortOrder: Int,
+    val displayOrder: Int = 0,       // 表示順（デフォルト値で後方互換）
     val laterality: String,
     val targetSets: Int? = null,
     val targetValue: Int? = null,
-    val isFavorite: Boolean = false  // お気に入り（デフォルト値で後方互換）
+    val isFavorite: Boolean = false, // お気に入り（デフォルト値で後方互換）
+    val restInterval: Int? = null,   // 種目固有の休憩時間（デフォルト値で後方互換）
+    val repDuration: Int? = null     // 種目固有の1レップ時間（デフォルト値で後方互換）
 )
 
 @Serializable
@@ -131,7 +134,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         laterality: String = "Bilateral",
         targetSets: Int? = null,
         targetValue: Int? = null,
-        isFavorite: Boolean = false
+        isFavorite: Boolean = false,
+        restInterval: Int? = null,       // 種目固有の休憩時間（秒）
+        repDuration: Int? = null         // 種目固有の1レップ時間（秒）
     ) {
         viewModelScope.launch {
             try {
@@ -153,7 +158,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     laterality = laterality,
                     targetSets = targetSets,
                     targetValue = targetValue,
-                    isFavorite = isFavorite
+                    isFavorite = isFavorite,
+                    restInterval = restInterval,
+                    repDuration = repDuration
                 )
                 exerciseDao.insertExercise(exercise)
                 _snackbarMessage.value = UiMessage.ExerciseAdded
@@ -394,7 +401,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         // 0. お気に入りグループ（先頭に追加、0件でも表示）
         // 固定キーを使用（UI側で翻訳）
         val favoriteGroupKey = FAVORITE_GROUP_KEY
-        val favoriteExercises = exercises.filter { it.isFavorite }.sortedBy { it.name }
+        val favoriteExercises = exercises.filter { it.isFavorite }.sortedBy { it.displayOrder }
         val favoriteGroup = listOf(
             GroupWithExercises(
                 groupName = favoriteGroupKey,
@@ -408,7 +415,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             val groupExercises = exercises.filter { it.group == group.name }
             GroupWithExercises(
                 groupName = group.name,
-                exercises = groupExercises.sortedBy { it.sortOrder },
+                exercises = groupExercises.sortedBy { it.displayOrder },
                 isExpanded = group.name in expandedGroups  // 全て閉じた状態も可能
             )
         }.sortedBy { it.groupName }
@@ -419,7 +426,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             listOf(
                 GroupWithExercises(
                     groupName = null,
-                    exercises = ungroupedExercises.sortedBy { it.name },
+                    exercises = ungroupedExercises.sortedBy { it.displayOrder },
                     isExpanded = "ungrouped" in expandedGroups  // 全て閉じた状態も可能
                 )
             )
@@ -429,6 +436,53 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
         // お気に入りグループを先頭に配置
         return favoriteGroup + groupedExercises + ungroupedGroup
+    }
+
+    // ========================================
+    // 並び替え機能
+    // ========================================
+
+    /**
+     * 種目の並び順を変更する
+     * @param groupName グループ名（null = グループなし、FAVORITE_GROUP_KEY = お気に入り）
+     * @param fromIndex 移動元のインデックス
+     * @param toIndex 移動先のインデックス
+     */
+    fun reorderExercises(groupName: String?, fromIndex: Int, toIndex: Int) {
+        viewModelScope.launch {
+            // お気に入りグループでは並び替え不可（元のグループでの順序に影響するため）
+            if (groupName == FAVORITE_GROUP_KEY) {
+                return@launch
+            }
+
+            // 対象グループの種目を取得
+            val targetExercises = when (groupName) {
+                null -> {
+                    // グループなし
+                    exerciseDao.getUngroupedExercises()
+                }
+                else -> {
+                    // 通常グループ
+                    exerciseDao.getExercisesByGroup(groupName)
+                }
+            }
+
+            if (fromIndex < 0 || toIndex < 0 ||
+                fromIndex >= targetExercises.size ||
+                toIndex >= targetExercises.size) {
+                return@launch
+            }
+
+            // 並び替え
+            val reordered = targetExercises.toMutableList()
+            val item = reordered.removeAt(fromIndex)
+            reordered.add(toIndex, item)
+
+            // displayOrderを更新
+            reordered.forEachIndexed { index, exercise ->
+                exerciseDao.updateExercise(exercise.copy(displayOrder = index))
+            }
+        }
     }
 
     // ========================================
@@ -458,10 +512,13 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     type = exercise.type,
                     group = exercise.group,
                     sortOrder = exercise.sortOrder,
+                    displayOrder = exercise.displayOrder,
                     laterality = exercise.laterality,
                     targetSets = exercise.targetSets,
                     targetValue = exercise.targetValue,
-                    isFavorite = exercise.isFavorite
+                    isFavorite = exercise.isFavorite,
+                    restInterval = exercise.restInterval,
+                    repDuration = exercise.repDuration
                 )
             }
 
@@ -530,10 +587,13 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         type = exportExercise.type,
                         group = exportExercise.group,
                         sortOrder = exportExercise.sortOrder,
+                        displayOrder = exportExercise.displayOrder,
                         laterality = exportExercise.laterality,
                         targetSets = exportExercise.targetSets,
                         targetValue = exportExercise.targetValue,
-                        isFavorite = exportExercise.isFavorite
+                        isFavorite = exportExercise.isFavorite,
+                        restInterval = exportExercise.restInterval,
+                        repDuration = exportExercise.repDuration
                     )
                     exerciseDao.insertExercise(exercise)
                 }
@@ -603,13 +663,14 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             val currentExercises = exercises.value
 
             val csvBuilder = StringBuilder()
-            csvBuilder.appendLine("name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite")
+            csvBuilder.appendLine("name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration")
 
             currentExercises.forEach { exercise ->
                 csvBuilder.appendLine(
                     "${exercise.name},${exercise.type},${exercise.group ?: ""}," +
                     "${exercise.sortOrder},${exercise.laterality}," +
-                    "${exercise.targetSets ?: ""},${exercise.targetValue ?: ""},${exercise.isFavorite}"
+                    "${exercise.targetSets ?: ""},${exercise.targetValue ?: ""},${exercise.isFavorite}," +
+                    "${exercise.displayOrder},${exercise.restInterval ?: ""},${exercise.repDuration ?: ""}"
                 )
             }
 
@@ -772,11 +833,14 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
     /**
      * 種目CSVをインポート（マージモード）
+     * - 8列（旧フォーマット）と11列（新フォーマット）の両方に対応
+     * - グループが存在しない場合は自動作成
      */
     suspend fun importExercises(csvString: String): CsvImportReport = withContext(Dispatchers.IO) {
         var successCount = 0
         var skippedCount = 0
         var errorCount = 0
+        var groupsCreatedCount = 0
         val skippedItems = mutableListOf<String>()
         val errors = mutableListOf<String>()
 
@@ -797,8 +861,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             dataLines.forEachIndexed { index, line ->
                 try {
                     val columns = line.split(",")
+                    // 8列（旧フォーマット）または11列（新フォーマット）を許容
                     if (columns.size < 8) {
-                        errors.add("Line ${index + 2}: Invalid format (expected 8 columns)")
+                        errors.add("Line ${index + 2}: Invalid format (expected at least 8 columns, got ${columns.size})")
                         errorCount++
                         return@forEachIndexed
                     }
@@ -811,6 +876,11 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     val targetSetsStr = columns[5].trim()
                     val targetValueStr = columns[6].trim()
                     val isFavoriteStr = columns[7].trim()
+
+                    // 新フィールド（9列目以降、オプション）
+                    val displayOrderStr = columns.getOrNull(8)?.trim() ?: ""
+                    val restIntervalStr = columns.getOrNull(9)?.trim() ?: ""
+                    val repDurationStr = columns.getOrNull(10)?.trim() ?: ""
 
                     // 必須フィールドチェック
                     if (name.isEmpty() || type.isEmpty() || laterality.isEmpty()) {
@@ -832,13 +902,14 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         return@forEachIndexed
                     }
 
-                    // グループの存在チェック
+                    // グループの存在チェック（なければ自動作成）
                     if (group != null) {
                         val groupExists = groupDao.getGroupByName(group) != null
                         if (!groupExists) {
-                            errors.add("Line ${index + 2}: Group \"$group\" not found")
-                            errorCount++
-                            return@forEachIndexed
+                            // グループを自動作成
+                            val newGroup = ExerciseGroup(name = group)
+                            groupDao.insertGroup(newGroup)
+                            groupsCreatedCount++
                         }
                     }
 
@@ -847,6 +918,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     val targetSets = targetSetsStr.toIntOrNull()
                     val targetValue = targetValueStr.toIntOrNull()
                     val isFavorite = isFavoriteStr.toBooleanStrictOrNull() ?: false
+                    val displayOrder = displayOrderStr.toIntOrNull() ?: 0
+                    val restInterval = restIntervalStr.toIntOrNull()
+                    val repDuration = repDurationStr.toIntOrNull()
 
                     // 重複チェック
                     val existing = exercises.value.find {
@@ -870,10 +944,13 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         type = type,
                         group = group,
                         sortOrder = sortOrder,
+                        displayOrder = displayOrder,
                         laterality = laterality,
                         targetSets = targetSets,
                         targetValue = targetValue,
-                        isFavorite = isFavorite
+                        isFavorite = isFavorite,
+                        restInterval = restInterval,
+                        repDuration = repDuration
                     )
                     exerciseDao.insertExercise(exercise)
                     successCount++
@@ -890,7 +967,15 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             }
         }
 
-        return@withContext CsvImportReport(CsvType.EXERCISES, successCount, skippedCount, errorCount, skippedItems, errors)
+        return@withContext CsvImportReport(
+            type = CsvType.EXERCISES,
+            successCount = successCount,
+            skippedCount = skippedCount,
+            errorCount = errorCount,
+            skippedItems = skippedItems,
+            errors = errors,
+            groupsCreatedCount = groupsCreatedCount
+        )
     }
 
     /**

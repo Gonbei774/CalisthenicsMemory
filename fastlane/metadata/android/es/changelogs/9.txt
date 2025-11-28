@@ -1,0 +1,1 @@
+Corregido el problema de compilación reproducible para F-Droid excluyendo la marca de tiempo de los metadatos de AboutLibraries.

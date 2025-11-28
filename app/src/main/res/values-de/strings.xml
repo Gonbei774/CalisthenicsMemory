@@ -396,6 +396,10 @@
     <string name="restart_required">Neustart erforderlich um Änderungen anzuwenden</string>
     <string name="language_changed">Sprache geändert. Bitte starte die App neu.</string>
 
+    <!-- Open Source Licenses -->
+    <string name="open_source_licenses">Open Source Lizenzen</string>
+    <string name="licenses_description">Lizenzen der in dieser App verwendeten Bibliotheken anzeigen</string>
+
     <!-- Training Days Display -->
     <string name="training_days_format">Training %s</string>
     <string name="last_record_short">Letztes: %s</string>
@@ -408,26 +412,47 @@
     <string name="backup_saved_successfully">Backup im Downloads-Ordner gespeichert</string>
     <string name="backup_failed">Backup fehlgeschlagen</string>
 
-    <!-- Record Input Settings -->
-    <string name="section_record_input_settings">Aufzeichnungseinstellungen</string>
-    <string name="section_record_input_settings_description">Standardwerte für die Aufzeichnungseingabe konfigurieren.</string>
-    <string name="auto_fill_target_setting">Zielwert automatisch ausfüllen</string>
-    <string name="auto_fill_target_description">Eingabefelder automatisch mit Zielwert ausfüllen</string>
-
     <!-- Workout Settings -->
     <string name="section_workout_settings">Workout-Einstellungen</string>
     <string name="section_workout_settings_description">Standard-Timer-Einstellungen für Workouts konfigurieren.</string>
     <string name="workout_settings">Workout-Einstellungen</string>
     <string name="start_countdown_setting">Start-Countdown</string>
     <string name="set_interval_setting">Satzpause</string>
-    <string name="rep_duration_setting">Wiederholungsdauer</string>
     <string name="current_start_countdown">Aktuell: %d Sekunden</string>
     <string name="current_set_interval">Aktuell: %d Sekunden</string>
-    <string name="current_rep_duration">Aktuell: %d Sekunden</string>
     <string name="seconds_suffix">Sekunden</string>
     <string name="start_countdown_dialog_title">Start-Countdown</string>
     <string name="set_interval_dialog_title">Satzpause</string>
-    <string name="rep_duration_dialog_title">Wiederholungsdauer</string>
     <string name="enter_seconds">Sekunden eingeben</string>
     <string name="seconds_format">%d Sekunden</string>
+    <string name="set_interval_note">Hinweis: Übungsspezifische Einstellungen haben Vorrang, falls konfiguriert.</string>
+    <string name="enter_seconds_max">Sekunden eingeben (max %d)</string>
+
+    <!-- Timer Settings (Per-Exercise) -->
+    <string name="timer_settings_optional">Timer-Einstellungen (Optional)</string>
+    <string name="timer_settings_description">Timer für diese Übung konfigurieren. Leer lassen für Standardeinstellungen.</string>
+    <string name="rep_duration_seconds">Wiederholungsdauer (Sekunden)</string>
+    <string name="rest_interval_seconds">Pausenintervall (Sekunden)</string>
+    <string name="example_5_seconds">z.B. 5</string>
+    <string name="example_240_seconds">z.B. 240</string>
+
+    <!-- Apply Exercise Settings Button -->
+    <string name="apply_exercise_settings">Übungseinstellungen anwenden</string>
+    <string name="apply_target_values">Zielwerte anwenden</string>
+
+    <!-- App Info Section -->
+    <string name="section_app_info">App-Info</string>
+    <string name="section_app_info_description">App-Informationen und Lizenzen anzeigen.</string>
+    <string name="app_description">Eigengewichtstraining Aufzeichnungs-App</string>
+    <string name="app_version">Version</string>
+    <string name="app_author">Autor</string>
+    <string name="app_source_code">Quellcode</string>
+    <string name="app_feedback">Feedback</string>
+    <string name="codeberg_main">Codeberg</string>
+    <string name="github_mirror">GitHub</string>
+    <string name="feedback_description">Fehler melden oder Funktionen anfordern</string>
+    <string name="codeberg_description">Haupt-Repository</string>
+    <string name="github_description">Mirror-Repository</string>
+    <string name="report_issue_codeberg">Problem auf Codeberg melden</string>
+    <string name="report_issue_github">Problem auf GitHub melden</string>
 </resources>

@@ -7,6 +7,14 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     id("org.jetbrains.kotlin.plugin.serialization")
+    id("com.mikepenz.aboutlibraries.plugin")
+}
+
+// AboutLibraries: exclude timestamp for reproducible builds
+// See: https://codeberg.org/Gonbei774/CalisthenicsMemory/issues/2
+aboutLibraries {
+    excludeFields = arrayOf("generated")
+    configPath = "config/aboutlibraries"
 }
 
 android {
@@ -17,8 +25,8 @@ android {
         applicationId = "io.github.gonbei774.calisthenicsmemory"
         minSdk = 26
         targetSdk = 35
-        versionCode = 7
-        versionName = "1.6.0"
+        versionCode = 9
+        versionName = "1.7.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -70,6 +78,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -102,6 +111,13 @@ dependencies {
 
     // AppCompat for language settings
     implementation("androidx.appcompat:appcompat:1.7.0")
+
+    // AboutLibraries
+    implementation("com.mikepenz:aboutlibraries-core:11.2.3")
+    implementation("com.mikepenz:aboutlibraries-compose-m3:11.2.3")
+
+    // Reorderable (drag and drop)
+    implementation("sh.calvin.reorderable:reorderable:3.0.0")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

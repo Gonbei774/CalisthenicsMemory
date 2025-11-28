@@ -396,6 +396,10 @@
     <string name="restart_required">Redémarrage requis pour appliquer les modifications</string>
     <string name="language_changed">Langue modifiée. Veuillez redémarrer l\'application.</string>
 
+    <!-- Open Source Licenses -->
+    <string name="open_source_licenses">Licences Open Source</string>
+    <string name="licenses_description">Voir les licences des bibliothèques utilisées dans cette application</string>
+
     <!-- Training Days Display -->
     <string name="training_days_format">Entraînement %s</string>
     <string name="last_record_short">Dernier : %s</string>
@@ -408,26 +412,47 @@
     <string name="backup_saved_successfully">Sauvegarde enregistrée dans le dossier Téléchargements</string>
     <string name="backup_failed">Échec de la sauvegarde</string>
 
-    <!-- Record Input Settings -->
-    <string name="section_record_input_settings">Paramètres de Saisie des Enregistrements</string>
-    <string name="section_record_input_settings_description">Configurer les valeurs par défaut pour la saisie des enregistrements.</string>
-    <string name="auto_fill_target_setting">Remplissage automatique de la valeur cible</string>
-    <string name="auto_fill_target_description">Remplir automatiquement les champs avec la valeur cible</string>
-
     <!-- Workout Settings -->
     <string name="section_workout_settings">Paramètres d\'Entraînement</string>
     <string name="section_workout_settings_description">Configurer les valeurs par défaut du minuteur d\'entraînement.</string>
     <string name="workout_settings">Paramètres d\'Entraînement</string>
     <string name="start_countdown_setting">Compte à Rebours de Départ</string>
     <string name="set_interval_setting">Intervalle entre Séries</string>
-    <string name="rep_duration_setting">Durée de Répétition</string>
     <string name="current_start_countdown">Actuel : %d secondes</string>
     <string name="current_set_interval">Actuel : %d secondes</string>
-    <string name="current_rep_duration">Actuel : %d secondes</string>
     <string name="seconds_suffix">secondes</string>
     <string name="start_countdown_dialog_title">Compte à Rebours de Départ</string>
     <string name="set_interval_dialog_title">Intervalle entre Séries</string>
-    <string name="rep_duration_dialog_title">Durée de Répétition</string>
     <string name="enter_seconds">Entrer les secondes</string>
     <string name="seconds_format">%d secondes</string>
+    <string name="set_interval_note">Remarque : Les paramètres spécifiques à l\'exercice ont la priorité s\'ils sont configurés.</string>
+    <string name="enter_seconds_max">Entrer les secondes (max %d)</string>
+
+    <!-- Timer Settings (Per-Exercise) -->
+    <string name="timer_settings_optional">Paramètres du Minuteur (Optionnel)</string>
+    <string name="timer_settings_description">Configurer les minuteurs pour cet exercice. Laisser vide pour utiliser les paramètres par défaut.</string>
+    <string name="rep_duration_seconds">Durée par Répétition (secondes)</string>
+    <string name="rest_interval_seconds">Intervalle de Repos (secondes)</string>
+    <string name="example_5_seconds">ex. 5</string>
+    <string name="example_240_seconds">ex. 240</string>
+
+    <!-- Apply Exercise Settings Button -->
+    <string name="apply_exercise_settings">Appliquer les Paramètres de l\'Exercice</string>
+    <string name="apply_target_values">Appliquer les Valeurs Cibles</string>
+
+    <!-- App Info Section -->
+    <string name="section_app_info">Infos sur l\'Application</string>
+    <string name="section_app_info_description">Voir les informations de l\'application et les licences.</string>
+    <string name="app_description">Application d\'enregistrement d\'entraînement au poids du corps</string>
+    <string name="app_version">Version</string>
+    <string name="app_author">Auteur</string>
+    <string name="app_source_code">Code Source</string>
+    <string name="app_feedback">Commentaires</string>
+    <string name="codeberg_main">Codeberg</string>
+    <string name="github_mirror">GitHub</string>
+    <string name="feedback_description">Signaler des bugs ou demander des fonctionnalités</string>
+    <string name="codeberg_description">Dépôt principal</string>
+    <string name="github_description">Dépôt miroir</string>
+    <string name="report_issue_codeberg">Signaler un problème sur Codeberg</string>
+    <string name="report_issue_github">Signaler un problème sur GitHub</string>
 </resources>

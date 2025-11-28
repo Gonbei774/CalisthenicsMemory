@@ -397,6 +397,10 @@
     <string name="restart_required">変更を反映するにはアプリを再起動してください</string>
     <string name="language_changed">言語を変更しました。アプリを再起動してください。</string>
 
+    <!-- Open Source Licenses -->
+    <string name="open_source_licenses">オープンソースライセンス</string>
+    <string name="licenses_description">このアプリで使用しているライブラリのライセンスを表示</string>
+
     <!-- Training Days Display -->
     <string name="training_days_format">トレーニング%s</string>
     <string name="last_record_short">最後: %s</string>
@@ -409,26 +413,47 @@
     <string name="backup_saved_successfully">バックアップをDownloadsフォルダに保存しました</string>
     <string name="backup_failed">バックアップに失敗しました</string>
 
-    <!-- Record Input Settings -->
-    <string name="section_record_input_settings">記録入力設定</string>
-    <string name="section_record_input_settings_description">記録入力時のデフォルト値を設定できます。</string>
-    <string name="auto_fill_target_setting">目標値を自動入力</string>
-    <string name="auto_fill_target_description">入力フィールドに目標値を自動で入力します</string>
-
     <!-- Workout Settings -->
     <string name="section_workout_settings">ワークアウト設定</string>
     <string name="section_workout_settings_description">ワークアウトのタイマーのデフォルト値を設定できます。</string>
     <string name="workout_settings">ワークアウト設定</string>
     <string name="start_countdown_setting">開始カウントダウン</string>
     <string name="set_interval_setting">セット間インターバル</string>
-    <string name="rep_duration_setting">1レップの時間</string>
     <string name="current_start_countdown">現在: %d秒</string>
     <string name="current_set_interval">現在: %d秒</string>
-    <string name="current_rep_duration">現在: %d秒</string>
     <string name="seconds_suffix">秒</string>
     <string name="start_countdown_dialog_title">開始カウントダウン</string>
     <string name="set_interval_dialog_title">セット間インターバル</string>
-    <string name="rep_duration_dialog_title">1レップの時間</string>
     <string name="enter_seconds">秒数を入力</string>
     <string name="seconds_format">%d秒</string>
+    <string name="set_interval_note">※種目ごとの設定がある場合はそちらが優先されます</string>
+    <string name="enter_seconds_max">秒数を入力（最大 %d）</string>
+
+    <!-- Timer Settings (Per-Exercise) -->
+    <string name="timer_settings_optional">タイマー設定（任意）</string>
+    <string name="timer_settings_description">この種目のタイマーを設定します。空欄の場合はデフォルト設定を使用します。</string>
+    <string name="rep_duration_seconds">1レップの時間（秒）</string>
+    <string name="rest_interval_seconds">セット間インターバル（秒）</string>
+    <string name="example_5_seconds">例: 5</string>
+    <string name="example_240_seconds">例: 240</string>
+
+    <!-- Apply Exercise Settings Button -->
+    <string name="apply_exercise_settings">種目設定を適用</string>
+    <string name="apply_target_values">目標値を反映</string>
+
+    <!-- App Info Section -->
+    <string name="section_app_info">アプリ情報</string>
+    <string name="section_app_info_description">アプリの情報やライセンスを確認できます。</string>
+    <string name="app_description">自重トレーニング記録アプリ</string>
+    <string name="app_version">バージョン</string>
+    <string name="app_author">作者</string>
+    <string name="app_source_code">ソースコード</string>
+    <string name="app_feedback">フィードバック</string>
+    <string name="codeberg_main">Codeberg</string>
+    <string name="github_mirror">GitHub</string>
+    <string name="feedback_description">バグ報告・機能要望はこちら</string>
+    <string name="codeberg_description">メインリポジトリ</string>
+    <string name="github_description">ミラーリポジトリ</string>
+    <string name="report_issue_codeberg">Codebergで問題を報告する</string>
+    <string name="report_issue_github">GitHubで問題を報告する</string>
 </resources>

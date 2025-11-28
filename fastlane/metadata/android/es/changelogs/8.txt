@@ -1,0 +1,1 @@
+Reordenar ejercicios con botones de flecha. Ajustes de temporizador por ejercicio (intervalo de descanso, duración de rep). Botón manual "Aplicar configuración" reemplaza auto-relleno. Diálogo de edición a pantalla completa. Interruptor de intervalo entre series en ajustes. Visualización de licencias de código abierto.

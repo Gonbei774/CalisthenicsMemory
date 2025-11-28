@@ -1,14 +1,18 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
 import android.app.Activity
+import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,9 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
+import io.github.gonbei774.calisthenicsmemory.BuildConfig
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.AppLanguage
 import io.github.gonbei774.calisthenicsmemory.data.LanguagePreferences
@@ -39,7 +45,8 @@ import java.util.Locale
 @Composable
 fun SettingsScreenNew(
     viewModel: TrainingViewModel,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToLicenses: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -746,89 +753,7 @@ fun SettingsScreenNew(
             }
 
             // ========================================
-            // セクション4: 記録入力設定
-            // ========================================
-
-            // セクションタイトルと説明
-            item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.section_record_input_settings),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                    Text(
-                        text = stringResource(R.string.section_record_input_settings_description),
-                        fontSize = 14.sp,
-                        color = Slate400,
-                        lineHeight = 20.sp
-                    )
-                }
-            }
-
-            // 記録入力設定カード
-            item {
-                val recordPrefs = remember { io.github.gonbei774.calisthenicsmemory.data.RecordPreferences(context) }
-                var autoFillTargetEnabled by remember { mutableStateOf(recordPrefs.isAutoFillTargetEnabled()) }
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Slate800
-                    ),
-                    shape = RoundedCornerShape(12.dp),
-                    onClick = { }
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "📝",
-                            fontSize = 32.sp
-                        )
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(R.string.auto_fill_target_setting),
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Text(
-                                text = stringResource(R.string.auto_fill_target_description),
-                                fontSize = 14.sp,
-                                color = if (autoFillTargetEnabled) Slate400 else Slate400.copy(alpha = 0.5f),
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
-                        }
-                        Switch(
-                            checked = autoFillTargetEnabled,
-                            onCheckedChange = { enabled ->
-                                autoFillTargetEnabled = enabled
-                                recordPrefs.setAutoFillTargetEnabled(enabled)
-                            },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = Color.White,
-                                checkedTrackColor = Green600,
-                                uncheckedThumbColor = Color.White,
-                                uncheckedTrackColor = Slate600
-                            )
-                        )
-                    }
-                }
-            }
-
-            // ========================================
-            // セクション5: ワークアウト設定
+            // セクション4: ワークアウト設定
             // ========================================
 
             // セクションタイトルと説明
@@ -859,68 +784,15 @@ fun SettingsScreenNew(
                 val workoutPrefs = remember { io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences(context) }
                 var startCountdown by remember { mutableStateOf(workoutPrefs.getStartCountdown()) }
                 var setInterval by remember { mutableStateOf(workoutPrefs.getSetInterval()) }
-                var repDuration by remember { mutableStateOf(workoutPrefs.getRepDuration()) }
                 var startCountdownEnabled by remember { mutableStateOf(workoutPrefs.isStartCountdownEnabled()) }
                 var setIntervalEnabled by remember { mutableStateOf(workoutPrefs.isSetIntervalEnabled()) }
-                var repDurationEnabled by remember { mutableStateOf(workoutPrefs.isRepDurationEnabled()) }
                 var showStartCountdownDialog by remember { mutableStateOf(false) }
                 var showSetIntervalDialog by remember { mutableStateOf(false) }
-                var showRepDurationDialog by remember { mutableStateOf(false) }
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // 1レップの時間設定
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Slate800
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        onClick = { if (repDurationEnabled) showRepDurationDialog = true }
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "🔢",
-                                fontSize = 32.sp
-                            )
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = stringResource(R.string.rep_duration_setting),
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                                Text(
-                                    text = stringResource(R.string.current_rep_duration, repDuration),
-                                    fontSize = 14.sp,
-                                    color = if (repDurationEnabled) Slate400 else Slate400.copy(alpha = 0.5f),
-                                    modifier = Modifier.padding(top = 4.dp)
-                                )
-                            }
-                            Switch(
-                                checked = repDurationEnabled,
-                                onCheckedChange = { enabled ->
-                                    repDurationEnabled = enabled
-                                    workoutPrefs.setRepDurationEnabled(enabled)
-                                },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = Color.White,
-                                    checkedTrackColor = Orange600,
-                                    uncheckedThumbColor = Color.White,
-                                    uncheckedTrackColor = Slate600
-                                )
-                            )
-                        }
-                    }
-
                     // 開始カウントダウン設定
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -980,43 +852,52 @@ fun SettingsScreenNew(
                         shape = RoundedCornerShape(12.dp),
                         onClick = { if (setIntervalEnabled) showSetIntervalDialog = true }
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "⏸️",
-                                fontSize = 32.sp
-                            )
-                            Column(modifier = Modifier.weight(1f)) {
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(20.dp),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Text(
-                                    text = stringResource(R.string.set_interval_setting),
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
+                                    text = "⏸️",
+                                    fontSize = 32.sp
                                 )
-                                Text(
-                                    text = stringResource(R.string.current_set_interval, setInterval),
-                                    fontSize = 14.sp,
-                                    color = if (setIntervalEnabled) Slate400 else Slate400.copy(alpha = 0.5f),
-                                    modifier = Modifier.padding(top = 4.dp)
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = stringResource(R.string.set_interval_setting),
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.current_set_interval, setInterval),
+                                        fontSize = 14.sp,
+                                        color = if (setIntervalEnabled) Slate400 else Slate400.copy(alpha = 0.5f),
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
+                                }
+                                Switch(
+                                    checked = setIntervalEnabled,
+                                    onCheckedChange = { enabled ->
+                                        setIntervalEnabled = enabled
+                                        workoutPrefs.setSetIntervalEnabled(enabled)
+                                    },
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = Color.White,
+                                        checkedTrackColor = Orange600,
+                                        uncheckedThumbColor = Color.White,
+                                        uncheckedTrackColor = Slate600
+                                    )
                                 )
                             }
-                            Switch(
-                                checked = setIntervalEnabled,
-                                onCheckedChange = { enabled ->
-                                    setIntervalEnabled = enabled
-                                    workoutPrefs.setSetIntervalEnabled(enabled)
-                                },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = Color.White,
-                                    checkedTrackColor = Orange600,
-                                    uncheckedThumbColor = Color.White,
-                                    uncheckedTrackColor = Slate600
-                                )
+                            // 注意書き
+                            Text(
+                                text = stringResource(R.string.set_interval_note),
+                                fontSize = 12.sp,
+                                color = Slate400,
+                                modifier = Modifier.padding(start = 68.dp, end = 20.dp, bottom = 16.dp)
                             )
                         }
                     }
@@ -1074,6 +955,7 @@ fun SettingsScreenNew(
                 // セット間インターバル設定ダイアログ
                 if (showSetIntervalDialog) {
                     var inputValue by remember { mutableStateOf(setInterval.toString()) }
+                    val maxInterval = io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences.MAX_SET_INTERVAL
 
                     AlertDialog(
                         onDismissRequest = { showSetIntervalDialog = false },
@@ -1086,8 +968,16 @@ fun SettingsScreenNew(
                         text = {
                             OutlinedTextField(
                                 value = inputValue,
-                                onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) inputValue = it },
-                                label = { Text(stringResource(R.string.enter_seconds)) },
+                                onValueChange = { newValue ->
+                                    if (newValue.isEmpty() || newValue.all { c -> c.isDigit() }) {
+                                        // 上限チェック
+                                        val intValue = newValue.toIntOrNull()
+                                        if (intValue == null || intValue <= maxInterval) {
+                                            inputValue = newValue
+                                        }
+                                    }
+                                },
+                                label = { Text(stringResource(R.string.enter_seconds_max, maxInterval)) },
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = OutlinedTextFieldDefaults.colors(
@@ -1100,7 +990,8 @@ fun SettingsScreenNew(
                         confirmButton = {
                             TextButton(
                                 onClick = {
-                                    val newValue = inputValue.toIntOrNull() ?: io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences.DEFAULT_SET_INTERVAL
+                                    val newValue = (inputValue.toIntOrNull() ?: io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences.DEFAULT_SET_INTERVAL)
+                                        .coerceIn(1, maxInterval)
                                     workoutPrefs.setSetInterval(newValue)
                                     setInterval = newValue
                                     showSetIntervalDialog = false
@@ -1119,54 +1010,251 @@ fun SettingsScreenNew(
                         }
                     )
                 }
+            }
 
-                // 1レップの時間設定ダイアログ
-                if (showRepDurationDialog) {
-                    var inputValue by remember { mutableStateOf(repDuration.toString()) }
+            // ========================================
+            // セクション5: アプリ情報
+            // ========================================
 
-                    AlertDialog(
-                        onDismissRequest = { showRepDurationDialog = false },
-                        title = {
+            // セクションタイトルと説明
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.section_app_info),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.section_app_info_description),
+                        fontSize = 14.sp,
+                        color = Slate400,
+                        lineHeight = 20.sp
+                    )
+                }
+            }
+
+            // アプリ情報カード（Auxioスタイル）
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Slate800
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // アプリ名と説明（中央揃え）
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
                             Text(
-                                text = stringResource(R.string.rep_duration_dialog_title),
-                                fontWeight = FontWeight.Bold
+                                text = stringResource(R.string.app_name),
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
                             )
-                        },
-                        text = {
-                            OutlinedTextField(
-                                value = inputValue,
-                                onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) inputValue = it },
-                                label = { Text(stringResource(R.string.enter_seconds)) },
-                                singleLine = true,
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Orange600,
-                                    focusedLabelColor = Orange600,
-                                    cursorColor = Orange600
-                                )
+                            Text(
+                                text = stringResource(R.string.app_description),
+                                fontSize = 14.sp,
+                                color = Slate400,
+                                modifier = Modifier.padding(top = 4.dp)
                             )
-                        },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    val newValue = inputValue.toIntOrNull() ?: io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences.DEFAULT_REP_DURATION
-                                    workoutPrefs.setRepDuration(newValue)
-                                    repDuration = newValue
-                                    showRepDurationDialog = false
-                                },
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = Orange600
+                        }
+
+                        // バージョン
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Info,
+                                contentDescription = null,
+                                tint = Slate400,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.app_version),
+                                    fontSize = 16.sp,
+                                    color = Color.White
                                 )
-                            ) {
-                                Text(stringResource(R.string.save))
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { showRepDurationDialog = false }) {
-                                Text(stringResource(R.string.cancel))
+                                Text(
+                                    text = BuildConfig.VERSION_NAME,
+                                    fontSize = 14.sp,
+                                    color = Slate400
+                                )
                             }
                         }
-                    )
+
+                        // ソースコード
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://codeberg.org/Gonbei774/CalisthenicsMemory"))
+                                    context.startActivity(intent)
+                                },
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "<>",
+                                fontSize = 20.sp,
+                                color = Slate400,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = stringResource(R.string.app_source_code),
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
+                        }
+
+                        // 使用許諾（ライセンス）
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onNavigateToLicenses() },
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "📄",
+                                fontSize = 20.sp
+                            )
+                            Text(
+                                text = stringResource(R.string.open_source_licenses),
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+            }
+
+            // 著者カード
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Slate800
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // セクションタイトル
+                        Text(
+                            text = stringResource(R.string.app_author),
+                            fontSize = 14.sp,
+                            color = Slate400
+                        )
+
+                        // 開発者
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Person,
+                                contentDescription = null,
+                                tint = Slate400,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Text(
+                                text = "Gonbei774",
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+            }
+
+            // フィードバックカード
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Slate800
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // セクションタイトル
+                        Text(
+                            text = stringResource(R.string.app_feedback),
+                            fontSize = 14.sp,
+                            color = Slate400
+                        )
+
+                        // Codebergで問題を報告
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://codeberg.org/Gonbei774/CalisthenicsMemory/issues"))
+                                    context.startActivity(intent)
+                                },
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "📝",
+                                fontSize = 20.sp
+                            )
+                            Text(
+                                text = stringResource(R.string.report_issue_codeberg),
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
+                        }
+
+                        // GitHubで問題を報告
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Gonbei774/CalisthenicsMemory/issues"))
+                                    context.startActivity(intent)
+                                },
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "📝",
+                                fontSize = 20.sp
+                            )
+                            Text(
+                                text = stringResource(R.string.report_issue_github),
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
+                        }
+                    }
                 }
             }
 

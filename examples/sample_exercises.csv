@@ -1,5 +1,5 @@
-name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite
-Push-up,Dynamic,Upper Body,1,Bilateral,3,10,true
-One-Arm Push-up,Dynamic,Upper Body,5,Unilateral,2,5,false
-Squat,Dynamic,,0,Bilateral,,,false
-Plank,Isometric,Core,1,Bilateral,3,30,true
+name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration
+Push-up,Dynamic,Upper Body,1,Bilateral,3,10,true,0,,
+One-Arm Push-up,Dynamic,Upper Body,5,Unilateral,2,5,false,1,180,
+Squat,Dynamic,,0,Bilateral,,,false,0,,
+Plank,Isometric,Core,1,Bilateral,3,30,true,0,,60

@@ -41,6 +41,7 @@ import io.github.gonbei774.calisthenicsmemory.ui.screens.HomeScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.RecordScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.CreateScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.SettingsScreenNew
+import io.github.gonbei774.calisthenicsmemory.ui.screens.LicensesScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.WorkoutScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.view.ViewScreen
 import io.github.gonbei774.calisthenicsmemory.ui.theme.CalisthenicsMemoryTheme
@@ -197,7 +198,14 @@ fun CalisthenicsMemoryApp() {
                     BackHandler { currentScreen = Screen.Home }
                     SettingsScreenNew(
                         viewModel = viewModel,
-                        onNavigateBack = { currentScreen = Screen.Home }
+                        onNavigateBack = { currentScreen = Screen.Home },
+                        onNavigateToLicenses = { currentScreen = Screen.Licenses }
+                    )
+                }
+                is Screen.Licenses -> {
+                    BackHandler { currentScreen = Screen.Settings }
+                    LicensesScreen(
+                        onNavigateBack = { currentScreen = Screen.Settings }
                     )
                 }
                 is Screen.Record -> {
@@ -230,6 +238,7 @@ sealed class Screen {
     object Home : Screen()
     object Create : Screen()
     object Settings : Screen()
+    object Licenses : Screen()
     object Record : Screen()
     object View : Screen()
     object Workout : Screen()

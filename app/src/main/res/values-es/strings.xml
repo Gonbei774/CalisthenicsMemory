@@ -396,6 +396,10 @@
     <string name="restart_required">Reinicio requerido para aplicar cambios</string>
     <string name="language_changed">Idioma cambiado. Por favor reinicia la aplicación.</string>
 
+    <!-- Open Source Licenses -->
+    <string name="open_source_licenses">Licencias de Código Abierto</string>
+    <string name="licenses_description">Ver licencias de las bibliotecas usadas en esta app</string>
+
     <!-- Training Days Display -->
     <string name="training_days_format">Entrenamiento %s</string>
     <string name="last_record_short">Último: %s</string>
@@ -408,26 +412,47 @@
     <string name="backup_saved_successfully">Copia de seguridad guardada en la carpeta Descargas</string>
     <string name="backup_failed">Error al guardar la copia de seguridad</string>
 
-    <!-- Record Input Settings -->
-    <string name="section_record_input_settings">Configuración de Entrada de Registros</string>
-    <string name="section_record_input_settings_description">Configurar valores predeterminados para la entrada de registros.</string>
-    <string name="auto_fill_target_setting">Auto-rellenar Valor Objetivo</string>
-    <string name="auto_fill_target_description">Rellenar automáticamente los campos con el valor objetivo</string>
-
     <!-- Workout Settings -->
     <string name="section_workout_settings">Configuración de Entrenamiento</string>
     <string name="section_workout_settings_description">Configurar los valores predeterminados del temporizador de entrenamiento.</string>
     <string name="workout_settings">Configuración de Entrenamiento</string>
     <string name="start_countdown_setting">Cuenta Regresiva Inicial</string>
     <string name="set_interval_setting">Intervalo entre Series</string>
-    <string name="rep_duration_setting">Duración de Repetición</string>
     <string name="current_start_countdown">Actual: %d segundos</string>
     <string name="current_set_interval">Actual: %d segundos</string>
-    <string name="current_rep_duration">Actual: %d segundos</string>
     <string name="seconds_suffix">segundos</string>
     <string name="start_countdown_dialog_title">Cuenta Regresiva Inicial</string>
     <string name="set_interval_dialog_title">Intervalo entre Series</string>
-    <string name="rep_duration_dialog_title">Duración de Repetición</string>
     <string name="enter_seconds">Ingresar segundos</string>
     <string name="seconds_format">%d segundos</string>
+    <string name="set_interval_note">Nota: La configuración específica del ejercicio tiene prioridad si está configurada.</string>
+    <string name="enter_seconds_max">Ingresar segundos (máx %d)</string>
+
+    <!-- Timer Settings (Per-Exercise) -->
+    <string name="timer_settings_optional">Configuración del Temporizador (Opcional)</string>
+    <string name="timer_settings_description">Configurar temporizadores para este ejercicio. Dejar en blanco para usar la configuración predeterminada.</string>
+    <string name="rep_duration_seconds">Duración por Repetición (segundos)</string>
+    <string name="rest_interval_seconds">Intervalo de Descanso (segundos)</string>
+    <string name="example_5_seconds">ej. 5</string>
+    <string name="example_240_seconds">ej. 240</string>
+
+    <!-- Apply Exercise Settings Button -->
+    <string name="apply_exercise_settings">Aplicar Configuración del Ejercicio</string>
+    <string name="apply_target_values">Aplicar Valores Meta</string>
+
+    <!-- App Info Section -->
+    <string name="section_app_info">Información de la App</string>
+    <string name="section_app_info_description">Ver información de la aplicación y licencias.</string>
+    <string name="app_description">App de registro de entrenamiento con peso corporal</string>
+    <string name="app_version">Versión</string>
+    <string name="app_author">Autor</string>
+    <string name="app_source_code">Código Fuente</string>
+    <string name="app_feedback">Comentarios</string>
+    <string name="codeberg_main">Codeberg</string>
+    <string name="github_mirror">GitHub</string>
+    <string name="feedback_description">Reportar errores o solicitar funciones</string>
+    <string name="codeberg_description">Repositorio principal</string>
+    <string name="github_description">Repositorio espejo</string>
+    <string name="report_issue_codeberg">Reportar problema en Codeberg</string>
+    <string name="report_issue_github">Reportar problema en GitHub</string>
 </resources>

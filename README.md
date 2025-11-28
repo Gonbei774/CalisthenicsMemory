@@ -12,6 +12,10 @@ A simple, privacy-focused bodyweight training tracker for Android.
 
 ---
 
+🌐 [日本語](docs/readme/README.ja.md) | [Deutsch](docs/readme/README.de.md) | [Español](docs/readme/README.es.md) | [Français](docs/readme/README.fr.md) | [Italiano](docs/readme/README.it.md) | [简体中文](docs/readme/README.zh-CN.md)
+
+---
+
 <p align="center">
   <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/">
     <img src="https://fdroid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">
@@ -31,27 +35,57 @@ Calisthenics Memory helps you track and manage bodyweight exercises like push-up
 
 The app operates completely offline—no internet connection required, no ads, no tracking. Your data stays on your device only.
 
+## Key Points
+
+- **Full customization** - No locked features for custom exercises. Reps/time, unilateral/bilateral, goals, timers - all available for every exercise you create
+- **Two recording modes** - Quick manual input or guided workout with timers
+- **Offline only** - Your data never leaves your device
+
 ## Features
 
-- **Fully Customizable** - Create exercises freely, organize by groups, manage with 10 levels
+- **Home Dashboard** - View today's training records at a glance, long-press to copy
+- **Fully Customizable** - Create exercises freely, organize by groups, manage with 10 levels, reorder with arrow buttons
 - **Favorites** - Quick access to frequently used exercises
 - **Two Recording Modes**
-  - Record mode: Quick manual input
-  - Workout mode: Automatic guided training with timer
+  - Record mode: Quick manual input with "Apply Exercise Settings" button
+  - Workout mode: Automatic guided training with per-exercise timer settings (rest interval, rep duration)
 - **Progress Tracking** - View records as lists, graphs, or challenge progress bars
 - **Unilateral/Bilateral Support** - Track left and right sides separately for one-sided exercises
 - **Challenge Goals** - Set target sets × reps and track achievement status
-- **Data Management** - Export/import in JSON or CSV format
-- **Multi-Language** - English, Japanese, Spanish, German, Chinese (Simplified), French
+- **Data Management** - Export/import in JSON or CSV format (complete backup support)
+- **Multi-Language** - English, Japanese, Spanish, German, Chinese (Simplified), French, Italian
 - **Privacy-First** - Completely offline operation, no permissions required
 
 ## Screenshots
 
 <p align="center">
-  <img src="screenshots/1.png" width="200" alt="Exercise Management">
-  <img src="screenshots/2.png" width="200" alt="Record Entry">
-  <img src="screenshots/3.png" width="200" alt="Workout Timer">
-  <img src="screenshots/4.png" width="200" alt="Progress Graph">
+  <img src="screenshots/1.png" width="250"><br>
+  <b>Home</b> - Today's workout at a glance
+</p>
+
+<p align="center">
+  <img src="screenshots/2.png" width="250"><br>
+  <b>Exercises</b> - Organize with groups & favorites
+</p>
+
+<p align="center">
+  <img src="screenshots/3.png" width="250"><br>
+  <b>Record</b> - Quick manual input
+</p>
+
+<p align="center">
+  <img src="screenshots/4.png" width="250"><br>
+  <b>Workout</b> - Guided training with timer
+</p>
+
+<p align="center">
+  <img src="screenshots/5.png" width="250"><br>
+  <b>Graph</b> - Track your progress
+</p>
+
+<p align="center">
+  <img src="screenshots/6.png" width="250"><br>
+  <b>Challenge</b> - Goal achievement status
 </p>
 
 ## Requirements
@@ -76,4 +110,4 @@ This project is licensed under the GNU General Public License v3.0. See [LICENSE
 
 ---
 
-**Last Updated**: November 16, 2025
+**Last Updated**: November 27, 2025

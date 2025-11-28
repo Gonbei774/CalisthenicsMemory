@@ -1,6 +1,7 @@
 package io.github.gonbei774.calisthenicsmemory
 
 import io.github.gonbei774.calisthenicsmemory.ui.screens.detectCsvType
+import io.github.gonbei774.calisthenicsmemory.viewmodel.CsvType
 import org.junit.Test
 import org.junit.Assert.*
 
@@ -19,7 +20,7 @@ class CsvDetectionTest {
 
         val result = detectCsvType(csv)
 
-        assertEquals("Groups", result)
+        assertEquals(CsvType.GROUPS, result)
     }
 
     @Test
@@ -32,7 +33,7 @@ class CsvDetectionTest {
 
         val result = detectCsvType(csv)
 
-        assertEquals("Groups", result)
+        assertEquals(CsvType.GROUPS, result)
     }
 
     @Test
@@ -46,7 +47,7 @@ class CsvDetectionTest {
 
         val result = detectCsvType(csv)
 
-        assertEquals("Groups", result)
+        assertEquals(CsvType.GROUPS, result)
     }
 
     @Test
@@ -58,7 +59,7 @@ class CsvDetectionTest {
 
         val result = detectCsvType(csv)
 
-        assertEquals("Groups", result)
+        assertEquals(CsvType.GROUPS, result)
     }
 
     @Test
@@ -70,7 +71,7 @@ class CsvDetectionTest {
 
         val result = detectCsvType(csv)
 
-        assertEquals("Exercises", result)
+        assertEquals(CsvType.EXERCISES, result)
     }
 
     @Test
@@ -83,7 +84,7 @@ class CsvDetectionTest {
 
         val result = detectCsvType(csv)
 
-        assertEquals("Exercises", result)
+        assertEquals(CsvType.EXERCISES, result)
     }
 
     @Test
@@ -95,7 +96,7 @@ class CsvDetectionTest {
 
         val result = detectCsvType(csv)
 
-        assertEquals("Records", result)
+        assertEquals(CsvType.RECORDS, result)
     }
 
     @Test
@@ -108,7 +109,7 @@ class CsvDetectionTest {
 
         val result = detectCsvType(csv)
 
-        assertEquals("Records", result)
+        assertEquals(CsvType.RECORDS, result)
     }
 
     @Test

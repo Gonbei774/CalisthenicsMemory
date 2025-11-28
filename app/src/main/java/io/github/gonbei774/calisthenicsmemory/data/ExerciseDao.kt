@@ -15,6 +15,12 @@ interface ExerciseDao {
     @Query("SELECT * FROM exercises WHERE name = :name AND type = :type LIMIT 1")
     suspend fun getExerciseByNameAndType(name: String, type: String): Exercise?
 
+    @Query("SELECT * FROM exercises WHERE `group` = :groupName ORDER BY displayOrder ASC")
+    suspend fun getExercisesByGroup(groupName: String): List<Exercise>
+
+    @Query("SELECT * FROM exercises WHERE `group` IS NULL ORDER BY displayOrder ASC")
+    suspend fun getUngroupedExercises(): List<Exercise>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertExercise(exercise: Exercise): Long
 

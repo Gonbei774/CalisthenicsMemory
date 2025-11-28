@@ -396,6 +396,10 @@
     <string name="restart_required">Restart required to apply changes</string>
     <string name="language_changed">Language changed. Please restart the app.</string>
 
+    <!-- Open Source Licenses -->
+    <string name="open_source_licenses">Open Source Licenses</string>
+    <string name="licenses_description">View licenses of libraries used in this app</string>
+
     <!-- Training Days Display -->
     <string name="training_days_format">Training %s</string>
     <string name="last_record_short">Last: %s</string>
@@ -408,26 +412,47 @@
     <string name="backup_saved_successfully">Backup saved to Downloads folder</string>
     <string name="backup_failed">Backup failed</string>
 
-    <!-- Record Input Settings -->
-    <string name="section_record_input_settings">Record Input Settings</string>
-    <string name="section_record_input_settings_description">Configure default values for record input.</string>
-    <string name="auto_fill_target_setting">Auto-fill Target Value</string>
-    <string name="auto_fill_target_description">Automatically fill input fields with target value</string>
-
     <!-- Workout Settings -->
     <string name="section_workout_settings">Workout Settings</string>
     <string name="section_workout_settings_description">Configure default workout timer settings.</string>
     <string name="workout_settings">Workout Settings</string>
     <string name="start_countdown_setting">Start Countdown</string>
     <string name="set_interval_setting">Set Interval</string>
-    <string name="rep_duration_setting">Rep Duration</string>
     <string name="current_start_countdown">Current: %d seconds</string>
     <string name="current_set_interval">Current: %d seconds</string>
-    <string name="current_rep_duration">Current: %d seconds</string>
     <string name="seconds_suffix">seconds</string>
     <string name="start_countdown_dialog_title">Start Countdown</string>
     <string name="set_interval_dialog_title">Set Interval</string>
-    <string name="rep_duration_dialog_title">Rep Duration</string>
     <string name="enter_seconds">Enter seconds</string>
     <string name="seconds_format">%d seconds</string>
+    <string name="set_interval_note">Note: Exercise-specific settings take priority if configured.</string>
+    <string name="enter_seconds_max">Enter seconds (max %d)</string>
+
+    <!-- Timer Settings (Per-Exercise) -->
+    <string name="timer_settings_optional">Timer Settings (Optional)</string>
+    <string name="timer_settings_description">Configure timers for this exercise. Leave blank to use default settings.</string>
+    <string name="rep_duration_seconds">Rep Duration (seconds)</string>
+    <string name="rest_interval_seconds">Rest Interval (seconds)</string>
+    <string name="example_5_seconds">e.g., 5</string>
+    <string name="example_240_seconds">e.g., 240</string>
+
+    <!-- Apply Exercise Settings Button -->
+    <string name="apply_exercise_settings">Apply Exercise Settings</string>
+    <string name="apply_target_values">Apply Target Values</string>
+
+    <!-- App Info Section -->
+    <string name="section_app_info">App Info</string>
+    <string name="section_app_info_description">View app information and licenses.</string>
+    <string name="app_description">Bodyweight training record app</string>
+    <string name="app_version">Version</string>
+    <string name="app_author">Author</string>
+    <string name="app_source_code">Source Code</string>
+    <string name="app_feedback">Feedback</string>
+    <string name="codeberg_main">Codeberg</string>
+    <string name="github_mirror">GitHub</string>
+    <string name="feedback_description">Report bugs or request features</string>
+    <string name="codeberg_description">Main repository</string>
+    <string name="github_description">Mirror repository</string>
+    <string name="report_issue_codeberg">Report issue on Codeberg</string>
+    <string name="report_issue_github">Report issue on GitHub</string>
 </resources>

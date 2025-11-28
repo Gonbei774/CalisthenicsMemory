@@ -396,6 +396,10 @@
     <string name="restart_required">需要重启以应用更改</string>
     <string name="language_changed">已更改语言。请重启应用。</string>
 
+    <!-- Open Source Licenses -->
+    <string name="open_source_licenses">开源许可证</string>
+    <string name="licenses_description">查看此应用使用的库的许可证</string>
+
     <!-- Training Days Display -->
     <string name="training_days_format">训练%s</string>
     <string name="last_record_short">上次：%s</string>
@@ -408,26 +412,47 @@
     <string name="backup_saved_successfully">备份已保存到下载文件夹</string>
     <string name="backup_failed">备份失败</string>
 
-    <!-- Record Input Settings -->
-    <string name="section_record_input_settings">记录输入设置</string>
-    <string name="section_record_input_settings_description">配置记录输入的默认值。</string>
-    <string name="auto_fill_target_setting">自动填充目标值</string>
-    <string name="auto_fill_target_description">自动在输入字段中填充目标值</string>
-
     <!-- Workout Settings -->
     <string name="section_workout_settings">训练设置</string>
     <string name="section_workout_settings_description">配置训练计时器的默认值。</string>
     <string name="workout_settings">训练设置</string>
     <string name="start_countdown_setting">开始倒计时</string>
     <string name="set_interval_setting">组间间歇</string>
-    <string name="rep_duration_setting">单次时长</string>
     <string name="current_start_countdown">当前：%d秒</string>
     <string name="current_set_interval">当前：%d秒</string>
-    <string name="current_rep_duration">当前：%d秒</string>
     <string name="seconds_suffix">秒</string>
     <string name="start_countdown_dialog_title">开始倒计时</string>
     <string name="set_interval_dialog_title">组间间歇</string>
-    <string name="rep_duration_dialog_title">单次时长</string>
     <string name="enter_seconds">输入秒数</string>
     <string name="seconds_format">%d秒</string>
+    <string name="set_interval_note">注意：如果已配置，动作的特定设置优先。</string>
+    <string name="enter_seconds_max">输入秒数（最大 %d）</string>
+
+    <!-- Timer Settings (Per-Exercise) -->
+    <string name="timer_settings_optional">计时器设置（可选）</string>
+    <string name="timer_settings_description">为此动作配置计时器。留空则使用默认设置。</string>
+    <string name="rep_duration_seconds">单次时长（秒）</string>
+    <string name="rest_interval_seconds">组间间歇（秒）</string>
+    <string name="example_5_seconds">例如：5</string>
+    <string name="example_240_seconds">例如：240</string>
+
+    <!-- Apply Exercise Settings Button -->
+    <string name="apply_exercise_settings">应用动作设置</string>
+    <string name="apply_target_values">应用目标值</string>
+
+    <!-- App Info Section -->
+    <string name="section_app_info">应用信息</string>
+    <string name="section_app_info_description">查看应用信息和许可证。</string>
+    <string name="app_description">自重训练记录应用</string>
+    <string name="app_version">版本</string>
+    <string name="app_author">作者</string>
+    <string name="app_source_code">源代码</string>
+    <string name="app_feedback">反馈</string>
+    <string name="codeberg_main">Codeberg</string>
+    <string name="github_mirror">GitHub</string>
+    <string name="feedback_description">报告错误或请求功能</string>
+    <string name="codeberg_description">主仓库</string>
+    <string name="github_description">镜像仓库</string>
+    <string name="report_issue_codeberg">在Codeberg上报告问题</string>
+    <string name="report_issue_github">在GitHub上报告问题</string>
 </resources>
