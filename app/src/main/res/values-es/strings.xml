@@ -455,4 +455,8 @@
     <string name="github_description">Repositorio espejo</string>
     <string name="report_issue_codeberg">Reportar problema en Codeberg</string>
     <string name="report_issue_github">Reportar problema en GitHub</string>
+
+    <!-- Flash Notification -->
+    <string name="flash_notification_setting">Notificación con Flash LED</string>
+    <string name="flash_notification_description">Hacer parpadear el LED sincronizado con los sonidos durante el entrenamiento</string>
 </resources>

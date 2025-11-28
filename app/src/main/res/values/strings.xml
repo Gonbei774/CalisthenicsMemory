@@ -427,6 +427,8 @@
     <string name="seconds_format">%d seconds</string>
     <string name="set_interval_note">Note: Exercise-specific settings take priority if configured.</string>
     <string name="enter_seconds_max">Enter seconds (max %d)</string>
+    <string name="flash_notification_setting">LED Flash Notification</string>
+    <string name="flash_notification_description">Flash LED in sync with sounds during workout</string>
 
     <!-- Timer Settings (Per-Exercise) -->
     <string name="timer_settings_optional">Timer Settings (Optional)</string>
