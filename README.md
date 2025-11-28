@@ -2,17 +2,21 @@
   <img src="icon.png" width="150" alt="Calisthenics Memory Icon">
 </p>
 
-> **📢 Important Notice**: Development has moved to **[Codeberg](https://codeberg.org/Gonbei774/CalisthenicsMemory)**
->
-> This GitHub repository serves as a mirror for issue tracking and community visibility. For the latest code and releases, please visit our [Codeberg repository](https://codeberg.org/Gonbei774/CalisthenicsMemory).
-
 # Calisthenics Memory
 
 A simple, privacy-focused bodyweight training tracker for Android.
 
 ---
 
-🌐 [日本語](docs/readme/README.ja.md) | [Deutsch](docs/readme/README.de.md) | [Español](docs/readme/README.es.md) | [Français](docs/readme/README.fr.md) | [Italiano](docs/readme/README.it.md) | [简体中文](docs/readme/README.zh-CN.md)
+<table>
+<tr><td align="center">
+<h3>⚠️ This Repository Has Moved ⚠️</h3>
+<p>Development has moved to <b><a href="https://codeberg.org/Gonbei774/CalisthenicsMemory">Codeberg</a></b></p>
+<p>This GitHub repository is a <b>read-only mirror</b>.<br>
+For latest code, releases, and contributions, please visit Codeberg.<br>
+Issues are accepted here for convenience.</p>
+</td></tr>
+</table>
 
 ---
 
@@ -97,7 +101,7 @@ The app operates completely offline—no internet connection required, no ads, n
 ## Building
 
 ```bash
-git clone https://codeberg.org/Gonbei774/CalisthenicsMemory.git
+git clone https://github.com/Gonbei774/CalisthenicsMemory.git
 cd CalisthenicsMemory
 ./gradlew assembleDebug
 ```
@@ -107,7 +111,3 @@ Requires JDK 17 or higher.
 ## License
 
 This project is licensed under the GNU General Public License v3.0. See [LICENSE](LICENSE) for details.
-
----
-
-**Last Updated**: November 27, 2025
