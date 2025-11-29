@@ -94,10 +94,11 @@ L'application fonctionne entièrement hors ligne — aucune connexion Internet r
 
 Cette application utilise uniquement des **permissions normales (au moment de l'installation)**, qui sont automatiquement accordées lors de l'installation sans demande à l'utilisateur.
 
-À partir de v1.8.0, les permissions suivantes sont incluses :
+À partir de v1.8.1, les permissions suivantes sont incluses :
 
 | Permission | Objectif | Ajouté par | Source |
 |------------|----------|------------|--------|
+| `WAKE_LOCK` | Maintenir le minuteur actif lorsque l'écran est éteint | App (v1.8.1) | [WorkoutViewModel.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/ui/workout/WorkoutViewModel.kt) |
 | `FLASHLIGHT` | Notification flash LED pendant le mode entraînement | App (v1.8.0) | [FlashController.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/util/FlashController.kt) |
 | `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | Protection de sécurité des composants internes | Bibliothèque AndroidX (automatique) | - |
 

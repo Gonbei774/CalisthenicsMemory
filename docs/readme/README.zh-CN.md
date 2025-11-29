@@ -94,10 +94,11 @@ Calisthenics Memory 帮助您记录和管理俯卧撑、引体向上、深蹲等
 
 本应用仅使用**普通权限（安装时权限）**，这些权限在安装时自动授予，无需用户确认。
 
-截至 v1.8.0，包含以下权限：
+截至 v1.8.1，包含以下权限：
 
 | 权限 | 用途 | 添加者 | 源码 |
 |------|------|--------|------|
+| `WAKE_LOCK` | 屏幕关闭时保持计时器运行 | 应用（v1.8.1） | [WorkoutViewModel.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/ui/workout/WorkoutViewModel.kt) |
 | `FLASHLIGHT` | 训练模式中的LED闪光通知 | 应用（v1.8.0） | [FlashController.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/util/FlashController.kt) |
 | `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | 内部组件的安全保护 | AndroidX 库（自动） | - |
 

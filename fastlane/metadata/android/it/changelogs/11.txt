@@ -1,0 +1,1 @@
+Risolto il problema del timer che si fermava quando lo schermo era spento.

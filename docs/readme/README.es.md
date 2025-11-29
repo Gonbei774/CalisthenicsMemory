@@ -94,10 +94,11 @@ La aplicación funciona completamente sin conexión: no requiere internet, sin a
 
 Esta aplicación utiliza solo **permisos normales (de tiempo de instalación)**, que se otorgan automáticamente durante la instalación sin solicitudes al usuario.
 
-A partir de v1.8.0, se incluyen los siguientes permisos:
+A partir de v1.8.1, se incluyen los siguientes permisos:
 
 | Permiso | Propósito | Añadido por | Fuente |
 |---------|-----------|-------------|--------|
+| `WAKE_LOCK` | Mantener el temporizador activo con la pantalla apagada | App (v1.8.1) | [WorkoutViewModel.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/ui/workout/WorkoutViewModel.kt) |
 | `FLASHLIGHT` | Notificación de flash LED durante el modo entrenamiento | App (v1.8.0) | [FlashController.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/util/FlashController.kt) |
 | `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | Protección de seguridad para componentes internos | Biblioteca AndroidX (automático) | - |
 

@@ -94,10 +94,11 @@ The app operates completely offline—no internet connection required, no ads, n
 
 This app uses only **normal (install-time) permissions**, which are automatically granted at installation without user prompts.
 
-As of v1.8.0, the following permissions are included:
+As of v1.8.1, the following permissions are included:
 
 | Permission | Purpose | Added by | Source |
 |------------|---------|----------|--------|
+| `WAKE_LOCK` | Keep timer running when screen is off | App (v1.8.1) | [WorkoutViewModel.kt](app/src/main/java/io/github/gonbei774/calisthenicsmemory/ui/workout/WorkoutViewModel.kt) |
 | `FLASHLIGHT` | LED flash notification during workout mode | App (v1.8.0) | [FlashController.kt](app/src/main/java/io/github/gonbei774/calisthenicsmemory/util/FlashController.kt) |
 | `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | Security protection for internal components | AndroidX library (automatic) | - |
 

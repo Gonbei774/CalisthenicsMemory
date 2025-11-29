@@ -1,0 +1,1 @@
+Timer stoppt nicht mehr, wenn der Bildschirm ausgeschaltet ist.
