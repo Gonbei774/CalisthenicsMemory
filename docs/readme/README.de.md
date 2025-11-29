@@ -50,7 +50,7 @@ Die App funktioniert komplett offline – keine Internetverbindung erforderlich,
 - **Herausforderungsziele** - Zielsätze × Wiederholungen festlegen und Erfüllungsstatus verfolgen
 - **Datenverwaltung** - Export/Import im JSON- oder CSV-Format (vollständige Backup-Unterstützung)
 - **Mehrsprachig** - Englisch, Japanisch, Spanisch, Deutsch, Chinesisch (vereinfacht), Französisch, Italienisch
-- **Datenschutz-orientiert** - Komplett offline, keine Berechtigungen erforderlich
+- **Datenschutz-orientiert** - Komplett offline, keine gefährlichen Berechtigungen, kein Internetzugriff
 
 ## Screenshots
 
@@ -89,6 +89,33 @@ Die App funktioniert komplett offline – keine Internetverbindung erforderlich,
 - **Android** 8.0 (API 26) oder höher
 - **Speicher** ~10MB
 - **Internet** Nicht erforderlich
+
+## Berechtigungen
+
+Diese App verwendet nur **normale (Installationszeit-)Berechtigungen**, die bei der Installation automatisch gewährt werden, ohne Benutzeraufforderungen.
+
+Ab v1.8.0 sind folgende Berechtigungen enthalten:
+
+| Berechtigung | Zweck | Hinzugefügt von | Quelle |
+|--------------|-------|-----------------|--------|
+| `FLASHLIGHT` | LED-Blitz-Benachrichtigung im Trainingsmodus | App (v1.8.0) | [FlashController.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/util/FlashController.kt) |
+| `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | Sicherheitsschutz für interne Komponenten | AndroidX-Bibliothek (automatisch) | - |
+
+### Was sind normale Berechtigungen?
+
+Android klassifiziert Berechtigungen in zwei Typen:
+- **Normale Berechtigungen**: Berechtigungen mit geringem Risiko, die bei der Installation automatisch gewährt werden. Benutzer können sie nicht einzeln widerrufen.
+- **Gefährliche Berechtigungen**: Berechtigungen mit hohem Risiko, die eine ausdrückliche Benutzergenehmigung erfordern (z.B. Kamera, Standort, Kontakte).
+
+Diese App fordert keine gefährlichen Berechtigungen an.
+
+Weitere Informationen:
+- [Übersicht über Android-Berechtigungstypen](https://developer.android.com/guide/topics/permissions/overview)
+- [Vollständige Liste der normalen Berechtigungen](https://developer.android.com/reference/android/Manifest.permission)
+
+### Hinweis
+
+Normale Berechtigungen werden automatisch gewährt und erscheinen möglicherweise nicht in App-Store-Auflistungen. Wir dokumentieren sie hier aus Transparenzgründen.
 
 ## Erstellen
 

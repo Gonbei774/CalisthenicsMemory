@@ -50,7 +50,7 @@ L'application fonctionne entièrement hors ligne — aucune connexion Internet r
 - **Objectifs de défi** - Définissez des séries × répétitions cibles et suivez l'état d'accomplissement
 - **Gestion des données** - Export/import au format JSON ou CSV (support de sauvegarde complet)
 - **Multilingue** - Anglais, japonais, espagnol, allemand, chinois (simplifié), français, italien
-- **Confidentialité d'abord** - Fonctionnement entièrement hors ligne, aucune permission requise
+- **Confidentialité d'abord** - Entièrement hors ligne, aucune permission dangereuse, pas d'accès Internet
 
 ## Captures d'écran
 
@@ -89,6 +89,33 @@ L'application fonctionne entièrement hors ligne — aucune connexion Internet r
 - **Android** 8.0 (API 26) ou supérieur
 - **Stockage** ~10 Mo
 - **Internet** Non requis
+
+## Permissions
+
+Cette application utilise uniquement des **permissions normales (au moment de l'installation)**, qui sont automatiquement accordées lors de l'installation sans demande à l'utilisateur.
+
+À partir de v1.8.0, les permissions suivantes sont incluses :
+
+| Permission | Objectif | Ajouté par | Source |
+|------------|----------|------------|--------|
+| `FLASHLIGHT` | Notification flash LED pendant le mode entraînement | App (v1.8.0) | [FlashController.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/util/FlashController.kt) |
+| `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | Protection de sécurité des composants internes | Bibliothèque AndroidX (automatique) | - |
+
+### Que sont les permissions normales ?
+
+Android classe les permissions en deux types :
+- **Permissions normales** : Permissions à faible risque accordées automatiquement lors de l'installation. Les utilisateurs ne peuvent pas les révoquer individuellement.
+- **Permissions dangereuses** : Permissions à haut risque nécessitant une approbation explicite de l'utilisateur (ex : caméra, localisation, contacts).
+
+Cette application ne demande aucune permission dangereuse.
+
+Pour plus de détails :
+- [Aperçu des types de permissions Android](https://developer.android.com/guide/topics/permissions/overview)
+- [Liste complète des permissions normales](https://developer.android.com/reference/android/Manifest.permission)
+
+### Note
+
+Les permissions normales sont automatiquement accordées et peuvent ne pas apparaître dans les listes des magasins d'applications. Nous les documentons ici par souci de transparence.
 
 ## Compilation
 

@@ -50,7 +50,7 @@ Calisthenics Memory 帮助您记录和管理俯卧撑、引体向上、深蹲等
 - **挑战目标** - 设置目标组数×次数并跟踪达成状态
 - **数据管理** - 以 JSON 或 CSV 格式导出/导入（完整备份支持）
 - **多语言** - 英语、日语、西班牙语、德语、简体中文、法语、意大利语
-- **隐私优先** - 完全离线运行，无需任何权限
+- **隐私优先** - 完全离线运行，无危险权限，无网络访问
 
 ## 截图
 
@@ -89,6 +89,33 @@ Calisthenics Memory 帮助您记录和管理俯卧撑、引体向上、深蹲等
 - **Android** 8.0（API 26）或更高版本
 - **存储** 约 10MB
 - **网络** 不需要
+
+## 权限
+
+本应用仅使用**普通权限（安装时权限）**，这些权限在安装时自动授予，无需用户确认。
+
+截至 v1.8.0，包含以下权限：
+
+| 权限 | 用途 | 添加者 | 源码 |
+|------|------|--------|------|
+| `FLASHLIGHT` | 训练模式中的LED闪光通知 | 应用（v1.8.0） | [FlashController.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/util/FlashController.kt) |
+| `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | 内部组件的安全保护 | AndroidX 库（自动） | - |
+
+### 什么是普通权限？
+
+Android 将权限分为两类：
+- **普通权限**：安装时自动授予的低风险权限。用户无法单独撤销。
+- **危险权限**：需要用户明确批准的高风险权限（如：相机、位置、通讯录）。
+
+本应用不请求任何危险权限。
+
+更多信息：
+- [Android 权限类型概述](https://developer.android.com/guide/topics/permissions/overview)
+- [普通权限完整列表](https://developer.android.com/reference/android/Manifest.permission)
+
+### 注意
+
+普通权限会自动授予，可能不会显示在应用商店列表中。为了透明起见，我们在此记录。
 
 ## 构建
 

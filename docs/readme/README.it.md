@@ -50,7 +50,7 @@ L'app funziona completamente offline — nessuna connessione Internet richiesta,
 - **Obiettivi sfida** - Imposta serie × ripetizioni target e traccia lo stato di raggiungimento
 - **Gestione dati** - Esporta/importa in formato JSON o CSV (supporto backup completo)
 - **Multilingua** - Inglese, giapponese, spagnolo, tedesco, cinese (semplificato), francese, italiano
-- **Privacy first** - Funzionamento completamente offline, nessun permesso richiesto
+- **Privacy first** - Completamente offline, nessun permesso pericoloso, nessun accesso a Internet
 
 ## Screenshot
 
@@ -89,6 +89,33 @@ L'app funziona completamente offline — nessuna connessione Internet richiesta,
 - **Android** 8.0 (API 26) o superiore
 - **Spazio** ~10MB
 - **Internet** Non richiesto
+
+## Permessi
+
+Questa app utilizza solo **permessi normali (al momento dell'installazione)**, che vengono concessi automaticamente durante l'installazione senza richieste all'utente.
+
+A partire dalla v1.8.0, sono inclusi i seguenti permessi:
+
+| Permesso | Scopo | Aggiunto da | Sorgente |
+|----------|-------|-------------|----------|
+| `FLASHLIGHT` | Notifica flash LED durante la modalità allenamento | App (v1.8.0) | [FlashController.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/util/FlashController.kt) |
+| `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | Protezione di sicurezza per componenti interni | Libreria AndroidX (automatico) | - |
+
+### Cosa sono i permessi normali?
+
+Android classifica i permessi in due tipi:
+- **Permessi normali**: Permessi a basso rischio concessi automaticamente all'installazione. Gli utenti non possono revocarli singolarmente.
+- **Permessi pericolosi**: Permessi ad alto rischio che richiedono l'approvazione esplicita dell'utente (es.: fotocamera, posizione, contatti).
+
+Questa app non richiede alcun permesso pericoloso.
+
+Per maggiori dettagli:
+- [Panoramica dei tipi di permessi Android](https://developer.android.com/guide/topics/permissions/overview)
+- [Elenco completo dei permessi normali](https://developer.android.com/reference/android/Manifest.permission)
+
+### Nota
+
+I permessi normali vengono concessi automaticamente e potrebbero non apparire negli elenchi degli app store. Li documentiamo qui per trasparenza.
 
 ## Compilazione
 
