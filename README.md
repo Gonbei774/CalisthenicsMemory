@@ -92,7 +92,9 @@ The app operates completely offline—no internet connection required, no ads, n
 
 ## Permissions
 
-This app uses only **normal (install-time) permissions**, which are automatically granted at installation without user prompts. No dangerous permissions (camera, location, contacts, etc.) are required.
+This app uses only **normal (install-time) permissions**, which are automatically granted at installation without user prompts.
+
+As of v1.8.0, the following permissions are included:
 
 | Permission | Purpose | Added by | Source |
 |------------|---------|----------|--------|
