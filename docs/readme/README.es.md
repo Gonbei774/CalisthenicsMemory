@@ -50,7 +50,7 @@ La aplicación funciona completamente sin conexión: no requiere internet, sin a
 - **Objetivos de desafío** - Establece series × repeticiones objetivo y rastrea el estado de logro
 - **Gestión de datos** - Exporta/importa en formato JSON o CSV (soporte de respaldo completo)
 - **Multiidioma** - Inglés, japonés, español, alemán, chino (simplificado), francés, italiano
-- **Privacidad primero** - Completamente sin conexión, sin permisos peligrosos, sin acceso a Internet
+- **Privacidad primero** - Completamente sin conexión, sin permisos en tiempo de ejecución, sin acceso a Internet
 
 ## Capturas de Pantalla
 
@@ -107,7 +107,7 @@ Android clasifica los permisos en dos tipos:
 - **Permisos normales**: Permisos de bajo riesgo otorgados automáticamente durante la instalación. Los usuarios no pueden revocarlos individualmente.
 - **Permisos peligrosos**: Permisos de alto riesgo que requieren aprobación explícita del usuario (ej.: cámara, ubicación, contactos).
 
-Esta aplicación no solicita ningún permiso peligroso.
+Esta aplicación no solicita ningún permiso en tiempo de ejecución.
 
 Para más detalles:
 - [Resumen de tipos de permisos de Android](https://developer.android.com/guide/topics/permissions/overview)

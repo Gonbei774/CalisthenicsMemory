@@ -50,7 +50,7 @@ L'application fonctionne entièrement hors ligne — aucune connexion Internet r
 - **Objectifs de défi** - Définissez des séries × répétitions cibles et suivez l'état d'accomplissement
 - **Gestion des données** - Export/import au format JSON ou CSV (support de sauvegarde complet)
 - **Multilingue** - Anglais, japonais, espagnol, allemand, chinois (simplifié), français, italien
-- **Confidentialité d'abord** - Entièrement hors ligne, aucune permission dangereuse, pas d'accès Internet
+- **Confidentialité d'abord** - Entièrement hors ligne, aucune permission d'exécution, pas d'accès Internet
 
 ## Captures d'écran
 
@@ -107,7 +107,7 @@ Android classe les permissions en deux types :
 - **Permissions normales** : Permissions à faible risque accordées automatiquement lors de l'installation. Les utilisateurs ne peuvent pas les révoquer individuellement.
 - **Permissions dangereuses** : Permissions à haut risque nécessitant une approbation explicite de l'utilisateur (ex : caméra, localisation, contacts).
 
-Cette application ne demande aucune permission dangereuse.
+Cette application ne demande aucune permission d'exécution.
 
 Pour plus de détails :
 - [Aperçu des types de permissions Android](https://developer.android.com/guide/topics/permissions/overview)

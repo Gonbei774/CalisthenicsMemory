@@ -50,7 +50,7 @@ The app operates completely offline—no internet connection required, no ads, n
 - **Challenge Goals** - Set target sets × reps and track achievement status
 - **Data Management** - Export/import in JSON or CSV format (complete backup support)
 - **Multi-Language** - English, Japanese, Spanish, German, Chinese (Simplified), French, Italian
-- **Privacy-First** - Completely offline, no dangerous permissions, no internet access
+- **Privacy-First** - Completely offline, no runtime permissions, no internet access
 
 ## Screenshots
 
@@ -107,7 +107,7 @@ Android classifies permissions into two types:
 - **Normal permissions**: Low-risk permissions granted automatically at install. Users cannot revoke them individually.
 - **Dangerous permissions**: High-risk permissions requiring explicit user approval (e.g., camera, location, contacts).
 
-This app does not request any dangerous permissions.
+This app does not request any runtime permissions.
 
 For more details:
 - [Android permission types overview](https://developer.android.com/guide/topics/permissions/overview)

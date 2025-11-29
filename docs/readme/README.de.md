@@ -50,7 +50,7 @@ Die App funktioniert komplett offline – keine Internetverbindung erforderlich,
 - **Herausforderungsziele** - Zielsätze × Wiederholungen festlegen und Erfüllungsstatus verfolgen
 - **Datenverwaltung** - Export/Import im JSON- oder CSV-Format (vollständige Backup-Unterstützung)
 - **Mehrsprachig** - Englisch, Japanisch, Spanisch, Deutsch, Chinesisch (vereinfacht), Französisch, Italienisch
-- **Datenschutz-orientiert** - Komplett offline, keine gefährlichen Berechtigungen, kein Internetzugriff
+- **Datenschutz-orientiert** - Komplett offline, keine Laufzeitberechtigungen, kein Internetzugriff
 
 ## Screenshots
 
@@ -107,7 +107,7 @@ Android klassifiziert Berechtigungen in zwei Typen:
 - **Normale Berechtigungen**: Berechtigungen mit geringem Risiko, die bei der Installation automatisch gewährt werden. Benutzer können sie nicht einzeln widerrufen.
 - **Gefährliche Berechtigungen**: Berechtigungen mit hohem Risiko, die eine ausdrückliche Benutzergenehmigung erfordern (z.B. Kamera, Standort, Kontakte).
 
-Diese App fordert keine gefährlichen Berechtigungen an.
+Diese App fordert keine Laufzeitberechtigungen an.
 
 Weitere Informationen:
 - [Übersicht über Android-Berechtigungstypen](https://developer.android.com/guide/topics/permissions/overview)

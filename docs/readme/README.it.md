@@ -50,7 +50,7 @@ L'app funziona completamente offline — nessuna connessione Internet richiesta,
 - **Obiettivi sfida** - Imposta serie × ripetizioni target e traccia lo stato di raggiungimento
 - **Gestione dati** - Esporta/importa in formato JSON o CSV (supporto backup completo)
 - **Multilingua** - Inglese, giapponese, spagnolo, tedesco, cinese (semplificato), francese, italiano
-- **Privacy first** - Completamente offline, nessun permesso pericoloso, nessun accesso a Internet
+- **Privacy first** - Completamente offline, nessun permesso di runtime, nessun accesso a Internet
 
 ## Screenshot
 
@@ -107,7 +107,7 @@ Android classifica i permessi in due tipi:
 - **Permessi normali**: Permessi a basso rischio concessi automaticamente all'installazione. Gli utenti non possono revocarli singolarmente.
 - **Permessi pericolosi**: Permessi ad alto rischio che richiedono l'approvazione esplicita dell'utente (es.: fotocamera, posizione, contatti).
 
-Questa app non richiede alcun permesso pericoloso.
+Questa app non richiede alcun permesso di runtime.
 
 Per maggiori dettagli:
 - [Panoramica dei tipi di permessi Android](https://developer.android.com/guide/topics/permissions/overview)
