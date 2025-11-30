@@ -33,7 +33,7 @@ import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import androidx.compose.ui.platform.LocalContext
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
-import io.github.gonbei774.calisthenicsmemory.util.WakeLockManager
+import io.github.gonbei774.calisthenicsmemory.service.WorkoutTimerService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -94,19 +94,16 @@ fun WorkoutScreen(
     val workoutPreferences = remember { WorkoutPreferences(context) }
     val isFlashEnabled = remember { workoutPreferences.isFlashNotificationEnabled() }
 
-    // WakeLock用（画面オフでもタイマーを動かすため）
-    val wakeLockManager = remember { WakeLockManager(context) }
-
     // ワークアウトモードのコメント文字列
     val workoutModeComment = stringResource(R.string.workout_mode_comment)
 
-    // ワークアウト実行中（タイマーが動いている間）のみWakeLockを取得
+    // ワークアウト実行中（タイマーが動いている間）のみForeground Serviceを起動
     LaunchedEffect(currentStep) {
         when (currentStep) {
             is WorkoutStep.StartInterval,
             is WorkoutStep.Executing,
-            is WorkoutStep.Interval -> wakeLockManager.acquire()
-            else -> wakeLockManager.release()
+            is WorkoutStep.Interval -> WorkoutTimerService.startService(context)
+            else -> WorkoutTimerService.stopService(context)
         }
     }
 
@@ -114,7 +111,7 @@ fun WorkoutScreen(
         onDispose {
             toneGenerator.release()
             flashController.turnOff()
-            wakeLockManager.release()
+            WorkoutTimerService.stopService(context)
         }
     }
 

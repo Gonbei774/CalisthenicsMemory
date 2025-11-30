@@ -459,4 +459,10 @@
     <!-- Flash Notification -->
     <string name="flash_notification_setting">Notificación con Flash LED</string>
     <string name="flash_notification_description">Hacer parpadear el LED sincronizado con los sonidos durante el entrenamiento</string>
+
+    <!-- Notification Channel for Workout Timer -->
+    <string name="notification_channel_workout">Temporizador de entrenamiento</string>
+    <string name="notification_channel_workout_description">Muestra notificación mientras el temporizador de entrenamiento está activo</string>
+    <string name="notification_workout_title">Entrenamiento en progreso</string>
+    <string name="notification_workout_text">El temporizador está activo</string>
 </resources>

@@ -460,4 +460,10 @@
     <!-- Flash Notification -->
     <string name="flash_notification_setting">LEDフラッシュ通知</string>
     <string name="flash_notification_description">ワークアウト中の音声に合わせてLEDを点滅させる</string>
+
+    <!-- Notification Channel for Workout Timer -->
+    <string name="notification_channel_workout">ワークアウトタイマー</string>
+    <string name="notification_channel_workout_description">ワークアウトタイマー実行中の通知を表示</string>
+    <string name="notification_workout_title">ワークアウト実行中</string>
+    <string name="notification_workout_text">タイマーが動作しています</string>
 </resources>

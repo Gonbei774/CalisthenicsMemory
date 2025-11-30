@@ -459,4 +459,10 @@
     <!-- Flash Notification -->
     <string name="flash_notification_setting">LED闪光通知</string>
     <string name="flash_notification_description">训练时LED与声音同步闪烁</string>
+
+    <!-- Notification Channel for Workout Timer -->
+    <string name="notification_channel_workout">训练计时器</string>
+    <string name="notification_channel_workout_description">训练计时器运行时显示通知</string>
+    <string name="notification_workout_title">训练进行中</string>
+    <string name="notification_workout_text">计时器正在运行</string>
 </resources>

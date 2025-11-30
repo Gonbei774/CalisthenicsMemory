@@ -459,4 +459,10 @@
     <!-- Flash Notification -->
     <string name="flash_notification_setting">LED-Blitz-Benachrichtigung</string>
     <string name="flash_notification_description">LED synchron mit Tönen während des Trainings blinken lassen</string>
+
+    <!-- Notification Channel for Workout Timer -->
+    <string name="notification_channel_workout">Workout-Timer</string>
+    <string name="notification_channel_workout_description">Zeigt Benachrichtigung während der Workout-Timer läuft</string>
+    <string name="notification_workout_title">Workout läuft</string>
+    <string name="notification_workout_text">Timer ist aktiv</string>
 </resources>

@@ -457,4 +457,10 @@
     <string name="github_description">Mirror repository</string>
     <string name="report_issue_codeberg">Report issue on Codeberg</string>
     <string name="report_issue_github">Report issue on GitHub</string>
+
+    <!-- Notification Channel for Workout Timer -->
+    <string name="notification_channel_workout">Workout Timer</string>
+    <string name="notification_channel_workout_description">Shows notification while workout timer is running</string>
+    <string name="notification_workout_title">Workout in progress</string>
+    <string name="notification_workout_text">Timer is running</string>
 </resources>
