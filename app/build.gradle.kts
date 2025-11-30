@@ -25,8 +25,8 @@ android {
         applicationId = "io.github.gonbei774.calisthenicsmemory"
         minSdk = 26
         targetSdk = 35
-        versionCode = 11
-        versionName = "1.8.1"
+        versionCode = 12
+        versionName = "1.8.1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
