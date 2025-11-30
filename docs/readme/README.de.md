@@ -58,13 +58,13 @@ Die App funktioniert komplett offline – keine Internetverbindung erforderlich,
 - **Favoriten** - Schneller Zugriff auf häufig verwendete Übungen
 - **Zwei Aufzeichnungsmodi**
   - Aufzeichnungsmodus: Schnelle manuelle Eingabe mit "Übungseinstellungen anwenden"-Taste
-  - Trainingsmodus: Automatisch geführtes Training mit übungsspezifischen Timer-Einstellungen (Pausenzeit, Wiederholungsdauer)
+  - Trainingsmodus: Automatisch geführtes Training mit übungsspezifischen Timer-Einstellungen (Pausenzeit, Wiederholungsdauer), LED-Blitz-Benachrichtigung bei Satzabschluss
 - **Fortschrittsverfolgung** - Einträge als Listen, Grafiken oder Herausforderungs-Fortschrittsbalken anzeigen
 - **Unilateral/Bilateral-Unterstützung** - Linke und rechte Seite separat für einseitige Übungen verfolgen
 - **Herausforderungsziele** - Zielsätze × Wiederholungen festlegen und Erfüllungsstatus verfolgen
 - **Datenverwaltung** - Export/Import im JSON- oder CSV-Format (vollständige Backup-Unterstützung)
 - **Mehrsprachig** - Englisch, Japanisch, Spanisch, Deutsch, Chinesisch (vereinfacht), Französisch, Italienisch
-- **Datenschutz-orientiert** - Komplett offline, keine Berechtigungen erforderlich
+- **Datenschutz-orientiert** - Komplett offline, keine Laufzeitberechtigungen, kein Internetzugriff
 
 ## Screenshots
 
@@ -103,6 +103,34 @@ Die App funktioniert komplett offline – keine Internetverbindung erforderlich,
 - **Android** 8.0 (API 26) oder höher
 - **Speicher** ~10MB
 - **Internet** Nicht erforderlich
+
+## Berechtigungen
+
+Diese App verwendet nur **normale (Installationszeit-)Berechtigungen**, die bei der Installation automatisch gewährt werden, ohne Benutzeraufforderungen.
+
+Ab v1.8.1 sind folgende Berechtigungen enthalten:
+
+| Berechtigung | Zweck | Hinzugefügt von | Quelle |
+|--------------|-------|-----------------|--------|
+| `WAKE_LOCK` | Timer läuft weiter bei ausgeschaltetem Bildschirm | App (v1.8.1) | [WorkoutViewModel.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/ui/workout/WorkoutViewModel.kt) |
+| `FLASHLIGHT` | LED-Blitz-Benachrichtigung im Trainingsmodus | App (v1.8.0) | [FlashController.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/util/FlashController.kt) |
+| `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | Sicherheitsschutz für interne Komponenten | AndroidX-Bibliothek (automatisch) | - |
+
+### Was sind normale Berechtigungen?
+
+Android klassifiziert Berechtigungen in zwei Typen:
+- **Normale Berechtigungen**: Berechtigungen mit geringem Risiko, die bei der Installation automatisch gewährt werden. Benutzer können sie nicht einzeln widerrufen.
+- **Gefährliche Berechtigungen**: Berechtigungen mit hohem Risiko, die eine ausdrückliche Benutzergenehmigung erfordern (z.B. Kamera, Standort, Kontakte).
+
+Diese App fordert keine Laufzeitberechtigungen an.
+
+Weitere Informationen:
+- [Übersicht über Android-Berechtigungstypen](https://developer.android.com/guide/topics/permissions/overview)
+- [Vollständige Liste der normalen Berechtigungen](https://developer.android.com/reference/android/Manifest.permission)
+
+### Hinweis
+
+Normale Berechtigungen werden automatisch gewährt und erscheinen möglicherweise nicht in App-Store-Auflistungen. Wir dokumentieren sie hier aus Transparenzgründen.
 
 ## Erstellen
 

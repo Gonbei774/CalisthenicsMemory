@@ -456,4 +456,8 @@
     <string name="github_description">ミラーリポジトリ</string>
     <string name="report_issue_codeberg">Codebergで問題を報告する</string>
     <string name="report_issue_github">GitHubで問題を報告する</string>
+
+    <!-- Flash Notification -->
+    <string name="flash_notification_setting">LEDフラッシュ通知</string>
+    <string name="flash_notification_description">ワークアウト中の音声に合わせてLEDを点滅させる</string>
 </resources>

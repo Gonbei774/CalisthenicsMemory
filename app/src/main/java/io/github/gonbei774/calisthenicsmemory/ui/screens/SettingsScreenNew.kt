@@ -786,6 +786,7 @@ fun SettingsScreenNew(
                 var setInterval by remember { mutableStateOf(workoutPrefs.getSetInterval()) }
                 var startCountdownEnabled by remember { mutableStateOf(workoutPrefs.isStartCountdownEnabled()) }
                 var setIntervalEnabled by remember { mutableStateOf(workoutPrefs.isSetIntervalEnabled()) }
+                var flashNotificationEnabled by remember { mutableStateOf(workoutPrefs.isFlashNotificationEnabled()) }
                 var showStartCountdownDialog by remember { mutableStateOf(false) }
                 var showSetIntervalDialog by remember { mutableStateOf(false) }
 
@@ -899,6 +900,57 @@ fun SettingsScreenNew(
                                 color = Slate400,
                                 modifier = Modifier.padding(start = 68.dp, end = 20.dp, bottom = 16.dp)
                             )
+                        }
+                    }
+
+                    // LEDフラッシュ通知設定
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Slate800
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(20.dp),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "📸",
+                                    fontSize = 32.sp
+                                )
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = stringResource(R.string.flash_notification_setting),
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.flash_notification_description),
+                                        fontSize = 14.sp,
+                                        color = Slate400,
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
+                                }
+                                Switch(
+                                    checked = flashNotificationEnabled,
+                                    onCheckedChange = { enabled ->
+                                        flashNotificationEnabled = enabled
+                                        workoutPrefs.setFlashNotificationEnabled(enabled)
+                                    },
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = Color.White,
+                                        checkedTrackColor = Orange600,
+                                        uncheckedThumbColor = Color.White,
+                                        uncheckedTrackColor = Slate600
+                                    )
+                                )
+                            }
                         }
                     }
                 }

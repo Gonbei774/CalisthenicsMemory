@@ -455,4 +455,8 @@
     <string name="github_description">Mirror-Repository</string>
     <string name="report_issue_codeberg">Problem auf Codeberg melden</string>
     <string name="report_issue_github">Problem auf GitHub melden</string>
+
+    <!-- Flash Notification -->
+    <string name="flash_notification_setting">LED-Blitz-Benachrichtigung</string>
+    <string name="flash_notification_description">LED synchron mit Tönen während des Trainings blinken lassen</string>
 </resources>

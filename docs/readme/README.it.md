@@ -58,13 +58,13 @@ L'app funziona completamente offline — nessuna connessione Internet richiesta,
 - **Preferiti** - Accesso rapido agli esercizi usati frequentemente
 - **Due modalità di registrazione**
   - Modalità registrazione: Inserimento manuale rapido con pulsante "Applica impostazioni esercizio"
-  - Modalità allenamento: Allenamento guidato automatico con impostazioni timer per esercizio (intervallo di riposo, durata ripetizione)
+  - Modalità allenamento: Allenamento guidato automatico con impostazioni timer per esercizio (intervallo di riposo, durata ripetizione), notifica flash LED al completamento della serie
 - **Monitoraggio progressi** - Visualizza i record come liste, grafici o barre di progresso delle sfide
 - **Supporto unilaterale/bilaterale** - Traccia i lati sinistro e destro separatamente per esercizi unilaterali
 - **Obiettivi sfida** - Imposta serie × ripetizioni target e traccia lo stato di raggiungimento
 - **Gestione dati** - Esporta/importa in formato JSON o CSV (supporto backup completo)
 - **Multilingua** - Inglese, giapponese, spagnolo, tedesco, cinese (semplificato), francese, italiano
-- **Privacy first** - Funzionamento completamente offline, nessun permesso richiesto
+- **Privacy first** - Completamente offline, nessun permesso di runtime, nessun accesso a Internet
 
 ## Screenshot
 
@@ -103,6 +103,34 @@ L'app funziona completamente offline — nessuna connessione Internet richiesta,
 - **Android** 8.0 (API 26) o superiore
 - **Spazio** ~10MB
 - **Internet** Non richiesto
+
+## Permessi
+
+Questa app utilizza solo **permessi normali (al momento dell'installazione)**, che vengono concessi automaticamente durante l'installazione senza richieste all'utente.
+
+A partire dalla v1.8.1, sono inclusi i seguenti permessi:
+
+| Permesso | Scopo | Aggiunto da | Sorgente |
+|----------|-------|-------------|----------|
+| `WAKE_LOCK` | Mantiene il timer attivo quando lo schermo è spento | App (v1.8.1) | [WorkoutViewModel.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/ui/workout/WorkoutViewModel.kt) |
+| `FLASHLIGHT` | Notifica flash LED durante la modalità allenamento | App (v1.8.0) | [FlashController.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/util/FlashController.kt) |
+| `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | Protezione di sicurezza per componenti interni | Libreria AndroidX (automatico) | - |
+
+### Cosa sono i permessi normali?
+
+Android classifica i permessi in due tipi:
+- **Permessi normali**: Permessi a basso rischio concessi automaticamente all'installazione. Gli utenti non possono revocarli singolarmente.
+- **Permessi pericolosi**: Permessi ad alto rischio che richiedono l'approvazione esplicita dell'utente (es.: fotocamera, posizione, contatti).
+
+Questa app non richiede alcun permesso di runtime.
+
+Per maggiori dettagli:
+- [Panoramica dei tipi di permessi Android](https://developer.android.com/guide/topics/permissions/overview)
+- [Elenco completo dei permessi normali](https://developer.android.com/reference/android/Manifest.permission)
+
+### Nota
+
+I permessi normali vengono concessi automaticamente e potrebbero non apparire negli elenchi degli app store. Li documentiamo qui per trasparenza.
 
 ## Compilazione
 

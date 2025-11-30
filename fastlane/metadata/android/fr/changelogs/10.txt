@@ -1,0 +1,1 @@
+Notification par flash LED ajoutee a la fin des series d'entrainement. Section informations de l'application redessinee avec une meilleure disposition.

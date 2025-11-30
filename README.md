@@ -58,13 +58,13 @@ The app operates completely offline—no internet connection required, no ads, n
 - **Favorites** - Quick access to frequently used exercises
 - **Two Recording Modes**
   - Record mode: Quick manual input with "Apply Exercise Settings" button
-  - Workout mode: Automatic guided training with per-exercise timer settings (rest interval, rep duration)
+  - Workout mode: Automatic guided training with per-exercise timer settings (rest interval, rep duration), LED flash notification on set completion
 - **Progress Tracking** - View records as lists, graphs, or challenge progress bars
 - **Unilateral/Bilateral Support** - Track left and right sides separately for one-sided exercises
 - **Challenge Goals** - Set target sets × reps and track achievement status
 - **Data Management** - Export/import in JSON or CSV format (complete backup support)
 - **Multi-Language** - English, Japanese, Spanish, German, Chinese (Simplified), French, Italian
-- **Privacy-First** - Completely offline operation, no permissions required
+- **Privacy-First** - Completely offline, no runtime permissions, no internet access
 
 ## Screenshots
 
@@ -103,6 +103,34 @@ The app operates completely offline—no internet connection required, no ads, n
 - **Android** 8.0 (API 26) or higher
 - **Storage** ~10MB
 - **Internet** Not required
+
+## Permissions
+
+This app uses only **normal (install-time) permissions**, which are automatically granted at installation without user prompts.
+
+As of v1.8.1, the following permissions are included:
+
+| Permission | Purpose | Added by | Source |
+|------------|---------|----------|--------|
+| `WAKE_LOCK` | Keep timer running when screen is off | App (v1.8.1) | [WorkoutViewModel.kt](app/src/main/java/io/github/gonbei774/calisthenicsmemory/ui/workout/WorkoutViewModel.kt) |
+| `FLASHLIGHT` | LED flash notification during workout mode | App (v1.8.0) | [FlashController.kt](app/src/main/java/io/github/gonbei774/calisthenicsmemory/util/FlashController.kt) |
+| `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | Security protection for internal components | AndroidX library (automatic) | - |
+
+### What are normal permissions?
+
+Android classifies permissions into two types:
+- **Normal permissions**: Low-risk permissions granted automatically at install. Users cannot revoke them individually.
+- **Dangerous permissions**: High-risk permissions requiring explicit user approval (e.g., camera, location, contacts).
+
+This app does not request any runtime permissions.
+
+For more details:
+- [Android permission types overview](https://developer.android.com/guide/topics/permissions/overview)
+- [Complete list of normal permissions](https://developer.android.com/reference/android/Manifest.permission)
+
+### Note
+
+Normal permissions are automatically granted and may not appear in app store listings. We document them here for transparency.
 
 ## Building
 

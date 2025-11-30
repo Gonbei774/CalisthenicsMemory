@@ -455,4 +455,8 @@
     <string name="github_description">镜像仓库</string>
     <string name="report_issue_codeberg">在Codeberg上报告问题</string>
     <string name="report_issue_github">在GitHub上报告问题</string>
+
+    <!-- Flash Notification -->
+    <string name="flash_notification_setting">LED闪光通知</string>
+    <string name="flash_notification_description">训练时LED与声音同步闪烁</string>
 </resources>

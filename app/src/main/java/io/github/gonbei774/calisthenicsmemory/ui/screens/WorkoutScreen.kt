@@ -32,7 +32,10 @@ import io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import androidx.compose.ui.platform.LocalContext
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
+import io.github.gonbei774.calisthenicsmemory.util.FlashController
+import io.github.gonbei774.calisthenicsmemory.util.WakeLockManager
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -76,6 +79,7 @@ fun WorkoutScreen(
     onNavigateBack: () -> Unit
 ) {
     val exercises by viewModel.exercises.collectAsState()
+    val context = LocalContext.current
 
     var currentStep by remember { mutableStateOf<WorkoutStep>(WorkoutStep.ExerciseSelection) }
     var selectedExercise by remember { mutableStateOf<Exercise?>(null) }
@@ -85,12 +89,32 @@ fun WorkoutScreen(
         ToneGenerator(AudioManager.STREAM_MUSIC, 100)
     }
 
+    // LEDフラッシュ用
+    val flashController = remember { FlashController(context) }
+    val workoutPreferences = remember { WorkoutPreferences(context) }
+    val isFlashEnabled = remember { workoutPreferences.isFlashNotificationEnabled() }
+
+    // WakeLock用（画面オフでもタイマーを動かすため）
+    val wakeLockManager = remember { WakeLockManager(context) }
+
     // ワークアウトモードのコメント文字列
     val workoutModeComment = stringResource(R.string.workout_mode_comment)
+
+    // ワークアウト実行中（タイマーが動いている間）のみWakeLockを取得
+    LaunchedEffect(currentStep) {
+        when (currentStep) {
+            is WorkoutStep.StartInterval,
+            is WorkoutStep.Executing,
+            is WorkoutStep.Interval -> wakeLockManager.acquire()
+            else -> wakeLockManager.release()
+        }
+    }
 
     DisposableEffect(Unit) {
         onDispose {
             toneGenerator.release()
+            flashController.turnOff()
+            wakeLockManager.release()
         }
     }
 
@@ -159,6 +183,8 @@ fun WorkoutScreen(
                     StartIntervalStep(
                         session = step.session,
                         toneGenerator = toneGenerator,
+                        flashController = flashController,
+                        isFlashEnabled = isFlashEnabled,
                         onIntervalComplete = {
                             currentStep = WorkoutStep.Executing(step.session, step.currentSetIndex)
                         },
@@ -172,6 +198,8 @@ fun WorkoutScreen(
                         session = step.session,
                         currentSetIndex = step.currentSetIndex,
                         toneGenerator = toneGenerator,
+                        flashController = flashController,
+                        isFlashEnabled = isFlashEnabled,
                         onSetComplete = { updatedSession ->
                             val nextIndex = step.currentSetIndex + 1
                             currentStep = if (nextIndex < updatedSession.sets.size) {
@@ -205,6 +233,8 @@ fun WorkoutScreen(
                         session = step.session,
                         nextSetIndex = step.currentSetIndex,
                         toneGenerator = toneGenerator,
+                        flashController = flashController,
+                        isFlashEnabled = isFlashEnabled,
                         onIntervalComplete = {
                             // インターバル完了後、準備（StartInterval）を挟む
                             currentStep = if (step.session.startInterval > 0) {
@@ -690,6 +720,8 @@ fun SettingsStep(
 fun StartIntervalStep(
     session: WorkoutSession,
     toneGenerator: ToneGenerator,
+    flashController: FlashController,
+    isFlashEnabled: Boolean,
     onIntervalComplete: () -> Unit,
     onSkip: () -> Unit
 ) {
@@ -702,10 +734,16 @@ fun StartIntervalStep(
             remainingTime--
             if (remainingTime <= 3 && remainingTime > 0) {
                 toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                if (isFlashEnabled) {
+                    launch { flashController.flashShort() }
+                }
             }
         }
         // カウントダウン完了
         toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 300)
+        if (isFlashEnabled) {
+            launch { flashController.flashComplete() }
+        }
         delay(300L)
         onIntervalComplete()
     }
@@ -813,6 +851,8 @@ fun ExecutingStep(
     session: WorkoutSession,
     currentSetIndex: Int,
     toneGenerator: ToneGenerator,
+    flashController: FlashController,
+    isFlashEnabled: Boolean,
     onSetComplete: (WorkoutSession) -> Unit,
     onSkip: (WorkoutSession) -> Unit,
     onAbort: (WorkoutSession) -> Unit
@@ -849,21 +889,34 @@ fun ExecutingStep(
                 session.repDuration?.let { repDur ->
                     if (elapsedTime % repDur == 0) {
                         currentCount++
-                        toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
 
                         // Dynamic: 目標達成時に自動遷移
                         if (currentCount >= currentSet.targetValue) {
+                            // 音とフラッシュを同時に開始
+                            if (isFlashEnabled) {
+                                launch { flashController.flashSetComplete() }
+                            }
                             playTripleBeepTwice(toneGenerator)
                             currentSet.actualValue = currentCount
                             currentSet.isCompleted = true
                             onSetComplete(session)
                             return@LaunchedEffect
+                        } else {
+                            // 途中のレップは短いフラッシュ
+                            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                            if (isFlashEnabled) {
+                                launch { flashController.flashShort() }
+                            }
                         }
                     }
                 }
 
                 // Isometric: 目標達成時に自動遷移
                 if (session.exercise.type == "Isometric" && elapsedTime >= currentSet.targetValue) {
+                    // 音とフラッシュを同時に開始
+                    if (isFlashEnabled) {
+                        launch { flashController.flashSetComplete() }
+                    }
                     playTripleBeepTwice(toneGenerator)
                     currentSet.actualValue = elapsedTime
                     currentSet.isCompleted = true
@@ -1009,6 +1062,8 @@ fun IntervalStep(
     session: WorkoutSession,
     nextSetIndex: Int,
     toneGenerator: ToneGenerator,
+    flashController: FlashController,
+    isFlashEnabled: Boolean,
     onIntervalComplete: () -> Unit,
     onSkip: () -> Unit,
     onUpdateInterval: (Int) -> Unit
@@ -1023,11 +1078,17 @@ fun IntervalStep(
             remainingTime--
             if (remainingTime <= 3 && remainingTime > 0) {
                 toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                if (isFlashEnabled) {
+                    launch { flashController.flashShort() }
+                }
             }
         }
         if (remainingTime == 0) {
             // インターバル完了
             toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 300)
+            if (isFlashEnabled) {
+                launch { flashController.flashComplete() }
+            }
             delay(300L)
             onIntervalComplete()
         }

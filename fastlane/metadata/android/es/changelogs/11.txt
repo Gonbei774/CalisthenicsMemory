@@ -1,0 +1,1 @@
+Solucionado el problema del temporizador que se detenía al apagar la pantalla.

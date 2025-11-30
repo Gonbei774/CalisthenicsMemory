@@ -1,0 +1,1 @@
+Added LED flash notification when workout sets complete. Redesigned app info section in Settings screen with improved layout.

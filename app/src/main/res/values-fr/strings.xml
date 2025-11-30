@@ -455,4 +455,8 @@
     <string name="github_description">Dépôt miroir</string>
     <string name="report_issue_codeberg">Signaler un problème sur Codeberg</string>
     <string name="report_issue_github">Signaler un problème sur GitHub</string>
+
+    <!-- Flash Notification -->
+    <string name="flash_notification_setting">Notification par Flash LED</string>
+    <string name="flash_notification_description">Faire clignoter le LED en synchronisation avec les sons pendant l\'entraînement</string>
 </resources>

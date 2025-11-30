@@ -1,0 +1,1 @@
+Fixed timer stopping when screen is off by using WakeLock.
