@@ -459,6 +459,8 @@
     <!-- Flash Notification -->
     <string name="flash_notification_setting">Notification par Flash LED</string>
     <string name="flash_notification_description">Faire clignoter le LED en synchronisation avec les sons pendant l\'entraînement</string>
+    <string name="keep_screen_on_setting">Garder l\'écran allumé</string>
+    <string name="keep_screen_on_description">Garder l\'écran allumé pendant l\'entraînement pour voir le compte à rebours</string>
 
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">Minuteur d\'entraînement</string>

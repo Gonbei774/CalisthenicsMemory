@@ -459,6 +459,8 @@
     <!-- Flash Notification -->
     <string name="flash_notification_setting">LED-Blitz-Benachrichtigung</string>
     <string name="flash_notification_description">LED synchron mit Tönen während des Trainings blinken lassen</string>
+    <string name="keep_screen_on_setting">Bildschirm anlassen</string>
+    <string name="keep_screen_on_description">Bildschirm während des Trainings anlassen, um den Countdown anzuzeigen</string>
 
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">Workout-Timer</string>

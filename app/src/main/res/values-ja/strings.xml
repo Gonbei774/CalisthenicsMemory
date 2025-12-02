@@ -460,6 +460,8 @@
     <!-- Flash Notification -->
     <string name="flash_notification_setting">LEDフラッシュ通知</string>
     <string name="flash_notification_description">ワークアウト中の音声に合わせてLEDを点滅させる</string>
+    <string name="keep_screen_on_setting">画面を常にオン</string>
+    <string name="keep_screen_on_description">ワークアウト中にカウントダウンを表示するため画面を点灯したままにする</string>
 
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">ワークアウトタイマー</string>
