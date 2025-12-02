@@ -429,6 +429,8 @@
     <string name="enter_seconds_max">Enter seconds (max %d)</string>
     <string name="flash_notification_setting">LED Flash Notification</string>
     <string name="flash_notification_description">Flash LED in sync with sounds during workout</string>
+    <string name="keep_screen_on_setting">Keep Screen On</string>
+    <string name="keep_screen_on_description">Keep screen on during workout to view countdown</string>
 
     <!-- Timer Settings (Per-Exercise) -->
     <string name="timer_settings_optional">Timer Settings (Optional)</string>

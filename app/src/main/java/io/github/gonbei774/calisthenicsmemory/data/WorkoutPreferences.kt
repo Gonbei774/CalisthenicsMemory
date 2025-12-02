@@ -92,6 +92,22 @@ class WorkoutPreferences(context: Context) {
         prefs.edit().putBoolean(KEY_FLASH_NOTIFICATION_ENABLED, enabled).apply()
     }
 
+    /**
+     * 画面オン維持の有効/無効を取得
+     * @return 有効: true, 無効: false（デフォルト: false）
+     */
+    fun isKeepScreenOnEnabled(): Boolean {
+        return prefs.getBoolean(KEY_KEEP_SCREEN_ON_ENABLED, false)
+    }
+
+    /**
+     * 画面オン維持の有効/無効を保存
+     * @param enabled 有効: true, 無効: false
+     */
+    fun setKeepScreenOnEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_KEEP_SCREEN_ON_ENABLED, enabled).apply()
+    }
+
     companion object {
         private const val PREFS_NAME = "workout_preferences"
         private const val KEY_START_COUNTDOWN = "start_countdown"
@@ -99,6 +115,7 @@ class WorkoutPreferences(context: Context) {
         private const val KEY_START_COUNTDOWN_ENABLED = "start_countdown_enabled"
         private const val KEY_SET_INTERVAL_ENABLED = "set_interval_enabled"
         private const val KEY_FLASH_NOTIFICATION_ENABLED = "flash_notification_enabled"
+        private const val KEY_KEEP_SCREEN_ON_ENABLED = "keep_screen_on_enabled"
 
         const val DEFAULT_START_COUNTDOWN = 5
         const val DEFAULT_SET_INTERVAL = 240

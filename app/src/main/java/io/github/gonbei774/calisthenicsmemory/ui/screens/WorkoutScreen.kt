@@ -31,6 +31,8 @@ import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import android.view.WindowManager
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
 import io.github.gonbei774.calisthenicsmemory.service.WorkoutTimerService
@@ -93,6 +95,7 @@ fun WorkoutScreen(
     val flashController = remember { FlashController(context) }
     val workoutPreferences = remember { WorkoutPreferences(context) }
     val isFlashEnabled = remember { workoutPreferences.isFlashNotificationEnabled() }
+    val isKeepScreenOnEnabled = remember { workoutPreferences.isKeepScreenOnEnabled() }
 
     // ワークアウトモードのコメント文字列
     val workoutModeComment = stringResource(R.string.workout_mode_comment)
@@ -107,8 +110,31 @@ fun WorkoutScreen(
         }
     }
 
+    // 画面オン維持の制御
+    val view = LocalView.current
+    LaunchedEffect(isKeepScreenOnEnabled, currentStep) {
+        val window = (view.context as? android.app.Activity)?.window
+
+        if (isKeepScreenOnEnabled) {
+            when (currentStep) {
+                is WorkoutStep.StartInterval,
+                is WorkoutStep.Executing,
+                is WorkoutStep.Interval -> {
+                    window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
+                else -> {
+                    window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
+            }
+        } else {
+            window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+    }
+
     DisposableEffect(Unit) {
         onDispose {
+            val window = (view.context as? android.app.Activity)?.window
+            window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             toneGenerator.release()
             flashController.turnOff()
             WorkoutTimerService.stopService(context)
