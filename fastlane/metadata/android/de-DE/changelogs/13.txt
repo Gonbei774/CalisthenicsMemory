@@ -1,0 +1,3 @@
+Distanz- und Gewichtsverfolgung für Übungen hinzugefügt.
+Option "Bildschirm eingeschaltet lassen" für den Trainingsmodus hinzugefügt.
+Timer-Zuverlässigkeit durch Foreground Service verbessert.

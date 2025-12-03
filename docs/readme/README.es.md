@@ -40,7 +40,7 @@ La aplicación funciona completamente sin conexión: no requiere internet, sin a
 ## Características
 
 - **Panel de inicio** - Ve los registros de entrenamiento de hoy de un vistazo, mantén pulsado para copiar
-- **Totalmente personalizable** - Crea ejercicios libremente, organiza por grupos, gestiona con 10 niveles, reordena con botones de flecha
+- **Totalmente personalizable** - Crea ejercicios libremente, organiza por grupos, gestiona con 10 niveles, reordena con botones de flecha, registra distancia y peso por ejercicio
 - **Favoritos** - Acceso rápido a ejercicios frecuentes
 - **Dos modos de registro**
   - Modo registro: Entrada manual rápida con botón "Aplicar configuración del ejercicio"
@@ -94,11 +94,13 @@ La aplicación funciona completamente sin conexión: no requiere internet, sin a
 
 Esta aplicación utiliza solo **permisos normales (de tiempo de instalación)**, que se otorgan automáticamente durante la instalación sin solicitudes al usuario.
 
-A partir de v1.8.1, se incluyen los siguientes permisos:
+A partir de v1.9.0, se incluyen los siguientes permisos:
 
 | Permiso | Propósito | Añadido por | Fuente |
 |---------|-----------|-------------|--------|
-| `WAKE_LOCK` | Mantener el temporizador activo con la pantalla apagada | App (v1.8.1) | [WorkoutViewModel.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/ui/workout/WorkoutViewModel.kt) |
+| `FOREGROUND_SERVICE` | Ejecutar temporizador de entrenamiento como servicio en primer plano | App (v1.9.0) | [WorkoutTimerService.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
+| `FOREGROUND_SERVICE_SPECIAL_USE` | Tipo de servicio en primer plano para temporizador de entrenamiento | App (v1.9.0) | [WorkoutTimerService.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
+| `WAKE_LOCK` | Mantener el temporizador activo con la pantalla apagada | App (v1.8.1) | [WorkoutTimerService.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
 | `FLASHLIGHT` | Notificación de flash LED durante el modo entrenamiento | App (v1.8.0) | [FlashController.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/util/FlashController.kt) |
 | `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | Protección de seguridad para componentes internos | Biblioteca AndroidX (automático) | - |
 

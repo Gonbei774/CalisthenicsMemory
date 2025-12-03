@@ -40,7 +40,7 @@ Calisthenics Memoryは、腕立て伏せ、懸垂、スクワットなどの自�
 ## 機能一覧
 
 - **ホームダッシュボード** - 今日のトレーニング記録を一覧表示、長押しでコピー
-- **完全カスタマイズ可能** - 種目を自由に作成、グループで整理、10段階のレベル管理、矢印ボタンで並び替え
+- **完全カスタマイズ可能** - 種目を自由に作成、グループで整理、10段階のレベル管理、矢印ボタンで並び替え、種目ごとに距離と荷重を記録
 - **お気に入り** - よく使う種目にすぐアクセス
 - **2つの記録モード**
   - 記録モード: 「種目設定を適用」ボタンで素早く手動入力
@@ -94,11 +94,13 @@ Calisthenics Memoryは、腕立て伏せ、懸垂、スクワットなどの自�
 
 このアプリは**通常権限（インストール時権限）**のみを使用します。これらはインストール時に自動的に付与され、ユーザーへの確認ダイアログは表示されません。
 
-v1.8.1時点で、以下の権限が含まれています：
+v1.9.0時点で、以下の権限が含まれています：
 
 | 権限 | 用途 | 追加元 | ソース |
 |------|------|--------|--------|
-| `WAKE_LOCK` | 画面オフ時もタイマーを継続 | アプリ（v1.8.1） | [WorkoutViewModel.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/ui/workout/WorkoutViewModel.kt) |
+| `FOREGROUND_SERVICE` | ワークアウトタイマーをフォアグラウンドサービスとして実行 | アプリ（v1.9.0） | [WorkoutTimerService.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
+| `FOREGROUND_SERVICE_SPECIAL_USE` | ワークアウトタイマー用フォアグラウンドサービスタイプ | アプリ（v1.9.0） | [WorkoutTimerService.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
+| `WAKE_LOCK` | 画面オフ時もタイマーを継続 | アプリ（v1.8.1） | [WorkoutTimerService.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
 | `FLASHLIGHT` | ワークアウトモード中のLEDフラッシュ通知 | アプリ（v1.8.0） | [FlashController.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/util/FlashController.kt) |
 | `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | 内部コンポーネントのセキュリティ保護 | AndroidXライブラリ（自動） | - |
 

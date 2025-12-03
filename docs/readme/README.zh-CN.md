@@ -40,7 +40,7 @@ Calisthenics Memory 帮助您记录和管理俯卧撑、引体向上、深蹲等
 ## 功能
 
 - **主页仪表板** - 一目了然查看今日训练记录，长按复制
-- **完全可自定义** - 自由创建动作，按组别整理，10级管理，箭头按钮重新排序
+- **完全可自定义** - 自由创建动作，按组别整理，10级管理，箭头按钮重新排序，按动作记录距离和重量
 - **收藏夹** - 快速访问常用动作
 - **两种记录模式**
   - 记录模式：使用"应用动作设置"按钮快速手动输入
@@ -94,11 +94,13 @@ Calisthenics Memory 帮助您记录和管理俯卧撑、引体向上、深蹲等
 
 本应用仅使用**普通权限（安装时权限）**，这些权限在安装时自动授予，无需用户确认。
 
-截至 v1.8.1，包含以下权限：
+截至 v1.9.0，包含以下权限：
 
 | 权限 | 用途 | 添加者 | 源码 |
 |------|------|--------|------|
-| `WAKE_LOCK` | 屏幕关闭时保持计时器运行 | 应用（v1.8.1） | [WorkoutViewModel.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/ui/workout/WorkoutViewModel.kt) |
+| `FOREGROUND_SERVICE` | 将训练计时器作为前台服务运行 | 应用（v1.9.0） | [WorkoutTimerService.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
+| `FOREGROUND_SERVICE_SPECIAL_USE` | 训练计时器前台服务类型 | 应用（v1.9.0） | [WorkoutTimerService.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
+| `WAKE_LOCK` | 屏幕关闭时保持计时器运行 | 应用（v1.8.1） | [WorkoutTimerService.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
 | `FLASHLIGHT` | 训练模式中的LED闪光通知 | 应用（v1.8.0） | [FlashController.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/util/FlashController.kt) |
 | `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | 内部组件的安全保护 | AndroidX 库（自动） | - |
 
