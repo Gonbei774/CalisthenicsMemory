@@ -54,7 +54,9 @@ data class ExportExercise(
     val targetValue: Int? = null,
     val isFavorite: Boolean = false, // お気に入り（デフォルト値で後方互換）
     val restInterval: Int? = null,   // 種目固有の休憩時間（デフォルト値で後方互換）
-    val repDuration: Int? = null     // 種目固有の1レップ時間（デフォルト値で後方互換）
+    val repDuration: Int? = null,    // 種目固有の1レップ時間（デフォルト値で後方互換）
+    val distanceTrackingEnabled: Boolean = false,  // 距離入力を有効化（v3で追加）
+    val weightTrackingEnabled: Boolean = false     // 荷重入力を有効化（v3で追加）
 )
 
 @Serializable
@@ -66,7 +68,9 @@ data class ExportRecord(
     val setNumber: Int,
     val date: String,
     val time: String,
-    val comment: String
+    val comment: String,
+    val distanceCm: Int? = null,  // 距離（cm、v3で追加）
+    val weightG: Int? = null      // 追加ウエイト（g、v3で追加）
 )
 
 class TrainingViewModel(application: Application) : AndroidViewModel(application) {
@@ -136,7 +140,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         targetValue: Int? = null,
         isFavorite: Boolean = false,
         restInterval: Int? = null,       // 種目固有の休憩時間（秒）
-        repDuration: Int? = null         // 種目固有の1レップ時間（秒）
+        repDuration: Int? = null,        // 種目固有の1レップ時間（秒）
+        distanceTrackingEnabled: Boolean = false,  // 距離トラッキング有効
+        weightTrackingEnabled: Boolean = false     // 荷重トラッキング有効
     ) {
         viewModelScope.launch {
             try {
@@ -160,7 +166,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     targetValue = targetValue,
                     isFavorite = isFavorite,
                     restInterval = restInterval,
-                    repDuration = repDuration
+                    repDuration = repDuration,
+                    distanceTrackingEnabled = distanceTrackingEnabled,
+                    weightTrackingEnabled = weightTrackingEnabled
                 )
                 exerciseDao.insertExercise(exercise)
                 _snackbarMessage.value = UiMessage.ExerciseAdded
@@ -229,7 +237,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         values: List<Int>,
         date: String,
         time: String,
-        comment: String
+        comment: String,
+        distanceCm: Int? = null,   // 距離（cm）
+        weightG: Int? = null       // 追加ウエイト（g）
     ) {
         viewModelScope.launch {
             try {
@@ -241,7 +251,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         setNumber = index + 1,
                         date = date,
                         time = time,
-                        comment = comment
+                        comment = comment,
+                        distanceCm = distanceCm,
+                        weightG = weightG
                     )
                 }
                 recordDao.insertRecords(records)
@@ -259,7 +271,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         valuesLeft: List<Int>,
         date: String,
         time: String,
-        comment: String
+        comment: String,
+        distanceCm: Int? = null,   // 距離（cm）
+        weightG: Int? = null       // 追加ウエイト（g）
     ) {
         viewModelScope.launch {
             try {
@@ -272,7 +286,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         setNumber = index + 1,
                         date = date,
                         time = time,
-                        comment = comment
+                        comment = comment,
+                        distanceCm = distanceCm,
+                        weightG = weightG
                     )
                 }
                 recordDao.insertRecords(records)
@@ -518,7 +534,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     targetValue = exercise.targetValue,
                     isFavorite = exercise.isFavorite,
                     restInterval = exercise.restInterval,
-                    repDuration = exercise.repDuration
+                    repDuration = exercise.repDuration,
+                    distanceTrackingEnabled = exercise.distanceTrackingEnabled,
+                    weightTrackingEnabled = exercise.weightTrackingEnabled
                 )
             }
 
@@ -531,12 +549,14 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     setNumber = record.setNumber,
                     date = record.date,
                     time = record.time,
-                    comment = record.comment
+                    comment = record.comment,
+                    distanceCm = record.distanceCm,
+                    weightG = record.weightG
                 )
             }
 
             val backupData = BackupData(
-                version = 2,  // お気に入り機能追加のためバージョンアップ
+                version = 3,  // 距離・荷重トラッキング追加のためバージョンアップ
                 exportDate = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 app = "CalisthenicsMemory",
                 groups = exportGroups,
@@ -593,7 +613,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         targetValue = exportExercise.targetValue,
                         isFavorite = exportExercise.isFavorite,
                         restInterval = exportExercise.restInterval,
-                        repDuration = exportExercise.repDuration
+                        repDuration = exportExercise.repDuration,
+                        distanceTrackingEnabled = exportExercise.distanceTrackingEnabled,
+                        weightTrackingEnabled = exportExercise.weightTrackingEnabled
                     )
                     exerciseDao.insertExercise(exercise)
                 }
@@ -608,7 +630,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         setNumber = exportRecord.setNumber,
                         date = exportRecord.date,
                         time = exportRecord.time,
-                        comment = exportRecord.comment
+                        comment = exportRecord.comment,
+                        distanceCm = exportRecord.distanceCm,
+                        weightG = exportRecord.weightG
                     )
                     recordDao.insertRecord(record)
                 }
@@ -663,14 +687,15 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             val currentExercises = exercises.value
 
             val csvBuilder = StringBuilder()
-            csvBuilder.appendLine("name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration")
+            csvBuilder.appendLine("name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration,distanceTrackingEnabled,weightTrackingEnabled")
 
             currentExercises.forEach { exercise ->
                 csvBuilder.appendLine(
                     "${exercise.name},${exercise.type},${exercise.group ?: ""}," +
                     "${exercise.sortOrder},${exercise.laterality}," +
                     "${exercise.targetSets ?: ""},${exercise.targetValue ?: ""},${exercise.isFavorite}," +
-                    "${exercise.displayOrder},${exercise.restInterval ?: ""},${exercise.repDuration ?: ""}"
+                    "${exercise.displayOrder},${exercise.restInterval ?: ""},${exercise.repDuration ?: ""}," +
+                    "${exercise.distanceTrackingEnabled},${exercise.weightTrackingEnabled}"
                 )
             }
 
@@ -697,21 +722,24 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
             val csvBuilder = StringBuilder()
 
-            // ヘッダー
-            csvBuilder.appendLine("exerciseName,exerciseType,date,time,setNumber,valueRight,valueLeft,comment")
+            // ヘッダー (v11: 10列)
+            csvBuilder.appendLine("exerciseName,exerciseType,date,time,setNumber,valueRight,valueLeft,comment,distanceCm,weightG")
 
             // 入力例（コメント - 英語のみ）
             csvBuilder.appendLine("# Example: Multiple sets with same date/time (one session)")
-            csvBuilder.appendLine("# Wall Push-up,Dynamic,2025-11-09,10:00,1,20,,Morning session")
-            csvBuilder.appendLine("# Wall Push-up,Dynamic,2025-11-09,10:00,2,19,,Morning session")
-            csvBuilder.appendLine("# Wall Push-up,Dynamic,2025-11-09,10:00,3,15,,Morning session")
+            csvBuilder.appendLine("# Wall Push-up,Dynamic,2025-11-09,10:00,1,20,,Morning session,,")
+            csvBuilder.appendLine("# Wall Push-up,Dynamic,2025-11-09,10:00,2,19,,Morning session,,")
+            csvBuilder.appendLine("# Wall Push-up,Dynamic,2025-11-09,10:00,3,15,,Morning session,,")
             csvBuilder.appendLine("# Unilateral exercise example (with valueLeft)")
-            csvBuilder.appendLine("# One-leg Squat,Dynamic,2025-11-09,10:30,1,8,7,Right leg stronger")
+            csvBuilder.appendLine("# One-leg Squat,Dynamic,2025-11-09,10:30,1,8,7,Right leg stronger,,")
+            csvBuilder.appendLine("# With distance (cm) and weight (g)")
+            csvBuilder.appendLine("# Running,Dynamic,2025-11-09,08:00,1,1,,5km run,500000,")
+            csvBuilder.appendLine("# Weighted Push-up,Dynamic,2025-11-09,10:00,1,10,,With vest,,10000")
             csvBuilder.appendLine("#")
 
             // 種目リスト（空欄テンプレート）
             currentExercises.forEach { exercise ->
-                csvBuilder.appendLine("${exercise.name},${exercise.type},,,,,, ")
+                csvBuilder.appendLine("${exercise.name},${exercise.type},,,,,,,,")
             }
 
             withContext(Dispatchers.Main) {
@@ -728,7 +756,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     }
 
     /**
-     * 実際の記録データをCSV形式でエクスポート
+     * 実際の記録データをCSV形式でエクスポート (v11: 10列)
      */
     suspend fun exportRecords(): String = withContext(Dispatchers.IO) {
         try {
@@ -740,8 +768,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
             val csvBuilder = StringBuilder()
 
-            // ヘッダー
-            csvBuilder.appendLine("exerciseName,exerciseType,date,time,setNumber,valueRight,valueLeft,comment")
+            // ヘッダー (v11: 10列)
+            csvBuilder.appendLine("exerciseName,exerciseType,date,time,setNumber,valueRight,valueLeft,comment,distanceCm,weightG")
 
             // 記録データを出力（日付・時刻・セット番号で並べ替え）
             currentRecords
@@ -750,9 +778,12 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     val exercise = exerciseMap[record.exerciseId]
                     if (exercise != null) {
                         val valueLeft = record.valueLeft?.toString() ?: ""
+                        val distanceCm = record.distanceCm?.toString() ?: ""
+                        val weightG = record.weightG?.toString() ?: ""
                         csvBuilder.appendLine(
                             "${exercise.name},${exercise.type},${record.date},${record.time}," +
-                            "${record.setNumber},${record.valueRight},$valueLeft,${record.comment}"
+                            "${record.setNumber},${record.valueRight},$valueLeft,${record.comment}," +
+                            "$distanceCm,$weightG"
                         )
                     }
                 }
@@ -881,6 +912,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     val displayOrderStr = columns.getOrNull(8)?.trim() ?: ""
                     val restIntervalStr = columns.getOrNull(9)?.trim() ?: ""
                     val repDurationStr = columns.getOrNull(10)?.trim() ?: ""
+                    val distanceTrackingEnabledStr = columns.getOrNull(11)?.trim() ?: ""
+                    val weightTrackingEnabledStr = columns.getOrNull(12)?.trim() ?: ""
 
                     // 必須フィールドチェック
                     if (name.isEmpty() || type.isEmpty() || laterality.isEmpty()) {
@@ -921,6 +954,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     val displayOrder = displayOrderStr.toIntOrNull() ?: 0
                     val restInterval = restIntervalStr.toIntOrNull()
                     val repDuration = repDurationStr.toIntOrNull()
+                    val distanceTrackingEnabled = distanceTrackingEnabledStr.toBooleanStrictOrNull() ?: false
+                    val weightTrackingEnabled = weightTrackingEnabledStr.toBooleanStrictOrNull() ?: false
 
                     // 重複チェック
                     val existing = exercises.value.find {
@@ -950,7 +985,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         targetValue = targetValue,
                         isFavorite = isFavorite,
                         restInterval = restInterval,
-                        repDuration = repDuration
+                        repDuration = repDuration,
+                        distanceTrackingEnabled = distanceTrackingEnabled,
+                        weightTrackingEnabled = weightTrackingEnabled
                     )
                     exerciseDao.insertExercise(exercise)
                     successCount++
@@ -1019,6 +1056,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     val valueRightStr = columns[5].trim()
                     val valueLeftStr = columns[6].trim()
                     val comment = columns.getOrNull(7)?.trim() ?: ""
+                    // v11 新フィールド（オプション）
+                    val distanceCmStr = columns.getOrNull(8)?.trim() ?: ""
+                    val weightGStr = columns.getOrNull(9)?.trim() ?: ""
 
                     // 必須フィールドチェック
                     if (exerciseName.isEmpty() || exerciseType.isEmpty() ||
@@ -1044,6 +1084,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     val setNumber = setNumberStr.toIntOrNull()
                     val valueRight = valueRightStr.toIntOrNull()
                     val valueLeft = if (valueLeftStr.isEmpty()) null else valueLeftStr.toIntOrNull()
+                    val distanceCm = if (distanceCmStr.isEmpty()) null else distanceCmStr.toIntOrNull()
+                    val weightG = if (weightGStr.isEmpty()) null else weightGStr.toIntOrNull()
 
                     if (setNumber == null || valueRight == null) {
                         errors.add("Line ${index + 2}: Invalid number format")
@@ -1073,7 +1115,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         setNumber = setNumber,
                         date = date,
                         time = time,
-                        comment = comment
+                        comment = comment,
+                        distanceCm = distanceCm,
+                        weightG = weightG
                     )
 
                     recordDao.insertRecord(record)

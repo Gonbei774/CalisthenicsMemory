@@ -436,6 +436,17 @@
     <string name="example_5_seconds">es. 5</string>
     <string name="example_240_seconds">es. 240</string>
 
+    <!-- Distance/Weight Tracking Settings -->
+    <string name="tracking_settings_optional">Impostazioni di Tracciamento (Opzionale)</string>
+    <string name="track_distance">Traccia Distanza</string>
+    <string name="track_distance_description">Registra la distanza (cm) per ogni sessione</string>
+    <string name="track_weight">Traccia Peso</string>
+    <string name="track_weight_description">Registra il peso aggiunto (kg) per ogni sessione</string>
+    <string name="distance_input_label">Distanza (cm)</string>
+    <string name="weight_input_label">Peso (kg)</string>
+    <string name="distance_display_format">%d cm</string>
+    <string name="weight_display_format">%.1f kg</string>
+
     <!-- Apply Exercise Settings Button -->
     <string name="apply_exercise_settings">Applica Impostazioni Esercizio</string>
     <string name="apply_target_values">Applica Valori Obiettivo</string>

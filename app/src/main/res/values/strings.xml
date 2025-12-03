@@ -440,6 +440,17 @@
     <string name="example_5_seconds">e.g., 5</string>
     <string name="example_240_seconds">e.g., 240</string>
 
+    <!-- Tracking Settings (v1.9) -->
+    <string name="tracking_settings_optional">Tracking Settings (Optional)</string>
+    <string name="track_distance">Track Distance</string>
+    <string name="track_distance_description">Record distance (cm) for each session</string>
+    <string name="track_weight">Track Weight</string>
+    <string name="track_weight_description">Record added weight (kg) for each session</string>
+    <string name="distance_input_label">Distance (cm)</string>
+    <string name="weight_input_label">Weight (kg)</string>
+    <string name="distance_display_format">%d cm</string>
+    <string name="weight_display_format">%.1f kg</string>
+
     <!-- Apply Exercise Settings Button -->
     <string name="apply_exercise_settings">Apply Exercise Settings</string>
     <string name="apply_target_values">Apply Target Values</string>

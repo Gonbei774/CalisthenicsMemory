@@ -477,6 +477,10 @@ fun WorkoutInputScreen(
     var setValuesRight by remember { mutableStateOf(List(numberOfSets) { "" }) }
     var setValuesLeft by remember { mutableStateOf(List(numberOfSets) { "" }) }
 
+    // 距離・荷重入力
+    var distanceInput by remember { mutableStateOf("") }
+    var weightInput by remember { mutableStateOf("") }
+
     // セット数変更時の処理
     LaunchedEffect(numberOfSets) {
         if (isUnilateral) {
@@ -864,10 +868,78 @@ fun WorkoutInputScreen(
                 )
             }
 
+            // 距離入力（有効な場合のみ表示）- 負の値・0・正の値を許可
+            if (exercise.distanceTrackingEnabled) {
+                item {
+                    OutlinedTextField(
+                        value = distanceInput,
+                        onValueChange = { value ->
+                            // 空、"-"、または整数（負を含む）を許可
+                            if (value.isEmpty() || value == "-" || value.toIntOrNull() != null) {
+                                distanceInput = value
+                            }
+                        },
+                        label = { Text(stringResource(R.string.distance_input_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        ),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Blue600,
+                            unfocusedBorderColor = Slate600,
+                            focusedLabelColor = Blue600,
+                            unfocusedLabelColor = Slate400,
+                            cursorColor = Blue600,
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White
+                        )
+                    )
+                }
+            }
+
+            // 荷重入力（有効な場合のみ表示）- kg単位で小数第1位まで
+            if (exercise.weightTrackingEnabled) {
+                item {
+                    OutlinedTextField(
+                        value = weightInput,
+                        onValueChange = { value ->
+                            // 空、または小数（小数点1つまで、小数第1位まで）を許可
+                            val isValidDecimal = value.isEmpty() ||
+                                value == "." ||
+                                value.matches(Regex("^\\d*\\.?\\d?\$"))
+                            if (isValidDecimal) {
+                                weightInput = value
+                            }
+                        },
+                        label = { Text(stringResource(R.string.weight_input_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal
+                        ),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Orange600,
+                            unfocusedBorderColor = Slate600,
+                            focusedLabelColor = Orange600,
+                            unfocusedLabelColor = Slate400,
+                            cursorColor = Orange600,
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White
+                        )
+                    )
+                }
+            }
+
             // 記録ボタン
             item {
                 Button(
                     onClick = {
+                        // 距離・荷重の値を取得（空の場合はnull）
+                        val distanceCm = distanceInput.ifEmpty { null }?.toIntOrNull()
+                        // 荷重はkgで入力、gに変換して保存（例: 1.5kg → 1500g）
+                        val weightG = weightInput.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
+
                         if (isUnilateral) {
                             // Unilateral: 左右の値を処理（0を含む）
                             val valuesRight = setValuesRight
@@ -887,13 +959,31 @@ fun WorkoutInputScreen(
                                     valuesLeft = valuesLeft,
                                     date = selectedDate.format(dateFormatter),
                                     time = selectedTime.format(timeFormatter),
-                                    comment = comment
+                                    comment = comment,
+                                    distanceCm = distanceCm,
+                                    weightG = weightG
                                 )
                                 onNavigateBack()
                             }
                         } else {
-                            // Bilateral: 従来通り
-                            onRecord()
+                            // Bilateral: 距離・荷重を含めて記録
+                            val values = setValues
+                                .filter { it.isNotBlank() }
+                                .mapNotNull { it.toIntOrNull() }
+                                .filter { it >= 0 }
+
+                            if (values.isNotEmpty()) {
+                                viewModel.addTrainingRecords(
+                                    exerciseId = exercise.id,
+                                    values = values,
+                                    date = selectedDate.format(dateFormatter),
+                                    time = selectedTime.format(timeFormatter),
+                                    comment = comment,
+                                    distanceCm = distanceCm,
+                                    weightG = weightG
+                                )
+                                onNavigateBack()
+                            }
                         }
                     },
                     modifier = Modifier

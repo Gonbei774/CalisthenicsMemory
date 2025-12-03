@@ -437,6 +437,17 @@
     <string name="example_5_seconds">例: 5</string>
     <string name="example_240_seconds">例: 240</string>
 
+    <!-- Distance/Weight Tracking Settings -->
+    <string name="tracking_settings_optional">記録オプション（任意）</string>
+    <string name="track_distance">距離を記録</string>
+    <string name="track_distance_description">各セッションの距離（cm）を記録</string>
+    <string name="track_weight">荷重を記録</string>
+    <string name="track_weight_description">各セッションの追加荷重（kg）を記録</string>
+    <string name="distance_input_label">距離（cm）</string>
+    <string name="weight_input_label">荷重（kg）</string>
+    <string name="distance_display_format">%d cm</string>
+    <string name="weight_display_format">%.1f kg</string>
+
     <!-- Apply Exercise Settings Button -->
     <string name="apply_exercise_settings">種目設定を適用</string>
     <string name="apply_target_values">目標値を反映</string>

@@ -10,7 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [Exercise::class, TrainingRecord::class, ExerciseGroup::class],
-    version = 10,  // ← 変更: 9 → 10（displayOrder, restInterval, repDuration追加）
+    version = 11,  // ← 変更: 10 → 11（distanceTrackingEnabled, weightTrackingEnabled, distanceCm, weightG追加）
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -30,7 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "bodyweight_trainer_database"
                 )
-                    .addMigrations(MIGRATION_9_10)
+                    .addMigrations(MIGRATION_9_10, MIGRATION_10_11)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
@@ -87,6 +87,27 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                     WHERE exercises.`group` IS NULL
                 """)
+            }
+        }
+
+        // マイグレーション 10 → 11: 距離・荷重トラッキング機能を追加
+        val MIGRATION_10_11 = object : Migration(10, 11) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Exercise テーブルに距離・荷重トラッキングフラグを追加
+                database.execSQL(
+                    "ALTER TABLE exercises ADD COLUMN distanceTrackingEnabled INTEGER NOT NULL DEFAULT 0"
+                )
+                database.execSQL(
+                    "ALTER TABLE exercises ADD COLUMN weightTrackingEnabled INTEGER NOT NULL DEFAULT 0"
+                )
+
+                // TrainingRecord テーブルに距離・荷重値を追加
+                database.execSQL(
+                    "ALTER TABLE training_records ADD COLUMN distanceCm INTEGER"
+                )
+                database.execSQL(
+                    "ALTER TABLE training_records ADD COLUMN weightG INTEGER"
+                )
             }
         }
     }

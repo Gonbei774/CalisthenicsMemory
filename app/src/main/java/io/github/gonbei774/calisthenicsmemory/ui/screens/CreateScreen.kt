@@ -518,6 +518,10 @@ fun UnifiedAddDialog(
     var repDuration by remember { mutableStateOf(exercise?.repDuration?.toString() ?: "") }
     var restInterval by remember { mutableStateOf(exercise?.restInterval?.toString() ?: "") }
 
+    // トラッキング設定用の状態
+    var distanceTrackingEnabled by remember { mutableStateOf(exercise?.distanceTrackingEnabled ?: false) }
+    var weightTrackingEnabled by remember { mutableStateOf(exercise?.weightTrackingEnabled ?: false) }
+
     // グループ用の状態
     var groupName by remember { mutableStateOf("") }
 
@@ -583,7 +587,9 @@ fun UnifiedAddDialog(
                         targetValue = finalTargetValue,
                         isFavorite = isFavorite,
                         repDuration = finalRepDuration,
-                        restInterval = finalRestInterval
+                        restInterval = finalRestInterval,
+                        distanceTrackingEnabled = distanceTrackingEnabled,
+                        weightTrackingEnabled = weightTrackingEnabled
                     )
                 )
                 onDismiss()
@@ -613,7 +619,9 @@ fun UnifiedAddDialog(
                     finalTargetValue,
                     isFavorite,
                     finalRestInterval,
-                    finalRepDuration
+                    finalRepDuration,
+                    distanceTrackingEnabled,
+                    weightTrackingEnabled
                 )
                 onDismiss()
             }
@@ -1099,6 +1107,73 @@ fun UnifiedAddDialog(
                                         keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
                                     )
                                 )
+                            }
+                        }
+
+                        // トラッキング設定カード
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = Slate800),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.tracking_settings_optional),
+                                    fontSize = 14.sp,
+                                    color = Slate400,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                // 距離トラッキング
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = stringResource(R.string.track_distance),
+                                            fontSize = 14.sp,
+                                            color = Color.White
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.track_distance_description),
+                                            fontSize = 12.sp,
+                                            color = Slate400
+                                        )
+                                    }
+                                    Switch(
+                                        checked = distanceTrackingEnabled,
+                                        onCheckedChange = { distanceTrackingEnabled = it }
+                                    )
+                                }
+
+                                // 荷重トラッキング
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = stringResource(R.string.track_weight),
+                                            fontSize = 14.sp,
+                                            color = Color.White
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.track_weight_description),
+                                            fontSize = 12.sp,
+                                            color = Slate400
+                                        )
+                                    }
+                                    Switch(
+                                        checked = weightTrackingEnabled,
+                                        onCheckedChange = { weightTrackingEnabled = it }
+                                    )
+                                }
                             }
                         }
                     }
