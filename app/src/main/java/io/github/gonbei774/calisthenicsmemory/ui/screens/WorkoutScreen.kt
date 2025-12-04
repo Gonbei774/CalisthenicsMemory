@@ -7,6 +7,8 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -24,7 +26,9 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
 import io.github.gonbei774.calisthenicsmemory.R
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
@@ -61,7 +65,9 @@ data class WorkoutSession(
     val startInterval: Int, // 開始前インターバル（秒）
     var intervalDuration: Int, // セット間インターバル（秒）
     val sets: MutableList<WorkoutSet>,
-    var comment: String = ""
+    var comment: String = "",
+    val distanceCm: Int? = null, // 距離（cm）
+    val weightG: Int? = null // 追加ウエイト（g）
 )
 
 // ワークアウト画面の状態
@@ -548,11 +554,14 @@ fun SettingsStep(
         )
     }
     var interval by remember { mutableStateOf("") }
+    var distanceInput by remember { mutableStateOf("") }
+    var weightInput by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
@@ -637,6 +646,65 @@ fun SettingsStep(
             )
         )
 
+        // 距離入力（有効な場合のみ表示）
+        if (exercise.distanceTrackingEnabled) {
+            OutlinedTextField(
+                value = distanceInput,
+                onValueChange = { value ->
+                    // 空、"-"、または整数（負を含む）を許可
+                    if (value.isEmpty() || value == "-" || value.toIntOrNull() != null) {
+                        distanceInput = value
+                    }
+                },
+                label = { Text(stringResource(R.string.distance_input_label)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                ),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Blue600,
+                    unfocusedBorderColor = Slate600,
+                    focusedLabelColor = Blue600,
+                    unfocusedLabelColor = Slate400,
+                    cursorColor = Blue600,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
+                )
+            )
+        }
+
+        // 荷重入力（有効な場合のみ表示）
+        if (exercise.weightTrackingEnabled) {
+            OutlinedTextField(
+                value = weightInput,
+                onValueChange = { value ->
+                    // 空、または小数（小数点1つまで、小数第1位まで）を許可
+                    val isValidDecimal = value.isEmpty() ||
+                        value == "." ||
+                        value.matches(Regex("^\\d*\\.?\\d?\$"))
+                    if (isValidDecimal) {
+                        weightInput = value
+                    }
+                },
+                label = { Text(stringResource(R.string.weight_input_label)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal
+                ),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Orange600,
+                    unfocusedBorderColor = Slate600,
+                    focusedLabelColor = Orange600,
+                    unfocusedLabelColor = Slate400,
+                    cursorColor = Orange600,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
+                )
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         // 種目設定を適用ボタン
@@ -684,7 +752,7 @@ fun SettingsStep(
             )
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(24.dp))
 
         val isValid = sets.isNotEmpty() && targetValue.isNotEmpty() &&
                 (exercise.type != "Dynamic" || repDuration.isNotEmpty())
@@ -709,6 +777,11 @@ fun SettingsStep(
                     }
                 }
 
+                // 距離・荷重の値を取得（空の場合はnull）
+                val distanceCm = distanceInput.ifEmpty { null }?.toIntOrNull()
+                // 荷重はkgで入力、gに変換（例: 1.5kg → 1500g）
+                val weightG = weightInput.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
+
                 val session = WorkoutSession(
                     exercise = exercise,
                     totalSets = totalSets,
@@ -716,7 +789,9 @@ fun SettingsStep(
                     repDuration = repDur,
                     startInterval = start,
                     intervalDuration = inter,
-                    sets = workoutSets
+                    sets = workoutSets,
+                    distanceCm = distanceCm,
+                    weightG = weightG
                 )
                 onStartWorkout(session)
             },
@@ -1557,7 +1632,9 @@ fun saveWorkoutRecords(
                 valuesLeft = valuesLeft,
                 date = today,
                 time = now,
-                comment = session.comment.ifEmpty { workoutModeComment }
+                comment = session.comment.ifEmpty { workoutModeComment },
+                distanceCm = session.distanceCm,
+                weightG = session.weightG
             )
         }
     } else {
@@ -1571,7 +1648,9 @@ fun saveWorkoutRecords(
                 values = values,
                 date = today,
                 time = now,
-                comment = session.comment.ifEmpty { workoutModeComment }
+                comment = session.comment.ifEmpty { workoutModeComment },
+                distanceCm = session.distanceCm,
+                weightG = session.weightG
             )
         }
     }
