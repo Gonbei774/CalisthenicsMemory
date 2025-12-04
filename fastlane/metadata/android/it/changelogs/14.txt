@@ -1,0 +1,4 @@
+Aggiunto grafico distanza con doppio asse Y (pulsante inversione disponibile).
+Aggiunto grafico volume che mostra il volume giornaliero (reps × peso).
+Aggiunte statistiche peso: volume totale, volume giornaliero max./med., peso max./med.
+Migliorata la modifica dei valori di distanza e peso nelle registrazioni.

@@ -1,0 +1,4 @@
+Añadido gráfico de distancia con doble eje Y (botón de inversión disponible).
+Añadido gráfico de volumen que muestra el volumen diario (reps × peso).
+Añadidas estadísticas de peso: volumen total, volumen diario máx./prom., peso máx./prom.
+Mejorada la edición de valores de distancia y peso en registros de entrenamiento.

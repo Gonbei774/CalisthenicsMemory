@@ -1,0 +1,4 @@
+Ajout du graphique de distance avec double axe Y (bouton d'inversion disponible).
+Ajout du graphique de volume montrant le volume quotidien (reps × poids).
+Ajout des statistiques de poids : volume total, volume quotidien max./moy., poids max./moy.
+Amélioration de l'édition des valeurs de distance et de poids dans les enregistrements.

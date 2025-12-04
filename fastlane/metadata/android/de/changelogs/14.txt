@@ -1,0 +1,4 @@
+Distanzgrafik mit dualer Y-Achse hinzugefügt (Umkehrschalter verfügbar).
+Volumengrafik hinzugefügt, die das tägliche Trainingsvolumen anzeigt (Wdh. × Gewicht).
+Gewichtsstatistiken hinzugefügt: Gesamtvolumen, max./durchschn. Tagesvolumen, max./durchschn. Gewicht.
+Verbessertes Bearbeiten von Distanz- und Gewichtswerten in Trainingsaufzeichnungen.
