@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2025-12-05
+
+### Added
+- **Distance graph with dual Y-axis display**
+  - View distance data alongside reps/time on the graph
+  - Invert toggle for exercises where greater distance means higher difficulty
+  - Distance scale fixed across all time periods for consistent comparison
+- **Volume graph for weight tracking exercises**
+  - Daily training volume calculated as reps × weight (kg)
+  - Separate left/right display for unilateral exercises
+- **Weight statistics in statistics summary**
+  - Total volume, max/avg daily volume, max/avg weight
+  - Left/right breakdown for unilateral exercises
+
+### Improved
+- Training record editing now allows distance and weight value changes
+- Workout settings screen now scrollable for better accessibility
+- Statistics summary UI simplified for better internationalization support
+
 ## [1.9.0] - 2025-12-04
 
 ### Added
@@ -209,6 +228,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.10.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.10.0
 [1.9.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.9.0
 [1.8.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.8.1
 [1.8.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.8.0

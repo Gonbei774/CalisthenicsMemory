@@ -447,6 +447,19 @@
     <string name="distance_display_format">%d cm</string>
     <string name="weight_display_format">%.1f kg</string>
 
+    <!-- Distance Graph -->
+    <string name="invert">Inverti</string>
+    <string name="legend_reps">Rip</string>
+    <string name="legend_distance">Distanza</string>
+    <string name="legend_distance_inverted">Distanza (invertita)</string>
+
+    <!-- Volume/Weight Statistics -->
+    <string name="legend_volume">Volume</string>
+    <string name="max_daily_volume">Volume giorn. max</string>
+    <string name="avg_daily_volume">Volume giorn. medio</string>
+    <string name="max_weight">Peso max</string>
+    <string name="avg_weight">Peso medio</string>
+
     <!-- Apply Exercise Settings Button -->
     <string name="apply_exercise_settings">Applica Impostazioni Esercizio</string>
     <string name="apply_target_values">Applica Valori Obiettivo</string>

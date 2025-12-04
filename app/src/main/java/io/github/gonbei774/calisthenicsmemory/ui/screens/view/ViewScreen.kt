@@ -502,13 +502,15 @@ fun ViewScreen(
         SessionEditDialog(
             session = session,
             onDismiss = { showSessionEditDialog = null },
-            onConfirm = { newDate, newTime, newComment ->
+            onConfirm = { newDate, newTime, newComment, newDistanceCm, newWeightG ->
                 session.records.forEach { record ->
                     viewModel.updateRecord(
                         record.copy(
                             date = newDate,
                             time = newTime,
-                            comment = newComment
+                            comment = newComment,
+                            distanceCm = newDistanceCm,
+                            weightG = newWeightG
                         )
                     )
                 }

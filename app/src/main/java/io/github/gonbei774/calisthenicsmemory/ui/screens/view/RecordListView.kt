@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
@@ -290,11 +292,19 @@ fun SessionCard(
 fun SessionEditDialog(
     session: SessionInfo,
     onDismiss: () -> Unit,
-    onConfirm: (String, String, String) -> Unit
+    onConfirm: (String, String, String, Int?, Int?) -> Unit  // date, time, comment, distanceCm, weightG
 ) {
+    val firstRecord = session.records.firstOrNull()
+
     var editDate by remember { mutableStateOf(session.date) }
     var editTime by remember { mutableStateOf(session.time) }
     var editComment by remember { mutableStateOf(session.comment) }
+    var editDistance by remember { mutableStateOf(firstRecord?.distanceCm?.toString() ?: "") }
+    var editWeight by remember {
+        mutableStateOf(
+            firstRecord?.weightG?.let { "%.1f".format(it / 1000.0f) } ?: ""
+        )
+    }
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
 
@@ -329,12 +339,49 @@ fun SessionEditDialog(
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 3
                 )
+
+                // 距離入力（cm単位）
+                OutlinedTextField(
+                    value = editDistance,
+                    onValueChange = { value ->
+                        if (value.isEmpty() || value == "-" || value.toIntOrNull() != null) {
+                            editDistance = value
+                        }
+                    },
+                    label = { Text(stringResource(R.string.distance_input_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+
+                // 荷重入力（kg単位）
+                OutlinedTextField(
+                    value = editWeight,
+                    onValueChange = { value ->
+                        val isValidDecimal = value.isEmpty() ||
+                            value == "." ||
+                            value.matches(Regex("^\\d*\\.?\\d?\$"))
+                        if (isValidDecimal) {
+                            editWeight = value
+                        }
+                    },
+                    label = { Text(stringResource(R.string.weight_input_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Decimal
+                    )
+                )
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    onConfirm(editDate, editTime, editComment)
+                    val distanceCm = editDistance.ifEmpty { null }?.toIntOrNull()
+                    val weightG = editWeight.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
+                    onConfirm(editDate, editTime, editComment, distanceCm, weightG)
                 }
             ) {
                 Text(stringResource(R.string.save))

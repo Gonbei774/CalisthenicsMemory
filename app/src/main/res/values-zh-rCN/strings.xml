@@ -447,6 +447,19 @@
     <string name="distance_display_format">%d厘米</string>
     <string name="weight_display_format">%.1f公斤</string>
 
+    <!-- Distance Graph -->
+    <string name="invert">反转</string>
+    <string name="legend_reps">次数</string>
+    <string name="legend_distance">距离</string>
+    <string name="legend_distance_inverted">距离（反转）</string>
+
+    <!-- Volume/Weight Statistics -->
+    <string name="legend_volume">容量</string>
+    <string name="max_daily_volume">最大日容量</string>
+    <string name="avg_daily_volume">平均日容量</string>
+    <string name="max_weight">最大重量</string>
+    <string name="avg_weight">平均重量</string>
+
     <!-- Apply Exercise Settings Button -->
     <string name="apply_exercise_settings">应用动作设置</string>
     <string name="apply_target_values">应用目标值</string>

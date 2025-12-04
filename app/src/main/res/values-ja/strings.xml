@@ -448,6 +448,19 @@
     <string name="distance_display_format">%d cm</string>
     <string name="weight_display_format">%.1f kg</string>
 
+    <!-- Distance Graph -->
+    <string name="invert">反転</string>
+    <string name="legend_reps">回数</string>
+    <string name="legend_distance">距離</string>
+    <string name="legend_distance_inverted">距離（反転）</string>
+
+    <!-- Volume/Weight Statistics -->
+    <string name="legend_volume">ボリューム</string>
+    <string name="max_daily_volume">最大日ボリューム</string>
+    <string name="avg_daily_volume">平均日ボリューム</string>
+    <string name="max_weight">最大荷重</string>
+    <string name="avg_weight">平均荷重</string>
+
     <!-- Apply Exercise Settings Button -->
     <string name="apply_exercise_settings">種目設定を適用</string>
     <string name="apply_target_values">目標値を反映</string>
