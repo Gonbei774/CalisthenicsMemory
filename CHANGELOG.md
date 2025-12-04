@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2025-12-04
+
+### Added
+- **Distance and weight tracking for exercises**
+  - Record distance (cm) and weight (kg) per exercise
+  - Enable tracking per exercise in exercise settings
+- **"Keep Screen On" option for workout mode**
+  - Prevents screen from turning off during workouts
+  - Toggle available in Settings
+
+### Improved
+- **Timer reliability with Foreground Service**
+  - Timer continues accurately even when screen is off
+  - More reliable background operation
+
 ## [1.8.1] - 2025-11-29
 
 ### Fixed
@@ -194,6 +209,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.9.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.9.0
 [1.8.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.8.1
 [1.8.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.8.0
 [1.7.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.7.1
