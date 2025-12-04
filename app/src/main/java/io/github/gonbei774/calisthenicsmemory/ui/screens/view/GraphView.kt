@@ -187,21 +187,18 @@ fun GraphView(
                         FilterChip(
                             selected = isDistanceInverted,
                             onClick = { isDistanceInverted = !isDistanceInverted },
-                            label = { Text(stringResource(R.string.invert)) },
-                            leadingIcon = {
+                            label = {
                                 Icon(
                                     Icons.Default.Refresh,
-                                    contentDescription = null,
+                                    contentDescription = stringResource(R.string.invert),
                                     modifier = Modifier.size(18.dp)
                                 )
                             },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Blue600,
                                 selectedLabelColor = Color.White,
-                                selectedLeadingIconColor = Color.White,
                                 containerColor = Slate700,
-                                labelColor = Slate300,
-                                iconColor = Slate300
+                                labelColor = Slate300
                             )
                         )
                     }
@@ -1390,8 +1387,7 @@ fun StatisticsSummary(
                     } else {
                         "${statistics.weeklyChange}$setsSuffix"
                     }
-                    val color = if (statistics.weeklyChange > 0) Green400 else Red600
-                    StatItem(stringResource(R.string.weekly_change), changeText, valueColor = color)
+                    StatItem(stringResource(R.string.weekly_change), changeText)
                 }
 
                 // 荷重統計（weightTrackingEnabled時のみ）
@@ -1444,7 +1440,7 @@ fun StatisticsSummary(
 fun StatItem(
     label: String,
     value: String,
-    valueColor: Color = Green400
+    valueColor: Color = Slate300
 ) {
     Row(
         modifier = Modifier
@@ -1491,12 +1487,6 @@ fun StatItemDual(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(R.string.right_short),
-                fontSize = 12.sp,
-                color = Green400,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
                 text = valueRight,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
@@ -1506,12 +1496,6 @@ fun StatItemDual(
                 text = "|",
                 fontSize = 14.sp,
                 color = Slate600
-            )
-            Text(
-                text = stringResource(R.string.left_short),
-                fontSize = 12.sp,
-                color = Purple600,
-                fontWeight = FontWeight.Bold
             )
             Text(
                 text = valueLeft,
