@@ -1,0 +1,3 @@
+Added distance and weight tracking for exercises.
+Added "Keep Screen On" option for workout mode.
+Improved timer reliability using Foreground Service.

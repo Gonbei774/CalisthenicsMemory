@@ -19,6 +19,7 @@ class CsvExerciseV10Test {
         val columnCount = header.split(",").size
 
         val version = when {
+            columnCount >= 13 -> 11
             columnCount >= 11 -> 10
             columnCount >= 8 -> 9
             else -> 0
@@ -33,6 +34,7 @@ class CsvExerciseV10Test {
         val columnCount = header.split(",").size
 
         val version = when {
+            columnCount >= 13 -> 11
             columnCount >= 11 -> 10
             columnCount >= 8 -> 9
             else -> 0
@@ -42,11 +44,27 @@ class CsvExerciseV10Test {
     }
 
     @Test
+    fun detectCsvVersion_13columns_returnsV11() {
+        val header = "name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration,distanceTrackingEnabled,weightTrackingEnabled"
+        val columnCount = header.split(",").size
+
+        val version = when {
+            columnCount >= 13 -> 11
+            columnCount >= 11 -> 10
+            columnCount >= 8 -> 9
+            else -> 0
+        }
+
+        assertEquals(11, version)
+    }
+
+    @Test
     fun detectCsvVersion_lessThan8columns_returnsUnknown() {
         val header = "name,type,group"
         val columnCount = header.split(",").size
 
         val version = when {
+            columnCount >= 13 -> 11
             columnCount >= 11 -> 10
             columnCount >= 8 -> 9
             else -> 0

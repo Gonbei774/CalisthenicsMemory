@@ -176,6 +176,52 @@ fun SessionCard(
                 }
             }
 
+            // Distance and Weight (from first record, as they're the same for all sets in a session)
+            val firstRecord = session.records.firstOrNull()
+            val hasDistance = firstRecord?.distanceCm != null
+            val hasWeight = firstRecord?.weightG != null
+            if (hasDistance || hasWeight) {
+                Row(
+                    modifier = Modifier.padding(bottom = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    if (hasDistance) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "📏",
+                                fontSize = 14.sp
+                            )
+                            Text(
+                                text = stringResource(R.string.distance_display_format, firstRecord!!.distanceCm!!),
+                                fontSize = 14.sp,
+                                color = Blue600,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                    if (hasWeight) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "🏋️",
+                                fontSize = 14.sp
+                            )
+                            Text(
+                                text = stringResource(R.string.weight_display_format, firstRecord!!.weightG!! / 1000.0f),
+                                fontSize = 14.sp,
+                                color = Orange600,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            }
+
             // Sets
             Column(
                 verticalArrangement = Arrangement.spacedBy(6.dp)

@@ -429,6 +429,8 @@
     <string name="enter_seconds_max">Enter seconds (max %d)</string>
     <string name="flash_notification_setting">LED Flash Notification</string>
     <string name="flash_notification_description">Flash LED in sync with sounds during workout</string>
+    <string name="keep_screen_on_setting">Keep Screen On</string>
+    <string name="keep_screen_on_description">Keep screen on during workout to view countdown</string>
 
     <!-- Timer Settings (Per-Exercise) -->
     <string name="timer_settings_optional">Timer Settings (Optional)</string>
@@ -437,6 +439,17 @@
     <string name="rest_interval_seconds">Rest Interval (seconds)</string>
     <string name="example_5_seconds">e.g., 5</string>
     <string name="example_240_seconds">e.g., 240</string>
+
+    <!-- Tracking Settings (v1.9) -->
+    <string name="tracking_settings_optional">Tracking Settings (Optional)</string>
+    <string name="track_distance">Track Distance</string>
+    <string name="track_distance_description">Record distance (cm) for each session</string>
+    <string name="track_weight">Track Weight</string>
+    <string name="track_weight_description">Record added weight (kg) for each session</string>
+    <string name="distance_input_label">Distance (cm)</string>
+    <string name="weight_input_label">Weight (kg)</string>
+    <string name="distance_display_format">%d cm</string>
+    <string name="weight_display_format">%.1f kg</string>
 
     <!-- Apply Exercise Settings Button -->
     <string name="apply_exercise_settings">Apply Exercise Settings</string>
@@ -457,4 +470,10 @@
     <string name="github_description">Mirror repository</string>
     <string name="report_issue_codeberg">Report issue on Codeberg</string>
     <string name="report_issue_github">Report issue on GitHub</string>
+
+    <!-- Notification Channel for Workout Timer -->
+    <string name="notification_channel_workout">Workout Timer</string>
+    <string name="notification_channel_workout_description">Shows notification while workout timer is running</string>
+    <string name="notification_workout_title">Workout in progress</string>
+    <string name="notification_workout_text">Timer is running</string>
 </resources>

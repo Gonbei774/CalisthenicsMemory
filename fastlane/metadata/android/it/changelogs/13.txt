@@ -1,0 +1,3 @@
+Aggiunto tracciamento di distanza e peso per gli esercizi.
+Aggiunta opzione "Mantieni schermo acceso" per la modalità allenamento.
+Migliorata l'affidabilità del timer usando Foreground Service.

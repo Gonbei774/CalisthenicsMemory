@@ -436,6 +436,17 @@
     <string name="example_5_seconds">例如：5</string>
     <string name="example_240_seconds">例如：240</string>
 
+    <!-- Distance/Weight Tracking Settings -->
+    <string name="tracking_settings_optional">追踪设置（可选）</string>
+    <string name="track_distance">追踪距离</string>
+    <string name="track_distance_description">记录每次训练的距离（厘米）</string>
+    <string name="track_weight">追踪重量</string>
+    <string name="track_weight_description">记录每次训练的额外重量（公斤）</string>
+    <string name="distance_input_label">距离（厘米）</string>
+    <string name="weight_input_label">重量（公斤）</string>
+    <string name="distance_display_format">%d厘米</string>
+    <string name="weight_display_format">%.1f公斤</string>
+
     <!-- Apply Exercise Settings Button -->
     <string name="apply_exercise_settings">应用动作设置</string>
     <string name="apply_target_values">应用目标值</string>
@@ -459,4 +470,12 @@
     <!-- Flash Notification -->
     <string name="flash_notification_setting">LED闪光通知</string>
     <string name="flash_notification_description">训练时LED与声音同步闪烁</string>
+    <string name="keep_screen_on_setting">保持屏幕常亮</string>
+    <string name="keep_screen_on_description">训练时保持屏幕常亮以显示倒计时</string>
+
+    <!-- Notification Channel for Workout Timer -->
+    <string name="notification_channel_workout">训练计时器</string>
+    <string name="notification_channel_workout_description">训练计时器运行时显示通知</string>
+    <string name="notification_workout_title">训练进行中</string>
+    <string name="notification_workout_text">计时器正在运行</string>
 </resources>

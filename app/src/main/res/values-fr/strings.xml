@@ -436,6 +436,17 @@
     <string name="example_5_seconds">ex. 5</string>
     <string name="example_240_seconds">ex. 240</string>
 
+    <!-- Distance/Weight Tracking Settings -->
+    <string name="tracking_settings_optional">Paramètres de Suivi (Optionnel)</string>
+    <string name="track_distance">Suivre la Distance</string>
+    <string name="track_distance_description">Enregistrer la distance (cm) pour chaque séance</string>
+    <string name="track_weight">Suivre le Poids</string>
+    <string name="track_weight_description">Enregistrer le poids ajouté (kg) pour chaque séance</string>
+    <string name="distance_input_label">Distance (cm)</string>
+    <string name="weight_input_label">Poids (kg)</string>
+    <string name="distance_display_format">%d cm</string>
+    <string name="weight_display_format">%.1f kg</string>
+
     <!-- Apply Exercise Settings Button -->
     <string name="apply_exercise_settings">Appliquer les Paramètres de l\'Exercice</string>
     <string name="apply_target_values">Appliquer les Valeurs Cibles</string>
@@ -459,4 +470,12 @@
     <!-- Flash Notification -->
     <string name="flash_notification_setting">Notification par Flash LED</string>
     <string name="flash_notification_description">Faire clignoter le LED en synchronisation avec les sons pendant l\'entraînement</string>
+    <string name="keep_screen_on_setting">Garder l\'écran allumé</string>
+    <string name="keep_screen_on_description">Garder l\'écran allumé pendant l\'entraînement pour voir le compte à rebours</string>
+
+    <!-- Notification Channel for Workout Timer -->
+    <string name="notification_channel_workout">Minuteur d\'entraînement</string>
+    <string name="notification_channel_workout_description">Affiche une notification pendant que le minuteur d\'entraînement est actif</string>
+    <string name="notification_workout_title">Entraînement en cours</string>
+    <string name="notification_workout_text">Le minuteur est actif</string>
 </resources>

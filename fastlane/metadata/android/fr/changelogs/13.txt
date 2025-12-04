@@ -1,0 +1,3 @@
+Ajout du suivi de distance et de poids pour les exercices.
+Ajout de l'option "Garder l'écran allumé" pour le mode entraînement.
+Amélioration de la fiabilité du minuteur avec Foreground Service.

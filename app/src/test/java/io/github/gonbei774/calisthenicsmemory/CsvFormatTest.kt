@@ -407,4 +407,170 @@ class CsvFormatTest {
             assertFalse("$order should be invalid", order >= 0)
         }
     }
+
+    // ========================================
+    // DB v11 format tests (13 columns for exercises, 10 columns for records)
+    // ========================================
+
+    @Test
+    fun exercisesCsvFormat_v11Header() {
+        // DB v11 format: 13 columns
+        val csv = "name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration,distanceTrackingEnabled,weightTrackingEnabled"
+        val lines = csv.lines()
+
+        assertEquals(1, lines.size)
+        val columns = lines[0].split(",")
+        assertEquals(13, columns.size)
+        assertEquals("distanceTrackingEnabled", columns[11])
+        assertEquals("weightTrackingEnabled", columns[12])
+    }
+
+    @Test
+    fun exercisesCsvFormat_v11ValidData() {
+        val csv = """
+            name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration,distanceTrackingEnabled,weightTrackingEnabled
+            Wall Push-up,Dynamic,Step 1 Pushups,1,Bilateral,3,50,false,0,120,5,false,false
+            Weighted Squat,Dynamic,Step 2 Squats,2,Bilateral,3,20,true,1,180,,false,true
+        """.trimIndent()
+
+        val lines = csv.lines().filter { it.isNotBlank() && !it.startsWith("#") }
+
+        assertEquals(3, lines.size)
+
+        // Parse first data line (all fields filled)
+        val data1 = lines[1].split(",")
+        assertEquals(13, data1.size)
+        assertEquals("Wall Push-up", data1[0])
+        assertEquals("false", data1[11])  // distanceTrackingEnabled
+        assertEquals("false", data1[12])  // weightTrackingEnabled
+
+        // Parse second data line (weight tracking enabled)
+        val data2 = lines[2].split(",")
+        assertEquals(13, data2.size)
+        assertEquals("Weighted Squat", data2[0])
+        assertEquals("false", data2[11])  // distanceTrackingEnabled
+        assertEquals("true", data2[12])   // weightTrackingEnabled
+    }
+
+    @Test
+    fun exercisesCsvFormat_v11WithTrackingEnabled() {
+        val csv = """
+            name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration,distanceTrackingEnabled,weightTrackingEnabled
+            Running,Dynamic,,0,Bilateral,,,false,0,,,true,false
+            Weighted Pull-up,Dynamic,,0,Bilateral,,,false,0,,,false,true
+            Weighted Run,Dynamic,,0,Bilateral,,,false,0,,,true,true
+        """.trimIndent()
+
+        val lines = csv.lines().filter { it.isNotBlank() && !it.startsWith("#") }
+
+        // Running: distance only
+        val data1 = lines[1].split(",")
+        assertEquals("true", data1[11])   // distanceTrackingEnabled
+        assertEquals("false", data1[12])  // weightTrackingEnabled
+
+        // Weighted Pull-up: weight only
+        val data2 = lines[2].split(",")
+        assertEquals("false", data2[11])  // distanceTrackingEnabled
+        assertEquals("true", data2[12])   // weightTrackingEnabled
+
+        // Weighted Run: both
+        val data3 = lines[3].split(",")
+        assertEquals("true", data3[11])   // distanceTrackingEnabled
+        assertEquals("true", data3[12])   // weightTrackingEnabled
+    }
+
+    @Test
+    fun exercisesCsvFormat_detectFormatByColumnCount_v11() {
+        val v9FormatCsv = "name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite"
+        val v10FormatCsv = "name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration"
+        val v11FormatCsv = "name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration,distanceTrackingEnabled,weightTrackingEnabled"
+
+        // Detection logic
+        fun detectVersion(header: String): Int {
+            val cols = header.split(",").size
+            return when {
+                cols >= 13 -> 11  // DB v11
+                cols >= 11 -> 10  // DB v10
+                cols >= 8 -> 9    // DB v9 or earlier
+                else -> 0         // Unknown
+            }
+        }
+
+        assertEquals(9, detectVersion(v9FormatCsv))
+        assertEquals(10, detectVersion(v10FormatCsv))
+        assertEquals(11, detectVersion(v11FormatCsv))
+    }
+
+    @Test
+    fun recordsCsvFormat_v11Header() {
+        // DB v11 format: 10 columns for records
+        val csv = "exerciseName,exerciseType,date,time,setNumber,valueRight,valueLeft,comment,distanceCm,weightG"
+        val lines = csv.lines()
+
+        assertEquals(1, lines.size)
+        val columns = lines[0].split(",")
+        assertEquals(10, columns.size)
+        assertEquals("distanceCm", columns[8])
+        assertEquals("weightG", columns[9])
+    }
+
+    @Test
+    fun recordsCsvFormat_v11ValidData() {
+        val csv = """
+            exerciseName,exerciseType,date,time,setNumber,valueRight,valueLeft,comment,distanceCm,weightG
+            Running,Dynamic,2025-12-04,10:30,1,30,,Good run,500,
+            Weighted Pull-up,Dynamic,2025-12-04,10:35,1,10,,Heavy,10,5000
+        """.trimIndent()
+
+        val lines = csv.lines().filter { it.isNotBlank() && !it.startsWith("#") }
+
+        assertEquals(3, lines.size)
+
+        // Parse first data line (distance only)
+        val data1 = lines[1].split(",")
+        assertEquals(10, data1.size)
+        assertEquals("Running", data1[0])
+        assertEquals("500", data1[8])     // distanceCm
+        assertEquals("", data1[9])        // weightG is empty
+
+        // Parse second data line (both distance and weight)
+        val data2 = lines[2].split(",")
+        assertEquals("Weighted Pull-up", data2[0])
+        assertEquals("10", data2[8])      // distanceCm (for record of pull-up distance)
+        assertEquals("5000", data2[9])    // weightG (5kg = 5000g)
+    }
+
+    @Test
+    fun recordsCsvFormat_v11WithNullableFields() {
+        val csv = """
+            exerciseName,exerciseType,date,time,setNumber,valueRight,valueLeft,comment,distanceCm,weightG
+            Wall Push-up,Dynamic,2025-12-04,10:30,1,30,,,,
+        """.trimIndent()
+
+        val lines = csv.lines().filter { it.isNotBlank() && !it.startsWith("#") }
+        val data = lines[1].split(",")
+
+        assertEquals(10, data.size)
+        assertEquals("", data[8].trim())  // distanceCm is empty
+        assertEquals("", data[9].trim())  // weightG is empty
+    }
+
+    @Test
+    fun recordsCsvFormat_detectFormatByColumnCount_v11() {
+        val v10FormatCsv = "exerciseName,exerciseType,date,time,setNumber,valueRight,valueLeft,comment"
+        val v11FormatCsv = "exerciseName,exerciseType,date,time,setNumber,valueRight,valueLeft,comment,distanceCm,weightG"
+
+        // Detection logic
+        fun detectRecordVersion(header: String): Int {
+            val cols = header.split(",").size
+            return when {
+                cols >= 10 -> 11  // DB v11
+                cols >= 8 -> 10   // DB v10 or earlier
+                else -> 0         // Unknown
+            }
+        }
+
+        assertEquals(10, detectRecordVersion(v10FormatCsv))
+        assertEquals(11, detectRecordVersion(v11FormatCsv))
+    }
 }

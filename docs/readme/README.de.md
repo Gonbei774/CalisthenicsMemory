@@ -54,7 +54,7 @@ Die App funktioniert komplett offline – keine Internetverbindung erforderlich,
 ## Funktionen
 
 - **Home-Dashboard** - Heutige Trainingseinträge auf einen Blick, lange drücken zum Kopieren
-- **Vollständig anpassbar** - Übungen frei erstellen, nach Gruppen organisieren, mit 10 Stufen verwalten, mit Pfeiltasten umsortieren
+- **Vollständig anpassbar** - Übungen frei erstellen, nach Gruppen organisieren, mit 10 Stufen verwalten, mit Pfeiltasten umsortieren, Distanz und Gewicht pro Übung verfolgen
 - **Favoriten** - Schneller Zugriff auf häufig verwendete Übungen
 - **Zwei Aufzeichnungsmodi**
   - Aufzeichnungsmodus: Schnelle manuelle Eingabe mit "Übungseinstellungen anwenden"-Taste
@@ -108,11 +108,13 @@ Die App funktioniert komplett offline – keine Internetverbindung erforderlich,
 
 Diese App verwendet nur **normale (Installationszeit-)Berechtigungen**, die bei der Installation automatisch gewährt werden, ohne Benutzeraufforderungen.
 
-Ab v1.8.1 sind folgende Berechtigungen enthalten:
+Ab v1.9.0 sind folgende Berechtigungen enthalten:
 
 | Berechtigung | Zweck | Hinzugefügt von | Quelle |
 |--------------|-------|-----------------|--------|
-| `WAKE_LOCK` | Timer läuft weiter bei ausgeschaltetem Bildschirm | App (v1.8.1) | [WorkoutViewModel.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/ui/workout/WorkoutViewModel.kt) |
+| `FOREGROUND_SERVICE` | Workout-Timer als Foreground-Service ausführen | App (v1.9.0) | [WorkoutTimerService.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
+| `FOREGROUND_SERVICE_SPECIAL_USE` | Foreground-Service-Typ für Workout-Timer | App (v1.9.0) | [WorkoutTimerService.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
+| `WAKE_LOCK` | Timer läuft weiter bei ausgeschaltetem Bildschirm | App (v1.8.1) | [WorkoutTimerService.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
 | `FLASHLIGHT` | LED-Blitz-Benachrichtigung im Trainingsmodus | App (v1.8.0) | [FlashController.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/util/FlashController.kt) |
 | `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | Sicherheitsschutz für interne Komponenten | AndroidX-Bibliothek (automatisch) | - |
 
