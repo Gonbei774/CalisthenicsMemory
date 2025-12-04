@@ -270,6 +270,16 @@
     <string name="graph_type_average">Average</string>
     <string name="graph_type_max">Max</string>
     <string name="graph_type_total">Total</string>
+    <string name="invert">Invert</string>
+    <string name="legend_reps">Reps</string>
+    <string name="legend_distance">Distance</string>
+    <string name="legend_distance_inverted">Distance (inverted)</string>
+    <string name="legend_volume">Volume</string>
+    <string name="record_weight_for_graph">Record weight for this exercise</string>
+    <string name="max_daily_volume">Max daily volume</string>
+    <string name="avg_daily_volume">Avg daily volume</string>
+    <string name="max_weight">Max weight</string>
+    <string name="avg_weight">Avg weight</string>
 
     <!-- Additional hardcoded strings that need to be moved -->
     <string name="no_exercises_add_with_plus">No exercises yet\nAdd one using the + button below</string>

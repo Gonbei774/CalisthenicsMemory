@@ -2,12 +2,15 @@ package io.github.gonbei774.calisthenicsmemory.ui.screens.view
 
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.runtime.*
@@ -37,7 +40,15 @@ data class GraphDataPoint(
     val date: String,
     val value: Float,
     val label: String = "",
-    val valueLeft: Float? = null  // ← 追加: Unilateral用の左側の値
+    val valueLeft: Float? = null,  // Unilateral用の左側の値
+    val distanceCm: Float? = null  // 距離トラッキング用
+)
+
+// ボリュームグラフ用データクラス
+data class VolumeDataPoint(
+    val date: String,
+    val volumeRight: Float,        // kg（Bilateral時はこれのみ使用）
+    val volumeLeft: Float? = null  // Unilateral用
 )
 
 enum class Period(val days: Int, val displayNameResId: Int) {
@@ -58,10 +69,17 @@ data class Statistics(
     val max: Int,
     val min: Int,
     val weeklyChange: Int,
-    // ← 追加: Unilateral用
+    // Unilateral用
     val averageLeft: Float? = null,
     val maxLeft: Int? = null,
-    val minLeft: Int? = null
+    val minLeft: Int? = null,
+    // 荷重統計（weightTrackingEnabled時のみ有効）
+    val maxDailyVolume: Float? = null,    // 最大日ボリューム (kg)
+    val avgDailyVolume: Float? = null,    // 平均日ボリューム (kg)
+    val maxDailyVolumeLeft: Float? = null,    // 最大日ボリューム左 (kg) - Unilateral用
+    val avgDailyVolumeLeft: Float? = null,    // 平均日ボリューム左 (kg) - Unilateral用
+    val maxWeight: Float? = null,         // 最大荷重 (kg)
+    val avgWeight: Float? = null          // 平均荷重 (kg)
 )
 
 // グラフ表示コンポーネント
@@ -74,6 +92,7 @@ fun GraphView(
     selectedPeriod: Period?
 ) {
     var selectedGraphType by remember { mutableStateOf(GraphType.Average) }
+    var isDistanceInverted by remember { mutableStateOf(false) }
 
     if (exercises.isEmpty()) {
         Box(
@@ -142,18 +161,47 @@ fun GraphView(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    GraphType.values().forEach { type ->
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        GraphType.values().forEach { type ->
+                            FilterChip(
+                                selected = selectedGraphType == type,
+                                onClick = { selectedGraphType = type },
+                                label = { Text(stringResource(type.displayNameResId)) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = Purple600,
+                                    selectedLabelColor = Color.White,
+                                    containerColor = Slate700,
+                                    labelColor = Slate300
+                                )
+                            )
+                        }
+                    }
+
+                    // 距離トラッキング有効時のみ反転トグルを表示
+                    if (selectedExerciseFilter.distanceTrackingEnabled) {
                         FilterChip(
-                            selected = selectedGraphType == type,
-                            onClick = { selectedGraphType = type },
-                            label = { Text(stringResource(type.displayNameResId)) },
+                            selected = isDistanceInverted,
+                            onClick = { isDistanceInverted = !isDistanceInverted },
+                            label = { Text(stringResource(R.string.invert)) },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Refresh,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Purple600,
+                                selectedContainerColor = Blue600,
                                 selectedLabelColor = Color.White,
+                                selectedLeadingIconColor = Color.White,
                                 containerColor = Slate700,
-                                labelColor = Slate300
+                                labelColor = Slate300,
+                                iconColor = Slate300
                             )
                         )
                     }
@@ -174,11 +222,55 @@ fun GraphView(
                 )
             }
 
+            // 全期間の距離min/maxを計算（フィルター期間に関係なくスケールを固定）
+            val allTimeDistanceRange = remember(selectedExerciseFilter, records) {
+                if (selectedExerciseFilter!!.distanceTrackingEnabled) {
+                    val allDistances = records
+                        .filter { it.exerciseId == selectedExerciseFilter!!.id }
+                        .mapNotNull { it.distanceCm?.toFloat() }
+                    if (allDistances.isNotEmpty()) {
+                        Pair(allDistances.minOrNull() ?: 0f, allDistances.maxOrNull() ?: 0f)
+                    } else null
+                } else null
+            }
+
             LineChart(
                 data = graphData,
                 exercise = selectedExerciseFilter!!,
-                period = selectedPeriod
+                period = selectedPeriod,
+                isDistanceInverted = isDistanceInverted,
+                allTimeDistanceRange = allTimeDistanceRange
             )
+        }
+
+        // ボリュームグラフ（荷重トラッキング有効時のみ）
+        if (selectedExerciseFilter.weightTrackingEnabled) {
+            item {
+                val volumeData = remember(selectedExerciseFilter, records, selectedPeriod) {
+                    prepareVolumeData(
+                        exercise = selectedExerciseFilter,
+                        records = records,
+                        period = selectedPeriod
+                    )
+                }
+
+                val allTimeVolumeMax = remember(selectedExerciseFilter, records) {
+                    val allVolumeData = prepareVolumeData(
+                        exercise = selectedExerciseFilter,
+                        records = records,
+                        period = null
+                    )
+                    val maxRight = allVolumeData.maxOfOrNull { it.volumeRight } ?: 0f
+                    val maxLeft = allVolumeData.mapNotNull { it.volumeLeft }.maxOrNull() ?: 0f
+                    maxOf(maxRight, maxLeft)
+                }
+
+                VolumeChart(
+                    data = volumeData,
+                    period = selectedPeriod,
+                    allTimeVolumeMax = allTimeVolumeMax
+                )
+            }
         }
 
         // 統計サマリー
@@ -241,6 +333,23 @@ fun prepareGraphData(
             // Bilateral/Unilateral で分岐
             val isUnilateral = sessionRecords.firstOrNull()?.valueLeft != null
 
+            // 距離の加重平均を計算（距離トラッキング有効時のみ）
+            val weightedDistance: Float? = if (exercise.distanceTrackingEnabled) {
+                val distanceRecords = sessionRecords.filter { it.distanceCm != null }
+                if (distanceRecords.isNotEmpty()) {
+                    val totalReps = distanceRecords.sumOf { it.valueRight }
+                    if (totalReps > 0) {
+                        distanceRecords.sumOf { (it.distanceCm ?: 0) * it.valueRight } / totalReps.toFloat()
+                    } else {
+                        distanceRecords.mapNotNull { it.distanceCm }.average().toFloat()
+                    }
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+
             if (isUnilateral) {
                 // Unilateral: 左右別々に計算
                 val valuesRight = sessionRecords.map { it.valueRight.toDouble() }
@@ -262,7 +371,7 @@ fun prepareGraphData(
                     0f
                 }
 
-                Pair(valueRight, valueLeft)
+                Triple(valueRight, valueLeft, weightedDistance)
             } else {
                 // Bilateral: 右側のみ
                 val values = sessionRecords.map { it.valueRight.toDouble() }
@@ -271,13 +380,13 @@ fun prepareGraphData(
                     GraphType.Max -> values.maxOrNull()?.toFloat() ?: 0f
                     GraphType.Total -> values.sum().toFloat()
                 }
-                Pair(value, null)
+                Triple(value, null, weightedDistance)
             }
         }
 
     // データポイントを作成
     return sessionsByDate.map { (date, values) ->
-        val (valueRight, valueLeft) = values
+        val (valueRight, valueLeft, distanceCm) = values
 
         val label = if (valueLeft != null) {
             String.format("$date: R%d$unit / L%d$unit", valueRight.roundToInt(), valueLeft.roundToInt())
@@ -289,7 +398,87 @@ fun prepareGraphData(
             date = date,
             value = valueRight,
             valueLeft = valueLeft,
-            label = label
+            label = label,
+            distanceCm = distanceCm
+        )
+    }.sortedBy { it.date }
+}
+
+// ボリュームデータ準備関数
+fun prepareVolumeData(
+    exercise: Exercise,
+    records: List<TrainingRecord>,
+    period: Period?
+): List<VolumeDataPoint> {
+    // 荷重トラッキングが無効な場合は空リスト
+    if (!exercise.weightTrackingEnabled) {
+        return emptyList()
+    }
+
+    // 対象種目の記録を抽出
+    val exerciseRecords = records.filter { it.exerciseId == exercise.id }
+
+    if (exerciseRecords.isEmpty()) {
+        return emptyList()
+    }
+
+    // 期間でフィルター（nullの場合は全期間）
+    val today = LocalDate.now()
+    val filteredRecords = if (period == null) {
+        exerciseRecords
+    } else {
+        val cutoffDate = today.minusDays(period.days.toLong() - 1)
+        exerciseRecords.filter { record ->
+            try {
+                val recordDate = LocalDate.parse(record.date)
+                recordDate >= cutoffDate && recordDate <= today
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
+    if (filteredRecords.isEmpty()) {
+        return emptyList()
+    }
+
+    // 荷重データがあるレコードのみ抽出
+    val recordsWithWeight = filteredRecords.filter { it.weightG != null && it.weightG > 0 }
+    if (recordsWithWeight.isEmpty()) {
+        return emptyList()
+    }
+
+    // 日付ごとにグループ化してボリュームを計算
+    val volumeByDate = recordsWithWeight
+        .groupBy { it.date }
+        .mapValues { (_, sessionRecords) ->
+            val isUnilateral = sessionRecords.firstOrNull()?.valueLeft != null
+
+            if (isUnilateral) {
+                // Unilateral: 左右別々にボリューム計算
+                val volumeRight = sessionRecords.sumOf { record ->
+                    record.valueRight * (record.weightG ?: 0) / 1000.0
+                }.toFloat()
+                val volumeLeft = sessionRecords.sumOf { record ->
+                    (record.valueLeft ?: 0) * (record.weightG ?: 0) / 1000.0
+                }.toFloat()
+                Pair(volumeRight, volumeLeft)
+            } else {
+                // Bilateral: 右側のみ
+                val volume = sessionRecords.sumOf { record ->
+                    record.valueRight * (record.weightG ?: 0) / 1000.0
+                }.toFloat()
+                Pair(volume, null)
+            }
+        }
+
+    // データポイントを作成
+    return volumeByDate.map { (date, volumes) ->
+        val (volumeRight, volumeLeft) = volumes
+        VolumeDataPoint(
+            date = date,
+            volumeRight = volumeRight,
+            volumeLeft = volumeLeft
         )
     }.sortedBy { it.date }
 }
@@ -299,45 +488,90 @@ fun prepareGraphData(
 fun LineChart(
     data: List<GraphDataPoint>,
     exercise: Exercise,
-    period: Period?
+    period: Period?,
+    isDistanceInverted: Boolean = false,
+    allTimeDistanceRange: Pair<Float, Float>? = null
 ) {
+    val hasDistanceData = data.any { it.distanceCm != null }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(300.dp),
+            .height(if (hasDistanceData) 340.dp else 300.dp),
         colors = CardDefaults.cardColors(
             containerColor = Slate800
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Box(modifier = Modifier) {
-            if (data.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.weight(1f)) {
+                if (data.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = stringResource(R.string.no_data),
-                            fontSize = 16.sp,
-                            color = Slate400
-                        )
-                        Text(
-                            text = stringResource(R.string.record_training_for_exercise),
-                            fontSize = 14.sp,
-                            color = Slate400
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.no_data),
+                                fontSize = 16.sp,
+                                color = Slate400
+                            )
+                            Text(
+                                text = stringResource(R.string.record_training_for_exercise),
+                                fontSize = 14.sp,
+                                color = Slate400
+                            )
+                        }
                     }
+                } else {
+                    SimpleLineChart(
+                        data = data,
+                        exercise = exercise,
+                        period = period,
+                        isDistanceInverted = isDistanceInverted,
+                        allTimeDistanceRange = allTimeDistanceRange
+                    )
                 }
-            } else {
-                SimpleLineChart(
-                    data = data,
-                    exercise = exercise,
-                    period = period
-                )
+            }
+
+            // 凡例（距離データがある場合のみ）
+            if (hasDistanceData && data.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // 回数
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(Green400, CircleShape)
+                    )
+                    Text(
+                        text = " ${stringResource(R.string.legend_reps)}",
+                        fontSize = 12.sp,
+                        color = Slate400
+                    )
+
+                    Spacer(modifier = Modifier.width(24.dp))
+
+                    // 距離
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(Blue600, CircleShape)
+                    )
+                    Text(
+                        text = " ${stringResource(if (isDistanceInverted) R.string.legend_distance_inverted else R.string.legend_distance)}",
+                        fontSize = 12.sp,
+                        color = Slate400
+                    )
+                }
             }
         }
     }
@@ -347,10 +581,16 @@ fun LineChart(
 fun SimpleLineChart(
     data: List<GraphDataPoint>,
     exercise: Exercise,
-    period: Period?
+    period: Period?,
+    isDistanceInverted: Boolean = false,
+    allTimeDistanceRange: Pair<Float, Float>? = null
 ) {
     // Unilateral判定
     val isUnilateral = data.any { it.valueLeft != null }
+
+    // 距離データの有無を判定
+    val distanceValues = data.mapNotNull { it.distanceCm }
+    val hasDistanceData = distanceValues.isNotEmpty()
 
     // 単位文字列を取得（@Composable関数内でのみ取得可能）
     val unit = stringResource(if (exercise.type == "Dynamic") R.string.unit_reps else R.string.unit_seconds)
@@ -375,10 +615,20 @@ fun SimpleLineChart(
         val minValue = 0f
         val range = (maxValue - minValue).coerceAtLeast(1f)
 
+        // 距離データがある場合は右Y軸用にパディングを拡大
         val leftPadding = 50.dp.toPx()
         val bottomPadding = 16.dp.toPx()
         val topPadding = 32.dp.toPx()
-        val rightPadding = 30.dp.toPx()
+        val rightPadding = if (hasDistanceData) 55.dp.toPx() else 30.dp.toPx()
+
+        // 距離の最小/最大値とレンジ（全期間のデータを使用してスケールを固定）
+        val minDistance = allTimeDistanceRange?.first ?: 0f
+        val maxDistance = allTimeDistanceRange?.second ?: (if (hasDistanceData) distanceValues.maxOrNull() ?: 0f else 0f)
+        // ±7%のマージンを追加
+        val distanceMargin = (maxDistance - minDistance) * 0.07f
+        val adjustedMinDistance = (minDistance - distanceMargin).coerceAtLeast(0f)
+        val adjustedMaxDistance = maxDistance + distanceMargin
+        val distanceRange = (adjustedMaxDistance - adjustedMinDistance).coerceAtLeast(1f)
 
         val graphWidth = size.width - leftPadding - rightPadding
         val graphHeight = size.height - topPadding - bottomPadding
@@ -425,6 +675,35 @@ fun SimpleLineChart(
                     textAlign = Paint.Align.RIGHT
                 }
             )
+        }
+
+        // 右Y軸ラベル描画（距離）- 底部のラベルはスキップしてX軸との干渉を回避
+        if (hasDistanceData) {
+            val distanceLabels = calculateDistanceYAxisLabels(adjustedMinDistance, adjustedMaxDistance)
+            val bottomThreshold = topPadding + graphHeight - 15.dp.toPx() // 底部から15dpは描画しない
+
+            distanceLabels.forEach { labelValue ->
+                val normalizedValue = (labelValue - adjustedMinDistance) / distanceRange
+                val y = if (isDistanceInverted) {
+                    // 反転: 上が大きい値
+                    topPadding + normalizedValue * graphHeight
+                } else {
+                    // 通常: 下が大きい値（距離増加=壁から離れる=難易度up）
+                    topPadding + graphHeight - normalizedValue * graphHeight
+                }
+
+                // 底部に近いラベルはスキップ（X軸ラベルとの干渉回避）
+                if (y < bottomThreshold) {
+                    drawContext.canvas.nativeCanvas.drawText(
+                        "${labelValue.toInt()}cm",
+                        size.width - rightPadding + 8.dp.toPx(),
+                        y + 4.dp.toPx(),
+                        textPaint.apply {
+                            textAlign = Paint.Align.LEFT
+                        }
+                    )
+                }
+            }
         }
 
         // 右側の線（緑）
@@ -545,6 +824,394 @@ fun SimpleLineChart(
             }
         }
 
+        // 距離線の描画（Blue600）
+        if (hasDistanceData) {
+            val pathDistance = Path()
+            var isFirstDistancePoint = true
+
+            data.forEach { point ->
+                point.distanceCm?.let { distance ->
+                    try {
+                        val pointDate = LocalDate.parse(point.date)
+                        val daysFromStart = ChronoUnit.DAYS.between(startDate, pointDate).toInt()
+
+                        val x = leftPadding + (daysFromStart.toFloat() / (totalDays - 1).coerceAtLeast(1)) * graphWidth
+                        val normalizedDistance = (distance - adjustedMinDistance) / distanceRange
+                        val y = if (isDistanceInverted) {
+                            // 反転: 上が大きい値
+                            topPadding + normalizedDistance * graphHeight
+                        } else {
+                            // 通常: 下が大きい値
+                            topPadding + graphHeight - normalizedDistance * graphHeight
+                        }
+
+                        if (isFirstDistancePoint) {
+                            pathDistance.moveTo(x, y)
+                            isFirstDistancePoint = false
+                        } else {
+                            pathDistance.lineTo(x, y)
+                        }
+                    } catch (e: Exception) {
+                        // ignore
+                    }
+                }
+            }
+
+            drawPath(
+                path = pathDistance,
+                color = Blue600,
+                style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+            )
+
+            // 距離ポイントの描画
+            data.forEach { point ->
+                point.distanceCm?.let { distance ->
+                    try {
+                        val pointDate = LocalDate.parse(point.date)
+                        val daysFromStart = ChronoUnit.DAYS.between(startDate, pointDate).toInt()
+
+                        val x = leftPadding + (daysFromStart.toFloat() / (totalDays - 1).coerceAtLeast(1)) * graphWidth
+                        val normalizedDistance = (distance - adjustedMinDistance) / distanceRange
+                        val y = if (isDistanceInverted) {
+                            topPadding + normalizedDistance * graphHeight
+                        } else {
+                            topPadding + graphHeight - normalizedDistance * graphHeight
+                        }
+
+                        drawCircle(
+                            color = Color.White.copy(alpha = 0.4f),
+                            radius = 6.dp.toPx(),
+                            center = Offset(x, y)
+                        )
+
+                        drawCircle(
+                            color = Blue600.copy(alpha = 0.6f),
+                            radius = 4.dp.toPx(),
+                            center = Offset(x, y)
+                        )
+                    } catch (e: Exception) {
+                        // ignore
+                    }
+                }
+            }
+        }
+
+        // X軸ラベル
+        val displayDates = calculateXAxisDisplayDates(startDate, endDate, period)
+
+        displayDates.forEach { date ->
+            val daysFromStart = ChronoUnit.DAYS.between(startDate, date).toInt()
+            val x = leftPadding + (daysFromStart.toFloat() / (totalDays - 1).coerceAtLeast(1)) * graphWidth
+            val y = size.height - bottomPadding + 20.dp.toPx()
+
+            val dateText = "${date.monthValue}/${date.dayOfMonth}"
+
+            drawContext.canvas.nativeCanvas.drawText(
+                dateText,
+                x,
+                y,
+                textPaint.apply {
+                    textAlign = Paint.Align.CENTER
+                }
+            )
+        }
+    }
+}
+
+// ボリュームグラフコンポーネント
+@Composable
+fun VolumeChart(
+    data: List<VolumeDataPoint>,
+    period: Period?,
+    allTimeVolumeMax: Float
+) {
+    val isUnilateral = data.any { it.volumeLeft != null }
+    val volumeLabel = stringResource(R.string.legend_volume)
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Slate800
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.weight(1f)) {
+                if (data.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.no_data),
+                                fontSize = 16.sp,
+                                color = Slate400
+                            )
+                            Text(
+                                text = stringResource(R.string.record_weight_for_graph),
+                                fontSize = 14.sp,
+                                color = Slate400
+                            )
+                        }
+                    }
+                } else {
+                    SimpleVolumeChart(
+                        data = data,
+                        period = period,
+                        allTimeVolumeMax = allTimeVolumeMax
+                    )
+                }
+            }
+
+            // 凡例
+            if (data.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (isUnilateral) {
+                        // Unilateral: 右/左
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .background(Green400, CircleShape)
+                        )
+                        Text(
+                            text = " ${stringResource(R.string.right_short)}",
+                            fontSize = 12.sp,
+                            color = Slate400
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .background(Purple600, CircleShape)
+                        )
+                        Text(
+                            text = " ${stringResource(R.string.left_short)}",
+                            fontSize = 12.sp,
+                            color = Slate400
+                        )
+                    } else {
+                        // Bilateral: ボリューム
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .background(Green400, CircleShape)
+                        )
+                        Text(
+                            text = " $volumeLabel",
+                            fontSize = 12.sp,
+                            color = Slate400
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SimpleVolumeChart(
+    data: List<VolumeDataPoint>,
+    period: Period?,
+    allTimeVolumeMax: Float
+) {
+    val isUnilateral = data.any { it.volumeLeft != null }
+
+    Canvas(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        if (data.isEmpty()) return@Canvas
+
+        // Y軸スケール: 0〜max
+        val maxValue = allTimeVolumeMax.coerceAtLeast(1f)
+        val minValue = 0f
+        val range = maxValue
+
+        val leftPadding = 50.dp.toPx()
+        val bottomPadding = 16.dp.toPx()
+        val topPadding = 32.dp.toPx()
+        val rightPadding = 30.dp.toPx()
+
+        val graphWidth = size.width - leftPadding - rightPadding
+        val graphHeight = size.height - topPadding - bottomPadding
+
+        val textPaint = Paint().apply {
+            color = android.graphics.Color.parseColor("#94A3B8")
+            textSize = 11.sp.toPx()
+            isAntiAlias = true
+        }
+
+        val today = LocalDate.now()
+        val startDate = if (period == null) {
+            try {
+                LocalDate.parse(data.minOf { it.date })
+            } catch (e: Exception) {
+                today.minusDays(30)
+            }
+        } else {
+            today.minusDays(period.days.toLong() - 1)
+        }
+        val endDate = today
+
+        val totalDays = ChronoUnit.DAYS.between(startDate, endDate).toInt() + 1
+        val yLabels = calculateVolumeYAxisLabels(0f, maxValue)
+
+        // Y軸グリッド線とラベル
+        yLabels.forEach { labelValue ->
+            val y = topPadding + graphHeight - (labelValue / range * graphHeight)
+
+            drawLine(
+                color = Slate600.copy(alpha = 0.3f),
+                start = Offset(leftPadding, y),
+                end = Offset(size.width - rightPadding, y),
+                strokeWidth = 1.dp.toPx()
+            )
+
+            val labelText = if (labelValue >= 1000) {
+                String.format("%.1ft", labelValue / 1000f)
+            } else {
+                "${labelValue.toInt()}kg"
+            }
+
+            drawContext.canvas.nativeCanvas.drawText(
+                labelText,
+                leftPadding - 8.dp.toPx(),
+                y + 4.dp.toPx(),
+                textPaint.apply {
+                    textAlign = Paint.Align.RIGHT
+                }
+            )
+        }
+
+        // 右側の線（緑）
+        val pathRight = Path()
+        var isFirstPoint = true
+
+        data.forEach { point ->
+            try {
+                val pointDate = LocalDate.parse(point.date)
+                val daysFromStart = ChronoUnit.DAYS.between(startDate, pointDate).toInt()
+
+                val x = leftPadding + (daysFromStart.toFloat() / (totalDays - 1).coerceAtLeast(1)) * graphWidth
+                val y = topPadding + graphHeight - (point.volumeRight / range * graphHeight)
+
+                if (isFirstPoint) {
+                    pathRight.moveTo(x, y)
+                    isFirstPoint = false
+                } else {
+                    pathRight.lineTo(x, y)
+                }
+            } catch (e: Exception) {
+                // ignore
+            }
+        }
+
+        drawPath(
+            path = pathRight,
+            color = Green400,
+            style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+        )
+
+        // Unilateralの場合、左側の線も描画
+        if (isUnilateral) {
+            val pathLeft = Path()
+            isFirstPoint = true
+
+            data.forEach { point ->
+                point.volumeLeft?.let { leftValue ->
+                    try {
+                        val pointDate = LocalDate.parse(point.date)
+                        val daysFromStart = ChronoUnit.DAYS.between(startDate, pointDate).toInt()
+
+                        val x = leftPadding + (daysFromStart.toFloat() / (totalDays - 1).coerceAtLeast(1)) * graphWidth
+                        val y = topPadding + graphHeight - (leftValue / range * graphHeight)
+
+                        if (isFirstPoint) {
+                            pathLeft.moveTo(x, y)
+                            isFirstPoint = false
+                        } else {
+                            pathLeft.lineTo(x, y)
+                        }
+                    } catch (e: Exception) {
+                        // ignore
+                    }
+                }
+            }
+
+            drawPath(
+                path = pathLeft,
+                color = Purple600,
+                style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+            )
+        }
+
+        // ポイント描画（右側）
+        data.forEach { point ->
+            try {
+                val pointDate = LocalDate.parse(point.date)
+                val daysFromStart = ChronoUnit.DAYS.between(startDate, pointDate).toInt()
+
+                val x = leftPadding + (daysFromStart.toFloat() / (totalDays - 1).coerceAtLeast(1)) * graphWidth
+                val y = topPadding + graphHeight - (point.volumeRight / range * graphHeight)
+
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.4f),
+                    radius = 6.dp.toPx(),
+                    center = Offset(x, y)
+                )
+
+                drawCircle(
+                    color = Green400.copy(alpha = 0.6f),
+                    radius = 4.dp.toPx(),
+                    center = Offset(x, y)
+                )
+            } catch (e: Exception) {
+                // ignore
+            }
+        }
+
+        // ポイント描画（左側）- Unilateralのみ
+        if (isUnilateral) {
+            data.forEach { point ->
+                point.volumeLeft?.let { leftValue ->
+                    try {
+                        val pointDate = LocalDate.parse(point.date)
+                        val daysFromStart = ChronoUnit.DAYS.between(startDate, pointDate).toInt()
+
+                        val x = leftPadding + (daysFromStart.toFloat() / (totalDays - 1).coerceAtLeast(1)) * graphWidth
+                        val y = topPadding + graphHeight - (leftValue / range * graphHeight)
+
+                        drawCircle(
+                            color = Color.White.copy(alpha = 0.4f),
+                            radius = 6.dp.toPx(),
+                            center = Offset(x, y)
+                        )
+
+                        drawCircle(
+                            color = Purple600.copy(alpha = 0.6f),
+                            radius = 4.dp.toPx(),
+                            center = Offset(x, y)
+                        )
+                    } catch (e: Exception) {
+                        // ignore
+                    }
+                }
+            }
+        }
+
         // X軸ラベル
         val displayDates = calculateXAxisDisplayDates(startDate, endDate, period)
 
@@ -580,6 +1247,45 @@ fun calculateYAxisLabels(min: Float, max: Float): List<Float> {
 
     return (0..9).map { i ->
         (adjustedMax * i / 9).toFloat()
+    }
+}
+
+// 距離Y軸用のラベル計算（6個程度、最下部はスキップしてX軸との干渉を回避）
+fun calculateDistanceYAxisLabels(min: Float, max: Float): List<Float> {
+    val range = max - min
+    val interval = when {
+        range < 5 -> 1f
+        range < 10 -> 2f
+        range < 25 -> 5f
+        range < 50 -> 10f
+        else -> 25f
+    }
+
+    val adjustedMin = (min / interval).toInt() * interval
+    val adjustedMax = ((max / interval).toInt() + 1) * interval
+
+    // 6個のラベルを生成し、最下部（index 0）をスキップ
+    return (1..5).map { i ->
+        adjustedMin + (adjustedMax - adjustedMin) * i / 5f
+    }
+}
+
+// ボリュームY軸用のラベル計算
+fun calculateVolumeYAxisLabels(min: Float, max: Float): List<Float> {
+    val range = max - min
+    val interval = when {
+        range < 50 -> 10f
+        range < 100 -> 20f
+        range < 250 -> 50f
+        range < 500 -> 100f
+        range < 1000 -> 200f
+        else -> 500f
+    }
+
+    val adjustedMax = ((max / interval).toInt() + 1) * interval
+
+    return (0..5).map { i ->
+        (adjustedMax * i / 5).toFloat()
     }
 }
 
@@ -686,6 +1392,48 @@ fun StatisticsSummary(
                     }
                     val color = if (statistics.weeklyChange > 0) Green400 else Red600
                     StatItem(stringResource(R.string.weekly_change), changeText, valueColor = color)
+                }
+
+                // 荷重統計（weightTrackingEnabled時のみ）
+                if (exercise.weightTrackingEnabled && (statistics.maxDailyVolume != null || statistics.maxWeight != null)) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    HorizontalDivider(color = Slate600.copy(alpha = 0.5f))
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // ボリューム統計（左右別表示 or 単一表示）
+                    if (isUnilateral && statistics.maxDailyVolumeLeft != null) {
+                        // Unilateral: 左右並べて表示
+                        statistics.maxDailyVolume?.let { maxVolRight ->
+                            StatItemDual(
+                                label = stringResource(R.string.max_daily_volume),
+                                valueRight = String.format("%.1f kg", maxVolRight),
+                                valueLeft = String.format("%.1f kg", statistics.maxDailyVolumeLeft ?: 0f)
+                            )
+                        }
+                        statistics.avgDailyVolume?.let { avgVolRight ->
+                            StatItemDual(
+                                label = stringResource(R.string.avg_daily_volume),
+                                valueRight = String.format("%.1f kg", avgVolRight),
+                                valueLeft = String.format("%.1f kg", statistics.avgDailyVolumeLeft ?: 0f)
+                            )
+                        }
+                    } else {
+                        // Bilateral: 従来通り
+                        statistics.maxDailyVolume?.let { maxVol ->
+                            StatItem(stringResource(R.string.max_daily_volume), String.format("%.1f kg", maxVol))
+                        }
+                        statistics.avgDailyVolume?.let { avgVol ->
+                            StatItem(stringResource(R.string.avg_daily_volume), String.format("%.1f kg", avgVol))
+                        }
+                    }
+
+                    // 荷重統計（左右共通）
+                    statistics.maxWeight?.let { maxW ->
+                        StatItem(stringResource(R.string.max_weight), String.format("%.1f kg", maxW))
+                    }
+                    statistics.avgWeight?.let { avgW ->
+                        StatItem(stringResource(R.string.avg_weight), String.format("%.1f kg", avgW))
+                    }
                 }
             }
         }
@@ -831,6 +1579,46 @@ fun calculateStatistics(
 
     val weeklyChange = thisWeekRecords.size - lastWeekRecords.size
 
+    // 荷重統計（weightTrackingEnabled時のみ）
+    val weightStats = if (exercise.weightTrackingEnabled) {
+        val recordsWithWeight = filteredRecords.filter { it.weightG != null && it.weightG > 0 }
+        if (recordsWithWeight.isNotEmpty()) {
+            // 日ごとにボリュームを集計（左右別々）
+            val volumeByDateRight = recordsWithWeight
+                .groupBy { it.date }
+                .mapValues { (_, dayRecords) ->
+                    dayRecords.sumOf { record ->
+                        record.valueRight * (record.weightG ?: 0) / 1000.0
+                    }.toFloat()
+                }
+                .values
+                .toList()
+
+            val volumeByDateLeft = if (isUnilateral) {
+                recordsWithWeight
+                    .groupBy { it.date }
+                    .mapValues { (_, dayRecords) ->
+                        dayRecords.sumOf { record ->
+                            (record.valueLeft ?: 0) * (record.weightG ?: 0) / 1000.0
+                        }.toFloat()
+                    }
+                    .values
+                    .toList()
+            } else null
+
+            val weights = recordsWithWeight.map { (it.weightG ?: 0) / 1000f }
+
+            object {
+                val maxDailyVolume = volumeByDateRight.maxOrNull()
+                val avgDailyVolume = if (volumeByDateRight.isNotEmpty()) volumeByDateRight.average().toFloat() else null
+                val maxDailyVolumeLeft = volumeByDateLeft?.maxOrNull()
+                val avgDailyVolumeLeft = if (volumeByDateLeft != null && volumeByDateLeft.isNotEmpty()) volumeByDateLeft.average().toFloat() else null
+                val maxWeight = weights.maxOrNull()
+                val avgWeight = if (weights.isNotEmpty()) weights.average().toFloat() else null
+            }
+        } else null
+    } else null
+
     if (isUnilateral) {
         // Unilateral: 左右別々に計算
         val valuesLeft = filteredRecords.mapNotNull { it.valueLeft }
@@ -843,7 +1631,13 @@ fun calculateStatistics(
             weeklyChange = weeklyChange,
             averageLeft = if (valuesLeft.isNotEmpty()) valuesLeft.average().toFloat() else null,
             maxLeft = valuesLeft.maxOrNull(),
-            minLeft = valuesLeft.minOrNull()
+            minLeft = valuesLeft.minOrNull(),
+            maxDailyVolume = weightStats?.maxDailyVolume,
+            avgDailyVolume = weightStats?.avgDailyVolume,
+            maxDailyVolumeLeft = weightStats?.maxDailyVolumeLeft,
+            avgDailyVolumeLeft = weightStats?.avgDailyVolumeLeft,
+            maxWeight = weightStats?.maxWeight,
+            avgWeight = weightStats?.avgWeight
         )
     } else {
         // Bilateral: 右側のみ
@@ -855,7 +1649,13 @@ fun calculateStatistics(
             weeklyChange = weeklyChange,
             averageLeft = null,
             maxLeft = null,
-            minLeft = null
+            minLeft = null,
+            maxDailyVolume = weightStats?.maxDailyVolume,
+            avgDailyVolume = weightStats?.avgDailyVolume,
+            maxDailyVolumeLeft = null,
+            avgDailyVolumeLeft = null,
+            maxWeight = weightStats?.maxWeight,
+            avgWeight = weightStats?.avgWeight
         )
     }
 }
