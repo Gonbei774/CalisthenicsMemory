@@ -4,8 +4,6 @@
 
 # Calisthenics Memory
 
-A simple, privacy-focused bodyweight training tracker for Android.
-
 ---
 
 🌐 [日本語](docs/readme/README.ja.md) | [Deutsch](docs/readme/README.de.md) | [Español](docs/readme/README.es.md) | [Français](docs/readme/README.fr.md) | [Italiano](docs/readme/README.it.md) | [简体中文](docs/readme/README.zh-CN.md)
@@ -84,4 +82,4 @@ This project is licensed under the GNU General Public License v3.0. See [LICENSE
 
 ---
 
-**Last Updated**: December 4, 2025
+**Last Updated**: December 6, 2025

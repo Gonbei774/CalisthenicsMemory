@@ -4,7 +4,9 @@
 
 # Calisthenics Memory
 
-Una aplicación simple y centrada en la privacidad para registrar entrenamientos con peso corporal en Android.
+---
+
+🌐 [English](../../README.md) | [日本語](README.ja.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Italiano](README.it.md) | [简体中文](README.zh-CN.md)
 
 ---
 
@@ -21,26 +23,14 @@ Una aplicación simple y centrada en la privacidad para registrar entrenamientos
 
 ---
 
-🌐 [English](../../README.md) | [日本語](README.ja.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Italiano](README.it.md) | [简体中文](README.zh-CN.md)
-
----
-
 ## Acerca de
 
-Calisthenics Memory te ayuda a registrar y gestionar ejercicios con peso corporal como flexiones, dominadas y sentadillas. Crea ejercicios personalizados, organízalos en niveles progresivos y supervisa tu progreso.
-
-La aplicación funciona completamente sin conexión: no requiere internet, sin anuncios, sin rastreo. Tus datos permanecen solo en tu dispositivo.
-
-## Puntos Clave
-
-- **Personalización completa** - Sin funciones bloqueadas para ejercicios personalizados. Repeticiones/tiempo, unilateral/bilateral, objetivos, temporizadores - todo disponible para cada ejercicio
-- **Dos modos de registro** - Entrada manual rápida o entrenamiento guiado con temporizadores
-- **Solo sin conexión** - Tus datos nunca salen de tu dispositivo
+Un rastreador de entrenamientos con peso corporal. Crea ejercicios personalizados, organiza por grupos y niveles, rastrea tu progreso – completamente sin conexión.
 
 ## Características
 
 - **Panel de inicio** - Ve los registros de entrenamiento de hoy de un vistazo, mantén pulsado para copiar
-- **Totalmente personalizable** - Crea ejercicios libremente, organiza por grupos, gestiona con 10 niveles, reordena con botones de flecha, registra distancia y peso por ejercicio
+- **Totalmente personalizable** - Crea ejercicios libremente, organiza por grupos, gestiona con 10 niveles, registra distancia y peso por ejercicio
 - **Favoritos** - Acceso rápido a ejercicios frecuentes
 - **Dos modos de registro**
   - Modo registro: Entrada manual rápida con botón "Aplicar configuración del ejercicio"
@@ -50,38 +40,19 @@ La aplicación funciona completamente sin conexión: no requiere internet, sin a
 - **Objetivos de desafío** - Establece series × repeticiones objetivo y rastrea el estado de logro
 - **Gestión de datos** - Exporta/importa en formato JSON o CSV (soporte de respaldo completo)
 - **Multiidioma** - Inglés, japonés, español, alemán, chino (simplificado), francés, italiano
-- **Privacidad primero** - Completamente sin conexión, sin permisos en tiempo de ejecución, sin acceso a Internet
+- **Privacidad primero** - Completamente sin conexión, sin permisos peligrosos, sin acceso a Internet
 
 ## Capturas de Pantalla
 
 <p align="center">
-  <img src="../../screenshots/1.png" width="250"><br>
-  <b>Inicio</b> - Entrenamiento de hoy de un vistazo
+  <img src="../../screenshots/1.png" width="150">
+  <img src="../../screenshots/2.png" width="150">
+  <img src="../../screenshots/3.png" width="150">
 </p>
-
 <p align="center">
-  <img src="../../screenshots/2.png" width="250"><br>
-  <b>Ejercicios</b> - Organiza con grupos y favoritos
-</p>
-
-<p align="center">
-  <img src="../../screenshots/3.png" width="250"><br>
-  <b>Registro</b> - Entrada manual rápida
-</p>
-
-<p align="center">
-  <img src="../../screenshots/4.png" width="250"><br>
-  <b>Entrenamiento</b> - Entrenamiento guiado con temporizador
-</p>
-
-<p align="center">
-  <img src="../../screenshots/5.png" width="250"><br>
-  <b>Gráfico</b> - Rastrea tu progreso
-</p>
-
-<p align="center">
-  <img src="../../screenshots/6.png" width="250"><br>
-  <b>Desafío</b> - Estado de logro de objetivos
+  <img src="../../screenshots/4.png" width="150">
+  <img src="../../screenshots/5.png" width="150">
+  <img src="../../screenshots/6.png" width="150">
 </p>
 
 ## Requisitos
@@ -92,33 +63,8 @@ La aplicación funciona completamente sin conexión: no requiere internet, sin a
 
 ## Permisos
 
-Esta aplicación utiliza solo **permisos normales (de tiempo de instalación)**, que se otorgan automáticamente durante la instalación sin solicitudes al usuario.
-
-A partir de v1.9.0, se incluyen los siguientes permisos:
-
-| Permiso | Propósito | Añadido por | Fuente |
-|---------|-----------|-------------|--------|
-| `FOREGROUND_SERVICE` | Ejecutar temporizador de entrenamiento como servicio en primer plano | App (v1.9.0) | [WorkoutTimerService.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
-| `FOREGROUND_SERVICE_SPECIAL_USE` | Tipo de servicio en primer plano para temporizador de entrenamiento | App (v1.9.0) | [WorkoutTimerService.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
-| `WAKE_LOCK` | Mantener el temporizador activo con la pantalla apagada | App (v1.8.1) | [WorkoutTimerService.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
-| `FLASHLIGHT` | Notificación de flash LED durante el modo entrenamiento | App (v1.8.0) | [FlashController.kt](../../app/src/main/java/io/github/gonbei774/calisthenicsmemory/util/FlashController.kt) |
-| `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | Protección de seguridad para componentes internos | Biblioteca AndroidX (automático) | - |
-
-### ¿Qué son los permisos normales?
-
-Android clasifica los permisos en dos tipos:
-- **Permisos normales**: Permisos de bajo riesgo otorgados automáticamente durante la instalación. Los usuarios no pueden revocarlos individualmente.
-- **Permisos peligrosos**: Permisos de alto riesgo que requieren aprobación explícita del usuario (ej.: cámara, ubicación, contactos).
-
-Esta aplicación no solicita ningún permiso en tiempo de ejecución.
-
-Para más detalles:
-- [Resumen de tipos de permisos de Android](https://developer.android.com/guide/topics/permissions/overview)
-- [Lista completa de permisos normales](https://developer.android.com/reference/android/Manifest.permission)
-
-### Nota
-
-Los permisos normales se otorgan automáticamente y pueden no aparecer en las listas de tiendas de aplicaciones. Los documentamos aquí por transparencia.
+- `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`, `WAKE_LOCK` - Ejecutar temporizador en segundo plano
+- `FLASHLIGHT` - Notificación de flash para intervalos de descanso
 
 ## Compilación
 
@@ -133,3 +79,7 @@ Requiere JDK 17 o superior.
 ## Licencia
 
 Este proyecto está licenciado bajo la Licencia Pública General de GNU v3.0. Ver [LICENSE](../../LICENSE) para más detalles.
+
+---
+
+**Última actualización**: 6 de diciembre de 2025
