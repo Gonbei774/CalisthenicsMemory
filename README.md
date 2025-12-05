@@ -46,20 +46,16 @@ A bodyweight training tracker. Create custom exercises, organize by groups and l
 
 ## Screenshots
 
-| Home | Exercises |
-|:----:|:---------:|
-| <img src="screenshots/1.png" width="200"> | <img src="screenshots/2.png" width="200"> |
-| Today's workout at a glance | Organize with groups & favorites |
-
-| Record | Workout |
-|:------:|:-------:|
-| <img src="screenshots/3.png" width="200"> | <img src="screenshots/4.png" width="200"> |
-| Quick manual input | Guided training with timer |
-
-| Graph | Challenge |
-|:-----:|:---------:|
-| <img src="screenshots/5.png" width="200"> | <img src="screenshots/6.png" width="200"> |
-| Track your progress | Goal achievement status |
+<p align="center">
+  <img src="screenshots/1.png" width="150">
+  <img src="screenshots/2.png" width="150">
+  <img src="screenshots/3.png" width="150">
+</p>
+<p align="center">
+  <img src="screenshots/4.png" width="150">
+  <img src="screenshots/5.png" width="150">
+  <img src="screenshots/6.png" width="150">
+</p>
 
 ## Requirements
 
