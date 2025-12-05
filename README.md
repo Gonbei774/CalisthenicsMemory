@@ -27,20 +27,12 @@ A simple, privacy-focused bodyweight training tracker for Android.
 
 ## About
 
-Calisthenics Memory helps you track and manage bodyweight exercises like push-ups, pull-ups, and squats. Create custom exercises, organize them into progressive levels, and monitor your progress over time.
-
-The app operates completely offline—no internet connection required, no ads, no tracking. Your data stays on your device only.
-
-## Key Points
-
-- **Full customization** - No locked features for custom exercises. Reps/time, unilateral/bilateral, goals, timers - all available for every exercise you create
-- **Two recording modes** - Quick manual input or guided workout with timers
-- **Offline only** - Your data never leaves your device
+A bodyweight training tracker. Create custom exercises, organize by groups and levels, track your progress—completely offline.
 
 ## Features
 
 - **Home Dashboard** - View today's training records at a glance, long-press to copy
-- **Fully Customizable** - Create exercises freely, organize by groups, manage with 10 levels, reorder with arrow buttons, track distance and weight per exercise
+- **Fully Customizable** - Create exercises freely, organize by groups, manage with 10 levels, track distance and weight per exercise
 - **Favorites** - Quick access to frequently used exercises
 - **Two Recording Modes**
   - Record mode: Quick manual input with "Apply Exercise Settings" button
@@ -50,39 +42,24 @@ The app operates completely offline—no internet connection required, no ads, n
 - **Challenge Goals** - Set target sets × reps and track achievement status
 - **Data Management** - Export/import in JSON or CSV format (complete backup support)
 - **Multi-Language** - English, Japanese, Spanish, German, Chinese (Simplified), French, Italian
-- **Privacy-First** - Completely offline, no runtime permissions, no internet access
+- **Privacy-First** - Completely offline, no dangerous permissions, no internet access
 
 ## Screenshots
 
-<p align="center">
-  <img src="screenshots/1.png" width="250"><br>
-  <b>Home</b> - Today's workout at a glance
-</p>
+| Home | Exercises |
+|:----:|:---------:|
+| <img src="screenshots/1.png" width="200"> | <img src="screenshots/2.png" width="200"> |
+| Today's workout at a glance | Organize with groups & favorites |
 
-<p align="center">
-  <img src="screenshots/2.png" width="250"><br>
-  <b>Exercises</b> - Organize with groups & favorites
-</p>
+| Record | Workout |
+|:------:|:-------:|
+| <img src="screenshots/3.png" width="200"> | <img src="screenshots/4.png" width="200"> |
+| Quick manual input | Guided training with timer |
 
-<p align="center">
-  <img src="screenshots/3.png" width="250"><br>
-  <b>Record</b> - Quick manual input
-</p>
-
-<p align="center">
-  <img src="screenshots/4.png" width="250"><br>
-  <b>Workout</b> - Guided training with timer
-</p>
-
-<p align="center">
-  <img src="screenshots/5.png" width="250"><br>
-  <b>Graph</b> - Track your progress
-</p>
-
-<p align="center">
-  <img src="screenshots/6.png" width="250"><br>
-  <b>Challenge</b> - Goal achievement status
-</p>
+| Graph | Challenge |
+|:-----:|:---------:|
+| <img src="screenshots/5.png" width="200"> | <img src="screenshots/6.png" width="200"> |
+| Track your progress | Goal achievement status |
 
 ## Requirements
 
@@ -92,33 +69,8 @@ The app operates completely offline—no internet connection required, no ads, n
 
 ## Permissions
 
-This app uses only **normal (install-time) permissions**, which are automatically granted at installation without user prompts.
-
-As of v1.9.0, the following permissions are included:
-
-| Permission | Purpose | Added by | Source |
-|------------|---------|----------|--------|
-| `FOREGROUND_SERVICE` | Run workout timer as foreground service | App (v1.9.0) | [WorkoutTimerService.kt](app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
-| `FOREGROUND_SERVICE_SPECIAL_USE` | Workout timer foreground service type | App (v1.9.0) | [WorkoutTimerService.kt](app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
-| `WAKE_LOCK` | Keep timer running when screen is off | App (v1.8.1) | [WorkoutTimerService.kt](app/src/main/java/io/github/gonbei774/calisthenicsmemory/service/WorkoutTimerService.kt) |
-| `FLASHLIGHT` | LED flash notification during workout mode | App (v1.8.0) | [FlashController.kt](app/src/main/java/io/github/gonbei774/calisthenicsmemory/util/FlashController.kt) |
-| `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | Security protection for internal components | AndroidX library (automatic) | - |
-
-### What are normal permissions?
-
-Android classifies permissions into two types:
-- **Normal permissions**: Low-risk permissions granted automatically at install. Users cannot revoke them individually.
-- **Dangerous permissions**: High-risk permissions requiring explicit user approval (e.g., camera, location, contacts).
-
-This app does not request any runtime permissions.
-
-For more details:
-- [Android permission types overview](https://developer.android.com/guide/topics/permissions/overview)
-- [Complete list of normal permissions](https://developer.android.com/reference/android/Manifest.permission)
-
-### Note
-
-Normal permissions are automatically granted and may not appear in app store listings. We document them here for transparency.
+- `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`, `WAKE_LOCK` - Run timer in background
+- `FLASHLIGHT` - Flash notification for rest intervals
 
 ## Building
 
