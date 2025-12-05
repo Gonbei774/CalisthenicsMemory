@@ -45,14 +45,14 @@ A bodyweight training tracker. Create custom exercises, organize by groups and l
 ## Screenshots
 
 <p align="center">
-  <img src="screenshots/1.png" width="150">
-  <img src="screenshots/2.png" width="150">
-  <img src="screenshots/3.png" width="150">
+  <img src="screenshots/1.png" width="250">
+  <img src="screenshots/2.png" width="250">
+  <img src="screenshots/3.png" width="250">
 </p>
 <p align="center">
-  <img src="screenshots/4.png" width="150">
-  <img src="screenshots/5.png" width="150">
-  <img src="screenshots/6.png" width="150">
+  <img src="screenshots/4.png" width="250">
+  <img src="screenshots/5.png" width="250">
+  <img src="screenshots/6.png" width="250">
 </p>
 
 ## Requirements
