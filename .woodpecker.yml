@@ -1,0 +1,11 @@
+when:
+  - event: tag
+    ref: refs/tags/v*
+  - event: push
+    branch: master
+
+steps:
+  - name: build-debug
+    image: mingc/android-build-box:latest
+    commands:
+      - ./gradlew assembleDebug
