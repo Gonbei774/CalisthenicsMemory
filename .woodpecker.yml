@@ -25,11 +25,15 @@ steps:
     image: mingc/android-build-box:latest
     when:
       event: tag
-    secrets:
-      - keystore_base64
-      - keystore_password
-      - key_alias
-      - key_password
+    environment:
+      KEYSTORE_BASE64:
+        from_secret: keystore_base64
+      KEYSTORE_PASSWORD:
+        from_secret: keystore_password
+      KEY_ALIAS:
+        from_secret: key_alias
+      KEY_PASSWORD:
+        from_secret: key_password
     commands:
       - echo $KEYSTORE_BASE64 | base64 -d > release.keystore
       - ./gradlew clean assembleRelease
