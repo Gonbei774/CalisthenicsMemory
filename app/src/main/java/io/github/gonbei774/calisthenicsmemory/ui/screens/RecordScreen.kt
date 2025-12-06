@@ -38,12 +38,27 @@ private enum class RecordStep {
 @Composable
 fun RecordScreen(
     viewModel: TrainingViewModel,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    initialExerciseId: Long? = null,
+    fromToDo: Boolean = false
 ) {
     val exercises by viewModel.exercises.collectAsState()
 
-    var currentStep by remember { mutableStateOf(RecordStep.SelectExercise) }
-    var selectedExercise by remember { mutableStateOf<Exercise?>(null) }
+    // Find initial exercise if provided
+    val initialExercise = remember(initialExerciseId, exercises) {
+        if (initialExerciseId != null) {
+            exercises.find { it.id == initialExerciseId }
+        } else {
+            null
+        }
+    }
+
+    var currentStep by remember(initialExercise) {
+        mutableStateOf(
+            if (initialExercise != null) RecordStep.InputWorkout else RecordStep.SelectExercise
+        )
+    }
+    var selectedExercise by remember(initialExercise) { mutableStateOf<Exercise?>(initialExercise) }
     var numberOfSets by remember { mutableIntStateOf(1) }
     var setValues by remember { mutableStateOf(List(1) { "" }) }
 
@@ -101,9 +116,15 @@ fun RecordScreen(
                 canRecord = canRecord,
                 dateFormatter = dateFormatter,
                 timeFormatter = timeFormatter,
+                fromToDo = fromToDo,
                 onNavigateBack = {
-                    currentStep = RecordStep.SelectExercise
-                    selectedExercise = null
+                    // If from ToDo, go back to ToDo; otherwise go to exercise selection
+                    if (fromToDo) {
+                        onNavigateBack()
+                    } else {
+                        currentStep = RecordStep.SelectExercise
+                        selectedExercise = null
+                    }
                 },
                 onNumberOfSetsChange = { newValue ->
                     numberOfSets = newValue
@@ -459,6 +480,7 @@ fun WorkoutInputScreen(
     canRecord: Boolean,
     dateFormatter: DateTimeFormatter,
     timeFormatter: DateTimeFormatter,
+    fromToDo: Boolean = false,
     onNavigateBack: () -> Unit,
     onNumberOfSetsChange: (Int) -> Unit,
     onSetValueChange: (Int, String) -> Unit,
@@ -963,6 +985,10 @@ fun WorkoutInputScreen(
                                     distanceCm = distanceCm,
                                     weightG = weightG
                                 )
+                                // Delete todo task if from ToDo
+                                if (fromToDo) {
+                                    viewModel.deleteTodoTaskByExerciseId(exercise.id)
+                                }
                                 onNavigateBack()
                             }
                         } else {
@@ -982,6 +1008,10 @@ fun WorkoutInputScreen(
                                     distanceCm = distanceCm,
                                     weightG = weightG
                                 )
+                                // Delete todo task if from ToDo
+                                if (fromToDo) {
+                                    viewModel.deleteTodoTaskByExerciseId(exercise.id)
+                                }
                                 onNavigateBack()
                             }
                         }

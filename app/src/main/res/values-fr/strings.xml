@@ -486,6 +486,15 @@
     <string name="keep_screen_on_setting">Garder l\'écran allumé</string>
     <string name="keep_screen_on_description">Garder l\'écran allumé pendant l\'entraînement pour voir le compte à rebours</string>
 
+    <!-- To Do Screen -->
+    <string name="todo_title">À faire</string>
+    <string name="todo_empty">Appuyez sur + pour ajouter des exercices</string>
+    <string name="todo_add_exercises">Ajouter des exercices</string>
+    <string name="todo_all_added">Tous les exercices sont déjà dans la liste</string>
+    <string name="todo_drag_to_reorder">Glisser pour réorganiser</string>
+    <string name="todo_rec_button">Enr</string>
+    <string name="todo_wo_button">WO</string>
+
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">Minuteur d\'entraînement</string>
     <string name="notification_channel_workout_description">Affiche une notification pendant que le minuteur d\'entraînement est actif</string>

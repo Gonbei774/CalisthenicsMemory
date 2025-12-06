@@ -486,6 +486,15 @@
     <string name="keep_screen_on_setting">Bildschirm anlassen</string>
     <string name="keep_screen_on_description">Bildschirm während des Trainings anlassen, um den Countdown anzuzeigen</string>
 
+    <!-- To Do Screen -->
+    <string name="todo_title">To Do</string>
+    <string name="todo_empty">Tippe + um Übungen hinzuzufügen</string>
+    <string name="todo_add_exercises">Übungen hinzufügen</string>
+    <string name="todo_all_added">Alle Übungen sind bereits in der Liste</string>
+    <string name="todo_drag_to_reorder">Ziehen zum Sortieren</string>
+    <string name="todo_rec_button">Auf</string>
+    <string name="todo_wo_button">WO</string>
+
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">Workout-Timer</string>
     <string name="notification_channel_workout_description">Zeigt Benachrichtigung während der Workout-Timer läuft</string>

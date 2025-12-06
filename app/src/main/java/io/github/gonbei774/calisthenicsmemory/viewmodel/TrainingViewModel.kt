@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.gonbei774.calisthenicsmemory.data.AppDatabase
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.ExerciseGroup
+import io.github.gonbei774.calisthenicsmemory.data.TodoTask
 import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
 import io.github.gonbei774.calisthenicsmemory.ui.UiMessage
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -79,6 +80,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     private val exerciseDao = database.exerciseDao()
     private val recordDao = database.trainingRecordDao()
     private val groupDao = database.exerciseGroupDao()
+    private val todoTaskDao = database.todoTaskDao()
 
     companion object {
         // お気に入りグループの固定キー（UI側で翻訳される）
@@ -1136,6 +1138,95 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         }
 
         return@withContext CsvImportReport(CsvType.RECORDS, successCount, skippedCount, errorCount, skippedItems, errors)
+    }
+
+    // ========================================
+    // To Do Task 操作
+    // ========================================
+
+    val todoTasks: StateFlow<List<TodoTask>> = todoTaskDao.getAllTasks()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptyList()
+        )
+
+    fun addTodoTask(exerciseId: Long) {
+        viewModelScope.launch {
+            try {
+                val sortOrder = todoTaskDao.getNextSortOrder()
+                val task = TodoTask(
+                    exerciseId = exerciseId,
+                    sortOrder = sortOrder
+                )
+                todoTaskDao.insert(task)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun addTodoTasks(exerciseIds: List<Long>) {
+        viewModelScope.launch {
+            try {
+                var sortOrder = todoTaskDao.getNextSortOrder()
+                exerciseIds.forEach { exerciseId ->
+                    val task = TodoTask(
+                        exerciseId = exerciseId,
+                        sortOrder = sortOrder++
+                    )
+                    todoTaskDao.insert(task)
+                }
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun deleteTodoTask(taskId: Long) {
+        viewModelScope.launch {
+            try {
+                todoTaskDao.deleteById(taskId)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun deleteTodoTaskByExerciseId(exerciseId: Long) {
+        viewModelScope.launch {
+            try {
+                todoTaskDao.deleteByExerciseId(exerciseId)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun reorderTodoTasks(taskIds: List<Long>) {
+        viewModelScope.launch {
+            try {
+                todoTaskDao.reorderTasks(taskIds)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun reorderTodoTasks(fromIndex: Int, toIndex: Int) {
+        val currentTasks = todoTasks.value.toMutableList()
+        if (fromIndex < 0 || toIndex < 0 ||
+            fromIndex >= currentTasks.size || toIndex >= currentTasks.size) {
+            return
+        }
+
+        // Move the item in the list
+        val item = currentTasks.removeAt(fromIndex)
+        currentTasks.add(toIndex, item)
+
+        // Update database with new order
+        val reorderedIds = currentTasks.map { it.id }
+        reorderTodoTasks(reorderedIds)
     }
 
 }

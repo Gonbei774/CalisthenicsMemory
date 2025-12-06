@@ -487,6 +487,15 @@
     <string name="keep_screen_on_setting">画面を常にオン</string>
     <string name="keep_screen_on_description">ワークアウト中にカウントダウンを表示するため画面を点灯したままにする</string>
 
+    <!-- To Do Screen -->
+    <string name="todo_title">To Do</string>
+    <string name="todo_empty">右下の + で種目を追加</string>
+    <string name="todo_add_exercises">種目を追加</string>
+    <string name="todo_all_added">すべての種目が追加済みです</string>
+    <string name="todo_drag_to_reorder">ドラッグで並び替え</string>
+    <string name="todo_rec_button">記録</string>
+    <string name="todo_wo_button">WO</string>
+
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">ワークアウトタイマー</string>
     <string name="notification_channel_workout_description">ワークアウトタイマー実行中の通知を表示</string>
