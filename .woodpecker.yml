@@ -3,6 +3,13 @@ when:
     ref: refs/tags/v*
   - event: push
     branch: master
+    path:
+      include:
+        - "app/**"
+        - "build.gradle.kts"
+        - "settings.gradle.kts"
+        - "gradle/**"
+        - ".woodpecker.yml"
 
 steps:
   - name: build-debug

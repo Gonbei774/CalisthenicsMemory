@@ -4,6 +4,8 @@
 
 # Calisthenics Memory
 
+[![Build Status](https://ci.codeberg.org/api/badges/15682/status.svg)](https://ci.codeberg.org/repos/15682)
+
 ---
 
 🌐 [日本語](docs/readme/README.ja.md) | [Deutsch](docs/readme/README.de.md) | [Español](docs/readme/README.es.md) | [Français](docs/readme/README.fr.md) | [Italiano](docs/readme/README.it.md) | [简体中文](docs/readme/README.zh-CN.md)
