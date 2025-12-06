@@ -10,6 +10,13 @@
 
 ---
 
+[![Build Status](https://ci.codeberg.org/api/badges/15682/status.svg)](https://ci.codeberg.org/repos/15682)
+[![RB Status](https://shields.rbtlog.dev/simple/io.github.gonbei774.calisthenicsmemory)](https://shields.rbtlog.dev/io.github.gonbei774.calisthenicsmemory)
+<br>
+[![IzzyOnDroid Downloads](https://img.shields.io/badge/dynamic/json?url=https://dlstats.izzyondroid.org/iod-stats-collector/stats/basic/monthly/rolling.json&query=$.['io.github.gonbei774.calisthenicsmemory']&label=IzzyOnDroid%20monthly%20downloads)](https://apt.izzysoft.de/packages/io.github.gonbei774.calisthenicsmemory)
+
+---
+
 <p align="center">
   <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/">
     <img src="https://fdroid.org/badge/get-it-on.png" alt="Disponible en F-Droid" height="80">
