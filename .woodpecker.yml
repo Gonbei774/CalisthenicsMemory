@@ -43,3 +43,17 @@ steps:
         -Pandroid.injected.signing.key.password=$KEY_PASSWORD
       - cd app/build/outputs/apk/release/
       - sha256sum app-release.apk > app-release.apk.sha256
+
+  # タグプッシュ時: Codebergリリース作成
+  - name: release
+    image: plugins/gitea-release
+    when:
+      event: tag
+    settings:
+      api_key:
+        from_secret: codeberg_token
+      base_url: https://codeberg.org
+      files:
+        - app/build/outputs/apk/release/app-release.apk
+        - app/build/outputs/apk/release/app-release.apk.sha256
+      title: ${CI_COMMIT_TAG}
