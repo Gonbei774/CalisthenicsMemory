@@ -12,7 +12,30 @@ when:
         - ".woodpecker.yml"
 
 steps:
+  # masterプッシュ時: デバッグビルド
   - name: build-debug
     image: mingc/android-build-box:latest
+    when:
+      event: push
     commands:
       - ./gradlew assembleDebug
+
+  # タグプッシュ時: 署名付きリリースビルド
+  - name: build-release
+    image: mingc/android-build-box:latest
+    when:
+      event: tag
+    secrets:
+      - keystore_base64
+      - keystore_password
+      - key_alias
+      - key_password
+    commands:
+      - echo $KEYSTORE_BASE64 | base64 -d > release.keystore
+      - ./gradlew clean assembleRelease
+        -Pandroid.injected.signing.store.file=$(pwd)/release.keystore
+        -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD
+        -Pandroid.injected.signing.key.alias=$KEY_ALIAS
+        -Pandroid.injected.signing.key.password=$KEY_PASSWORD
+      - cd app/build/outputs/apk/release/
+      - sha256sum app-release.apk > app-release.apk.sha256
