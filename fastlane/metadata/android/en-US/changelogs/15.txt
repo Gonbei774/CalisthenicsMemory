@@ -1,0 +1,4 @@
+Added To Do feature for planning workouts.
+Add exercises to your list, reorder by drag-and-drop, and swipe to delete.
+Jump directly to Record or Workout screen from each task.
+Simplified record list UI.

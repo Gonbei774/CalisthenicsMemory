@@ -44,6 +44,7 @@ import io.github.gonbei774.calisthenicsmemory.ui.screens.SettingsScreenNew
 import io.github.gonbei774.calisthenicsmemory.ui.screens.LicensesScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.WorkoutScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.view.ViewScreen
+import io.github.gonbei774.calisthenicsmemory.ui.screens.ToDoScreen
 import io.github.gonbei774.calisthenicsmemory.ui.theme.CalisthenicsMemoryTheme
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 
@@ -187,6 +188,19 @@ fun CalisthenicsMemoryApp() {
                 is Screen.Home -> HomeScreen(
                     onNavigate = { screen -> currentScreen = screen }
                 )
+                is Screen.ToDo -> {
+                    BackHandler { currentScreen = Screen.Home }
+                    ToDoScreen(
+                        viewModel = viewModel,
+                        onNavigateBack = { currentScreen = Screen.Home },
+                        onNavigateToRecord = { exerciseId ->
+                            currentScreen = Screen.Record(exerciseId = exerciseId, fromToDo = true)
+                        },
+                        onNavigateToWorkout = { exerciseId ->
+                            currentScreen = Screen.Workout(exerciseId = exerciseId, fromToDo = true)
+                        }
+                    )
+                }
                 is Screen.Create -> {
                     BackHandler { currentScreen = Screen.Home }
                     CreateScreen(
@@ -209,10 +223,14 @@ fun CalisthenicsMemoryApp() {
                     )
                 }
                 is Screen.Record -> {
-                    BackHandler { currentScreen = Screen.Home }
+                    val recordScreen = currentScreen as Screen.Record
+                    val backDestination = if (recordScreen.fromToDo) Screen.ToDo else Screen.Home
+                    BackHandler { currentScreen = backDestination }
                     RecordScreen(
                         viewModel = viewModel,
-                        onNavigateBack = { currentScreen = Screen.Home }
+                        onNavigateBack = { currentScreen = backDestination },
+                        initialExerciseId = recordScreen.exerciseId,
+                        fromToDo = recordScreen.fromToDo
                     )
                 }
                 is Screen.View -> {
@@ -223,10 +241,14 @@ fun CalisthenicsMemoryApp() {
                     )
                 }
                 is Screen.Workout -> {
-                    BackHandler { currentScreen = Screen.Home }
+                    val workoutScreen = currentScreen as Screen.Workout
+                    val backDestination = if (workoutScreen.fromToDo) Screen.ToDo else Screen.Home
+                    BackHandler { currentScreen = backDestination }
                     WorkoutScreen(
                         viewModel = viewModel,
-                        onNavigateBack = { currentScreen = Screen.Home }
+                        onNavigateBack = { currentScreen = backDestination },
+                        initialExerciseId = workoutScreen.exerciseId,
+                        fromToDo = workoutScreen.fromToDo
                     )
                 }
             }
@@ -236,10 +258,11 @@ fun CalisthenicsMemoryApp() {
 
 sealed class Screen {
     object Home : Screen()
+    object ToDo : Screen()
     object Create : Screen()
     object Settings : Screen()
     object Licenses : Screen()
-    object Record : Screen()
+    data class Record(val exerciseId: Long? = null, val fromToDo: Boolean = false) : Screen()
     object View : Screen()
-    object Workout : Screen()
+    data class Workout(val exerciseId: Long? = null, val fromToDo: Boolean = false) : Screen()
 }

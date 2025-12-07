@@ -68,11 +68,20 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(64.dp))
 
+            // To Do Button
+            MainButton(
+                text = stringResource(R.string.todo_title),
+                color = Slate800,
+                onClick = { onNavigate(Screen.ToDo) }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             // Record Button (solid color)
             MainButton(
                 text = stringResource(R.string.home_record),
                 color = Slate800,
-                onClick = { onNavigate(Screen.Record) }
+                onClick = { onNavigate(Screen.Record()) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -81,7 +90,7 @@ fun HomeScreen(
             MainButton(
                 text = stringResource(R.string.home_workout),
                 color = Slate800,
-                onClick = { onNavigate(Screen.Workout) }
+                onClick = { onNavigate(Screen.Workout()) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))

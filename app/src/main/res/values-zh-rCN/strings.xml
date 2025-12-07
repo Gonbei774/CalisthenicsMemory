@@ -486,6 +486,15 @@
     <string name="keep_screen_on_setting">保持屏幕常亮</string>
     <string name="keep_screen_on_description">训练时保持屏幕常亮以显示倒计时</string>
 
+    <!-- To Do Screen -->
+    <string name="todo_title">待办事项</string>
+    <string name="todo_empty">点击 + 添加动作</string>
+    <string name="todo_add_exercises">添加动作</string>
+    <string name="todo_all_added">所有动作已添加到列表中</string>
+    <string name="todo_drag_to_reorder">拖动以重新排序</string>
+    <string name="todo_rec_button">记录</string>
+    <string name="todo_wo_button">训练</string>
+
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">训练计时器</string>
     <string name="notification_channel_workout_description">训练计时器运行时显示通知</string>

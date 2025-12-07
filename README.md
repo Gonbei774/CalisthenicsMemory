@@ -4,6 +4,8 @@
 
 # Calisthenics Memory
 
+🌐 [日本語](docs/readme/README.ja.md) | [Deutsch](docs/readme/README.de.md) | [Español](docs/readme/README.es.md) | [Français](docs/readme/README.fr.md) | [Italiano](docs/readme/README.it.md) | [简体中文](docs/readme/README.zh-CN.md)
+
 ---
 
 <div align="center">
@@ -20,7 +22,10 @@ Issues are accepted here for convenience.</p>
 
 ---
 
-🌐 [日本語](docs/readme/README.ja.md) | [Deutsch](docs/readme/README.de.md) | [Español](docs/readme/README.es.md) | [Français](docs/readme/README.fr.md) | [Italiano](docs/readme/README.it.md) | [简体中文](docs/readme/README.zh-CN.md)
+[![Build Status](https://ci.codeberg.org/api/badges/15682/status.svg)](https://ci.codeberg.org/repos/15682)
+[![RB Status](https://shields.rbtlog.dev/simple/io.github.gonbei774.calisthenicsmemory)](https://shields.rbtlog.dev/io.github.gonbei774.calisthenicsmemory)
+<br>
+[![IzzyOnDroid Downloads](https://img.shields.io/badge/dynamic/json?url=https://dlstats.izzyondroid.org/iod-stats-collector/stats/basic/monthly/rolling.json&query=$.['io.github.gonbei774.calisthenicsmemory']&label=IzzyOnDroid%20monthly%20downloads)](https://apt.izzysoft.de/packages/io.github.gonbei774.calisthenicsmemory)
 
 ---
 

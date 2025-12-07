@@ -9,8 +9,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [Exercise::class, TrainingRecord::class, ExerciseGroup::class],
-    version = 11,  // ← 変更: 10 → 11（distanceTrackingEnabled, weightTrackingEnabled, distanceCm, weightG追加）
+    entities = [Exercise::class, TrainingRecord::class, ExerciseGroup::class, TodoTask::class],
+    version = 12,  // ← 変更: 11 → 12（TodoTask テーブル追加）
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -18,6 +18,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun exerciseDao(): ExerciseDao
     abstract fun trainingRecordDao(): TrainingRecordDao
     abstract fun exerciseGroupDao(): ExerciseGroupDao
+    abstract fun todoTaskDao(): TodoTaskDao
 
     companion object {
         @Volatile
@@ -30,7 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "bodyweight_trainer_database"
                 )
-                    .addMigrations(MIGRATION_9_10, MIGRATION_10_11)
+                    .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
@@ -108,6 +109,19 @@ abstract class AppDatabase : RoomDatabase() {
                 database.execSQL(
                     "ALTER TABLE training_records ADD COLUMN weightG INTEGER"
                 )
+            }
+        }
+
+        // マイグレーション 11 → 12: To Do機能（TodoTaskテーブル追加）
+        val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS todo_tasks (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        exerciseId INTEGER NOT NULL,
+                        sortOrder INTEGER NOT NULL
+                    )
+                """)
             }
         }
     }

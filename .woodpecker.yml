@@ -1,0 +1,59 @@
+when:
+  - event: tag
+    ref: refs/tags/v*
+  - event: push
+    branch: master
+    path:
+      include:
+        - "app/**"
+        - "build.gradle.kts"
+        - "settings.gradle.kts"
+        - "gradle/**"
+        - ".woodpecker.yml"
+
+steps:
+  # masterプッシュ時: デバッグビルド
+  - name: build-debug
+    image: mingc/android-build-box:latest
+    when:
+      event: push
+    commands:
+      - ./gradlew assembleDebug
+
+  # タグプッシュ時: 署名付きリリースビルド
+  - name: build-release
+    image: mingc/android-build-box:latest
+    when:
+      event: tag
+    environment:
+      KEYSTORE_BASE64:
+        from_secret: keystore_base64
+      KEYSTORE_PASSWORD:
+        from_secret: keystore_password
+      KEY_ALIAS:
+        from_secret: key_alias
+      KEY_PASSWORD:
+        from_secret: key_password
+    commands:
+      - echo $KEYSTORE_BASE64 | base64 -d > release.keystore
+      - ./gradlew clean assembleRelease
+        -Pandroid.injected.signing.store.file=$(pwd)/release.keystore
+        -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD
+        -Pandroid.injected.signing.key.alias=$KEY_ALIAS
+        -Pandroid.injected.signing.key.password=$KEY_PASSWORD
+      - cd app/build/outputs/apk/release/
+      - sha256sum app-release.apk > app-release.apk.sha256
+
+  # タグプッシュ時: Codebergリリース作成
+  - name: release
+    image: plugins/gitea-release
+    when:
+      event: tag
+    settings:
+      api_key:
+        from_secret: codeberg_token
+      base_url: https://codeberg.org
+      files:
+        - app/build/outputs/apk/release/app-release.apk
+        - app/build/outputs/apk/release/app-release.apk.sha256
+      title: ${CI_COMMIT_TAG}

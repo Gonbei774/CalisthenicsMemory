@@ -1,0 +1,4 @@
+Añadida función To Do para planificar entrenamientos.
+Añade ejercicios a tu lista, reordena arrastrando y elimina deslizando.
+Salta directamente a la pantalla de Registro o Entrenamiento desde cada tarea.
+Interfaz de lista de registros simplificada.

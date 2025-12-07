@@ -84,13 +84,28 @@ sealed class WorkoutStep {
 @Composable
 fun WorkoutScreen(
     viewModel: TrainingViewModel,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    initialExerciseId: Long? = null,
+    fromToDo: Boolean = false
 ) {
     val exercises by viewModel.exercises.collectAsState()
     val context = LocalContext.current
 
-    var currentStep by remember { mutableStateOf<WorkoutStep>(WorkoutStep.ExerciseSelection) }
-    var selectedExercise by remember { mutableStateOf<Exercise?>(null) }
+    // Find initial exercise if provided
+    val initialExercise = remember(initialExerciseId, exercises) {
+        if (initialExerciseId != null) {
+            exercises.find { it.id == initialExerciseId }
+        } else {
+            null
+        }
+    }
+
+    var currentStep by remember(initialExercise) {
+        mutableStateOf<WorkoutStep>(
+            if (initialExercise != null) WorkoutStep.Settings else WorkoutStep.ExerciseSelection
+        )
+    }
+    var selectedExercise by remember(initialExercise) { mutableStateOf<Exercise?>(initialExercise) }
 
     // ビープ音用
     val toneGenerator = remember {
@@ -290,9 +305,20 @@ fun WorkoutScreen(
                         session = step.session,
                         onConfirm = { finalSession ->
                             saveWorkoutRecords(viewModel, finalSession, workoutModeComment)
+                            // Delete todo task if from ToDo
+                            if (fromToDo) {
+                                viewModel.deleteTodoTaskByExerciseId(finalSession.exercise.id)
+                            }
                             onNavigateBack()
                         },
-                        onCancel = { currentStep = WorkoutStep.ExerciseSelection }
+                        onCancel = {
+                            // If from ToDo, go back to ToDo; otherwise go to exercise selection
+                            if (fromToDo) {
+                                onNavigateBack()
+                            } else {
+                                currentStep = WorkoutStep.ExerciseSelection
+                            }
+                        }
                     )
                 }
             }
