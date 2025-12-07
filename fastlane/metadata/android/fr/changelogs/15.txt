@@ -1,0 +1,4 @@
+Ajout de la fonction To Do pour planifier les entraînements.
+Ajoutez des exercices à votre liste, réorganisez par glisser-déposer et supprimez par balayage.
+Accédez directement à l'écran Enregistrement ou Entraînement depuis chaque tâche.
+Interface simplifiée de la liste des enregistrements.

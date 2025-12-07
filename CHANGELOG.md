@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.0] - 2025-12-07
+
+### Added
+- **To Do feature for planning workouts**
+  - Add exercises to your list and manage your workout plan
+  - Reorder tasks by drag-and-drop
+  - Swipe to delete tasks
+  - Jump directly to Record or Workout screen from each task
+
+### Improved
+- Simplified record list UI
+
 ## [1.10.0] - 2025-12-05
 
 ### Added
@@ -228,6 +240,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.11.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.11.0
 [1.10.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.10.0
 [1.9.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.9.0
 [1.8.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.8.1
