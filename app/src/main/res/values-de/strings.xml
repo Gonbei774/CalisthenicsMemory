@@ -412,6 +412,12 @@
     <string name="backup_saved_successfully">Backup im Downloads-Ordner gespeichert</string>
     <string name="backup_failed">Backup fehlgeschlagen</string>
 
+    <!-- Auto-fill Settings -->
+    <string name="settings_autofill_section">Automatisches Ausfüllen</string>
+    <string name="settings_autofill_section_description">Automatische Eingabeunterstützung konfigurieren.</string>
+    <string name="settings_prefill_previous">Vorherigen Eintrag vorausfüllen</string>
+    <string name="settings_prefill_previous_description">Werte der letzten Einheit automatisch in Aufnahme- und Workout-Bildschirmen ausfüllen</string>
+
     <!-- Workout Settings -->
     <string name="section_workout_settings">Workout-Einstellungen</string>
     <string name="section_workout_settings_description">Standard-Timer-Einstellungen für Workouts konfigurieren.</string>

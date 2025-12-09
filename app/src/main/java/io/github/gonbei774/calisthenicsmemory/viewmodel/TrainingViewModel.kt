@@ -1229,4 +1229,12 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         reorderTodoTasks(reorderedIds)
     }
 
+    /**
+     * 指定した種目の前回セッション記録を取得
+     * オートフィル機能用
+     */
+    suspend fun getLatestSession(exerciseId: Long): List<TrainingRecord> {
+        return recordDao.getLatestSessionByExercise(exerciseId)
+    }
+
 }

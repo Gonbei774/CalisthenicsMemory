@@ -212,6 +212,7 @@ fun WorkoutScreen(
                     selectedExercise?.let { exercise ->
                         SettingsStep(
                             exercise = exercise,
+                            viewModel = viewModel,
                             onStartWorkout = { session ->
                                 currentStep = if (session.startInterval > 0) {
                                     WorkoutStep.StartInterval(session, 0)
@@ -561,6 +562,7 @@ fun WorkoutExerciseItem(
 @Composable
 fun SettingsStep(
     exercise: Exercise,
+    viewModel: TrainingViewModel,
     onStartWorkout: (WorkoutSession) -> Unit,
     onBack: () -> Unit
 ) {
@@ -582,6 +584,32 @@ fun SettingsStep(
     var interval by remember { mutableStateOf("") }
     var distanceInput by remember { mutableStateOf("") }
     var weightInput by remember { mutableStateOf("") }
+
+    // プリフィル：前回セッションのデータを取得
+    LaunchedEffect(exercise.id) {
+        if (workoutPrefs.isPrefillPreviousRecordEnabled()) {
+            val previousSession = viewModel.getLatestSession(exercise.id)
+            if (previousSession.isNotEmpty()) {
+                // セット数をプリフィル
+                sets = previousSession.size.toString()
+                // 目標値（前回値の最大値）をプリフィル
+                val maxValue = previousSession.maxOf { it.valueRight }
+                targetValue = maxValue.toString()
+                // 距離をプリフィル（トラッキング有効時）
+                if (exercise.distanceTrackingEnabled) {
+                    previousSession.firstOrNull()?.distanceCm?.let {
+                        distanceInput = it.toString()
+                    }
+                }
+                // 荷重をプリフィル（トラッキング有効時）
+                if (exercise.weightTrackingEnabled) {
+                    previousSession.firstOrNull()?.weightG?.let {
+                        weightInput = (it / 1000.0).toString()
+                    }
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier

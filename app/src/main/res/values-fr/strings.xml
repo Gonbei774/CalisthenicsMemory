@@ -412,6 +412,12 @@
     <string name="backup_saved_successfully">Sauvegarde enregistrée dans le dossier Téléchargements</string>
     <string name="backup_failed">Échec de la sauvegarde</string>
 
+    <!-- Auto-fill Settings -->
+    <string name="settings_autofill_section">Remplissage auto</string>
+    <string name="settings_autofill_section_description">Configurer l\'assistance de saisie automatique.</string>
+    <string name="settings_prefill_previous">Pré-remplir l\'enregistrement précédent</string>
+    <string name="settings_prefill_previous_description">Remplir automatiquement les valeurs de la dernière séance dans les écrans Enregistrement et Entraînement</string>
+
     <!-- Workout Settings -->
     <string name="section_workout_settings">Paramètres d\'Entraînement</string>
     <string name="section_workout_settings_description">Configurer les valeurs par défaut du minuteur d\'entraînement.</string>

@@ -413,6 +413,12 @@
     <string name="backup_saved_successfully">バックアップをDownloadsフォルダに保存しました</string>
     <string name="backup_failed">バックアップに失敗しました</string>
 
+    <!-- Auto-fill Settings -->
+    <string name="settings_autofill_section">オートフィル</string>
+    <string name="settings_autofill_section_description">自動入力アシスタンスを設定します。</string>
+    <string name="settings_prefill_previous">前回の記録をプリフィル</string>
+    <string name="settings_prefill_previous_description">記録・ワークアウト画面で前回の値を自動入力</string>
+
     <!-- Workout Settings -->
     <string name="section_workout_settings">ワークアウト設定</string>
     <string name="section_workout_settings_description">ワークアウトのタイマーのデフォルト値を設定できます。</string>

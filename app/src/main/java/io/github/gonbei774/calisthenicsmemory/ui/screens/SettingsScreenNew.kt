@@ -753,7 +753,88 @@ fun SettingsScreenNew(
             }
 
             // ========================================
-            // セクション4: ワークアウト設定
+            // セクション4: オートフィル
+            // ========================================
+
+            // セクションタイトルと説明
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_autofill_section),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_autofill_section_description),
+                        fontSize = 14.sp,
+                        color = Slate400,
+                        lineHeight = 20.sp
+                    )
+                }
+            }
+
+            // オートフィル設定カード
+            item {
+                val workoutPrefs = remember { io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences(context) }
+                var prefillEnabled by remember { mutableStateOf(workoutPrefs.isPrefillPreviousRecordEnabled()) }
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Slate800
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "📝",
+                            fontSize = 32.sp
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.settings_prefill_previous),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = stringResource(R.string.settings_prefill_previous_description),
+                                fontSize = 14.sp,
+                                color = Slate400,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                        Switch(
+                            checked = prefillEnabled,
+                            onCheckedChange = { enabled ->
+                                prefillEnabled = enabled
+                                workoutPrefs.setPrefillPreviousRecordEnabled(enabled)
+                            },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = Color.White,
+                                checkedTrackColor = Orange600,
+                                uncheckedThumbColor = Color.White,
+                                uncheckedTrackColor = Slate600
+                            )
+                        )
+                    }
+                }
+            }
+
+            // ========================================
+            // セクション5: ワークアウト設定
             // ========================================
 
             // セクションタイトルと説明
