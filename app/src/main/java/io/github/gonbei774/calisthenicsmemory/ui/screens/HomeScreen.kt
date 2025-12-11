@@ -4,6 +4,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -177,18 +179,27 @@ fun TodayDashboardCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (records.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.no_records_today),
-                    fontSize = 16.sp,
-                    color = Slate300
-                )
-            } else {
-                Text(
-                    text = formattedAnnotatedText,
-                    fontSize = 18.sp,
-                    lineHeight = 26.sp
-                )
+            val scrollState = rememberScrollState()
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 150.dp)
+            ) {
+                if (records.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.no_records_today),
+                        fontSize = 16.sp,
+                        color = Slate300
+                    )
+                } else {
+                    Text(
+                        text = formattedAnnotatedText,
+                        fontSize = 18.sp,
+                        lineHeight = 26.sp,
+                        modifier = Modifier.verticalScroll(scrollState)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
