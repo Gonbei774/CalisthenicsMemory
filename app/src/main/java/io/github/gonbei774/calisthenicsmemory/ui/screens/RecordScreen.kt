@@ -17,13 +17,17 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
+import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
+import io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -42,6 +46,10 @@ fun RecordScreen(
     initialExerciseId: Long? = null,
     fromToDo: Boolean = false
 ) {
+    val context = LocalContext.current
+    val workoutPreferences = remember { WorkoutPreferences(context) }
+    val coroutineScope = rememberCoroutineScope()
+
     val exercises by viewModel.exercises.collectAsState()
 
     // Find initial exercise if provided
@@ -62,6 +70,9 @@ fun RecordScreen(
     var numberOfSets by remember { mutableIntStateOf(1) }
     var setValues by remember { mutableStateOf(List(1) { "" }) }
 
+    // 前回セッションのプリフィル用データ
+    var prefillData by remember { mutableStateOf<List<TrainingRecord>?>(null) }
+
     // Date and Time with pickers
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var selectedTime by remember { mutableStateOf(LocalTime.now()) }
@@ -72,6 +83,18 @@ fun RecordScreen(
 
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+    // initialExerciseから来た場合（ToDo経由）のプリフィル
+    LaunchedEffect(initialExercise) {
+        if (initialExercise != null && workoutPreferences.isPrefillPreviousRecordEnabled()) {
+            val previousSession = viewModel.getLatestSession(initialExercise.id)
+            if (previousSession.isNotEmpty()) {
+                numberOfSets = previousSession.size
+                setValues = previousSession.map { it.valueRight.toString() }
+                prefillData = previousSession
+            }
+        }
+    }
 
     // Update set values when number of sets changes
     LaunchedEffect(numberOfSets) {
@@ -92,12 +115,36 @@ fun RecordScreen(
                 onNavigateBack = onNavigateBack,
                 onExerciseSelected = { exercise ->
                     selectedExercise = exercise
-                    numberOfSets = 1
-                    setValues = List(1) { "" }
                     comment = ""
                     selectedDate = LocalDate.now()
                     selectedTime = LocalTime.now()
-                    currentStep = RecordStep.InputWorkout
+
+                    // プリフィル設定が有効な場合、前回セッションを取得
+                    if (workoutPreferences.isPrefillPreviousRecordEnabled()) {
+                        coroutineScope.launch {
+                            val previousSession = viewModel.getLatestSession(exercise.id)
+                            if (previousSession.isNotEmpty()) {
+                                // セット数をプリフィル
+                                numberOfSets = previousSession.size
+                                // Bilateral用の値をプリフィル
+                                setValues = previousSession.map { it.valueRight.toString() }
+                                // Unilateral用のプリフィルデータを保存
+                                prefillData = previousSession
+                            } else {
+                                // 前回記録がない場合はデフォルト
+                                numberOfSets = 1
+                                setValues = List(1) { "" }
+                                prefillData = null
+                            }
+                            currentStep = RecordStep.InputWorkout
+                        }
+                    } else {
+                        // プリフィル無効の場合は従来通り
+                        numberOfSets = 1
+                        setValues = List(1) { "" }
+                        prefillData = null
+                        currentStep = RecordStep.InputWorkout
+                    }
                 }
             )
         }
@@ -108,6 +155,7 @@ fun RecordScreen(
                 exercise = selectedExercise!!,
                 numberOfSets = numberOfSets,
                 setValues = setValues,
+                prefillData = prefillData,
                 selectedDate = selectedDate,
                 selectedTime = selectedTime,
                 comment = comment,
@@ -472,6 +520,7 @@ fun WorkoutInputScreen(
     exercise: Exercise,
     numberOfSets: Int,
     setValues: List<String>,
+    prefillData: List<TrainingRecord>? = null,
     selectedDate: LocalDate,
     selectedTime: LocalTime,
     comment: String,
@@ -495,13 +544,46 @@ fun WorkoutInputScreen(
     // Unilateral判定
     val isUnilateral = exercise.laterality == "Unilateral"
 
-    // Unilateral用の左右別の値管理
-    var setValuesRight by remember { mutableStateOf(List(numberOfSets) { "" }) }
-    var setValuesLeft by remember { mutableStateOf(List(numberOfSets) { "" }) }
+    // Unilateral用の左右別の値管理（プリフィルデータで初期化）
+    var setValuesRight by remember(prefillData) {
+        mutableStateOf(
+            if (isUnilateral && prefillData != null) {
+                prefillData.map { it.valueRight.toString() }
+            } else {
+                List(numberOfSets) { "" }
+            }
+        )
+    }
+    var setValuesLeft by remember(prefillData) {
+        mutableStateOf(
+            if (isUnilateral && prefillData != null) {
+                prefillData.map { it.valueLeft?.toString() ?: "" }
+            } else {
+                List(numberOfSets) { "" }
+            }
+        )
+    }
 
-    // 距離・荷重入力
-    var distanceInput by remember { mutableStateOf("") }
-    var weightInput by remember { mutableStateOf("") }
+    // 距離・荷重入力（プリフィルデータで初期化）
+    var distanceInput by remember(prefillData) {
+        mutableStateOf(
+            if (prefillData != null && exercise.distanceTrackingEnabled) {
+                prefillData.firstOrNull()?.distanceCm?.toString() ?: ""
+            } else {
+                ""
+            }
+        )
+    }
+    var weightInput by remember(prefillData) {
+        mutableStateOf(
+            if (prefillData != null && exercise.weightTrackingEnabled) {
+                // gからkgに変換（例: 1500g → 1.5）
+                prefillData.firstOrNull()?.weightG?.let { (it / 1000.0).toString() } ?: ""
+            } else {
+                ""
+            }
+        )
+    }
 
     // セット数変更時の処理
     LaunchedEffect(numberOfSets) {

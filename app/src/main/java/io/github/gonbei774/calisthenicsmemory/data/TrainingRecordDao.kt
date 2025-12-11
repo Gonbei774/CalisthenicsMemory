@@ -33,6 +33,24 @@ interface TrainingRecordDao {
     @Query("SELECT * FROM training_records WHERE exerciseId = :exerciseId AND date = :date AND time = :time")
     suspend fun getSessionRecords(exerciseId: Long, date: String, time: String): List<TrainingRecord>
 
+    /**
+     * 指定した種目の最新セッションの記録を取得
+     * @return 最新セッション（日付+時刻）の全レコード、setNumber順
+     */
+    @Query("""
+        SELECT * FROM training_records
+        WHERE exerciseId = :exerciseId
+        AND date || ' ' || time = (
+            SELECT date || ' ' || time
+            FROM training_records
+            WHERE exerciseId = :exerciseId
+            ORDER BY date DESC, time DESC
+            LIMIT 1
+        )
+        ORDER BY setNumber ASC
+    """)
+    suspend fun getLatestSessionByExercise(exerciseId: Long): List<TrainingRecord>
+
     @Query("DELETE FROM training_records")
     suspend fun deleteAll()
 }

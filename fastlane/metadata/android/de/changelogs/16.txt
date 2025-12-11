@@ -1,0 +1,5 @@
+Hinzugefügt:
+- Automatisches Ausfüllen des vorherigen Datensatzes bei der Aufzeichnung von Sätzen
+
+Behoben:
+- Der Abschnitt "Heutiges Training" scrollt jetzt bei langen Inhalten

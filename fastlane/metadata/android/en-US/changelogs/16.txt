@@ -1,0 +1,5 @@
+Added:
+- Auto-fill previous record when recording sets
+
+Fixed:
+- Today's Workout section now scrolls when content is long

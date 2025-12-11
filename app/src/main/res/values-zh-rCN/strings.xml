@@ -412,6 +412,12 @@
     <string name="backup_saved_successfully">备份已保存到下载文件夹</string>
     <string name="backup_failed">备份失败</string>
 
+    <!-- Auto-fill Settings -->
+    <string name="settings_autofill_section">自动填充</string>
+    <string name="settings_autofill_section_description">配置自动输入辅助。</string>
+    <string name="settings_prefill_previous">预填上次记录</string>
+    <string name="settings_prefill_previous_description">在记录和训练画面自动填充上次的值</string>
+
     <!-- Workout Settings -->
     <string name="section_workout_settings">训练设置</string>
     <string name="section_workout_settings_description">配置训练计时器的默认值。</string>

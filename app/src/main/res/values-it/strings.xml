@@ -412,6 +412,12 @@
     <string name="backup_saved_successfully">Backup salvato nella cartella Download</string>
     <string name="backup_failed">Backup fallito</string>
 
+    <!-- Auto-fill Settings -->
+    <string name="settings_autofill_section">Compilazione automatica</string>
+    <string name="settings_autofill_section_description">Configura l\'assistenza di inserimento automatico.</string>
+    <string name="settings_prefill_previous">Pre-compila record precedente</string>
+    <string name="settings_prefill_previous_description">Compila automaticamente i valori dell\'ultima sessione nelle schermate Registra e Allenamento</string>
+
     <!-- Workout Settings -->
     <string name="section_workout_settings">Impostazioni Allenamento</string>
     <string name="section_workout_settings_description">Configura le impostazioni predefinite del timer di allenamento.</string>

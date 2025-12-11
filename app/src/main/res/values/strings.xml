@@ -422,6 +422,12 @@
     <string name="backup_saved_successfully">Backup saved to Downloads folder</string>
     <string name="backup_failed">Backup failed</string>
 
+    <!-- Auto-fill Settings -->
+    <string name="settings_autofill_section">Auto-fill</string>
+    <string name="settings_autofill_section_description">Configure automatic input assistance.</string>
+    <string name="settings_prefill_previous">Pre-fill previous record</string>
+    <string name="settings_prefill_previous_description">Auto-fill values from the last session in Record and Workout screens</string>
+
     <!-- Workout Settings -->
     <string name="section_workout_settings">Workout Settings</string>
     <string name="section_workout_settings_description">Configure default workout timer settings.</string>

@@ -1,0 +1,5 @@
+Ajouté:
+- Remplissage automatique de l'enregistrement précédent lors de l'enregistrement des séries
+
+Corrigé:
+- La section d'entraînement du jour défile maintenant lorsque le contenu est long

@@ -412,6 +412,12 @@
     <string name="backup_saved_successfully">Copia de seguridad guardada en la carpeta Descargas</string>
     <string name="backup_failed">Error al guardar la copia de seguridad</string>
 
+    <!-- Auto-fill Settings -->
+    <string name="settings_autofill_section">Autocompletar</string>
+    <string name="settings_autofill_section_description">Configurar la asistencia de entrada automática.</string>
+    <string name="settings_prefill_previous">Pre-llenar registro anterior</string>
+    <string name="settings_prefill_previous_description">Auto-llenar valores de la última sesión en las pantallas de Registro y Entrenamiento</string>
+
     <!-- Workout Settings -->
     <string name="section_workout_settings">Configuración de Entrenamiento</string>
     <string name="section_workout_settings_description">Configurar los valores predeterminados del temporizador de entrenamiento.</string>
