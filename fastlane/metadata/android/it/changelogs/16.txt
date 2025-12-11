@@ -1,0 +1,5 @@
+Aggiunto:
+- Compilazione automatica del record precedente durante la registrazione delle serie
+
+Corretto:
+- La sezione allenamento di oggi ora scorre quando il contenuto è lungo
