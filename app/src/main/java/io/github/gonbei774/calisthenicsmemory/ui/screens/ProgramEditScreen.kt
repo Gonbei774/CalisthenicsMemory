@@ -28,12 +28,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.Program
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
+import io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import kotlinx.coroutines.launch
@@ -605,13 +607,17 @@ private fun AddExerciseToProgramDialog(
     onDismiss: () -> Unit,
     onAdd: (Exercise, Int, Int, Int) -> Unit
 ) {
+    val context = LocalContext.current
+    val workoutPreferences = remember { WorkoutPreferences(context) }
+    val defaultInterval = remember { workoutPreferences.getSetInterval() }
+
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
     val expandedGroups by viewModel.expandedGroups.collectAsState()
 
     var selectedExercise by remember { mutableStateOf<Exercise?>(null) }
     var sets by remember { mutableStateOf("3") }
     var targetValue by remember { mutableStateOf("10") }
-    var intervalSeconds by remember { mutableStateOf("60") }
+    var intervalSeconds by remember { mutableStateOf(defaultInterval.toString()) }
 
     val availableExercises = remember(exercises, existingExerciseIds) {
         exercises.filter { it.id !in existingExerciseIds }
