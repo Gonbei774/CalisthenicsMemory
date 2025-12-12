@@ -1,0 +1,6 @@
+Hinzugefugt:
+- Programmfunktion: Erstellen und Ausfuhren von Multi-Ubungs-Routinen
+- Timer-EIN-Modus: Automatisch getimte Workouts mit Countdown
+- Timer-AUS-Modus: Selbstbestimmte Workouts mit manueller Bestatigung
+- Unterstutzung fur Paare und Triplets durch doppelte Ubungsregistrierung
+- Konfigurierbare Ruheintervalle zwischen den Satzen
