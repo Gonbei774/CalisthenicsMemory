@@ -460,6 +460,7 @@ fun ProgramExecutionScreen(
                                     }
                                 },
                                 onAbort = {
+                                    // タイマーOFF版: 中断したセットは記録しない（何も設定せずにResult画面へ）
                                     currentStep = ProgramExecutionStep.Result(step.session)
                                 }
                             )
@@ -987,9 +988,9 @@ private fun ProgramExecutingStepTimerOff(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // スキップボタン
+            // スキップボタン（実行していないので0）
             OutlinedButton(
-                onClick = { onSkip(currentValue) },
+                onClick = { onSkip(0) },
                 modifier = Modifier
                     .weight(1f)
                     .height(48.dp),
@@ -998,9 +999,9 @@ private fun ProgramExecutingStepTimerOff(
                 Text(stringResource(R.string.skip_button))
             }
 
-            // 中止ボタン
+            // 中止ボタン（中断したセットは記録しない）
             Button(
-                onClick = onAbort,
+                onClick = { onAbort() },
                 modifier = Modifier
                     .weight(1f)
                     .height(48.dp),
@@ -1739,9 +1740,10 @@ private fun saveProgramResults(
         val exercise = exerciseInfoList.first().second.second
 
         // この種目の全セット（プログラム内で複数回出てきても全て収集）
+        // isCompleted または isSkipped のセットを記録対象とする
         val allSetsForExercise = exerciseInfoList.flatMap { (exerciseIndex, _) ->
             session.sets.filter {
-                it.exerciseIndex == exerciseIndex && it.isCompleted
+                it.exerciseIndex == exerciseIndex && (it.isCompleted || it.isSkipped)
             }
         }
 
