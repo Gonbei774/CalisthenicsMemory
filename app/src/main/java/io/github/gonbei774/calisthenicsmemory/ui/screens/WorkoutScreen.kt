@@ -72,6 +72,7 @@ data class WorkoutSession(
 
 // ワークアウト画面の状態
 sealed class WorkoutStep {
+    object ModeSelection : WorkoutStep()  // モード選択（単発/プログラム）
     object ExerciseSelection : WorkoutStep()
     object Settings : WorkoutStep()
     data class StartInterval(val session: WorkoutSession, val currentSetIndex: Int) : WorkoutStep()
@@ -85,6 +86,7 @@ sealed class WorkoutStep {
 fun WorkoutScreen(
     viewModel: TrainingViewModel,
     onNavigateBack: () -> Unit,
+    onNavigateToProgramList: () -> Unit = {},
     initialExerciseId: Long? = null,
     fromToDo: Boolean = false
 ) {
@@ -100,9 +102,17 @@ fun WorkoutScreen(
         }
     }
 
-    var currentStep by remember(initialExercise) {
+    // 初期ステップの決定：
+    // - initialExerciseが指定されている場合 → Settings
+    // - fromToDoの場合 → ExerciseSelection（単発モード）
+    // - それ以外 → ModeSelection（モード選択）
+    var currentStep by remember(initialExercise, fromToDo) {
         mutableStateOf<WorkoutStep>(
-            if (initialExercise != null) WorkoutStep.Settings else WorkoutStep.ExerciseSelection
+            when {
+                initialExercise != null -> WorkoutStep.Settings
+                fromToDo -> WorkoutStep.ExerciseSelection
+                else -> WorkoutStep.ModeSelection
+            }
         )
     }
     var selectedExercise by remember(initialExercise) { mutableStateOf<Exercise?>(initialExercise) }
@@ -199,6 +209,14 @@ fun WorkoutScreen(
                 .padding(paddingValues)
         ) {
             when (val step = currentStep) {
+                is WorkoutStep.ModeSelection -> {
+                    ModeSelectionStep(
+                        onSingleModeSelected = {
+                            currentStep = WorkoutStep.ExerciseSelection
+                        },
+                        onProgramModeSelected = onNavigateToProgramList
+                    )
+                }
                 is WorkoutStep.ExerciseSelection -> {
                     ExerciseSelectionStep(
                         viewModel = viewModel,
@@ -1722,6 +1740,105 @@ suspend fun playTripleBeepTwice(toneGenerator: ToneGenerator) {
         // 最後のセット以外は間隔を入れる
         if (setIndex < 2) {
             delay(150L) // セット間の間隔
+        }
+    }
+}
+
+// モード選択画面
+@Composable
+fun ModeSelectionStep(
+    onSingleModeSelected: () -> Unit,
+    onProgramModeSelected: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(R.string.workout_mode_selection),
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            modifier = Modifier.padding(bottom = 32.dp)
+        )
+
+        // 単発モード
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            colors = CardDefaults.cardColors(containerColor = Slate800),
+            shape = RoundedCornerShape(16.dp),
+            onClick = onSingleModeSelected
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.single_mode),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Text(
+                        text = stringResource(R.string.single_mode_description),
+                        fontSize = 14.sp,
+                        color = Slate400,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = Orange600,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+        }
+
+        // プログラムモード
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Slate800),
+            shape = RoundedCornerShape(16.dp),
+            onClick = onProgramModeSelected
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.program_mode),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Text(
+                        text = stringResource(R.string.program_mode_description),
+                        fontSize = 14.sp,
+                        color = Slate400,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = Orange600,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
         }
     }
 }
