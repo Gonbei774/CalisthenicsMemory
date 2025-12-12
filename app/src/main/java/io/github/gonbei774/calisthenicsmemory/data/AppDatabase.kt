@@ -9,8 +9,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [Exercise::class, TrainingRecord::class, ExerciseGroup::class, TodoTask::class],
-    version = 12,  // ← 変更: 11 → 12（TodoTask テーブル追加）
+    entities = [Exercise::class, TrainingRecord::class, ExerciseGroup::class, TodoTask::class, Program::class, ProgramExercise::class],
+    version = 13,  // ← 変更: 12 → 13（Program機能追加）
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -19,6 +19,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun trainingRecordDao(): TrainingRecordDao
     abstract fun exerciseGroupDao(): ExerciseGroupDao
     abstract fun todoTaskDao(): TodoTaskDao
+    abstract fun programDao(): ProgramDao
+    abstract fun programExerciseDao(): ProgramExerciseDao
 
     companion object {
         @Volatile
@@ -31,7 +33,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "bodyweight_trainer_database"
                 )
-                    .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12)
+                    .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
@@ -122,6 +124,40 @@ abstract class AppDatabase : RoomDatabase() {
                         sortOrder INTEGER NOT NULL
                     )
                 """)
+            }
+        }
+
+        // マイグレーション 12 → 13: Program機能（プログラム・種目テーブル追加）
+        val MIGRATION_12_13 = object : Migration(12, 13) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Program テーブル作成
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS programs (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        name TEXT NOT NULL,
+                        timerMode INTEGER NOT NULL DEFAULT 0,
+                        startInterval INTEGER NOT NULL DEFAULT 5
+                    )
+                """)
+
+                // ProgramExercise テーブル作成
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS program_exercises (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        programId INTEGER NOT NULL,
+                        exerciseId INTEGER NOT NULL,
+                        sortOrder INTEGER NOT NULL,
+                        sets INTEGER NOT NULL DEFAULT 1,
+                        targetValue INTEGER NOT NULL,
+                        intervalSeconds INTEGER NOT NULL DEFAULT 60,
+                        FOREIGN KEY (programId) REFERENCES programs(id) ON DELETE CASCADE,
+                        FOREIGN KEY (exerciseId) REFERENCES exercises(id) ON DELETE CASCADE
+                    )
+                """)
+
+                // インデックス作成
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_program_exercises_programId ON program_exercises(programId)")
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_program_exercises_exerciseId ON program_exercises(exerciseId)")
             }
         }
     }
