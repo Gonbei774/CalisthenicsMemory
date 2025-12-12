@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -120,7 +121,7 @@ fun ProgramEditScreen(
 
     Scaffold(
         topBar = {
-            // Amber gradient header
+            // Orange gradient header (workout theme)
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -212,84 +213,79 @@ fun ProgramEditScreen(
                 )
 
                 // Timer Mode Toggle
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Slate800),
-                    shape = RoundedCornerShape(12.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.timer_mode_label),
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Color.White
-                            )
-                            Switch(
-                                checked = timerMode,
-                                onCheckedChange = { timerMode = it },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = Color.White,
-                                    checkedTrackColor = Green600,
-                                    uncheckedThumbColor = Slate400,
-                                    uncheckedTrackColor = Slate600
-                                )
-                            )
-                        }
+                    Column {
+                        Text(
+                            text = stringResource(R.string.timer_mode_label),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White
+                        )
                         Text(
                             text = stringResource(
                                 if (timerMode) R.string.timer_mode_on_description
                                 else R.string.timer_mode_off_description
                             ),
-                            fontSize = 12.sp,
+                            fontSize = 11.sp,
                             color = Slate400
                         )
                     }
+                    Switch(
+                        checked = timerMode,
+                        onCheckedChange = { timerMode = it },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = Orange600,
+                            uncheckedThumbColor = Slate400,
+                            uncheckedTrackColor = Slate600
+                        )
+                    )
                 }
 
                 // Start Countdown
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Slate800),
-                    shape = RoundedCornerShape(12.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Text(
+                        text = stringResource(R.string.start_countdown) + " (sec)",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White
+                    )
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        IconButton(
+                            onClick = { if (startInterval > 0) startInterval-- },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Text("-", fontSize = 20.sp, color = Color.White)
+                        }
                         Text(
-                            text = stringResource(R.string.start_countdown),
+                            text = "$startInterval",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
-                            color = Color.White
+                            color = Color.White,
+                            modifier = Modifier.width(32.dp),
+                            textAlign = TextAlign.Center
                         )
-                        OutlinedTextField(
-                            value = startInterval.toString(),
-                            onValueChange = { newValue ->
-                                newValue.toIntOrNull()?.let { startInterval = it.coerceIn(0, 30) }
-                            },
-                            modifier = Modifier.width(80.dp),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Amber500,
-                                cursorColor = Amber500,
-                                unfocusedTextColor = Color.White,
-                                focusedTextColor = Color.White,
-                                unfocusedBorderColor = Slate600
-                            ),
-                            singleLine = true,
-                            suffix = { Text("s", color = Slate400) }
-                        )
+                        IconButton(
+                            onClick = { if (startInterval < 30) startInterval++ },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Text("+", fontSize = 20.sp, color = Color.White)
+                        }
                     }
                 }
 
@@ -307,7 +303,7 @@ fun ProgramEditScreen(
                     )
                     Button(
                         onClick = { showAddExerciseDialog = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = Amber500),
+                        colors = ButtonDefaults.buttonColors(containerColor = Orange600),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                     ) {
                         Icon(
@@ -405,7 +401,6 @@ fun ProgramEditScreen(
         AddExerciseToProgramDialog(
             viewModel = viewModel,
             exercises = exercises,
-            existingExerciseIds = programExercises.map { it.exerciseId }.toSet(),
             onDismiss = { showAddExerciseDialog = false },
             onAdd = { selectedExercise, sets, targetValue, intervalSeconds ->
                 val newPe = ProgramExercise(
@@ -603,7 +598,6 @@ private fun ProgramExerciseItem(
 private fun AddExerciseToProgramDialog(
     viewModel: TrainingViewModel,
     exercises: List<Exercise>,
-    existingExerciseIds: Set<Long>,
     onDismiss: () -> Unit,
     onAdd: (Exercise, Int, Int, Int) -> Unit
 ) {
@@ -618,10 +612,6 @@ private fun AddExerciseToProgramDialog(
     var sets by remember { mutableStateOf("3") }
     var targetValue by remember { mutableStateOf("10") }
     var intervalSeconds by remember { mutableStateOf(defaultInterval.toString()) }
-
-    val availableExercises = remember(exercises, existingExerciseIds) {
-        exercises.filter { it.id !in existingExerciseIds }
-    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -642,7 +632,7 @@ private fun AddExerciseToProgramDialog(
             ) {
                 if (selectedExercise == null) {
                     // Exercise selection
-                    if (availableExercises.isEmpty()) {
+                    if (exercises.isEmpty()) {
                         Text(
                             text = stringResource(R.string.todo_all_added),
                             color = Slate400
@@ -657,11 +647,10 @@ private fun AddExerciseToProgramDialog(
                                 key = { index -> hierarchicalData[index].groupName ?: "ungrouped" }
                             ) { index ->
                                 val group = hierarchicalData[index]
-                                val availableInGroup = group.exercises.filter { it.id !in existingExerciseIds }
-                                if (availableInGroup.isNotEmpty()) {
+                                if (group.exercises.isNotEmpty()) {
                                     SelectExerciseGroup(
                                         groupName = group.groupName,
-                                        exercises = availableInGroup,
+                                        exercises = group.exercises,
                                         isExpanded = (group.groupName ?: "ungrouped") in expandedGroups,
                                         onExpandToggle = {
                                             viewModel.toggleGroupExpansion(group.groupName ?: "ungrouped")
@@ -873,24 +862,63 @@ private fun SelectExerciseGroup(
                                         fontWeight = FontWeight.Medium,
                                         color = Color.White
                                     )
+                                    // Badges row
                                     Row(
                                         horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
                                         modifier = Modifier.padding(top = 2.dp)
                                     ) {
+                                        // Favorite
+                                        if (exercise.isFavorite) {
+                                            Text(
+                                                text = "★",
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color(0xFFFFD700)
+                                            )
+                                        }
+                                        // Level
+                                        if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
+                                            Text(
+                                                text = "Lv.${exercise.sortOrder}",
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Blue600
+                                            )
+                                        }
+                                        // Type
                                         Text(
                                             text = stringResource(
                                                 if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type
                                             ),
                                             fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold,
                                             color = Slate400
                                         )
+                                        // Unilateral
                                         if (exercise.laterality == "Unilateral") {
                                             Text(
                                                 text = stringResource(R.string.one_sided),
                                                 fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
                                                 color = Purple600
                                             )
                                         }
+                                    }
+                                    // Target
+                                    if (exercise.targetSets != null && exercise.targetValue != null) {
+                                        Text(
+                                            text = stringResource(
+                                                if (exercise.laterality == "Unilateral") R.string.target_format_unilateral else R.string.target_format,
+                                                exercise.targetSets!!,
+                                                exercise.targetValue!!,
+                                                stringResource(if (exercise.type == "Dynamic") R.string.unit_reps else R.string.unit_seconds)
+                                            ),
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Green400,
+                                            modifier = Modifier.padding(top = 2.dp)
+                                        )
                                     }
                                 }
                             }

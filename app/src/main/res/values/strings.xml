@@ -525,7 +525,7 @@
     <string name="program_exercise_count">%d exercise(s)</string>
     <string name="program_sets_format">%d sets</string>
     <string name="program_target_format">%1$d %2$s</string>
-    <string name="program_interval_format">Rest %ds</string>
+    <string name="program_interval_format">Interval %ds</string>
     <string name="delete_program">Delete Program</string>
     <string name="delete_program_warning">Delete \"%s\"?</string>
     <string name="program_saved">Program saved</string>
@@ -534,6 +534,19 @@
     <string name="exercise_settings">Exercise Settings</string>
     <string name="sets_label">Sets</string>
     <string name="target_value_label">Target</string>
-    <string name="interval_seconds_label">Rest (sec)</string>
+    <string name="interval_seconds_label">Interval Duration (sec)</string>
     <string name="program_start">Start</string>
+
+    <!-- Program Execution -->
+    <string name="get_ready">Get Ready</string>
+    <string name="executing_label">In Progress</string>
+    <string name="complete_button">Complete</string>
+    <string name="abort_button">Abort</string>
+    <string name="program_use_program">Program</string>
+    <string name="program_use_challenge">Challenge</string>
+    <string name="program_use_all_program">All Program</string>
+    <string name="program_use_all_challenge">All Challenge</string>
+    <string name="program_previous_value">Using previous value</string>
+    <string name="next_exercise_label">Next: %s</string>
+    <string name="program_set_label">Set %d:</string>
 </resources>

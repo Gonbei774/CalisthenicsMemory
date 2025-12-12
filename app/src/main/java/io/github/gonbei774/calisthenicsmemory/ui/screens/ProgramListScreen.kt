@@ -38,7 +38,7 @@ fun ProgramListScreen(
 
     Scaffold(
         topBar = {
-            // Amber gradient header
+            // Orange gradient header (workout theme)
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -80,7 +80,7 @@ fun ProgramListScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { onNavigateToEdit(null) },
-                containerColor = Amber500
+                containerColor = Orange600
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.new_program), tint = Color.White)
             }

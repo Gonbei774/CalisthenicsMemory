@@ -47,6 +47,7 @@ import io.github.gonbei774.calisthenicsmemory.ui.screens.view.ViewScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.ToDoScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.ProgramListScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.ProgramEditScreen
+import io.github.gonbei774.calisthenicsmemory.ui.screens.ProgramExecutionScreen
 import io.github.gonbei774.calisthenicsmemory.ui.theme.CalisthenicsMemoryTheme
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 
@@ -261,8 +262,7 @@ fun CalisthenicsMemoryApp() {
                         onNavigateBack = { currentScreen = Screen.Workout() },
                         onNavigateToEdit = { programId -> currentScreen = Screen.ProgramEdit(programId) },
                         onNavigateToExecute = { programId ->
-                            // TODO: Phase 3 - プログラム実行画面への遷移
-                            // currentScreen = Screen.ProgramConfirm(programId)
+                            currentScreen = Screen.ProgramExecution(programId)
                         }
                     )
                 }
@@ -274,6 +274,16 @@ fun CalisthenicsMemoryApp() {
                         programId = editScreen.programId,
                         onNavigateBack = { currentScreen = Screen.ProgramList },
                         onSaved = { currentScreen = Screen.ProgramList }
+                    )
+                }
+                is Screen.ProgramExecution -> {
+                    val execScreen = currentScreen as Screen.ProgramExecution
+                    BackHandler { currentScreen = Screen.ProgramList }
+                    ProgramExecutionScreen(
+                        viewModel = viewModel,
+                        programId = execScreen.programId,
+                        onNavigateBack = { currentScreen = Screen.ProgramList },
+                        onComplete = { currentScreen = Screen.ProgramList }
                     )
                 }
             }
@@ -292,4 +302,5 @@ sealed class Screen {
     data class Workout(val exerciseId: Long? = null, val fromToDo: Boolean = false) : Screen()
     object ProgramList : Screen()
     data class ProgramEdit(val programId: Long?) : Screen()
+    data class ProgramExecution(val programId: Long) : Screen()
 }
