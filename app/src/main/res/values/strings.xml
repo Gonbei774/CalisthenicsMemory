@@ -501,4 +501,52 @@
     <string name="notification_channel_workout_description">Shows notification while workout timer is running</string>
     <string name="notification_workout_title">Workout in progress</string>
     <string name="notification_workout_text">Timer is running</string>
+
+    <!-- Program Mode -->
+    <string name="workout_mode_selection">Select Mode</string>
+    <string name="single_mode">Single</string>
+    <string name="single_mode_description">One exercise at a time</string>
+    <string name="program_mode">Program</string>
+    <string name="program_mode_description">Run multiple exercises in sequence</string>
+    <string name="program_list_title">Programs</string>
+    <string name="program_empty">No programs yet\nTap + to create one</string>
+    <string name="new_program">New Program</string>
+    <string name="edit_program">Edit Program</string>
+    <string name="program_name">Program Name</string>
+    <string name="program_name_hint">e.g., Morning Routine</string>
+    <string name="timer_mode_label">Timer Mode</string>
+    <string name="timer_on">ON</string>
+    <string name="timer_off">OFF</string>
+    <string name="timer_mode_on_description">Auto countdown during exercise</string>
+    <string name="timer_mode_off_description">Manual completion button</string>
+    <string name="start_countdown">Start Countdown</string>
+    <string name="program_exercises">Exercises</string>
+    <string name="add_exercise_to_program">Add Exercise</string>
+    <string name="program_exercise_count">%d exercise(s)</string>
+    <string name="program_sets_format">%d sets</string>
+    <string name="program_target_format">%1$d %2$s</string>
+    <string name="program_interval_format">Interval %ds</string>
+    <string name="delete_program">Delete Program</string>
+    <string name="delete_program_warning">Delete \"%s\"?</string>
+    <string name="program_saved">Program saved</string>
+    <string name="program_name_required">Program name is required</string>
+    <string name="program_exercises_required">Add at least one exercise</string>
+    <string name="exercise_settings">Exercise Settings</string>
+    <string name="sets_label">Sets</string>
+    <string name="target_value_label">Target</string>
+    <string name="interval_seconds_label">Interval Duration (sec)</string>
+    <string name="program_start">Start</string>
+
+    <!-- Program Execution -->
+    <string name="get_ready">Get Ready</string>
+    <string name="executing_label">In Progress</string>
+    <string name="complete_button">Complete</string>
+    <string name="abort_button">Abort</string>
+    <string name="program_use_program">Program</string>
+    <string name="program_use_challenge">Challenge</string>
+    <string name="program_use_all_program">All Program</string>
+    <string name="program_use_all_challenge">All Challenge</string>
+    <string name="program_previous_value">Using previous value</string>
+    <string name="next_exercise_label">Next: %s</string>
+    <string name="program_set_label">Set %d:</string>
 </resources>

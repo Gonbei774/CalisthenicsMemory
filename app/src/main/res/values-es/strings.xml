@@ -506,4 +506,34 @@
     <string name="notification_channel_workout_description">Muestra notificación mientras el temporizador de entrenamiento está activo</string>
     <string name="notification_workout_title">Entrenamiento en progreso</string>
     <string name="notification_workout_text">El temporizador está activo</string>
+
+    <!-- Program Feature -->
+    <string name="program_mode">Programa</string>
+    <string name="program_mode_description">Ejecutar múltiples ejercicios en secuencia</string>
+    <string name="program_list_title">Programas</string>
+    <string name="program_empty">Sin programas aún\nToca + para crear uno</string>
+    <string name="edit_program">Editar programa</string>
+    <string name="program_name">Nombre del programa</string>
+    <string name="program_name_hint">ej. Rutina matutina</string>
+    <string name="program_exercises">Ejercicios</string>
+    <string name="add_exercise_to_program">Añadir ejercicio</string>
+    <string name="program_exercise_count">%d ejercicio(s)</string>
+    <string name="program_sets_format">%d series</string>
+    <string name="program_target_format">%1$d %2$s</string>
+    <string name="program_interval_format">Descanso %ds</string>
+    <string name="delete_program">Eliminar programa</string>
+    <string name="delete_program_warning">¿Eliminar \"%s\"?</string>
+    <string name="program_saved">Programa guardado</string>
+    <string name="program_name_required">Nombre del programa requerido</string>
+    <string name="program_exercises_required">Añade al menos un ejercicio</string>
+    <string name="target_value_label">Objetivo</string>
+    <string name="interval_seconds_label">Duración del descanso (seg.)</string>
+    <string name="program_start">Iniciar</string>
+    <string name="program_use_program">Programa</string>
+    <string name="program_use_challenge">Desafío</string>
+    <string name="program_use_all_program">Todo Programa</string>
+    <string name="program_use_all_challenge">Todo Desafío</string>
+    <string name="program_previous_value">Usando valor anterior</string>
+    <string name="next_exercise_label">Siguiente: %s</string>
+    <string name="program_set_label">Serie %d:</string>
 </resources>

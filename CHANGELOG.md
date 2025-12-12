@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.0] - 2025-12-13
+
+### Added
+- **Program feature for multi-exercise routines**
+  - Create and save programs with multiple exercises
+  - Execute exercises in sequence with automatic progression
+  - Timer ON mode: Auto-timed workouts with countdown
+  - Timer OFF mode: Self-paced workouts with manual completion
+  - Support for Pairs and Triplets via duplicate exercise registration
+  - Configurable rest intervals between sets
+  - Complete result screen with editable values
+
 ## [1.12.0] - 2025-12-11
 
 ### Added
@@ -252,6 +264,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.13.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.13.0
 [1.12.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.12.0
 [1.11.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.11.0
 [1.10.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.10.0

@@ -1,0 +1,6 @@
+Ajoute:
+- Fonction programme: Creez et executez des routines multi-exercices
+- Mode minuteur ON: Entrainements chronometres avec compte a rebours
+- Mode minuteur OFF: Entrainements a votre rythme avec validation manuelle
+- Support des paires et triplets via enregistrement d'exercices en double
+- Intervalles de repos configurables entre les series

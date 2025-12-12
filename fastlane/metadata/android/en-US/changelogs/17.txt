@@ -1,0 +1,6 @@
+Added:
+- Program feature: Create and execute multi-exercise routines
+- Timer ON mode: Auto-timed workouts with countdown
+- Timer OFF mode: Self-paced workouts with manual completion
+- Support for Pairs and Triplets via duplicate exercise registration
+- Configurable rest intervals between sets

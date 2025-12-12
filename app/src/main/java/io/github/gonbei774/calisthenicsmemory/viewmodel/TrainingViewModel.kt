@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import io.github.gonbei774.calisthenicsmemory.data.AppDatabase
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.ExerciseGroup
+import io.github.gonbei774.calisthenicsmemory.data.Program
+import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
 import io.github.gonbei774.calisthenicsmemory.data.TodoTask
 import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
 import io.github.gonbei774.calisthenicsmemory.ui.UiMessage
@@ -81,6 +83,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     private val recordDao = database.trainingRecordDao()
     private val groupDao = database.exerciseGroupDao()
     private val todoTaskDao = database.todoTaskDao()
+    private val programDao = database.programDao()
+    private val programExerciseDao = database.programExerciseDao()
 
     companion object {
         // お気に入りグループの固定キー（UI側で翻訳される）
@@ -1235,6 +1239,187 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
      */
     suspend fun getLatestSession(exerciseId: Long): List<TrainingRecord> {
         return recordDao.getLatestSessionByExercise(exerciseId)
+    }
+
+    // ========================================
+    // Program 操作
+    // ========================================
+
+    val programs: StateFlow<List<Program>> = programDao.getAllPrograms()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptyList()
+        )
+
+    fun createProgram(
+        name: String,
+        timerMode: Boolean = false,
+        startInterval: Int = 5
+    ) {
+        viewModelScope.launch {
+            try {
+                val program = Program(
+                    name = name,
+                    timerMode = timerMode,
+                    startInterval = startInterval
+                )
+                programDao.insert(program)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    suspend fun createProgramAndGetId(
+        name: String,
+        timerMode: Boolean = false,
+        startInterval: Int = 5
+    ): Long? {
+        return try {
+            val program = Program(
+                name = name,
+                timerMode = timerMode,
+                startInterval = startInterval
+            )
+            programDao.insert(program)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+            null
+        }
+    }
+
+    fun updateProgram(program: Program) {
+        viewModelScope.launch {
+            try {
+                programDao.update(program)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun deleteProgram(programId: Long) {
+        viewModelScope.launch {
+            try {
+                programDao.deleteById(programId)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    suspend fun getProgramById(programId: Long): Program? {
+        return programDao.getProgramById(programId)
+    }
+
+    // ========================================
+    // ProgramExercise 操作
+    // ========================================
+
+    fun getProgramExercisesFlow(programId: Long) = programExerciseDao.getExercisesForProgram(programId)
+
+    suspend fun getProgramExercisesSync(programId: Long): List<ProgramExercise> {
+        return programExerciseDao.getExercisesForProgramSync(programId)
+    }
+
+    fun addProgramExercise(
+        programId: Long,
+        exerciseId: Long,
+        sets: Int = 1,
+        targetValue: Int,
+        intervalSeconds: Int = 60
+    ) {
+        viewModelScope.launch {
+            try {
+                val sortOrder = programExerciseDao.getNextSortOrder(programId)
+                val programExercise = ProgramExercise(
+                    programId = programId,
+                    exerciseId = exerciseId,
+                    sortOrder = sortOrder,
+                    sets = sets,
+                    targetValue = targetValue,
+                    intervalSeconds = intervalSeconds
+                )
+                programExerciseDao.insert(programExercise)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    suspend fun addProgramExerciseSync(
+        programId: Long,
+        exerciseId: Long,
+        sets: Int = 1,
+        targetValue: Int,
+        intervalSeconds: Int = 60
+    ): Long? {
+        return try {
+            val sortOrder = programExerciseDao.getNextSortOrder(programId)
+            val programExercise = ProgramExercise(
+                programId = programId,
+                exerciseId = exerciseId,
+                sortOrder = sortOrder,
+                sets = sets,
+                targetValue = targetValue,
+                intervalSeconds = intervalSeconds
+            )
+            programExerciseDao.insert(programExercise)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+            null
+        }
+    }
+
+    fun updateProgramExercise(programExercise: ProgramExercise) {
+        viewModelScope.launch {
+            try {
+                programExerciseDao.update(programExercise)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun deleteProgramExercise(programExercise: ProgramExercise) {
+        viewModelScope.launch {
+            try {
+                programExerciseDao.delete(programExercise)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun reorderProgramExercises(exerciseIds: List<Long>) {
+        viewModelScope.launch {
+            try {
+                programExerciseDao.reorderExercises(exerciseIds)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun reorderProgramExercises(programId: Long, fromIndex: Int, toIndex: Int) {
+        viewModelScope.launch {
+            try {
+                val currentExercises = programExerciseDao.getExercisesForProgramSync(programId).toMutableList()
+                if (fromIndex < 0 || toIndex < 0 ||
+                    fromIndex >= currentExercises.size || toIndex >= currentExercises.size) {
+                    return@launch
+                }
+
+                val item = currentExercises.removeAt(fromIndex)
+                currentExercises.add(toIndex, item)
+
+                val reorderedIds = currentExercises.map { it.id }
+                programExerciseDao.reorderExercises(reorderedIds)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
     }
 
 }

@@ -1,0 +1,6 @@
+Aggiunto:
+- Funzione programma: Crea ed esegui routine con piu esercizi
+- Modalita timer ON: Allenamenti cronometrati con conto alla rovescia
+- Modalita timer OFF: Allenamenti al tuo ritmo con completamento manuale
+- Supporto per coppie e triplette tramite registrazione di esercizi duplicati
+- Intervalli di riposo configurabili tra le serie

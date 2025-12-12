@@ -506,4 +506,34 @@
     <string name="notification_channel_workout_description">训练计时器运行时显示通知</string>
     <string name="notification_workout_title">训练进行中</string>
     <string name="notification_workout_text">计时器正在运行</string>
+
+    <!-- Program Feature -->
+    <string name="program_mode">训练计划</string>
+    <string name="program_mode_description">连续执行多个动作</string>
+    <string name="program_list_title">训练计划</string>
+    <string name="program_empty">暂无训练计划\n点击 + 创建</string>
+    <string name="edit_program">编辑计划</string>
+    <string name="program_name">计划名称</string>
+    <string name="program_name_hint">例如：晨间训练</string>
+    <string name="program_exercises">动作</string>
+    <string name="add_exercise_to_program">添加动作</string>
+    <string name="program_exercise_count">%d个动作</string>
+    <string name="program_sets_format">%d组</string>
+    <string name="program_target_format">%1$d%2$s</string>
+    <string name="program_interval_format">休息%d秒</string>
+    <string name="delete_program">删除计划</string>
+    <string name="delete_program_warning">删除\"%s\"？</string>
+    <string name="program_saved">计划已保存</string>
+    <string name="program_name_required">请输入计划名称</string>
+    <string name="program_exercises_required">请至少添加一个动作</string>
+    <string name="target_value_label">目标</string>
+    <string name="interval_seconds_label">休息时长（秒）</string>
+    <string name="program_start">开始</string>
+    <string name="program_use_program">计划值</string>
+    <string name="program_use_challenge">目标值</string>
+    <string name="program_use_all_program">全部计划值</string>
+    <string name="program_use_all_challenge">全部目标值</string>
+    <string name="program_previous_value">使用上次的值</string>
+    <string name="next_exercise_label">下一个：%s</string>
+    <string name="program_set_label">第%d组：</string>
 </resources>

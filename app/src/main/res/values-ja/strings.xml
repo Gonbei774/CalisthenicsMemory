@@ -507,4 +507,52 @@
     <string name="notification_channel_workout_description">ワークアウトタイマー実行中の通知を表示</string>
     <string name="notification_workout_title">ワークアウト実行中</string>
     <string name="notification_workout_text">タイマーが動作しています</string>
+
+    <!-- Program Mode -->
+    <string name="workout_mode_selection">モードを選択</string>
+    <string name="single_mode">単発</string>
+    <string name="single_mode_description">1種目ずつ実行</string>
+    <string name="program_mode">プログラム</string>
+    <string name="program_mode_description">複数種目を連続実行</string>
+    <string name="program_list_title">プログラム</string>
+    <string name="program_empty">プログラムがありません\n+ をタップして作成</string>
+    <string name="new_program">新規プログラム</string>
+    <string name="edit_program">プログラムを編集</string>
+    <string name="program_name">プログラム名</string>
+    <string name="program_name_hint">例: 朝のルーティン</string>
+    <string name="timer_mode_label">タイマーモード</string>
+    <string name="timer_on">ON</string>
+    <string name="timer_off">OFF</string>
+    <string name="timer_mode_on_description">運動中に自動カウント</string>
+    <string name="timer_mode_off_description">手動で完了ボタン</string>
+    <string name="start_countdown">開始カウントダウン</string>
+    <string name="program_exercises">種目</string>
+    <string name="add_exercise_to_program">種目を追加</string>
+    <string name="program_exercise_count">%d種目</string>
+    <string name="program_sets_format">%dセット</string>
+    <string name="program_target_format">%1$d%2$s</string>
+    <string name="program_interval_format">インターバル %d秒</string>
+    <string name="delete_program">プログラムを削除</string>
+    <string name="delete_program_warning">「%s」を削除しますか？</string>
+    <string name="program_saved">プログラムを保存しました</string>
+    <string name="program_name_required">プログラム名を入力してください</string>
+    <string name="program_exercises_required">種目を1つ以上追加してください</string>
+    <string name="exercise_settings">種目設定</string>
+    <string name="sets_label">セット数</string>
+    <string name="target_value_label">目標</string>
+    <string name="interval_seconds_label">インターバル（秒）</string>
+    <string name="program_start">開始</string>
+
+    <!-- Program Execution -->
+    <string name="get_ready">準備</string>
+    <string name="executing_label">実行中</string>
+    <string name="complete_button">完了</string>
+    <string name="abort_button">中止</string>
+    <string name="program_use_program">プログラム値</string>
+    <string name="program_use_challenge">課題値</string>
+    <string name="program_use_all_program">全てプログラム値</string>
+    <string name="program_use_all_challenge">全て課題値</string>
+    <string name="program_previous_value">前回の値を使用</string>
+    <string name="next_exercise_label">次: %s</string>
+    <string name="program_set_label">セット%d:</string>
 </resources>

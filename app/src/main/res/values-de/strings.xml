@@ -506,4 +506,34 @@
     <string name="notification_channel_workout_description">Zeigt Benachrichtigung während der Workout-Timer läuft</string>
     <string name="notification_workout_title">Workout läuft</string>
     <string name="notification_workout_text">Timer ist aktiv</string>
+
+    <!-- Program Feature -->
+    <string name="program_mode">Programm</string>
+    <string name="program_mode_description">Mehrere Übungen nacheinander ausführen</string>
+    <string name="program_list_title">Programme</string>
+    <string name="program_empty">Noch keine Programme\nTippe + zum Erstellen</string>
+    <string name="edit_program">Programm bearbeiten</string>
+    <string name="program_name">Programmname</string>
+    <string name="program_name_hint">z.B. Morgenroutine</string>
+    <string name="program_exercises">Übungen</string>
+    <string name="add_exercise_to_program">Übung hinzufügen</string>
+    <string name="program_exercise_count">%d Übung(en)</string>
+    <string name="program_sets_format">%d Sätze</string>
+    <string name="program_target_format">%1$d %2$s</string>
+    <string name="program_interval_format">Pause %ds</string>
+    <string name="delete_program">Programm löschen</string>
+    <string name="delete_program_warning">\"%s\" löschen?</string>
+    <string name="program_saved">Programm gespeichert</string>
+    <string name="program_name_required">Programmname erforderlich</string>
+    <string name="program_exercises_required">Mindestens eine Übung hinzufügen</string>
+    <string name="target_value_label">Ziel</string>
+    <string name="interval_seconds_label">Pausendauer (Sek.)</string>
+    <string name="program_start">Start</string>
+    <string name="program_use_program">Programm</string>
+    <string name="program_use_challenge">Vorgabe</string>
+    <string name="program_use_all_program">Alle Programm</string>
+    <string name="program_use_all_challenge">Alle Vorgabe</string>
+    <string name="program_previous_value">Vorherigen Wert verwenden</string>
+    <string name="next_exercise_label">Nächste: %s</string>
+    <string name="program_set_label">Satz %d:</string>
 </resources>

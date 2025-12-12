@@ -1,0 +1,6 @@
+Anadido:
+- Funcion de programa: Crea y ejecuta rutinas de multiples ejercicios
+- Modo temporizador ON: Entrenamientos cronometrados con cuenta regresiva
+- Modo temporizador OFF: Entrenamientos a tu ritmo con finalizacion manual
+- Soporte para pares y tripletas mediante registro de ejercicios duplicados
+- Intervalos de descanso configurables entre series
