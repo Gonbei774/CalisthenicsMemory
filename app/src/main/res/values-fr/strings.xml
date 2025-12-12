@@ -506,4 +506,34 @@
     <string name="notification_channel_workout_description">Affiche une notification pendant que le minuteur d\'entraînement est actif</string>
     <string name="notification_workout_title">Entraînement en cours</string>
     <string name="notification_workout_text">Le minuteur est actif</string>
+
+    <!-- Program Feature -->
+    <string name="program_mode">Programme</string>
+    <string name="program_mode_description">Exécuter plusieurs exercices à la suite</string>
+    <string name="program_list_title">Programmes</string>
+    <string name="program_empty">Aucun programme\nAppuyez sur + pour en créer un</string>
+    <string name="edit_program">Modifier le programme</string>
+    <string name="program_name">Nom du programme</string>
+    <string name="program_name_hint">ex. Routine matinale</string>
+    <string name="program_exercises">Exercices</string>
+    <string name="add_exercise_to_program">Ajouter un exercice</string>
+    <string name="program_exercise_count">%d exercice(s)</string>
+    <string name="program_sets_format">%d séries</string>
+    <string name="program_target_format">%1$d %2$s</string>
+    <string name="program_interval_format">Repos %ds</string>
+    <string name="delete_program">Supprimer le programme</string>
+    <string name="delete_program_warning">Supprimer \"%s\" ?</string>
+    <string name="program_saved">Programme enregistré</string>
+    <string name="program_name_required">Nom du programme requis</string>
+    <string name="program_exercises_required">Ajoutez au moins un exercice</string>
+    <string name="target_value_label">Objectif</string>
+    <string name="interval_seconds_label">Durée du repos (sec.)</string>
+    <string name="program_start">Démarrer</string>
+    <string name="program_use_program">Programme</string>
+    <string name="program_use_challenge">Défi</string>
+    <string name="program_use_all_program">Tout Programme</string>
+    <string name="program_use_all_challenge">Tout Défi</string>
+    <string name="program_previous_value">Utilisation de la valeur précédente</string>
+    <string name="next_exercise_label">Suivant : %s</string>
+    <string name="program_set_label">Série %d :</string>
 </resources>
