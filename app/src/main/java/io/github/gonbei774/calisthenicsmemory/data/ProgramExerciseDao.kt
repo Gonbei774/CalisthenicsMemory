@@ -12,10 +12,10 @@ interface ProgramExerciseDao {
     @Query("SELECT * FROM program_exercises WHERE programId = :programId ORDER BY sortOrder ASC")
     suspend fun getExercisesForProgramSync(programId: Long): List<ProgramExercise>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(programExercise: ProgramExercise): Long
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(exercises: List<ProgramExercise>)
 
     @Update

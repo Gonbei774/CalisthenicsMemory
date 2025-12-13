@@ -12,7 +12,7 @@ interface ProgramDao {
     @Query("SELECT * FROM programs WHERE id = :id")
     suspend fun getProgramById(id: Long): Program?
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(program: Program): Long
 
     @Update

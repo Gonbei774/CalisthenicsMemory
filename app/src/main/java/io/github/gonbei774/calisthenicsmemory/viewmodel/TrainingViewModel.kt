@@ -35,7 +35,9 @@ data class BackupData(
     val app: String,
     val groups: List<ExportGroup>,
     val exercises: List<ExportExercise>,
-    val records: List<ExportRecord>
+    val records: List<ExportRecord>,
+    val programs: List<ExportProgram> = emptyList(),           // v4で追加
+    val programExercises: List<ExportProgramExercise> = emptyList()  // v4で追加
 )
 
 @Serializable
@@ -74,6 +76,25 @@ data class ExportRecord(
     val comment: String,
     val distanceCm: Int? = null,  // 距離（cm、v3で追加）
     val weightG: Int? = null      // 追加ウエイト（g、v3で追加）
+)
+
+@Serializable
+data class ExportProgram(
+    val id: Long,
+    val name: String,
+    val timerMode: Boolean,
+    val startInterval: Int
+)
+
+@Serializable
+data class ExportProgramExercise(
+    val id: Long,
+    val programId: Long,
+    val exerciseId: Long,
+    val sortOrder: Int,
+    val sets: Int,
+    val targetValue: Int,
+    val intervalSeconds: Int
 )
 
 class TrainingViewModel(application: Application) : AndroidViewModel(application) {
@@ -561,13 +582,45 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 )
             }
 
+            // プログラムをエクスポート（v4で追加）
+            val currentPrograms = programs.value
+            val exportPrograms = currentPrograms.map { program ->
+                ExportProgram(
+                    id = program.id,
+                    name = program.name,
+                    timerMode = program.timerMode,
+                    startInterval = program.startInterval
+                )
+            }
+
+            // プログラム内種目をエクスポート（v4で追加）
+            val allProgramExercises = mutableListOf<ExportProgramExercise>()
+            currentPrograms.forEach { program ->
+                val programExercises = programExerciseDao.getExercisesForProgramSync(program.id)
+                programExercises.forEach { pe ->
+                    allProgramExercises.add(
+                        ExportProgramExercise(
+                            id = pe.id,
+                            programId = pe.programId,
+                            exerciseId = pe.exerciseId,
+                            sortOrder = pe.sortOrder,
+                            sets = pe.sets,
+                            targetValue = pe.targetValue,
+                            intervalSeconds = pe.intervalSeconds
+                        )
+                    )
+                }
+            }
+
             val backupData = BackupData(
-                version = 3,  // 距離・荷重トラッキング追加のためバージョンアップ
+                version = 4,  // プログラムデータ追加のためバージョンアップ
                 exportDate = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 app = "CalisthenicsMemory",
                 groups = exportGroups,
                 exercises = exportExercises,
-                records = exportRecords
+                records = exportRecords,
+                programs = exportPrograms,
+                programExercises = allProgramExercises
             )
 
             withContext(Dispatchers.Main) {
@@ -641,6 +694,31 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         weightG = exportRecord.weightG
                     )
                     recordDao.insertRecord(record)
+                }
+
+                // 5. プログラムをインポート（v4で追加）
+                backupData.programs.forEach { exportProgram ->
+                    val program = Program(
+                        id = exportProgram.id,
+                        name = exportProgram.name,
+                        timerMode = exportProgram.timerMode,
+                        startInterval = exportProgram.startInterval
+                    )
+                    programDao.insert(program)
+                }
+
+                // 6. プログラム内種目をインポート（v4で追加）
+                backupData.programExercises.forEach { exportPe ->
+                    val programExercise = ProgramExercise(
+                        id = exportPe.id,
+                        programId = exportPe.programId,
+                        exerciseId = exportPe.exerciseId,
+                        sortOrder = exportPe.sortOrder,
+                        sets = exportPe.sets,
+                        targetValue = exportPe.targetValue,
+                        intervalSeconds = exportPe.intervalSeconds
+                    )
+                    programExerciseDao.insert(programExercise)
                 }
 
                 withContext(Dispatchers.Main) {
