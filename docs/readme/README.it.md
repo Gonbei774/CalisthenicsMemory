@@ -39,6 +39,7 @@ Un tracker per allenamenti a corpo libero. Crea esercizi personalizzati, organiz
 - **Dashboard Home** - Visualizza i record di allenamento di oggi a colpo d'occhio, tieni premuto per copiare
 - **Completamente personalizzabile** - Crea esercizi liberamente, organizza per gruppi, gestisci con 10 livelli, traccia distanza e peso per esercizio
 - **Preferiti** - Accesso rapido agli esercizi usati frequentemente
+- **To Do** - Pianifica il tuo allenamento aggiungendo esercizi a un elenco attività giornaliero, tocca per passare direttamente alle schermate Registrazione o Allenamento
 - **Due modalità di registrazione**
   - Modalità registrazione: Inserimento manuale rapido con pulsante "Applica impostazioni esercizio"
   - Modalità allenamento: Allenamento guidato automatico con impostazioni timer per esercizio (intervallo di riposo, durata ripetizione), notifica flash LED al completamento della serie

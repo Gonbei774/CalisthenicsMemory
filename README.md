@@ -37,6 +37,7 @@ A bodyweight training tracker. Create custom exercises, organize by groups and l
 - **Home Dashboard** - View today's training records at a glance, long-press to copy
 - **Fully Customizable** - Create exercises freely, organize by groups, manage with 10 levels, track distance and weight per exercise
 - **Favorites** - Quick access to frequently used exercises
+- **To Do** - Plan your workout by adding exercises to a daily task list, tap to jump directly to Record or Workout screens
 - **Two Recording Modes**
   - Record mode: Quick manual input with "Apply Exercise Settings" button
   - Workout mode: Automatic guided training with per-exercise timer settings (rest interval, rep duration), LED flash notification on set completion

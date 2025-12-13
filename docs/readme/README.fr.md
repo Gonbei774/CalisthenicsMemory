@@ -39,6 +39,7 @@ Un tracker d'entraînement au poids du corps. Créez des exercices personnalisé
 - **Tableau de bord** - Visualisez les enregistrements d'entraînement du jour en un coup d'œil, appui long pour copier
 - **Entièrement personnalisable** - Créez des exercices librement, organisez par groupes, gérez avec 10 niveaux, suivez la distance et le poids par exercice
 - **Favoris** - Accès rapide aux exercices fréquemment utilisés
+- **To Do** - Planifiez votre entraînement en ajoutant des exercices à une liste de tâches quotidienne, appuyez pour accéder directement aux écrans Enregistrement ou Entraînement
 - **Deux modes d'enregistrement**
   - Mode enregistrement : Saisie manuelle rapide avec le bouton "Appliquer les paramètres de l'exercice"
   - Mode entraînement : Entraînement guidé automatique avec paramètres de minuterie par exercice (intervalle de repos, durée de répétition), notification flash LED à la fin de la série

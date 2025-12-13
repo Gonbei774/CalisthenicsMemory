@@ -39,6 +39,7 @@ Un rastreador de entrenamientos con peso corporal. Crea ejercicios personalizado
 - **Panel de inicio** - Ve los registros de entrenamiento de hoy de un vistazo, mantén pulsado para copiar
 - **Totalmente personalizable** - Crea ejercicios libremente, organiza por grupos, gestiona con 10 niveles, registra distancia y peso por ejercicio
 - **Favoritos** - Acceso rápido a ejercicios frecuentes
+- **To Do** - Planifica tu entrenamiento añadiendo ejercicios a una lista de tareas diaria, toca para ir directamente a las pantallas de Registro o Entrenamiento
 - **Dos modos de registro**
   - Modo registro: Entrada manual rápida con botón "Aplicar configuración del ejercicio"
   - Modo entrenamiento: Entrenamiento guiado automático con ajustes de temporizador por ejercicio (intervalo de descanso, duración de repetición), notificación de flash LED al completar serie
