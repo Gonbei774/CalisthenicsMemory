@@ -1,6 +1,8 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.R
@@ -92,6 +95,7 @@ fun ProgramListScreen(
             }
         } else {
             // Program list with swipe-to-delete
+            val copySuffix = stringResource(R.string.program_copy_suffix)
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -107,7 +111,8 @@ fun ProgramListScreen(
                         program = program,
                         onEdit = { onNavigateToEdit(program.id) },
                         onExecute = { onNavigateToExecute(program.id) },
-                        onDelete = { viewModel.deleteProgram(program.id) }
+                        onDelete = { viewModel.deleteProgram(program.id) },
+                        onDuplicate = { viewModel.duplicateProgram(program.id, copySuffix) }
                     )
                 }
             }
@@ -115,14 +120,17 @@ fun ProgramListScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ProgramListItem(
     program: Program,
     onEdit: () -> Unit,
     onExecute: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onDuplicate: () -> Unit
 ) {
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+    var showContextMenu by remember { mutableStateOf(false) }
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
             if (value == SwipeToDismissBoxValue.EndToStart) {
@@ -193,75 +201,129 @@ private fun ProgramListItem(
         enableDismissFromStartToEnd = false,
         enableDismissFromEndToStart = true
     ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Slate800),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Row(
+        Box {
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    .combinedClickable(
+                        onClick = { },
+                        onLongClick = { showContextMenu = true }
+                    ),
+                colors = CardDefaults.cardColors(containerColor = Slate800),
+                shape = RoundedCornerShape(12.dp)
             ) {
-                // Program info
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = program.name,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.White
-                    )
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(top = 4.dp)
-                    ) {
-                        // Timer mode badge
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Program info
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = stringResource(
-                                if (program.timerMode) R.string.timer_on else R.string.timer_off
-                            ),
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (program.timerMode) Green400 else Slate400
+                            text = program.name,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White
+                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(top = 4.dp)
+                        ) {
+                            // Timer mode badge
+                            Text(
+                                text = stringResource(
+                                    if (program.timerMode) R.string.timer_on else R.string.timer_off
+                                ),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (program.timerMode) Green400 else Slate400
+                            )
+                        }
+                    }
+
+                    // Edit button
+                    IconButton(
+                        onClick = onEdit,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.edit_program),
+                            tint = Slate400
+                        )
+                    }
+
+                    // Execute button
+                    Button(
+                        onClick = onExecute,
+                        colors = ButtonDefaults.buttonColors(containerColor = Orange600),
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                        modifier = Modifier.height(36.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.PlayArrow,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(R.string.program_start),
+                            fontSize = 12.sp,
+                            color = Color.White
                         )
                     }
                 }
+            }
 
-                // Edit button
-                IconButton(
-                    onClick = onEdit,
-                    modifier = Modifier.size(40.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Edit,
-                        contentDescription = stringResource(R.string.edit_program),
-                        tint = Slate400
-                    )
-                }
-
-                // Execute button
-                Button(
-                    onClick = onExecute,
-                    colors = ButtonDefaults.buttonColors(containerColor = Orange600),
-                    shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                    modifier = Modifier.height(36.dp)
-                ) {
-                    Icon(
-                        Icons.Default.PlayArrow,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = stringResource(R.string.program_start),
-                        fontSize = 12.sp,
-                        color = Color.White
-                    )
-                }
+            // Context menu (long press)
+            DropdownMenu(
+                expanded = showContextMenu,
+                onDismissRequest = { showContextMenu = false },
+                offset = DpOffset(16.dp, 0.dp),
+                containerColor = Slate700
+            ) {
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            stringResource(R.string.duplicate_program),
+                            color = Color.White
+                        )
+                    },
+                    onClick = {
+                        showContextMenu = false
+                        onDuplicate()
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = null,
+                            tint = Slate300
+                        )
+                    }
+                )
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            stringResource(R.string.delete_program),
+                            color = Red600
+                        )
+                    },
+                    onClick = {
+                        showContextMenu = false
+                        showDeleteConfirmDialog = true
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = Red600
+                        )
+                    }
+                )
             }
         }
     }

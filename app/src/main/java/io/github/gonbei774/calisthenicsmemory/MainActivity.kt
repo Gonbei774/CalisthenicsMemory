@@ -140,6 +140,7 @@ fun UiMessage.toMessageString(): String {
         is UiMessage.BackupSaved -> stringResource(R.string.backup_saved_successfully)
         is UiMessage.BackupFailed -> stringResource(R.string.backup_failed)
         is UiMessage.CopiedToClipboard -> stringResource(R.string.copied_to_clipboard)
+        is UiMessage.ProgramDuplicated -> stringResource(R.string.program_duplicated)
         is UiMessage.ErrorOccurred -> stringResource(R.string.error_occurred)
     }
 }

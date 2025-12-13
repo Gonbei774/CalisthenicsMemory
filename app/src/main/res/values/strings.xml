@@ -531,6 +531,9 @@
     <string name="program_interval_format">Interval %ds</string>
     <string name="delete_program">Delete Program</string>
     <string name="delete_program_warning">Delete \"%s\"?</string>
+    <string name="duplicate_program">Duplicate</string>
+    <string name="program_duplicated">Program duplicated</string>
+    <string name="program_copy_suffix">(Copy)</string>
     <string name="discard_changes_title">Discard Changes?</string>
     <string name="discard_changes_message">You have unsaved changes. Are you sure you want to discard them?</string>
     <string name="discard">Discard</string>

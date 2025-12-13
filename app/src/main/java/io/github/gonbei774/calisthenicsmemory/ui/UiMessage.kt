@@ -112,6 +112,11 @@ sealed class UiMessage {
     /** クリップボードにコピーされた */
     object CopiedToClipboard : UiMessage()
 
+    // ===== Program 関連 =====
+
+    /** プログラムが複製された */
+    object ProgramDuplicated : UiMessage()
+
     // ===== エラー =====
 
     /** 一般的なエラー */

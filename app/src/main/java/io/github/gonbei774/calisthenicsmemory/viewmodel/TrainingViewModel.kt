@@ -1307,6 +1307,40 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun duplicateProgram(programId: Long, copySuffix: String) {
+        viewModelScope.launch {
+            try {
+                val sourceProgram = programDao.getProgramById(programId) ?: return@launch
+                val sourceExercises = programExerciseDao.getExercisesForProgramSync(programId)
+
+                // Create new program with copy suffix
+                val newProgram = Program(
+                    name = "${sourceProgram.name} $copySuffix",
+                    timerMode = sourceProgram.timerMode,
+                    startInterval = sourceProgram.startInterval
+                )
+                val newProgramId = programDao.insert(newProgram)
+
+                // Copy all exercises
+                sourceExercises.forEach { pe ->
+                    val newPe = ProgramExercise(
+                        programId = newProgramId,
+                        exerciseId = pe.exerciseId,
+                        sortOrder = pe.sortOrder,
+                        sets = pe.sets,
+                        targetValue = pe.targetValue,
+                        intervalSeconds = pe.intervalSeconds
+                    )
+                    programExerciseDao.insert(newPe)
+                }
+
+                _snackbarMessage.value = UiMessage.ProgramDuplicated
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
     suspend fun getProgramById(programId: Long): Program? {
         return programDao.getProgramById(programId)
     }
