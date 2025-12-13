@@ -103,6 +103,9 @@ fun ProgramExecutionScreen(
     var session by remember { mutableStateOf<ProgramExecutionSession?>(null) }
     var currentStep by remember { mutableStateOf<ProgramExecutionStep?>(null) }
 
+    // 設定（LaunchedEffect内で使用するため先に宣言）
+    val workoutPreferences = remember { WorkoutPreferences(context) }
+
     // プログラムと種目がロードされたらセッションを構築
     LaunchedEffect(program, programExercises, exercises) {
         val prog = program ?: return@LaunchedEffect
@@ -155,29 +158,31 @@ fun ProgramExecutionScreen(
             }
         }
 
-        // 前回値をプリフィル
-        exercisePairs.forEachIndexed { index, (_, exercise) ->
-            val latestRecords = viewModel.getLatestSession(exercise.id)
-            if (latestRecords.isNotEmpty()) {
-                // セットごとに前回値を適用
-                val setsForExercise = allSets.filter { it.exerciseIndex == index }
-                setsForExercise.forEach { set ->
-                    val matchingRecord = latestRecords.find { r ->
-                        r.setNumber == set.setNumber
-                    }
-                    if (matchingRecord != null) {
-                        when (set.side) {
-                            "Right" -> set.targetValue.let {
-                                val newValue = matchingRecord.valueRight
-                                allSets[allSets.indexOf(set)] = set.copy(targetValue = newValue)
-                            }
-                            "Left" -> set.targetValue.let {
-                                val newValue = matchingRecord.valueLeft ?: matchingRecord.valueRight
-                                allSets[allSets.indexOf(set)] = set.copy(targetValue = newValue)
-                            }
-                            else -> set.targetValue.let {
-                                val newValue = matchingRecord.valueRight
-                                allSets[allSets.indexOf(set)] = set.copy(targetValue = newValue)
+        // 前回値をプリフィル（設定がONの場合のみ）
+        if (workoutPreferences.isPrefillPreviousRecordEnabled()) {
+            exercisePairs.forEachIndexed { index, (_, exercise) ->
+                val latestRecords = viewModel.getLatestSession(exercise.id)
+                if (latestRecords.isNotEmpty()) {
+                    // セットごとに前回値を適用
+                    val setsForExercise = allSets.filter { it.exerciseIndex == index }
+                    setsForExercise.forEach { set ->
+                        val matchingRecord = latestRecords.find { r ->
+                            r.setNumber == set.setNumber
+                        }
+                        if (matchingRecord != null) {
+                            when (set.side) {
+                                "Right" -> set.targetValue.let {
+                                    val newValue = matchingRecord.valueRight
+                                    allSets[allSets.indexOf(set)] = set.copy(targetValue = newValue)
+                                }
+                                "Left" -> set.targetValue.let {
+                                    val newValue = matchingRecord.valueLeft ?: matchingRecord.valueRight
+                                    allSets[allSets.indexOf(set)] = set.copy(targetValue = newValue)
+                                }
+                                else -> set.targetValue.let {
+                                    val newValue = matchingRecord.valueRight
+                                    allSets[allSets.indexOf(set)] = set.copy(targetValue = newValue)
+                                }
                             }
                         }
                     }
@@ -198,7 +203,6 @@ fun ProgramExecutionScreen(
     // ビープ音・フラッシュ
     val toneGenerator = remember { ToneGenerator(AudioManager.STREAM_MUSIC, 100) }
     val flashController = remember { FlashController(context) }
-    val workoutPreferences = remember { WorkoutPreferences(context) }
     val isFlashEnabled = remember { workoutPreferences.isFlashNotificationEnabled() }
     val isKeepScreenOnEnabled = remember { workoutPreferences.isKeepScreenOnEnabled() }
 
@@ -322,8 +326,8 @@ fun ProgramExecutionScreen(
                                 }
                             },
                             onStart = {
-                                // 開始カウントダウンが0ならスキップ
-                                if (step.session.program.startInterval > 0) {
+                                // 開始カウントダウンが0または設定がOFFならスキップ
+                                if (workoutPreferences.isStartCountdownEnabled() && step.session.program.startInterval > 0) {
                                     currentStep = ProgramExecutionStep.StartInterval(step.session, 0)
                                 } else {
                                     currentStep = ProgramExecutionStep.Executing(step.session, 0)
@@ -481,8 +485,8 @@ fun ProgramExecutionScreen(
                             onComplete = {
                                 val nextIndex = step.currentSetIndex + 1
                                 if (nextIndex < step.session.sets.size) {
-                                    // 開始カウントダウンが0ならスキップ
-                                    if (step.session.program.startInterval > 0) {
+                                    // 開始カウントダウンが0または設定がOFFならスキップ
+                                    if (workoutPreferences.isStartCountdownEnabled() && step.session.program.startInterval > 0) {
                                         currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                     } else {
                                         currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
@@ -494,8 +498,8 @@ fun ProgramExecutionScreen(
                             onSkip = {
                                 val nextIndex = step.currentSetIndex + 1
                                 if (nextIndex < step.session.sets.size) {
-                                    // 開始カウントダウンが0ならスキップ
-                                    if (step.session.program.startInterval > 0) {
+                                    // 開始カウントダウンが0または設定がOFFならスキップ
+                                    if (workoutPreferences.isStartCountdownEnabled() && step.session.program.startInterval > 0) {
                                         currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                     } else {
                                         currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)

@@ -50,18 +50,28 @@ fun ProgramEditScreen(
     onNavigateBack: () -> Unit,
     onSaved: () -> Unit
 ) {
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val exercises by viewModel.exercises.collectAsState()
+    val workoutPreferences = remember { WorkoutPreferences(context) }
 
     // Load existing program if editing
     var program by remember { mutableStateOf<Program?>(null) }
     var programExercises by remember { mutableStateOf<List<ProgramExercise>>(emptyList()) }
     var isLoading by remember { mutableStateOf(programId != null) }
 
-    // Form state
+    // Form state - 新規作成時はグローバル設定を参照
     var name by remember { mutableStateOf("") }
     var timerMode by remember { mutableStateOf(false) }
-    var startInterval by remember { mutableStateOf(5) }
+    var startInterval by remember {
+        mutableStateOf(
+            if (workoutPreferences.isStartCountdownEnabled()) {
+                workoutPreferences.getStartCountdown()
+            } else {
+                0
+            }
+        )
+    }
 
     // Dialog states
     var showAddExerciseDialog by remember { mutableStateOf(false) }
