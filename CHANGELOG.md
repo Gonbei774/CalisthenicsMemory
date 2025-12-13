@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0] - 2025-12-14
+
+### Added
+- **Program duplication feature**
+  - Long-press program to access context menu
+  - Duplicate creates a copy with "(Copy)" suffix
+- **Pre-start editing in Program mode**
+  - Edit sets and interval for each exercise in confirm screen
+  - Adjustments apply to current session only
+- **"Previous Record" button in Program mode**
+  - Apply previous training record values with one tap
+- **UI improvements for Program edit screen**
+  - Auto-scroll to newly added exercise
+  - "Add exercise" button fixed at bottom of screen
+  - Delete confirmation dialog for programs
+
+### Improved
+- Swipe-to-delete animation in program edit screen
+- Program/Challenge buttons now update set count along with target values
+
+### Fixed
+- Save process stability (race condition resolved)
+- Interval settings now saved correctly (was defaulting to 60s)
+- Start countdown now respects program settings (ignores global setting)
+- Program screen accent colors unified with workout theme
+
 ## [1.13.0] - 2025-12-13
 
 ### Added
@@ -264,6 +290,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.14.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.14.0
 [1.13.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.13.0
 [1.12.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.12.0
 [1.11.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.11.0

@@ -53,9 +53,11 @@ Ein Tracker für Eigengewichtstraining. Erstelle benutzerdefinierte Übungen, or
 - **Home-Dashboard** - Heutige Trainingseinträge auf einen Blick, lange drücken zum Kopieren
 - **Vollständig anpassbar** - Übungen frei erstellen, nach Gruppen organisieren, mit 10 Stufen verwalten, Distanz und Gewicht pro Übung verfolgen
 - **Favoriten** - Schneller Zugriff auf häufig verwendete Übungen
+- **To Do** - Plane dein Training, indem du Übungen zu einer täglichen Aufgabenliste hinzufügst, tippe, um direkt zu den Aufzeichnungs- oder Trainingsbildschirmen zu springen
 - **Zwei Aufzeichnungsmodi**
   - Aufzeichnungsmodus: Schnelle manuelle Eingabe mit "Übungseinstellungen anwenden"-Taste
   - Trainingsmodus: Automatisch geführtes Training mit übungsspezifischen Timer-Einstellungen (Pausenzeit, Wiederholungsdauer), LED-Blitz-Benachrichtigung bei Satzabschluss
+- **Programm** - Erstelle Routinen mit mehreren Übungen, Timer-AN (countdown-basiert) oder Timer-AUS (eigenes Tempo) Modi, konfigurierbare Pausen zwischen den Sätzen
 - **Fortschrittsverfolgung** - Einträge als Listen, Grafiken oder Herausforderungs-Fortschrittsbalken anzeigen
 - **Unilateral/Bilateral-Unterstützung** - Linke und rechte Seite separat für einseitige Übungen verfolgen
 - **Herausforderungsziele** - Zielsätze × Wiederholungen festlegen und Erfüllungsstatus verfolgen

@@ -151,6 +151,9 @@
     <string name="change_format">%+d sets</string>
     <string name="unit_reps">reps</string>
     <string name="unit_seconds">sec</string>
+    <string name="unit_seconds_short">s</string>
+    <string name="sets_label_short">Sets:</string>
+    <string name="interval_short">Rest:</string>
 
     <!-- Challenge Screen -->
     <string name="no_challenge_set">No Challenge Set</string>
@@ -528,6 +531,12 @@
     <string name="program_interval_format">Interval %ds</string>
     <string name="delete_program">Delete Program</string>
     <string name="delete_program_warning">Delete \"%s\"?</string>
+    <string name="duplicate_program">Duplicate</string>
+    <string name="program_duplicated">Program duplicated</string>
+    <string name="program_copy_suffix">(Copy)</string>
+    <string name="discard_changes_title">Discard Changes?</string>
+    <string name="discard_changes_message">You have unsaved changes. Are you sure you want to discard them?</string>
+    <string name="discard">Discard</string>
     <string name="program_saved">Program saved</string>
     <string name="program_name_required">Program name is required</string>
     <string name="program_exercises_required">Add at least one exercise</string>
@@ -543,7 +552,8 @@
     <string name="complete_button">Complete</string>
     <string name="abort_button">Abort</string>
     <string name="program_use_program">Program</string>
-    <string name="program_use_challenge">Challenge</string>
+    <string name="program_use_challenge">Exercise</string>
+    <string name="program_use_previous">Previous</string>
     <string name="program_use_all_program">All Program</string>
     <string name="program_use_all_challenge">All Challenge</string>
     <string name="program_previous_value">Using previous value</string>

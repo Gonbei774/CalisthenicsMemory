@@ -523,6 +523,9 @@
     <string name="program_interval_format">休息%d秒</string>
     <string name="delete_program">删除计划</string>
     <string name="delete_program_warning">删除\"%s\"？</string>
+    <string name="discard_changes_title">放弃更改？</string>
+    <string name="discard_changes_message">您有未保存的更改。确定要放弃吗？</string>
+    <string name="discard">放弃</string>
     <string name="program_saved">计划已保存</string>
     <string name="program_name_required">请输入计划名称</string>
     <string name="program_exercises_required">请至少添加一个动作</string>
@@ -530,7 +533,7 @@
     <string name="interval_seconds_label">休息时长（秒）</string>
     <string name="program_start">开始</string>
     <string name="program_use_program">计划值</string>
-    <string name="program_use_challenge">目标值</string>
+    <string name="program_use_challenge">动作值</string>
     <string name="program_use_all_program">全部计划值</string>
     <string name="program_use_all_challenge">全部目标值</string>
     <string name="program_previous_value">使用上次的值</string>

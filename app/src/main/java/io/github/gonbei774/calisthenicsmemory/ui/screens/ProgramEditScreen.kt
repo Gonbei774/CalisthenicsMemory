@@ -1,5 +1,6 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandVertically
@@ -49,23 +50,41 @@ fun ProgramEditScreen(
     onNavigateBack: () -> Unit,
     onSaved: () -> Unit
 ) {
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val exercises by viewModel.exercises.collectAsState()
+    val workoutPreferences = remember { WorkoutPreferences(context) }
+    val scrollState = rememberScrollState()
 
     // Load existing program if editing
     var program by remember { mutableStateOf<Program?>(null) }
     var programExercises by remember { mutableStateOf<List<ProgramExercise>>(emptyList()) }
     var isLoading by remember { mutableStateOf(programId != null) }
 
-    // Form state
+    // Form state - 新規作成時はグローバル設定を参照
     var name by remember { mutableStateOf("") }
     var timerMode by remember { mutableStateOf(false) }
-    var startInterval by remember { mutableStateOf(5) }
+    var startInterval by remember {
+        mutableStateOf(
+            if (workoutPreferences.isStartCountdownEnabled()) {
+                workoutPreferences.getStartCountdown()
+            } else {
+                0
+            }
+        )
+    }
 
     // Dialog states
     var showAddExerciseDialog by remember { mutableStateOf(false) }
     var showExerciseSettingsDialog by remember { mutableStateOf<ProgramExercise?>(null) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+    var showDiscardConfirmDialog by remember { mutableStateOf(false) }
+
+    // Track original values for existing programs (to detect changes)
+    var originalName by remember { mutableStateOf("") }
+    var originalTimerMode by remember { mutableStateOf(false) }
+    var originalStartInterval by remember { mutableStateOf(5) }
+    var originalProgramExercises by remember { mutableStateOf<List<ProgramExercise>>(emptyList()) }
 
     // Load existing program data
     LaunchedEffect(programId) {
@@ -75,10 +94,41 @@ fun ProgramEditScreen(
                 name = it.name
                 timerMode = it.timerMode
                 startInterval = it.startInterval
+                // Store original values
+                originalName = it.name
+                originalTimerMode = it.timerMode
+                originalStartInterval = it.startInterval
             }
-            programExercises = viewModel.getProgramExercisesSync(programId)
+            val loadedExercises = viewModel.getProgramExercisesSync(programId)
+            programExercises = loadedExercises
+            originalProgramExercises = loadedExercises
             isLoading = false
         }
+    }
+
+    // Check if there are unsaved changes
+    val hasUnsavedChanges = if (programId == null) {
+        // New program: any input counts as unsaved
+        name.isNotBlank() || programExercises.isNotEmpty()
+    } else {
+        // Existing program: check if settings or exercises differ from original
+        val settingsChanged = name != originalName || timerMode != originalTimerMode || startInterval != originalStartInterval
+        val exercisesChanged = programExercises != originalProgramExercises
+        settingsChanged || exercisesChanged
+    }
+
+    // Handle back button press
+    fun handleBackPress() {
+        if (hasUnsavedChanges) {
+            showDiscardConfirmDialog = true
+        } else {
+            onNavigateBack()
+        }
+    }
+
+    // BackHandler for system back button
+    BackHandler {
+        handleBackPress()
     }
 
     // Exercise map for display
@@ -97,6 +147,44 @@ fun ProgramEditScreen(
                 )?.let { updatedProgram ->
                     viewModel.updateProgram(updatedProgram)
                 }
+
+                // Sync exercises: calculate diff and apply changes
+                val originalIds = originalProgramExercises.map { it.id }.toSet()
+                val currentIds = programExercises.map { it.id }.toSet()
+
+                // Delete removed exercises
+                val deletedIds = originalIds - currentIds
+                deletedIds.forEach { id ->
+                    originalProgramExercises.find { it.id == id }?.let { pe ->
+                        viewModel.deleteProgramExercise(pe)
+                    }
+                }
+
+                // Add new exercises (temporary IDs are timestamps, not in original)
+                val addedExercises = programExercises.filter { it.id !in originalIds }
+                addedExercises.forEachIndexed { index, pe ->
+                    viewModel.addProgramExerciseSync(
+                        programId = programId,
+                        exerciseId = pe.exerciseId,
+                        sets = pe.sets,
+                        targetValue = pe.targetValue,
+                        intervalSeconds = pe.intervalSeconds
+                    )
+                }
+
+                // Update modified exercises (existing ones that changed)
+                val existingExercises = programExercises.filter { it.id in originalIds }
+                existingExercises.forEach { pe ->
+                    val original = originalProgramExercises.find { it.id == pe.id }
+                    if (original != null && pe != original) {
+                        viewModel.updateProgramExercise(pe)
+                    }
+                }
+
+                // Update sort order for all existing exercises
+                viewModel.reorderProgramExercises(
+                    programExercises.filter { it.id in originalIds }.map { it.id }
+                )
             } else {
                 // Create new program
                 val newProgramId = viewModel.createProgramAndGetId(name, timerMode, startInterval)
@@ -121,55 +209,44 @@ fun ProgramEditScreen(
 
     Scaffold(
         topBar = {
-            // Orange gradient header (workout theme)
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                color = Color.Transparent
+                color = Orange600
             ) {
-                Box(
+                Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(Amber500, Yellow500)
-                            )
-                        )
+                        .padding(horizontal = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = onNavigateBack) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.back),
-                                tint = Color.White
-                            )
-                        }
-                        Text(
-                            text = stringResource(
-                                if (programId == null) R.string.new_program else R.string.edit_program
-                            ),
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                            modifier = Modifier.weight(1f)
+                    IconButton(onClick = { handleBackPress() }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
+                            tint = Color.White
                         )
-                        // Save button
-                        TextButton(
-                            onClick = { saveProgram() },
-                            enabled = isValid
-                        ) {
-                            Text(
-                                text = stringResource(R.string.save),
-                                color = if (isValid) Color.White else Color.White.copy(alpha = 0.5f),
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                    }
+                    Text(
+                        text = stringResource(
+                            if (programId == null) R.string.new_program else R.string.edit_program
+                        ),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.weight(1f)
+                    )
+                    // Save button
+                    TextButton(
+                        onClick = { saveProgram() },
+                        enabled = isValid
+                    ) {
+                        Text(
+                            text = stringResource(R.string.save),
+                            color = if (isValid) Color.White else Color.White.copy(alpha = 0.5f),
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
@@ -182,14 +259,14 @@ fun ProgramEditScreen(
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = Amber500)
+                CircularProgressIndicator(color = Orange600)
             }
         } else {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(scrollState)
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -201,9 +278,9 @@ fun ProgramEditScreen(
                     placeholder = { Text(stringResource(R.string.program_name_hint)) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Amber500,
-                        focusedLabelColor = Amber500,
-                        cursorColor = Amber500,
+                        focusedBorderColor = Orange600,
+                        focusedLabelColor = Orange600,
+                        cursorColor = Orange600,
                         unfocusedTextColor = Color.White,
                         focusedTextColor = Color.White,
                         unfocusedLabelColor = Slate400,
@@ -290,31 +367,12 @@ fun ProgramEditScreen(
                 }
 
                 // Exercises Section
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.program_exercises),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                    Button(
-                        onClick = { showAddExerciseDialog = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = Orange600),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.Add,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(stringResource(R.string.add))
-                    }
-                }
+                Text(
+                    text = stringResource(R.string.program_exercises),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
 
                 // Exercise list with drag-and-drop
                 if (programExercises.isEmpty()) {
@@ -338,10 +396,6 @@ fun ProgramEditScreen(
                             val item = reordered.removeAt(fromIndex)
                             reordered.add(toIndex, item)
                             programExercises = reordered
-                            // If editing existing program, update in database
-                            if (programId != null) {
-                                viewModel.reorderProgramExercises(reordered.map { it.id })
-                            }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -362,9 +416,6 @@ fun ProgramEditScreen(
                                         onEdit = { showExerciseSettingsDialog = pe },
                                         onDelete = {
                                             programExercises = programExercises.filter { it != pe }
-                                            if (programId != null) {
-                                                viewModel.deleteProgramExercise(pe)
-                                            }
                                         },
                                         dragHandle = { Modifier.longPressDraggableHandle() }
                                     )
@@ -372,6 +423,21 @@ fun ProgramEditScreen(
                             }
                         }
                     }
+                }
+
+                // Add exercise button (at the bottom)
+                Button(
+                    onClick = { showAddExerciseDialog = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Orange600)
+                ) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(R.string.add_exercise_to_program))
                 }
 
                 // Delete program button (only for existing programs)
@@ -413,16 +479,11 @@ fun ProgramEditScreen(
                     intervalSeconds = intervalSeconds
                 )
                 programExercises = programExercises + newPe
-                if (programId != null) {
-                    viewModel.addProgramExercise(
-                        programId = programId,
-                        exerciseId = selectedExercise.id,
-                        sets = sets,
-                        targetValue = targetValue,
-                        intervalSeconds = intervalSeconds
-                    )
-                }
                 showAddExerciseDialog = false
+                // 追加後に最下部へスクロール
+                coroutineScope.launch {
+                    scrollState.animateScrollTo(scrollState.maxValue)
+                }
             }
         )
     }
@@ -438,9 +499,6 @@ fun ProgramEditScreen(
                 onSave = { updatedPe ->
                     programExercises = programExercises.map {
                         if (it.id == updatedPe.id) updatedPe else it
-                    }
-                    if (programId != null) {
-                        viewModel.updateProgramExercise(updatedPe)
                     }
                     showExerciseSettingsDialog = null
                 }
@@ -484,6 +542,42 @@ fun ProgramEditScreen(
             }
         )
     }
+
+    // Discard Changes Confirmation Dialog
+    if (showDiscardConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showDiscardConfirmDialog = false },
+            containerColor = Slate800,
+            title = {
+                Text(
+                    text = stringResource(R.string.discard_changes_title),
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.discard_changes_message),
+                    color = Slate300
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDiscardConfirmDialog = false
+                        onNavigateBack()
+                    }
+                ) {
+                    Text(stringResource(R.string.discard), color = Red600)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDiscardConfirmDialog = false }) {
+                    Text(stringResource(R.string.cancel), color = Slate400)
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -496,16 +590,25 @@ private fun ProgramExerciseItem(
     onDelete: () -> Unit,
     dragHandle: @Composable () -> Modifier
 ) {
+    var pendingDelete by remember { mutableStateOf(false) }
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
             if (value == SwipeToDismissBoxValue.EndToStart) {
-                onDelete()
+                pendingDelete = true
                 true
             } else {
                 false
             }
         }
     )
+
+    // Wait for swipe animation to complete before deleting
+    LaunchedEffect(pendingDelete) {
+        if (pendingDelete) {
+            kotlinx.coroutines.delay(300)
+            onDelete()
+        }
+    }
 
     SwipeToDismissBox(
         state = dismissState,
@@ -603,15 +706,22 @@ private fun AddExerciseToProgramDialog(
 ) {
     val context = LocalContext.current
     val workoutPreferences = remember { WorkoutPreferences(context) }
-    val defaultInterval = remember { workoutPreferences.getSetInterval() }
+    // スイッチONなら設定画面の秒数、OFFなら空欄
+    val defaultInterval = remember {
+        if (workoutPreferences.isSetIntervalEnabled()) {
+            workoutPreferences.getSetInterval().toString()
+        } else {
+            ""
+        }
+    }
 
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
     val expandedGroups by viewModel.expandedGroups.collectAsState()
 
     var selectedExercise by remember { mutableStateOf<Exercise?>(null) }
-    var sets by remember { mutableStateOf("3") }
-    var targetValue by remember { mutableStateOf("10") }
-    var intervalSeconds by remember { mutableStateOf(defaultInterval.toString()) }
+    var sets by remember { mutableStateOf("") }
+    var targetValue by remember { mutableStateOf("") }
+    var intervalSeconds by remember { mutableStateOf(defaultInterval) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -683,9 +793,9 @@ private fun AddExerciseToProgramDialog(
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Amber500,
-                            focusedLabelColor = Amber500,
-                            cursorColor = Amber500,
+                            focusedBorderColor = Orange600,
+                            focusedLabelColor = Orange600,
+                            cursorColor = Orange600,
                             unfocusedTextColor = Color.White,
                             focusedTextColor = Color.White,
                             unfocusedLabelColor = Slate400,
@@ -709,9 +819,9 @@ private fun AddExerciseToProgramDialog(
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Amber500,
-                            focusedLabelColor = Amber500,
-                            cursorColor = Amber500,
+                            focusedBorderColor = Orange600,
+                            focusedLabelColor = Orange600,
+                            cursorColor = Orange600,
                             unfocusedTextColor = Color.White,
                             focusedTextColor = Color.White,
                             unfocusedLabelColor = Slate400,
@@ -727,9 +837,9 @@ private fun AddExerciseToProgramDialog(
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Amber500,
-                            focusedLabelColor = Amber500,
-                            cursorColor = Amber500,
+                            focusedBorderColor = Orange600,
+                            focusedLabelColor = Orange600,
+                            cursorColor = Orange600,
                             unfocusedTextColor = Color.White,
                             focusedTextColor = Color.White,
                             unfocusedLabelColor = Slate400,
@@ -742,20 +852,23 @@ private fun AddExerciseToProgramDialog(
         },
         confirmButton = {
             if (selectedExercise != null) {
+                val setsValue = sets.toIntOrNull()
+                val targetValueValue = targetValue.toIntOrNull()
+                val isValid = setsValue != null && targetValueValue != null
                 TextButton(
                     onClick = {
                         selectedExercise?.let { exercise ->
                             onAdd(
                                 exercise,
-                                sets.toIntOrNull() ?: 3,
-                                targetValue.toIntOrNull() ?: 10,
-                                intervalSeconds.toIntOrNull() ?: 60
+                                setsValue!!,
+                                targetValueValue!!,
+                                intervalSeconds.toIntOrNull() ?: 0  // 空欄=0秒
                             )
                         }
                     },
-                    enabled = sets.isNotBlank() && targetValue.isNotBlank() && intervalSeconds.isNotBlank()
+                    enabled = isValid
                 ) {
-                    Text(stringResource(R.string.add), color = Amber500)
+                    Text(stringResource(R.string.add), color = if (isValid) Orange600 else Slate400)
                 }
             }
         },
@@ -969,9 +1082,9 @@ private fun ExerciseSettingsDialog(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Amber500,
-                        focusedLabelColor = Amber500,
-                        cursorColor = Amber500,
+                        focusedBorderColor = Orange600,
+                        focusedLabelColor = Orange600,
+                        cursorColor = Orange600,
                         unfocusedTextColor = Color.White,
                         focusedTextColor = Color.White,
                         unfocusedLabelColor = Slate400,
@@ -993,9 +1106,9 @@ private fun ExerciseSettingsDialog(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Amber500,
-                        focusedLabelColor = Amber500,
-                        cursorColor = Amber500,
+                        focusedBorderColor = Orange600,
+                        focusedLabelColor = Orange600,
+                        cursorColor = Orange600,
                         unfocusedTextColor = Color.White,
                         focusedTextColor = Color.White,
                         unfocusedLabelColor = Slate400,
@@ -1011,9 +1124,9 @@ private fun ExerciseSettingsDialog(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Amber500,
-                        focusedLabelColor = Amber500,
-                        cursorColor = Amber500,
+                        focusedBorderColor = Orange600,
+                        focusedLabelColor = Orange600,
+                        cursorColor = Orange600,
                         unfocusedTextColor = Color.White,
                         focusedTextColor = Color.White,
                         unfocusedLabelColor = Slate400,
@@ -1024,19 +1137,22 @@ private fun ExerciseSettingsDialog(
             }
         },
         confirmButton = {
+            val setsValue = sets.toIntOrNull()
+            val targetValueValue = targetValue.toIntOrNull()
+            val isValid = setsValue != null && targetValueValue != null
             TextButton(
                 onClick = {
                     onSave(
                         programExercise.copy(
-                            sets = sets.toIntOrNull() ?: programExercise.sets,
-                            targetValue = targetValue.toIntOrNull() ?: programExercise.targetValue,
-                            intervalSeconds = intervalSeconds.toIntOrNull() ?: programExercise.intervalSeconds
+                            sets = setsValue!!,
+                            targetValue = targetValueValue!!,
+                            intervalSeconds = intervalSeconds.toIntOrNull() ?: 0  // 空欄=0秒
                         )
                     )
                 },
-                enabled = sets.isNotBlank() && targetValue.isNotBlank() && intervalSeconds.isNotBlank()
+                enabled = isValid
             ) {
-                Text(stringResource(R.string.save), color = Amber500)
+                Text(stringResource(R.string.save), color = if (isValid) Orange600 else Slate400)
             }
         },
         dismissButton = {

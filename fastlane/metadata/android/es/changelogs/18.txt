@@ -1,0 +1,19 @@
+Mejoras del modo Programa (Feedback Issue #7)
+
+Añadido:
+• Duplicar programa mediante menú de pulsación larga
+• Editar series/intervalo en la pantalla de confirmación
+• Desplazamiento automático al ejercicio recién añadido
+• Botón "Añadir ejercicio" fijado en la parte inferior
+• Botón "Registro anterior" en modo Programa
+• Diálogo de confirmación al eliminar programas
+
+Mejorado:
+• Animación de deslizar para eliminar
+• Los botones Program/Challenge ahora actualizan el número de series
+
+Corregido:
+• Estabilidad del proceso de guardado
+• Los ajustes de intervalo ahora se guardan correctamente
+• La cuenta atrás inicial ahora respeta los ajustes del programa
+• Colores de acento unificados en la pantalla del programa
