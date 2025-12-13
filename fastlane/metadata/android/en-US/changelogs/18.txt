@@ -1,0 +1,19 @@
+Program Mode Improvements (Issue #7 Feedback)
+
+Added:
+• Program duplication via long-press menu
+• Edit sets/interval in confirm screen before starting
+• Auto-scroll to newly added exercise
+• "Add exercise" button fixed at bottom
+• "Previous Record" button in Program mode
+• Delete confirmation dialog for programs
+
+Improved:
+• Swipe-to-delete animation
+• Program/Challenge buttons now update set count
+
+Fixed:
+• Save process stability
+• Interval settings now saved correctly
+• Start countdown now respects program settings
+• Program screen accent colors unified

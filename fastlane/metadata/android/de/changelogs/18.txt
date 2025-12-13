@@ -1,0 +1,19 @@
+Verbesserungen im Programmmodus (Issue #7 Feedback)
+
+Hinzugefügt:
+• Programm duplizieren über Langdruck-Menü
+• Sätze/Intervall im Bestätigungsbildschirm bearbeiten
+• Automatisches Scrollen zur neu hinzugefügten Übung
+• "Übung hinzufügen"-Button unten fixiert
+• "Vorheriger Rekord"-Button im Programmmodus
+• Bestätigungsdialog beim Löschen von Programmen
+
+Verbessert:
+• Animation beim Wisch-Löschen
+• Program/Challenge-Buttons aktualisieren jetzt auch die Satzzahl
+
+Behoben:
+• Stabilität des Speichervorgangs
+• Intervalleinstellungen werden jetzt korrekt gespeichert
+• Start-Countdown beachtet jetzt die Programmeinstellungen
+• Akzentfarben im Programmbildschirm vereinheitlicht

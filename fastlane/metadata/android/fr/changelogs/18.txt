@@ -1,0 +1,19 @@
+Améliorations du mode Programme (Retour Issue #7)
+
+Ajouté:
+• Dupliquer un programme via le menu appui long
+• Modifier séries/intervalle dans l'écran de confirmation
+• Défilement automatique vers l'exercice ajouté
+• Bouton "Ajouter un exercice" fixé en bas
+• Bouton "Record précédent" en mode Programme
+• Dialogue de confirmation pour supprimer des programmes
+
+Amélioré:
+• Animation de suppression par balayage
+• Les boutons Program/Challenge mettent à jour le nombre de séries
+
+Corrigé:
+• Stabilité du processus de sauvegarde
+• Les paramètres d'intervalle sont maintenant sauvegardés correctement
+• Le compte à rebours respecte maintenant les paramètres du programme
+• Couleurs d'accentuation unifiées sur l'écran du programme

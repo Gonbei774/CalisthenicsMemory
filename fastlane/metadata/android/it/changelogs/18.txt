@@ -1,0 +1,19 @@
+Miglioramenti modalità Programma (Feedback Issue #7)
+
+Aggiunto:
+• Duplica programma tramite menu pressione prolungata
+• Modifica serie/intervallo nella schermata di conferma
+• Scorrimento automatico all'esercizio appena aggiunto
+• Pulsante "Aggiungi esercizio" fissato in basso
+• Pulsante "Record precedente" in modalità Programma
+• Dialogo di conferma per eliminare programmi
+
+Migliorato:
+• Animazione di eliminazione con scorrimento
+• I pulsanti Program/Challenge ora aggiornano il numero di serie
+
+Corretto:
+• Stabilità del processo di salvataggio
+• Le impostazioni intervallo vengono ora salvate correttamente
+• Il conto alla rovescia rispetta ora le impostazioni del programma
+• Colori di accento unificati nella schermata del programma
