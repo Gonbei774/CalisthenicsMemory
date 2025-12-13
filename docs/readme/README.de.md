@@ -42,6 +42,7 @@ Ein Tracker für Eigengewichtstraining. Erstelle benutzerdefinierte Übungen, or
 - **Zwei Aufzeichnungsmodi**
   - Aufzeichnungsmodus: Schnelle manuelle Eingabe mit "Übungseinstellungen anwenden"-Taste
   - Trainingsmodus: Automatisch geführtes Training mit übungsspezifischen Timer-Einstellungen (Pausenzeit, Wiederholungsdauer), LED-Blitz-Benachrichtigung bei Satzabschluss
+- **Programm** - Erstelle Routinen mit mehreren Übungen, Timer-AN (countdown-basiert) oder Timer-AUS (eigenes Tempo) Modi, konfigurierbare Pausen zwischen den Sätzen
 - **Fortschrittsverfolgung** - Einträge als Listen, Grafiken oder Herausforderungs-Fortschrittsbalken anzeigen
 - **Unilateral/Bilateral-Unterstützung** - Linke und rechte Seite separat für einseitige Übungen verfolgen
 - **Herausforderungsziele** - Zielsätze × Wiederholungen festlegen und Erfüllungsstatus verfolgen
