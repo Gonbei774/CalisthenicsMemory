@@ -1,0 +1,5 @@
+Corrección de errores (Issue #8)
+
+Corregido:
+• La importación JSON ahora preserva correctamente los datos del programa
+• Las configuraciones del programa se incluyen en la copia de seguridad/restauración

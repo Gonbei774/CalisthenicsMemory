@@ -1,0 +1,5 @@
+Fehlerbehebung (Issue #8)
+
+Behoben:
+• JSON-Import behält jetzt Programmdaten korrekt bei
+• Programmkonfigurationen werden in Backup/Wiederherstellung einbezogen
