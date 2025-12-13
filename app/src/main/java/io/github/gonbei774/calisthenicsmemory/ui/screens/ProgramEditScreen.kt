@@ -696,15 +696,22 @@ private fun AddExerciseToProgramDialog(
 ) {
     val context = LocalContext.current
     val workoutPreferences = remember { WorkoutPreferences(context) }
-    val defaultInterval = remember { workoutPreferences.getSetInterval() }
+    // スイッチONなら設定画面の秒数、OFFなら空欄
+    val defaultInterval = remember {
+        if (workoutPreferences.isSetIntervalEnabled()) {
+            workoutPreferences.getSetInterval().toString()
+        } else {
+            ""
+        }
+    }
 
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
     val expandedGroups by viewModel.expandedGroups.collectAsState()
 
     var selectedExercise by remember { mutableStateOf<Exercise?>(null) }
-    var sets by remember { mutableStateOf("3") }
-    var targetValue by remember { mutableStateOf("10") }
-    var intervalSeconds by remember { mutableStateOf(defaultInterval.toString()) }
+    var sets by remember { mutableStateOf("") }
+    var targetValue by remember { mutableStateOf("") }
+    var intervalSeconds by remember { mutableStateOf(defaultInterval) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -835,20 +842,23 @@ private fun AddExerciseToProgramDialog(
         },
         confirmButton = {
             if (selectedExercise != null) {
+                val setsValue = sets.toIntOrNull()
+                val targetValueValue = targetValue.toIntOrNull()
+                val isValid = setsValue != null && targetValueValue != null
                 TextButton(
                     onClick = {
                         selectedExercise?.let { exercise ->
                             onAdd(
                                 exercise,
-                                sets.toIntOrNull() ?: 3,
-                                targetValue.toIntOrNull() ?: 10,
-                                intervalSeconds.toIntOrNull() ?: 60
+                                setsValue!!,
+                                targetValueValue!!,
+                                intervalSeconds.toIntOrNull() ?: 0  // 空欄=0秒
                             )
                         }
                     },
-                    enabled = sets.isNotBlank() && targetValue.isNotBlank() && intervalSeconds.isNotBlank()
+                    enabled = isValid
                 ) {
-                    Text(stringResource(R.string.add), color = Orange600)
+                    Text(stringResource(R.string.add), color = if (isValid) Orange600 else Slate400)
                 }
             }
         },
@@ -1117,19 +1127,22 @@ private fun ExerciseSettingsDialog(
             }
         },
         confirmButton = {
+            val setsValue = sets.toIntOrNull()
+            val targetValueValue = targetValue.toIntOrNull()
+            val isValid = setsValue != null && targetValueValue != null
             TextButton(
                 onClick = {
                     onSave(
                         programExercise.copy(
-                            sets = sets.toIntOrNull() ?: programExercise.sets,
-                            targetValue = targetValue.toIntOrNull() ?: programExercise.targetValue,
-                            intervalSeconds = intervalSeconds.toIntOrNull() ?: programExercise.intervalSeconds
+                            sets = setsValue!!,
+                            targetValue = targetValueValue!!,
+                            intervalSeconds = intervalSeconds.toIntOrNull() ?: 0  // 空欄=0秒
                         )
                     )
                 },
-                enabled = sets.isNotBlank() && targetValue.isNotBlank() && intervalSeconds.isNotBlank()
+                enabled = isValid
             ) {
-                Text(stringResource(R.string.save), color = Orange600)
+                Text(stringResource(R.string.save), color = if (isValid) Orange600 else Slate400)
             }
         },
         dismissButton = {

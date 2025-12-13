@@ -599,7 +599,18 @@ fun SettingsStep(
             }
         )
     }
-    var interval by remember { mutableStateOf("") }
+    var interval by remember {
+        mutableStateOf(
+            when {
+                // 1. 種目設定が最優先
+                exercise.restInterval != null -> exercise.restInterval.toString()
+                // 2. スイッチONなら設定画面の秒数
+                workoutPrefs.isSetIntervalEnabled() -> workoutPrefs.getSetInterval().toString()
+                // 3. それ以外は空欄
+                else -> ""
+            }
+        )
+    }
     var distanceInput by remember { mutableStateOf("") }
     var weightInput by remember { mutableStateOf("") }
 
@@ -794,14 +805,12 @@ fun SettingsStep(
                 if (exercise.type == "Dynamic" && exercise.repDuration != null) {
                     repDuration = exercise.repDuration.toString()
                 }
-                // 休憩時間を反映（種目設定優先、なければ全体設定）
-                val restInt = exercise.restInterval ?: workoutPrefs.getSetInterval()
-                interval = restInt.toString()
-
-                // 開始カウントダウンは全体設定から取得（種目設定には無いため）
-                if (workoutPrefs.isStartCountdownEnabled()) {
-                    startInterval = workoutPrefs.getStartCountdown().toString()
+                // 休憩時間を反映（種目設定がある場合のみ）
+                if (exercise.restInterval != null) {
+                    interval = exercise.restInterval.toString()
                 }
+                // 種目設定がない場合はユーザー入力を保持
+                // 開始カウントダウンは種目設定がないため、ここでは何もしない
             },
             modifier = Modifier
                 .fillMaxWidth()

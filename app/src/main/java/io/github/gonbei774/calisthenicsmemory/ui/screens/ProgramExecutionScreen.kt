@@ -447,8 +447,8 @@ fun ProgramExecutionScreen(
                                 }
                             },
                             onStart = {
-                                // 開始カウントダウンが0または設定がOFFならスキップ
-                                if (workoutPreferences.isStartCountdownEnabled() && step.session.program.startInterval > 0) {
+                                // プログラムの開始カウントダウンが0より大きい場合のみ表示
+                                if (step.session.program.startInterval > 0) {
                                     currentStep = ProgramExecutionStep.StartInterval(step.session, 0)
                                 } else {
                                     currentStep = ProgramExecutionStep.Executing(step.session, 0)
@@ -606,8 +606,8 @@ fun ProgramExecutionScreen(
                             onComplete = {
                                 val nextIndex = step.currentSetIndex + 1
                                 if (nextIndex < step.session.sets.size) {
-                                    // 開始カウントダウンが0または設定がOFFならスキップ
-                                    if (workoutPreferences.isStartCountdownEnabled() && step.session.program.startInterval > 0) {
+                                    // プログラムの開始カウントダウンが0より大きい場合のみ表示
+                                    if (step.session.program.startInterval > 0) {
                                         currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                     } else {
                                         currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
@@ -619,8 +619,8 @@ fun ProgramExecutionScreen(
                             onSkip = {
                                 val nextIndex = step.currentSetIndex + 1
                                 if (nextIndex < step.session.sets.size) {
-                                    // 開始カウントダウンが0または設定がOFFならスキップ
-                                    if (workoutPreferences.isStartCountdownEnabled() && step.session.program.startInterval > 0) {
+                                    // プログラムの開始カウントダウンが0より大きい場合のみ表示
+                                    if (step.session.program.startInterval > 0) {
                                         currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                     } else {
                                         currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
