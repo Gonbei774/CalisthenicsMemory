@@ -122,16 +122,53 @@ private fun ProgramListItem(
     onExecute: () -> Unit,
     onDelete: () -> Unit
 ) {
+    var showDeleteConfirmDialog by remember { mutableStateOf(false) }
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
             if (value == SwipeToDismissBoxValue.EndToStart) {
-                onDelete()
-                true
+                showDeleteConfirmDialog = true
+                false  // Don't dismiss yet, show confirmation dialog first
             } else {
                 false
             }
         }
     )
+
+    // Delete confirmation dialog
+    if (showDeleteConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmDialog = false },
+            containerColor = Slate800,
+            title = {
+                Text(
+                    text = stringResource(R.string.delete_program),
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.delete_program_warning, program.name),
+                    color = Slate300
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteConfirmDialog = false
+                        onDelete()
+                    }
+                ) {
+                    Text(stringResource(R.string.delete), color = Red600)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmDialog = false }) {
+                    Text(stringResource(R.string.cancel), color = Slate400)
+                }
+            }
+        )
+    }
 
     SwipeToDismissBox(
         state = dismissState,
