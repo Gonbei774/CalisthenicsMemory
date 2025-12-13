@@ -73,6 +73,7 @@ fun ProgramEditScreen(
     var originalName by remember { mutableStateOf("") }
     var originalTimerMode by remember { mutableStateOf(false) }
     var originalStartInterval by remember { mutableStateOf(5) }
+    var originalProgramExercises by remember { mutableStateOf<List<ProgramExercise>>(emptyList()) }
 
     // Load existing program data
     LaunchedEffect(programId) {
@@ -87,7 +88,9 @@ fun ProgramEditScreen(
                 originalTimerMode = it.timerMode
                 originalStartInterval = it.startInterval
             }
-            programExercises = viewModel.getProgramExercisesSync(programId)
+            val loadedExercises = viewModel.getProgramExercisesSync(programId)
+            programExercises = loadedExercises
+            originalProgramExercises = loadedExercises
             isLoading = false
         }
     }
@@ -97,8 +100,10 @@ fun ProgramEditScreen(
         // New program: any input counts as unsaved
         name.isNotBlank() || programExercises.isNotEmpty()
     } else {
-        // Existing program: check if settings differ from original
-        name != originalName || timerMode != originalTimerMode || startInterval != originalStartInterval
+        // Existing program: check if settings or exercises differ from original
+        val settingsChanged = name != originalName || timerMode != originalTimerMode || startInterval != originalStartInterval
+        val exercisesChanged = programExercises != originalProgramExercises
+        settingsChanged || exercisesChanged
     }
 
     // Handle back button press
@@ -131,6 +136,44 @@ fun ProgramEditScreen(
                 )?.let { updatedProgram ->
                     viewModel.updateProgram(updatedProgram)
                 }
+
+                // Sync exercises: calculate diff and apply changes
+                val originalIds = originalProgramExercises.map { it.id }.toSet()
+                val currentIds = programExercises.map { it.id }.toSet()
+
+                // Delete removed exercises
+                val deletedIds = originalIds - currentIds
+                deletedIds.forEach { id ->
+                    originalProgramExercises.find { it.id == id }?.let { pe ->
+                        viewModel.deleteProgramExercise(pe)
+                    }
+                }
+
+                // Add new exercises (temporary IDs are timestamps, not in original)
+                val addedExercises = programExercises.filter { it.id !in originalIds }
+                addedExercises.forEachIndexed { index, pe ->
+                    viewModel.addProgramExerciseSync(
+                        programId = programId,
+                        exerciseId = pe.exerciseId,
+                        sets = pe.sets,
+                        targetValue = pe.targetValue,
+                        intervalSeconds = pe.intervalSeconds
+                    )
+                }
+
+                // Update modified exercises (existing ones that changed)
+                val existingExercises = programExercises.filter { it.id in originalIds }
+                existingExercises.forEach { pe ->
+                    val original = originalProgramExercises.find { it.id == pe.id }
+                    if (original != null && pe != original) {
+                        viewModel.updateProgramExercise(pe)
+                    }
+                }
+
+                // Update sort order for all existing exercises
+                viewModel.reorderProgramExercises(
+                    programExercises.filter { it.id in originalIds }.map { it.id }
+                )
             } else {
                 // Create new program
                 val newProgramId = viewModel.createProgramAndGetId(name, timerMode, startInterval)
@@ -372,10 +415,6 @@ fun ProgramEditScreen(
                             val item = reordered.removeAt(fromIndex)
                             reordered.add(toIndex, item)
                             programExercises = reordered
-                            // If editing existing program, update in database
-                            if (programId != null) {
-                                viewModel.reorderProgramExercises(reordered.map { it.id })
-                            }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -396,9 +435,6 @@ fun ProgramEditScreen(
                                         onEdit = { showExerciseSettingsDialog = pe },
                                         onDelete = {
                                             programExercises = programExercises.filter { it != pe }
-                                            if (programId != null) {
-                                                viewModel.deleteProgramExercise(pe)
-                                            }
                                         },
                                         dragHandle = { Modifier.longPressDraggableHandle() }
                                     )
@@ -447,15 +483,6 @@ fun ProgramEditScreen(
                     intervalSeconds = intervalSeconds
                 )
                 programExercises = programExercises + newPe
-                if (programId != null) {
-                    viewModel.addProgramExercise(
-                        programId = programId,
-                        exerciseId = selectedExercise.id,
-                        sets = sets,
-                        targetValue = targetValue,
-                        intervalSeconds = intervalSeconds
-                    )
-                }
                 showAddExerciseDialog = false
             }
         )
@@ -472,9 +499,6 @@ fun ProgramEditScreen(
                 onSave = { updatedPe ->
                     programExercises = programExercises.map {
                         if (it.id == updatedPe.id) updatedPe else it
-                    }
-                    if (programId != null) {
-                        viewModel.updateProgramExercise(updatedPe)
                     }
                     showExerciseSettingsDialog = null
                 }
