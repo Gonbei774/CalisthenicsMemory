@@ -533,7 +533,7 @@
     <string name="interval_seconds_label">Duración del descanso (seg.)</string>
     <string name="program_start">Iniciar</string>
     <string name="program_use_program">Programa</string>
-    <string name="program_use_challenge">Desafío</string>
+    <string name="program_use_challenge">Ejercicio</string>
     <string name="program_use_all_program">Todo Programa</string>
     <string name="program_use_all_challenge">Todo Desafío</string>
     <string name="program_previous_value">Usando valor anterior</string>

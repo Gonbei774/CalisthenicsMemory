@@ -151,6 +151,9 @@
     <string name="change_format">%+d sets</string>
     <string name="unit_reps">reps</string>
     <string name="unit_seconds">sec</string>
+    <string name="unit_seconds_short">s</string>
+    <string name="sets_label_short">Sets:</string>
+    <string name="interval_short">Rest:</string>
 
     <!-- Challenge Screen -->
     <string name="no_challenge_set">No Challenge Set</string>
@@ -546,7 +549,7 @@
     <string name="complete_button">Complete</string>
     <string name="abort_button">Abort</string>
     <string name="program_use_program">Program</string>
-    <string name="program_use_challenge">Challenge</string>
+    <string name="program_use_challenge">Exercise</string>
     <string name="program_use_previous">Previous</string>
     <string name="program_use_all_program">All Program</string>
     <string name="program_use_all_challenge">All Challenge</string>

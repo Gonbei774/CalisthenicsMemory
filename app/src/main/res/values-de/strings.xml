@@ -533,7 +533,7 @@
     <string name="interval_seconds_label">Pausendauer (Sek.)</string>
     <string name="program_start">Start</string>
     <string name="program_use_program">Programm</string>
-    <string name="program_use_challenge">Vorgabe</string>
+    <string name="program_use_challenge">Übung</string>
     <string name="program_use_all_program">Alle Programm</string>
     <string name="program_use_all_challenge">Alle Vorgabe</string>
     <string name="program_previous_value">Vorherigen Wert verwenden</string>

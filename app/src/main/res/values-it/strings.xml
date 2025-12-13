@@ -533,7 +533,7 @@
     <string name="interval_seconds_label">Durata riposo (sec.)</string>
     <string name="program_start">Avvia</string>
     <string name="program_use_program">Programma</string>
-    <string name="program_use_challenge">Sfida</string>
+    <string name="program_use_challenge">Esercizio</string>
     <string name="program_use_all_program">Tutto Programma</string>
     <string name="program_use_all_challenge">Tutta Sfida</string>
     <string name="program_previous_value">Usando valore precedente</string>

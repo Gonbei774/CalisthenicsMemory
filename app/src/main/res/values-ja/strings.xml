@@ -552,7 +552,7 @@
     <string name="complete_button">完了</string>
     <string name="abort_button">中止</string>
     <string name="program_use_program">プログラム値</string>
-    <string name="program_use_challenge">課題値</string>
+    <string name="program_use_challenge">種目値</string>
     <string name="program_use_all_program">全てプログラム値</string>
     <string name="program_use_all_challenge">全て課題値</string>
     <string name="program_previous_value">前回の値を使用</string>

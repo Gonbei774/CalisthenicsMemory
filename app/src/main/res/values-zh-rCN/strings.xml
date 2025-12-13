@@ -533,7 +533,7 @@
     <string name="interval_seconds_label">休息时长（秒）</string>
     <string name="program_start">开始</string>
     <string name="program_use_program">计划值</string>
-    <string name="program_use_challenge">目标值</string>
+    <string name="program_use_challenge">动作值</string>
     <string name="program_use_all_program">全部计划值</string>
     <string name="program_use_all_challenge">全部目标值</string>
     <string name="program_previous_value">使用上次的值</string>

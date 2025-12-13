@@ -533,7 +533,7 @@
     <string name="interval_seconds_label">Durée du repos (sec.)</string>
     <string name="program_start">Démarrer</string>
     <string name="program_use_program">Programme</string>
-    <string name="program_use_challenge">Défi</string>
+    <string name="program_use_challenge">Exercice</string>
     <string name="program_use_all_program">Tout Programme</string>
     <string name="program_use_all_challenge">Tout Défi</string>
     <string name="program_previous_value">Utilisation de la valeur précédente</string>
