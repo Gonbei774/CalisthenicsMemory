@@ -54,6 +54,7 @@ fun ProgramEditScreen(
     val coroutineScope = rememberCoroutineScope()
     val exercises by viewModel.exercises.collectAsState()
     val workoutPreferences = remember { WorkoutPreferences(context) }
+    val scrollState = rememberScrollState()
 
     // Load existing program if editing
     var program by remember { mutableStateOf<Program?>(null) }
@@ -265,7 +266,7 @@ fun ProgramEditScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(scrollState)
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -366,31 +367,12 @@ fun ProgramEditScreen(
                 }
 
                 // Exercises Section
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.program_exercises),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                    Button(
-                        onClick = { showAddExerciseDialog = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = Orange600),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.Add,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(stringResource(R.string.add))
-                    }
-                }
+                Text(
+                    text = stringResource(R.string.program_exercises),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
 
                 // Exercise list with drag-and-drop
                 if (programExercises.isEmpty()) {
@@ -443,6 +425,21 @@ fun ProgramEditScreen(
                     }
                 }
 
+                // Add exercise button (at the bottom)
+                Button(
+                    onClick = { showAddExerciseDialog = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Orange600)
+                ) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(R.string.add_exercise_to_program))
+                }
+
                 // Delete program button (only for existing programs)
                 if (programId != null) {
                     Spacer(modifier = Modifier.height(16.dp))
@@ -483,6 +480,10 @@ fun ProgramEditScreen(
                 )
                 programExercises = programExercises + newPe
                 showAddExerciseDialog = false
+                // 追加後に最下部へスクロール
+                coroutineScope.launch {
+                    scrollState.animateScrollTo(scrollState.maxValue)
+                }
             }
         )
     }
