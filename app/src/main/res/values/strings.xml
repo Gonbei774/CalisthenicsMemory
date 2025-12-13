@@ -547,6 +547,7 @@
     <string name="abort_button">Abort</string>
     <string name="program_use_program">Program</string>
     <string name="program_use_challenge">Challenge</string>
+    <string name="program_use_previous">Previous</string>
     <string name="program_use_all_program">All Program</string>
     <string name="program_use_all_challenge">All Challenge</string>
     <string name="program_previous_value">Using previous value</string>

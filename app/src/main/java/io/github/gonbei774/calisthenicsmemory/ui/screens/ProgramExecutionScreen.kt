@@ -309,20 +309,141 @@ fun ProgramExecutionScreen(
                                 sets[setIndex] = sets[setIndex].copy(targetValue = newValue)
                             },
                             onUseAllProgramValues = {
-                                // 全種目をプログラム設定値に戻す
-                                step.session.sets.forEachIndexed { i, set ->
-                                    val (pe, _) = step.session.exercises[set.exerciseIndex]
-                                    step.session.sets[i] = set.copy(targetValue = pe.targetValue)
+                                // セット一覧を再構築（プログラム設定のセット数・目標値を使用）
+                                val newSets = mutableListOf<ProgramWorkoutSet>()
+                                step.session.exercises.forEachIndexed { index, (pe, exercise) ->
+                                    for (setNum in 1..pe.sets) {
+                                        if (exercise.laterality == "Unilateral") {
+                                            newSets.add(ProgramWorkoutSet(
+                                                exerciseIndex = index,
+                                                setNumber = setNum,
+                                                side = "Right",
+                                                targetValue = pe.targetValue,
+                                                intervalSeconds = pe.intervalSeconds
+                                            ))
+                                            newSets.add(ProgramWorkoutSet(
+                                                exerciseIndex = index,
+                                                setNumber = setNum,
+                                                side = "Left",
+                                                targetValue = pe.targetValue,
+                                                intervalSeconds = pe.intervalSeconds
+                                            ))
+                                        } else {
+                                            newSets.add(ProgramWorkoutSet(
+                                                exerciseIndex = index,
+                                                setNumber = setNum,
+                                                side = null,
+                                                targetValue = pe.targetValue,
+                                                intervalSeconds = pe.intervalSeconds
+                                            ))
+                                        }
+                                    }
                                 }
+                                step.session.sets.clear()
+                                step.session.sets.addAll(newSets)
                             },
                             onUseAllChallengeValues = {
-                                // 全種目を課題設定値に変更（設定がある種目のみ）
-                                step.session.sets.forEachIndexed { i, set ->
-                                    val (_, exercise) = step.session.exercises[set.exerciseIndex]
-                                    val challengeValue = exercise.targetValue
-                                    if (challengeValue != null) {
-                                        step.session.sets[i] = set.copy(targetValue = challengeValue)
+                                // セット一覧を再構築（課題設定のセット数・目標値を使用、なければプログラム設定）
+                                val newSets = mutableListOf<ProgramWorkoutSet>()
+                                step.session.exercises.forEachIndexed { index, (pe, exercise) ->
+                                    val sets = exercise.targetSets ?: pe.sets
+                                    val targetValue = exercise.targetValue ?: pe.targetValue
+                                    for (setNum in 1..sets) {
+                                        if (exercise.laterality == "Unilateral") {
+                                            newSets.add(ProgramWorkoutSet(
+                                                exerciseIndex = index,
+                                                setNumber = setNum,
+                                                side = "Right",
+                                                targetValue = targetValue,
+                                                intervalSeconds = pe.intervalSeconds
+                                            ))
+                                            newSets.add(ProgramWorkoutSet(
+                                                exerciseIndex = index,
+                                                setNumber = setNum,
+                                                side = "Left",
+                                                targetValue = targetValue,
+                                                intervalSeconds = pe.intervalSeconds
+                                            ))
+                                        } else {
+                                            newSets.add(ProgramWorkoutSet(
+                                                exerciseIndex = index,
+                                                setNumber = setNum,
+                                                side = null,
+                                                targetValue = targetValue,
+                                                intervalSeconds = pe.intervalSeconds
+                                            ))
+                                        }
                                     }
+                                }
+                                step.session.sets.clear()
+                                step.session.sets.addAll(newSets)
+                            },
+                            onUseAllPreviousRecordValues = {
+                                // 前回記録を取得してセット一覧を再構築（非同期）
+                                scope.launch {
+                                    val newSets = mutableListOf<ProgramWorkoutSet>()
+                                    step.session.exercises.forEachIndexed { index, (pe, exercise) ->
+                                        val latestRecords = viewModel.getLatestSession(exercise.id)
+                                        if (latestRecords.isNotEmpty()) {
+                                            // 前回記録のセット数を使用
+                                            latestRecords.forEach { record ->
+                                                if (exercise.laterality == "Unilateral") {
+                                                    newSets.add(ProgramWorkoutSet(
+                                                        exerciseIndex = index,
+                                                        setNumber = record.setNumber,
+                                                        side = "Right",
+                                                        targetValue = record.valueRight,
+                                                        intervalSeconds = pe.intervalSeconds
+                                                    ))
+                                                    newSets.add(ProgramWorkoutSet(
+                                                        exerciseIndex = index,
+                                                        setNumber = record.setNumber,
+                                                        side = "Left",
+                                                        targetValue = record.valueLeft ?: record.valueRight,
+                                                        intervalSeconds = pe.intervalSeconds
+                                                    ))
+                                                } else {
+                                                    newSets.add(ProgramWorkoutSet(
+                                                        exerciseIndex = index,
+                                                        setNumber = record.setNumber,
+                                                        side = null,
+                                                        targetValue = record.valueRight,
+                                                        intervalSeconds = pe.intervalSeconds
+                                                    ))
+                                                }
+                                            }
+                                        } else {
+                                            // 前回記録がない場合はプログラム設定を使用
+                                            for (setNum in 1..pe.sets) {
+                                                if (exercise.laterality == "Unilateral") {
+                                                    newSets.add(ProgramWorkoutSet(
+                                                        exerciseIndex = index,
+                                                        setNumber = setNum,
+                                                        side = "Right",
+                                                        targetValue = pe.targetValue,
+                                                        intervalSeconds = pe.intervalSeconds
+                                                    ))
+                                                    newSets.add(ProgramWorkoutSet(
+                                                        exerciseIndex = index,
+                                                        setNumber = setNum,
+                                                        side = "Left",
+                                                        targetValue = pe.targetValue,
+                                                        intervalSeconds = pe.intervalSeconds
+                                                    ))
+                                                } else {
+                                                    newSets.add(ProgramWorkoutSet(
+                                                        exerciseIndex = index,
+                                                        setNumber = setNum,
+                                                        side = null,
+                                                        targetValue = pe.targetValue,
+                                                        intervalSeconds = pe.intervalSeconds
+                                                    ))
+                                                }
+                                            }
+                                        }
+                                    }
+                                    step.session.sets.clear()
+                                    step.session.sets.addAll(newSets)
                                 }
                             },
                             onStart = {
@@ -537,6 +658,7 @@ private fun ProgramConfirmStep(
     onUpdateTargetValue: (Int, Int) -> Unit,
     onUseAllProgramValues: () -> Unit,
     onUseAllChallengeValues: () -> Unit,
+    onUseAllPreviousRecordValues: () -> Unit,
     onStart: () -> Unit
 ) {
     var refreshKey by remember { mutableIntStateOf(0) }
@@ -548,44 +670,66 @@ private fun ProgramConfirmStep(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // 右上に一括適用ボタン
-        Row(
+        // 右上に一括適用ボタン（2行に配置）
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
+            horizontalAlignment = Alignment.End
         ) {
-            Button(
-                onClick = {
-                    onUseAllProgramValues()
-                    refreshKey++
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Amber600),
-                shape = RoundedCornerShape(8.dp),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+            // 1行目: Program, Challenge
+            Row(
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = stringResource(R.string.program_use_program),
-                    fontSize = 14.sp,
-                    color = Color.White
-                )
-            }
-            if (hasChallengeExercise) {
-                Spacer(modifier = Modifier.width(8.dp))
                 Button(
                     onClick = {
-                        onUseAllChallengeValues()
+                        onUseAllProgramValues()
                         refreshKey++
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Green600),
+                    colors = ButtonDefaults.buttonColors(containerColor = Amber600),
                     shape = RoundedCornerShape(8.dp),
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                 ) {
                     Text(
-                        text = stringResource(R.string.program_use_challenge),
+                        text = stringResource(R.string.program_use_program),
                         fontSize = 14.sp,
                         color = Color.White
                     )
                 }
+                if (hasChallengeExercise) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = {
+                            onUseAllChallengeValues()
+                            refreshKey++
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Green600),
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.program_use_challenge),
+                            fontSize = 14.sp,
+                            color = Color.White
+                        )
+                    }
+                }
+            }
+            // 2行目: Previous Record
+            Spacer(modifier = Modifier.height(4.dp))
+            Button(
+                onClick = {
+                    onUseAllPreviousRecordValues()
+                    refreshKey++
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Cyan600),
+                shape = RoundedCornerShape(8.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.program_use_previous),
+                    fontSize = 14.sp,
+                    color = Color.White
+                )
             }
         }
 
@@ -697,6 +841,9 @@ private fun ProgramConfirmExerciseCard(
                     mutableStateOf(currentSet.targetValue.toString())
                 }
 
+                // 現在の種目の実際のセット数（Program/Challenge切り替え後も正しい値）
+                val actualTotalSets = sets.maxOfOrNull { it.setNumber } ?: programExercise.sets
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -705,7 +852,7 @@ private fun ProgramConfirmExerciseCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = stringResource(R.string.set_format, set.setNumber, programExercise.sets),
+                        text = stringResource(R.string.set_format, set.setNumber, actualTotalSets),
                         fontSize = 14.sp,
                         color = Slate300
                     )

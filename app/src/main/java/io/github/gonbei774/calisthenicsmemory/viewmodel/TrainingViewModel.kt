@@ -1289,13 +1289,11 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun updateProgram(program: Program) {
-        viewModelScope.launch {
-            try {
-                programDao.update(program)
-            } catch (e: Exception) {
-                _snackbarMessage.value = UiMessage.ErrorOccurred
-            }
+    suspend fun updateProgram(program: Program) {
+        try {
+            programDao.update(program)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
         }
     }
 
@@ -1372,53 +1370,45 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun updateProgramExercise(programExercise: ProgramExercise) {
-        viewModelScope.launch {
-            try {
-                programExerciseDao.update(programExercise)
-            } catch (e: Exception) {
-                _snackbarMessage.value = UiMessage.ErrorOccurred
-            }
+    suspend fun updateProgramExercise(programExercise: ProgramExercise) {
+        try {
+            programExerciseDao.update(programExercise)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
         }
     }
 
-    fun deleteProgramExercise(programExercise: ProgramExercise) {
-        viewModelScope.launch {
-            try {
-                programExerciseDao.delete(programExercise)
-            } catch (e: Exception) {
-                _snackbarMessage.value = UiMessage.ErrorOccurred
-            }
+    suspend fun deleteProgramExercise(programExercise: ProgramExercise) {
+        try {
+            programExerciseDao.delete(programExercise)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
         }
     }
 
-    fun reorderProgramExercises(exerciseIds: List<Long>) {
-        viewModelScope.launch {
-            try {
-                programExerciseDao.reorderExercises(exerciseIds)
-            } catch (e: Exception) {
-                _snackbarMessage.value = UiMessage.ErrorOccurred
-            }
+    suspend fun reorderProgramExercises(exerciseIds: List<Long>) {
+        try {
+            programExerciseDao.reorderExercises(exerciseIds)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
         }
     }
 
-    fun reorderProgramExercises(programId: Long, fromIndex: Int, toIndex: Int) {
-        viewModelScope.launch {
-            try {
-                val currentExercises = programExerciseDao.getExercisesForProgramSync(programId).toMutableList()
-                if (fromIndex < 0 || toIndex < 0 ||
-                    fromIndex >= currentExercises.size || toIndex >= currentExercises.size) {
-                    return@launch
-                }
-
-                val item = currentExercises.removeAt(fromIndex)
-                currentExercises.add(toIndex, item)
-
-                val reorderedIds = currentExercises.map { it.id }
-                programExerciseDao.reorderExercises(reorderedIds)
-            } catch (e: Exception) {
-                _snackbarMessage.value = UiMessage.ErrorOccurred
+    suspend fun reorderProgramExercises(programId: Long, fromIndex: Int, toIndex: Int) {
+        try {
+            val currentExercises = programExerciseDao.getExercisesForProgramSync(programId).toMutableList()
+            if (fromIndex < 0 || toIndex < 0 ||
+                fromIndex >= currentExercises.size || toIndex >= currentExercises.size) {
+                return
             }
+
+            val item = currentExercises.removeAt(fromIndex)
+            currentExercises.add(toIndex, item)
+
+            val reorderedIds = currentExercises.map { it.id }
+            programExerciseDao.reorderExercises(reorderedIds)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
         }
     }
 
