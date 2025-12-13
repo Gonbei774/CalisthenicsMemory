@@ -534,6 +534,9 @@
     <string name="program_interval_format">インターバル %d秒</string>
     <string name="delete_program">プログラムを削除</string>
     <string name="delete_program_warning">「%s」を削除しますか？</string>
+    <string name="discard_changes_title">変更を破棄しますか？</string>
+    <string name="discard_changes_message">保存されていない変更があります。破棄してもよろしいですか？</string>
+    <string name="discard">破棄</string>
     <string name="program_saved">プログラムを保存しました</string>
     <string name="program_name_required">プログラム名を入力してください</string>
     <string name="program_exercises_required">種目を1つ以上追加してください</string>

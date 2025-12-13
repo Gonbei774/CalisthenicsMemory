@@ -523,6 +523,9 @@
     <string name="program_interval_format">Descanso %ds</string>
     <string name="delete_program">Eliminar programa</string>
     <string name="delete_program_warning">¿Eliminar \"%s\"?</string>
+    <string name="discard_changes_title">¿Descartar cambios?</string>
+    <string name="discard_changes_message">Tienes cambios sin guardar. ¿Seguro que quieres descartarlos?</string>
+    <string name="discard">Descartar</string>
     <string name="program_saved">Programa guardado</string>
     <string name="program_name_required">Nombre del programa requerido</string>
     <string name="program_exercises_required">Añade al menos un ejercicio</string>

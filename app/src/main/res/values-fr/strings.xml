@@ -523,6 +523,9 @@
     <string name="program_interval_format">Repos %ds</string>
     <string name="delete_program">Supprimer le programme</string>
     <string name="delete_program_warning">Supprimer \"%s\" ?</string>
+    <string name="discard_changes_title">Abandonner les modifications ?</string>
+    <string name="discard_changes_message">Vous avez des modifications non enregistrées. Voulez-vous vraiment les abandonner ?</string>
+    <string name="discard">Abandonner</string>
     <string name="program_saved">Programme enregistré</string>
     <string name="program_name_required">Nom du programme requis</string>
     <string name="program_exercises_required">Ajoutez au moins un exercice</string>

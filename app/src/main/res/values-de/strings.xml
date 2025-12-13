@@ -523,6 +523,9 @@
     <string name="program_interval_format">Pause %ds</string>
     <string name="delete_program">Programm löschen</string>
     <string name="delete_program_warning">\"%s\" löschen?</string>
+    <string name="discard_changes_title">Änderungen verwerfen?</string>
+    <string name="discard_changes_message">Sie haben ungespeicherte Änderungen. Möchten Sie diese wirklich verwerfen?</string>
+    <string name="discard">Verwerfen</string>
     <string name="program_saved">Programm gespeichert</string>
     <string name="program_name_required">Programmname erforderlich</string>
     <string name="program_exercises_required">Mindestens eine Übung hinzufügen</string>

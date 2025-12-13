@@ -1,5 +1,6 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandVertically
@@ -66,6 +67,12 @@ fun ProgramEditScreen(
     var showAddExerciseDialog by remember { mutableStateOf(false) }
     var showExerciseSettingsDialog by remember { mutableStateOf<ProgramExercise?>(null) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+    var showDiscardConfirmDialog by remember { mutableStateOf(false) }
+
+    // Track original values for existing programs (to detect changes)
+    var originalName by remember { mutableStateOf("") }
+    var originalTimerMode by remember { mutableStateOf(false) }
+    var originalStartInterval by remember { mutableStateOf(5) }
 
     // Load existing program data
     LaunchedEffect(programId) {
@@ -75,10 +82,37 @@ fun ProgramEditScreen(
                 name = it.name
                 timerMode = it.timerMode
                 startInterval = it.startInterval
+                // Store original values
+                originalName = it.name
+                originalTimerMode = it.timerMode
+                originalStartInterval = it.startInterval
             }
             programExercises = viewModel.getProgramExercisesSync(programId)
             isLoading = false
         }
+    }
+
+    // Check if there are unsaved changes
+    val hasUnsavedChanges = if (programId == null) {
+        // New program: any input counts as unsaved
+        name.isNotBlank() || programExercises.isNotEmpty()
+    } else {
+        // Existing program: check if settings differ from original
+        name != originalName || timerMode != originalTimerMode || startInterval != originalStartInterval
+    }
+
+    // Handle back button press
+    fun handleBackPress() {
+        if (hasUnsavedChanges) {
+            showDiscardConfirmDialog = true
+        } else {
+            onNavigateBack()
+        }
+    }
+
+    // BackHandler for system back button
+    BackHandler {
+        handleBackPress()
     }
 
     // Exercise map for display
@@ -143,7 +177,7 @@ fun ProgramEditScreen(
                             .padding(horizontal = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(onClick = onNavigateBack) {
+                        IconButton(onClick = { handleBackPress() }) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = stringResource(R.string.back),
@@ -479,6 +513,42 @@ fun ProgramEditScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirmDialog = false }) {
+                    Text(stringResource(R.string.cancel), color = Slate400)
+                }
+            }
+        )
+    }
+
+    // Discard Changes Confirmation Dialog
+    if (showDiscardConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showDiscardConfirmDialog = false },
+            containerColor = Slate800,
+            title = {
+                Text(
+                    text = stringResource(R.string.discard_changes_title),
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.discard_changes_message),
+                    color = Slate300
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDiscardConfirmDialog = false
+                        onNavigateBack()
+                    }
+                ) {
+                    Text(stringResource(R.string.discard), color = Red600)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDiscardConfirmDialog = false }) {
                     Text(stringResource(R.string.cancel), color = Slate400)
                 }
             }

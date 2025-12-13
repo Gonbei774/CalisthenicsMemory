@@ -523,6 +523,9 @@
     <string name="program_interval_format">Riposo %ds</string>
     <string name="delete_program">Elimina programma</string>
     <string name="delete_program_warning">Eliminare \"%s\"?</string>
+    <string name="discard_changes_title">Annullare le modifiche?</string>
+    <string name="discard_changes_message">Hai modifiche non salvate. Sei sicuro di volerle annullare?</string>
+    <string name="discard">Annulla</string>
     <string name="program_saved">Programma salvato</string>
     <string name="program_name_required">Nome programma richiesto</string>
     <string name="program_exercises_required">Aggiungi almeno un esercizio</string>

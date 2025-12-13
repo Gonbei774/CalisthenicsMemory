@@ -528,6 +528,9 @@
     <string name="program_interval_format">Interval %ds</string>
     <string name="delete_program">Delete Program</string>
     <string name="delete_program_warning">Delete \"%s\"?</string>
+    <string name="discard_changes_title">Discard Changes?</string>
+    <string name="discard_changes_message">You have unsaved changes. Are you sure you want to discard them?</string>
+    <string name="discard">Discard</string>
     <string name="program_saved">Program saved</string>
     <string name="program_name_required">Program name is required</string>
     <string name="program_exercises_required">Add at least one exercise</string>
