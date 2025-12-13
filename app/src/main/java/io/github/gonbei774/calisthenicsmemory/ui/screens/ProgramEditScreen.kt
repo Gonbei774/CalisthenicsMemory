@@ -198,55 +198,44 @@ fun ProgramEditScreen(
 
     Scaffold(
         topBar = {
-            // Orange gradient header (workout theme)
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                color = Color.Transparent
+                color = Orange600
             ) {
-                Box(
+                Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(Amber500, Yellow500)
-                            )
-                        )
+                        .padding(horizontal = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { handleBackPress() }) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.back),
-                                tint = Color.White
-                            )
-                        }
-                        Text(
-                            text = stringResource(
-                                if (programId == null) R.string.new_program else R.string.edit_program
-                            ),
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                            modifier = Modifier.weight(1f)
+                    IconButton(onClick = { handleBackPress() }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
+                            tint = Color.White
                         )
-                        // Save button
-                        TextButton(
-                            onClick = { saveProgram() },
-                            enabled = isValid
-                        ) {
-                            Text(
-                                text = stringResource(R.string.save),
-                                color = if (isValid) Color.White else Color.White.copy(alpha = 0.5f),
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                    }
+                    Text(
+                        text = stringResource(
+                            if (programId == null) R.string.new_program else R.string.edit_program
+                        ),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.weight(1f)
+                    )
+                    // Save button
+                    TextButton(
+                        onClick = { saveProgram() },
+                        enabled = isValid
+                    ) {
+                        Text(
+                            text = stringResource(R.string.save),
+                            color = if (isValid) Color.White else Color.White.copy(alpha = 0.5f),
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
@@ -259,7 +248,7 @@ fun ProgramEditScreen(
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = Amber500)
+                CircularProgressIndicator(color = Orange600)
             }
         } else {
             Column(
@@ -278,9 +267,9 @@ fun ProgramEditScreen(
                     placeholder = { Text(stringResource(R.string.program_name_hint)) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Amber500,
-                        focusedLabelColor = Amber500,
-                        cursorColor = Amber500,
+                        focusedBorderColor = Orange600,
+                        focusedLabelColor = Orange600,
+                        cursorColor = Orange600,
                         unfocusedTextColor = Color.White,
                         focusedTextColor = Color.White,
                         unfocusedLabelColor = Slate400,
@@ -777,9 +766,9 @@ private fun AddExerciseToProgramDialog(
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Amber500,
-                            focusedLabelColor = Amber500,
-                            cursorColor = Amber500,
+                            focusedBorderColor = Orange600,
+                            focusedLabelColor = Orange600,
+                            cursorColor = Orange600,
                             unfocusedTextColor = Color.White,
                             focusedTextColor = Color.White,
                             unfocusedLabelColor = Slate400,
@@ -803,9 +792,9 @@ private fun AddExerciseToProgramDialog(
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Amber500,
-                            focusedLabelColor = Amber500,
-                            cursorColor = Amber500,
+                            focusedBorderColor = Orange600,
+                            focusedLabelColor = Orange600,
+                            cursorColor = Orange600,
                             unfocusedTextColor = Color.White,
                             focusedTextColor = Color.White,
                             unfocusedLabelColor = Slate400,
@@ -821,9 +810,9 @@ private fun AddExerciseToProgramDialog(
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Amber500,
-                            focusedLabelColor = Amber500,
-                            cursorColor = Amber500,
+                            focusedBorderColor = Orange600,
+                            focusedLabelColor = Orange600,
+                            cursorColor = Orange600,
                             unfocusedTextColor = Color.White,
                             focusedTextColor = Color.White,
                             unfocusedLabelColor = Slate400,
@@ -849,7 +838,7 @@ private fun AddExerciseToProgramDialog(
                     },
                     enabled = sets.isNotBlank() && targetValue.isNotBlank() && intervalSeconds.isNotBlank()
                 ) {
-                    Text(stringResource(R.string.add), color = Amber500)
+                    Text(stringResource(R.string.add), color = Orange600)
                 }
             }
         },
@@ -1063,9 +1052,9 @@ private fun ExerciseSettingsDialog(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Amber500,
-                        focusedLabelColor = Amber500,
-                        cursorColor = Amber500,
+                        focusedBorderColor = Orange600,
+                        focusedLabelColor = Orange600,
+                        cursorColor = Orange600,
                         unfocusedTextColor = Color.White,
                         focusedTextColor = Color.White,
                         unfocusedLabelColor = Slate400,
@@ -1087,9 +1076,9 @@ private fun ExerciseSettingsDialog(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Amber500,
-                        focusedLabelColor = Amber500,
-                        cursorColor = Amber500,
+                        focusedBorderColor = Orange600,
+                        focusedLabelColor = Orange600,
+                        cursorColor = Orange600,
                         unfocusedTextColor = Color.White,
                         focusedTextColor = Color.White,
                         unfocusedLabelColor = Slate400,
@@ -1105,9 +1094,9 @@ private fun ExerciseSettingsDialog(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Amber500,
-                        focusedLabelColor = Amber500,
-                        cursorColor = Amber500,
+                        focusedBorderColor = Orange600,
+                        focusedLabelColor = Orange600,
+                        cursorColor = Orange600,
                         unfocusedTextColor = Color.White,
                         focusedTextColor = Color.White,
                         unfocusedLabelColor = Slate400,
@@ -1130,7 +1119,7 @@ private fun ExerciseSettingsDialog(
                 },
                 enabled = sets.isNotBlank() && targetValue.isNotBlank() && intervalSeconds.isNotBlank()
             ) {
-                Text(stringResource(R.string.save), color = Amber500)
+                Text(stringResource(R.string.save), color = Orange600)
             }
         },
         dismissButton = {
