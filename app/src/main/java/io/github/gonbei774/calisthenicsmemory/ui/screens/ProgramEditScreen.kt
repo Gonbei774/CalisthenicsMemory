@@ -589,16 +589,25 @@ private fun ProgramExerciseItem(
     onDelete: () -> Unit,
     dragHandle: @Composable () -> Modifier
 ) {
+    var pendingDelete by remember { mutableStateOf(false) }
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
             if (value == SwipeToDismissBoxValue.EndToStart) {
-                onDelete()
+                pendingDelete = true
                 true
             } else {
                 false
             }
         }
     )
+
+    // Wait for swipe animation to complete before deleting
+    LaunchedEffect(pendingDelete) {
+        if (pendingDelete) {
+            kotlinx.coroutines.delay(300)
+            onDelete()
+        }
+    }
 
     SwipeToDismissBox(
         state = dismissState,
