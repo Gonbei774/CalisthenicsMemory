@@ -523,6 +523,9 @@
     <string name="program_interval_format">Repos %ds</string>
     <string name="delete_program">Supprimer le programme</string>
     <string name="delete_program_warning">Supprimer \"%s\" ?</string>
+    <string name="duplicate_program">Dupliquer</string>
+    <string name="program_duplicated">Programme dupliqué</string>
+    <string name="program_copy_suffix">(Copie)</string>
     <string name="discard_changes_title">Abandonner les modifications ?</string>
     <string name="discard_changes_message">Vous avez des modifications non enregistrées. Voulez-vous vraiment les abandonner ?</string>
     <string name="discard">Abandonner</string>
@@ -532,11 +535,34 @@
     <string name="target_value_label">Objectif</string>
     <string name="interval_seconds_label">Durée du repos (sec.)</string>
     <string name="program_start">Démarrer</string>
+    <string name="exercise_settings">Paramètres de l\'exercice</string>
+    <string name="sets_label">Séries</string>
+    <string name="get_ready">Préparez-vous</string>
+    <string name="executing_label">En cours</string>
+    <string name="complete_button">Terminer</string>
+    <string name="abort_button">Abandonner</string>
     <string name="program_use_program">Programme</string>
     <string name="program_use_challenge">Exercice</string>
+    <string name="program_use_previous">Précédent</string>
     <string name="program_use_all_program">Tout Programme</string>
     <string name="program_use_all_challenge">Tout Défi</string>
     <string name="program_previous_value">Utilisation de la valeur précédente</string>
     <string name="next_exercise_label">Suivant : %s</string>
     <string name="program_set_label">Série %d :</string>
+
+    <!-- Missing keys -->
+    <string name="interval_short">Repos:</string>
+    <string name="sets_label_short">Séries:</string>
+    <string name="unit_seconds_short">s</string>
+    <string name="new_program">Nouveau programme</string>
+    <string name="single_mode">Individuel</string>
+    <string name="single_mode_description">Un exercice à la fois</string>
+    <string name="start_countdown">Compte à rebours de départ</string>
+    <string name="timer_mode_label">Mode minuteur</string>
+    <string name="timer_on">ON</string>
+    <string name="timer_off">OFF</string>
+    <string name="timer_mode_on_description">Compte à rebours auto pendant l\'exercice</string>
+    <string name="timer_mode_off_description">Bouton de validation manuel</string>
+    <string name="workout_mode_selection">Sélectionner le mode</string>
+    <string name="record_weight_for_graph">Enregistrer le poids pour cet exercice</string>
 </resources>

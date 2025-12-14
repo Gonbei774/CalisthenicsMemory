@@ -523,6 +523,9 @@
     <string name="program_interval_format">Descanso %ds</string>
     <string name="delete_program">Eliminar programa</string>
     <string name="delete_program_warning">¿Eliminar \"%s\"?</string>
+    <string name="duplicate_program">Duplicar</string>
+    <string name="program_duplicated">Programa duplicado</string>
+    <string name="program_copy_suffix">(Copia)</string>
     <string name="discard_changes_title">¿Descartar cambios?</string>
     <string name="discard_changes_message">Tienes cambios sin guardar. ¿Seguro que quieres descartarlos?</string>
     <string name="discard">Descartar</string>
@@ -532,11 +535,34 @@
     <string name="target_value_label">Objetivo</string>
     <string name="interval_seconds_label">Duración del descanso (seg.)</string>
     <string name="program_start">Iniciar</string>
+    <string name="exercise_settings">Configuración del ejercicio</string>
+    <string name="sets_label">Series</string>
+    <string name="get_ready">Prepárate</string>
+    <string name="executing_label">En progreso</string>
+    <string name="complete_button">Completar</string>
+    <string name="abort_button">Cancelar</string>
     <string name="program_use_program">Programa</string>
     <string name="program_use_challenge">Ejercicio</string>
+    <string name="program_use_previous">Anterior</string>
     <string name="program_use_all_program">Todo Programa</string>
     <string name="program_use_all_challenge">Todo Desafío</string>
     <string name="program_previous_value">Usando valor anterior</string>
     <string name="next_exercise_label">Siguiente: %s</string>
     <string name="program_set_label">Serie %d:</string>
+
+    <!-- Missing keys -->
+    <string name="interval_short">Descanso:</string>
+    <string name="sets_label_short">Series:</string>
+    <string name="unit_seconds_short">s</string>
+    <string name="new_program">Nuevo programa</string>
+    <string name="single_mode">Individual</string>
+    <string name="single_mode_description">Un ejercicio a la vez</string>
+    <string name="start_countdown">Cuenta regresiva inicial</string>
+    <string name="timer_mode_label">Modo temporizador</string>
+    <string name="timer_on">ACT</string>
+    <string name="timer_off">DES</string>
+    <string name="timer_mode_on_description">Cuenta regresiva automática durante el ejercicio</string>
+    <string name="timer_mode_off_description">Botón de finalización manual</string>
+    <string name="workout_mode_selection">Seleccionar modo</string>
+    <string name="record_weight_for_graph">Registrar peso para este ejercicio</string>
 </resources>

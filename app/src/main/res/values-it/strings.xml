@@ -523,6 +523,9 @@
     <string name="program_interval_format">Riposo %ds</string>
     <string name="delete_program">Elimina programma</string>
     <string name="delete_program_warning">Eliminare \"%s\"?</string>
+    <string name="duplicate_program">Duplica</string>
+    <string name="program_duplicated">Programma duplicato</string>
+    <string name="program_copy_suffix">(Copia)</string>
     <string name="discard_changes_title">Annullare le modifiche?</string>
     <string name="discard_changes_message">Hai modifiche non salvate. Sei sicuro di volerle annullare?</string>
     <string name="discard">Annulla</string>
@@ -532,11 +535,34 @@
     <string name="target_value_label">Obiettivo</string>
     <string name="interval_seconds_label">Durata riposo (sec.)</string>
     <string name="program_start">Avvia</string>
+    <string name="exercise_settings">Impostazioni esercizio</string>
+    <string name="sets_label">Serie</string>
+    <string name="get_ready">Preparati</string>
+    <string name="executing_label">In corso</string>
+    <string name="complete_button">Completa</string>
+    <string name="abort_button">Annulla</string>
     <string name="program_use_program">Programma</string>
     <string name="program_use_challenge">Esercizio</string>
+    <string name="program_use_previous">Precedente</string>
     <string name="program_use_all_program">Tutto Programma</string>
     <string name="program_use_all_challenge">Tutta Sfida</string>
     <string name="program_previous_value">Usando valore precedente</string>
     <string name="next_exercise_label">Prossimo: %s</string>
     <string name="program_set_label">Serie %d:</string>
+
+    <!-- Missing keys -->
+    <string name="interval_short">Riposo:</string>
+    <string name="sets_label_short">Serie:</string>
+    <string name="unit_seconds_short">s</string>
+    <string name="new_program">Nuovo programma</string>
+    <string name="single_mode">Singolo</string>
+    <string name="single_mode_description">Un esercizio alla volta</string>
+    <string name="start_countdown">Conto alla rovescia iniziale</string>
+    <string name="timer_mode_label">Modalità timer</string>
+    <string name="timer_on">ON</string>
+    <string name="timer_off">OFF</string>
+    <string name="timer_mode_on_description">Conto alla rovescia auto durante l\'esercizio</string>
+    <string name="timer_mode_off_description">Pulsante completamento manuale</string>
+    <string name="workout_mode_selection">Seleziona modalità</string>
+    <string name="record_weight_for_graph">Registra peso per questo esercizio</string>
 </resources>

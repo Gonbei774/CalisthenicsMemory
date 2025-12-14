@@ -523,6 +523,9 @@
     <string name="program_interval_format">休息%d秒</string>
     <string name="delete_program">删除计划</string>
     <string name="delete_program_warning">删除\"%s\"？</string>
+    <string name="duplicate_program">复制</string>
+    <string name="program_duplicated">计划已复制</string>
+    <string name="program_copy_suffix">（副本）</string>
     <string name="discard_changes_title">放弃更改？</string>
     <string name="discard_changes_message">您有未保存的更改。确定要放弃吗？</string>
     <string name="discard">放弃</string>
@@ -532,11 +535,34 @@
     <string name="target_value_label">目标</string>
     <string name="interval_seconds_label">休息时长（秒）</string>
     <string name="program_start">开始</string>
+    <string name="exercise_settings">动作设置</string>
+    <string name="sets_label">组数</string>
+    <string name="get_ready">准备</string>
+    <string name="executing_label">进行中</string>
+    <string name="complete_button">完成</string>
+    <string name="abort_button">中止</string>
     <string name="program_use_program">计划值</string>
     <string name="program_use_challenge">动作值</string>
+    <string name="program_use_previous">上次值</string>
     <string name="program_use_all_program">全部计划值</string>
     <string name="program_use_all_challenge">全部目标值</string>
     <string name="program_previous_value">使用上次的值</string>
     <string name="next_exercise_label">下一个：%s</string>
     <string name="program_set_label">第%d组：</string>
+
+    <!-- Missing keys -->
+    <string name="interval_short">休息:</string>
+    <string name="sets_label_short">组数:</string>
+    <string name="unit_seconds_short">秒</string>
+    <string name="new_program">新建方案</string>
+    <string name="single_mode">单项</string>
+    <string name="single_mode_description">一次一个动作</string>
+    <string name="start_countdown">开始倒计时</string>
+    <string name="timer_mode_label">计时模式</string>
+    <string name="timer_on">开</string>
+    <string name="timer_off">关</string>
+    <string name="timer_mode_on_description">运动时自动倒计时</string>
+    <string name="timer_mode_off_description">手动完成按钮</string>
+    <string name="workout_mode_selection">选择模式</string>
+    <string name="record_weight_for_graph">记录此动作的重量</string>
 </resources>

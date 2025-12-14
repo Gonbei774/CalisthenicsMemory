@@ -534,6 +534,9 @@
     <string name="program_interval_format">インターバル %d秒</string>
     <string name="delete_program">プログラムを削除</string>
     <string name="delete_program_warning">「%s」を削除しますか？</string>
+    <string name="duplicate_program">複製</string>
+    <string name="program_duplicated">プログラムを複製しました</string>
+    <string name="program_copy_suffix">（コピー）</string>
     <string name="discard_changes_title">変更を破棄しますか？</string>
     <string name="discard_changes_message">保存されていない変更があります。破棄してもよろしいですか？</string>
     <string name="discard">破棄</string>
@@ -553,9 +556,16 @@
     <string name="abort_button">中止</string>
     <string name="program_use_program">プログラム値</string>
     <string name="program_use_challenge">種目値</string>
+    <string name="program_use_previous">前回値</string>
     <string name="program_use_all_program">全てプログラム値</string>
     <string name="program_use_all_challenge">全て課題値</string>
     <string name="program_previous_value">前回の値を使用</string>
     <string name="next_exercise_label">次: %s</string>
     <string name="program_set_label">セット%d:</string>
+
+    <!-- Short labels -->
+    <string name="interval_short">休憩:</string>
+    <string name="sets_label_short">セット:</string>
+    <string name="unit_seconds_short">秒</string>
+    <string name="record_weight_for_graph">この種目の重量を記録する</string>
 </resources>
