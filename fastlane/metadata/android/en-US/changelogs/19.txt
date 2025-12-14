@@ -1,0 +1,5 @@
+Bug Fix Release (Issue #8)
+
+Fixed:
+• JSON import now correctly preserves program data
+• Program configurations are included in backup/restore

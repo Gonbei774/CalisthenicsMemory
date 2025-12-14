@@ -1,0 +1,5 @@
+Correzione bug (Issue #8)
+
+Corretto:
+• L'importazione JSON ora preserva correttamente i dati del programma
+• Le configurazioni del programma sono incluse nel backup/ripristino

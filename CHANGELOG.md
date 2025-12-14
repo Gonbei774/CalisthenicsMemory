@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.1] - 2025-12-14
+
+### Fixed
+- **JSON import now preserves program data** (Issue #8)
+  - Program configurations are now included in backup/restore
+  - Importing backups no longer deletes program data
+
 ## [1.14.0] - 2025-12-14
 
 ### Added
@@ -290,6 +297,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.14.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.14.1
 [1.14.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.14.0
 [1.13.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.13.0
 [1.12.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.12.0
