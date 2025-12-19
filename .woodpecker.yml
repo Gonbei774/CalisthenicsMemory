@@ -1,6 +1,8 @@
 when:
   - event: tag
     ref: refs/tags/v*
+  - event: tag
+    ref: refs/tags/beta-*
   - event: push
     branch: master
     path:
@@ -44,11 +46,12 @@ steps:
       - cd app/build/outputs/apk/release/
       - sha256sum app-release.apk > app-release.apk.sha256
 
-  # タグプッシュ時: Codebergリリース作成
+  # 正式リリース (v* タグ)
   - name: release
     image: plugins/gitea-release
     when:
       event: tag
+      ref: refs/tags/v*
     settings:
       api_key:
         from_secret: codeberg_token
@@ -57,3 +60,20 @@ steps:
         - app/build/outputs/apk/release/app-release.apk
         - app/build/outputs/apk/release/app-release.apk.sha256
       title: ${CI_COMMIT_TAG}
+      prerelease: false
+
+  # プレリリース (beta-* タグ)
+  - name: prerelease
+    image: plugins/gitea-release
+    when:
+      event: tag
+      ref: refs/tags/beta-*
+    settings:
+      api_key:
+        from_secret: codeberg_token
+      base_url: https://codeberg.org
+      files:
+        - app/build/outputs/apk/release/app-release.apk
+        - app/build/outputs/apk/release/app-release.apk.sha256
+      title: ${CI_COMMIT_TAG}
+      prerelease: true
