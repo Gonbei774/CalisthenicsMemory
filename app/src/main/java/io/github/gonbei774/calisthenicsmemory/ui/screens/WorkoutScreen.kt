@@ -691,7 +691,11 @@ fun SettingsStep(
         if (exercise.type == "Dynamic") {
             OutlinedTextField(
                 value = repDuration,
-                onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) repDuration = it },
+                onValueChange = {
+                    if (it.isEmpty() || (it.all { c -> c.isDigit() } && it.toIntOrNull()?.let { num -> num in 1..60 } == true)) {
+                        repDuration = it
+                    }
+                },
                 label = { Text(stringResource(R.string.rep_duration_label)) },
                 placeholder = { Text("5", color = Slate400) },
                 modifier = Modifier.fillMaxWidth(),
@@ -836,7 +840,7 @@ fun SettingsStep(
         Spacer(modifier = Modifier.height(24.dp))
 
         val isValid = sets.isNotEmpty() && targetValue.isNotEmpty() &&
-                (exercise.type != "Dynamic" || repDuration.isNotEmpty())
+                (exercise.type != "Dynamic" || repDuration.toIntOrNull()?.let { it >= 1 } == true)
 
         Button(
             onClick = {
