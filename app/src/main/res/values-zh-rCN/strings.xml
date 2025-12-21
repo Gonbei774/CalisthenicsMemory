@@ -550,6 +550,11 @@
     <string name="next_exercise_label">下一个：%s</string>
     <string name="program_set_label">第%d组：</string>
 
+    <!-- Exit Workout Confirmation -->
+    <string name="exit_workout_title">退出训练？</string>
+    <string name="exit_workout_message">进度将不会保存。</string>
+    <string name="exit_workout_confirm">退出</string>
+
     <!-- Missing keys -->
     <string name="interval_short">休息:</string>
     <string name="sets_label_short">组数:</string>

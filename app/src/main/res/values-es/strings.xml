@@ -550,6 +550,11 @@
     <string name="next_exercise_label">Siguiente: %s</string>
     <string name="program_set_label">Serie %d:</string>
 
+    <!-- Exit Workout Confirmation -->
+    <string name="exit_workout_title">¿Salir del entrenamiento?</string>
+    <string name="exit_workout_message">El progreso no se guardará.</string>
+    <string name="exit_workout_confirm">Salir</string>
+
     <!-- Missing keys -->
     <string name="interval_short">Descanso:</string>
     <string name="sets_label_short">Series:</string>

@@ -559,4 +559,9 @@
     <string name="program_previous_value">Using previous value</string>
     <string name="next_exercise_label">Next: %s</string>
     <string name="program_set_label">Set %d:</string>
+
+    <!-- Exit Workout Confirmation -->
+    <string name="exit_workout_title">Exit workout?</string>
+    <string name="exit_workout_message">Progress will not be saved.</string>
+    <string name="exit_workout_confirm">Exit</string>
 </resources>

@@ -563,6 +563,11 @@
     <string name="next_exercise_label">次: %s</string>
     <string name="program_set_label">セット%d:</string>
 
+    <!-- Exit Workout Confirmation -->
+    <string name="exit_workout_title">トレーニングを中断しますか？</string>
+    <string name="exit_workout_message">進捗は保存されません。</string>
+    <string name="exit_workout_confirm">中断する</string>
+
     <!-- Short labels -->
     <string name="interval_short">休憩:</string>
     <string name="sets_label_short">セット:</string>

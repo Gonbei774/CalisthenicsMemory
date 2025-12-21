@@ -550,6 +550,11 @@
     <string name="next_exercise_label">Nächste: %s</string>
     <string name="program_set_label">Satz %d:</string>
 
+    <!-- Exit Workout Confirmation -->
+    <string name="exit_workout_title">Training abbrechen?</string>
+    <string name="exit_workout_message">Der Fortschritt wird nicht gespeichert.</string>
+    <string name="exit_workout_confirm">Abbrechen</string>
+
     <!-- Missing keys -->
     <string name="interval_short">Pause:</string>
     <string name="sets_label_short">Sätze:</string>

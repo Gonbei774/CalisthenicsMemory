@@ -248,16 +248,43 @@ fun ProgramExecutionScreen(
         }
     }
 
+    // 中断確認ダイアログ
+    var showExitConfirmDialog by remember { mutableStateOf(false) }
+
     // 戻るボタンのハンドリング
     BackHandler {
         when (currentStep) {
             is ProgramExecutionStep.Confirm -> onNavigateBack()
             is ProgramExecutionStep.Result -> onNavigateBack()
             else -> {
-                // 実行中は確認ダイアログを表示（簡略化のため直接戻る）
-                onNavigateBack()
+                // 実行中は確認ダイアログを表示
+                showExitConfirmDialog = true
             }
         }
+    }
+
+    // 中断確認ダイアログ
+    if (showExitConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitConfirmDialog = false },
+            title = { Text(stringResource(R.string.exit_workout_title)) },
+            text = { Text(stringResource(R.string.exit_workout_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showExitConfirmDialog = false
+                        onNavigateBack()
+                    }
+                ) {
+                    Text(stringResource(R.string.exit_workout_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExitConfirmDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -274,7 +301,13 @@ fun ProgramExecutionScreen(
                         .padding(horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = {
+                        when (currentStep) {
+                            is ProgramExecutionStep.Confirm -> onNavigateBack()
+                            is ProgramExecutionStep.Result -> onNavigateBack()
+                            else -> showExitConfirmDialog = true
+                        }
+                    }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back),
