@@ -255,9 +255,8 @@ fun ProgramExecutionScreen(
     BackHandler {
         when (currentStep) {
             is ProgramExecutionStep.Confirm -> onNavigateBack()
-            is ProgramExecutionStep.Result -> onNavigateBack()
             else -> {
-                // 実行中は確認ダイアログを表示
+                // 実行中・完了画面は確認ダイアログを表示
                 showExitConfirmDialog = true
             }
         }
@@ -304,7 +303,6 @@ fun ProgramExecutionScreen(
                     IconButton(onClick = {
                         when (currentStep) {
                             is ProgramExecutionStep.Confirm -> onNavigateBack()
-                            is ProgramExecutionStep.Result -> onNavigateBack()
                             else -> showExitConfirmDialog = true
                         }
                     }) {

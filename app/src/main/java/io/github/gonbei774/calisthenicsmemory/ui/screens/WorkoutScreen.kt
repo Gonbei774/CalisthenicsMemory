@@ -140,10 +140,9 @@ fun WorkoutScreen(
         when (currentStep) {
             is WorkoutStep.ModeSelection,
             is WorkoutStep.ExerciseSelection,
-            is WorkoutStep.Settings,
-            is WorkoutStep.Confirmation -> onNavigateBack()
+            is WorkoutStep.Settings -> onNavigateBack()
             else -> {
-                // 実行中は確認ダイアログを表示
+                // 実行中・完了画面は確認ダイアログを表示
                 showExitConfirmDialog = true
             }
         }
@@ -208,8 +207,7 @@ fun WorkoutScreen(
                         when (currentStep) {
                             is WorkoutStep.ModeSelection,
                             is WorkoutStep.ExerciseSelection,
-                            is WorkoutStep.Settings,
-                            is WorkoutStep.Confirmation -> onNavigateBack()
+                            is WorkoutStep.Settings -> onNavigateBack()
                             else -> showExitConfirmDialog = true
                         }
                     }) {
