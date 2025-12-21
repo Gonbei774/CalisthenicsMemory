@@ -2,6 +2,7 @@ package io.github.gonbei774.calisthenicsmemory.ui.screens
 
 import android.media.ToneGenerator
 import android.media.AudioManager
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -131,6 +132,23 @@ fun WorkoutScreen(
     // ワークアウトモードのコメント文字列
     val workoutModeComment = stringResource(R.string.workout_mode_comment)
 
+    // 中断確認ダイアログ
+    var showExitConfirmDialog by remember { mutableStateOf(false) }
+
+    // 戻るボタンのハンドリング
+    BackHandler {
+        when (currentStep) {
+            is WorkoutStep.ModeSelection,
+            is WorkoutStep.ExerciseSelection,
+            is WorkoutStep.Settings,
+            is WorkoutStep.Confirmation -> onNavigateBack()
+            else -> {
+                // 実行中は確認ダイアログを表示
+                showExitConfirmDialog = true
+            }
+        }
+    }
+
     // ワークアウト実行中（タイマーが動いている間）のみForeground Serviceを起動
     LaunchedEffect(currentStep) {
         when (currentStep) {
@@ -186,7 +204,15 @@ fun WorkoutScreen(
                         .padding(horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = {
+                        when (currentStep) {
+                            is WorkoutStep.ModeSelection,
+                            is WorkoutStep.ExerciseSelection,
+                            is WorkoutStep.Settings,
+                            is WorkoutStep.Confirmation -> onNavigateBack()
+                            else -> showExitConfirmDialog = true
+                        }
+                    }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back),
@@ -342,6 +368,30 @@ fun WorkoutScreen(
                 }
             }
         }
+    }
+
+    // 中断確認ダイアログ
+    if (showExitConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitConfirmDialog = false },
+            title = { Text(stringResource(R.string.exit_workout_title)) },
+            text = { Text(stringResource(R.string.exit_workout_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showExitConfirmDialog = false
+                        onNavigateBack()
+                    }
+                ) {
+                    Text(stringResource(R.string.exit_workout_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExitConfirmDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 }
 
