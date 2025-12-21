@@ -571,4 +571,9 @@
     <string name="timer_mode_off_description">Manueller Abschluss-Button</string>
     <string name="workout_mode_selection">Modus wählen</string>
     <string name="record_weight_for_graph">Gewicht für diese Übung aufzeichnen</string>
+    <string name="complete_with_reps">✓ Fertig (%d Wdh.)</string>
+    <string name="target_reps_format">Ziel: %d Wdh.</string>
+    <string name="paused_label">Pausiert</string>
+    <string name="elapsed_target_format">Vergangen: %1$ds / Ziel: %2$ds</string>
+    <string name="complete_with_time">✓ Fertig (%ds)</string>
 </resources>

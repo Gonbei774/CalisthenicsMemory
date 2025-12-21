@@ -571,4 +571,9 @@
     <string name="timer_mode_off_description">Botón de finalización manual</string>
     <string name="workout_mode_selection">Seleccionar modo</string>
     <string name="record_weight_for_graph">Registrar peso para este ejercicio</string>
+    <string name="complete_with_reps">✓ Completar (%d reps)</string>
+    <string name="target_reps_format">Objetivo: %d reps</string>
+    <string name="paused_label">Pausado</string>
+    <string name="elapsed_target_format">Transcurrido: %1$ds / Objetivo: %2$ds</string>
+    <string name="complete_with_time">✓ Completar (%ds)</string>
 </resources>

@@ -565,6 +565,8 @@
     <string name="paused_label">Paused</string>
     <string name="elapsed_target_format">Elapsed: %1$ds / Target: %2$ds</string>
     <string name="complete_with_time">✓ Complete (%ds)</string>
+    <string name="complete_with_reps">✓ Complete (%d reps)</string>
+    <string name="target_reps_format">Target: %d reps</string>
 
     <!-- Exit Workout Confirmation -->
     <string name="exit_workout_title">Exit workout?</string>

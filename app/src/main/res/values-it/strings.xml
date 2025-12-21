@@ -571,4 +571,9 @@
     <string name="timer_mode_off_description">Pulsante completamento manuale</string>
     <string name="workout_mode_selection">Seleziona modalità</string>
     <string name="record_weight_for_graph">Registra peso per questo esercizio</string>
+    <string name="complete_with_reps">✓ Completa (%d reps)</string>
+    <string name="target_reps_format">Obiettivo: %d reps</string>
+    <string name="paused_label">In pausa</string>
+    <string name="elapsed_target_format">Trascorso: %1$ds / Obiettivo: %2$ds</string>
+    <string name="complete_with_time">✓ Completa (%ds)</string>
 </resources>

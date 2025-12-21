@@ -579,4 +579,6 @@
     <string name="sets_label_short">セット:</string>
     <string name="unit_seconds_short">秒</string>
     <string name="record_weight_for_graph">この種目の重量を記録する</string>
+    <string name="complete_with_reps">✓ 完了 (%d回)</string>
+    <string name="target_reps_format">目標: %d回</string>
 </resources>

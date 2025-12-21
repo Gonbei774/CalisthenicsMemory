@@ -571,4 +571,9 @@
     <string name="timer_mode_off_description">手动完成按钮</string>
     <string name="workout_mode_selection">选择模式</string>
     <string name="record_weight_for_graph">记录此动作的重量</string>
+    <string name="complete_with_reps">✓ 完成 (%d次)</string>
+    <string name="target_reps_format">目标：%d次</string>
+    <string name="paused_label">已暂停</string>
+    <string name="elapsed_target_format">已用时：%1$d秒 / 目标：%2$d秒</string>
+    <string name="complete_with_time">✓ 完成 (%d秒)</string>
 </resources>
