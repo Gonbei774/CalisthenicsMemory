@@ -269,6 +269,7 @@ fun WorkoutScreen(
                 is WorkoutStep.StartInterval -> {
                     StartIntervalStep(
                         session = step.session,
+                        currentSetIndex = step.currentSetIndex,
                         toneGenerator = toneGenerator,
                         flashController = flashController,
                         isFlashEnabled = isFlashEnabled,
@@ -950,6 +951,7 @@ fun SettingsStep(
 @Composable
 fun StartIntervalStep(
     session: WorkoutSession,
+    currentSetIndex: Int,
     toneGenerator: ToneGenerator,
     flashController: FlashController,
     isFlashEnabled: Boolean,
@@ -1018,6 +1020,9 @@ fun StartIntervalStep(
                 color = Orange600
             )
         }
+
+        // 次のセット情報
+        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -1231,6 +1236,9 @@ fun ExecutingStep(
                 )
             }
         }
+
+        // 次のセット情報
+        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -1786,6 +1794,38 @@ fun saveWorkoutRecords(
                 weightG = session.weightG
             )
         }
+    }
+}
+
+// 次のセット情報を表示するコンポーザブル（シングルモード用）
+@Composable
+fun NextSetInfo(
+    session: WorkoutSession,
+    currentSetIndex: Int
+) {
+    val nextSetIndex = currentSetIndex + 1
+    val nextSet = session.sets.getOrNull(nextSetIndex) ?: return
+
+    val nextSideText = when (nextSet.side) {
+        "Right" -> stringResource(R.string.side_right)
+        "Left" -> stringResource(R.string.side_left)
+        else -> null
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(vertical = 8.dp)
+    ) {
+        // 次のセット情報
+        Text(
+            text = if (nextSideText != null) {
+                stringResource(R.string.next_set_format_with_side, nextSet.setNumber, session.totalSets, nextSideText)
+            } else {
+                stringResource(R.string.next_set_format, nextSet.setNumber, session.totalSets)
+            },
+            fontSize = 16.sp,
+            color = Slate400
+        )
     }
 }
 

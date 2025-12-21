@@ -1247,6 +1247,9 @@ private fun ProgramStartIntervalStep(
         )
 
         Spacer(modifier = Modifier.weight(1f))
+
+        // 次の種目/セット情報
+        NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
     }
 }
 
@@ -1359,6 +1362,11 @@ private fun ProgramExecutingStepTimerOff(
         }
 
         Spacer(modifier = Modifier.weight(1f))
+
+        // 次の種目/セット情報
+        NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // 完了ボタン
         Button(
@@ -1569,7 +1577,10 @@ private fun ProgramExecutingStepTimerOn(
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        // 次の種目/セット情報
+        NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // 一時停止/再開ボタン
         Button(
@@ -1707,16 +1718,15 @@ private fun ProgramIntervalStep(
                     else -> null
                 }
 
-                val isNextDifferentExercise = next.exerciseIndex != currentSet.exerciseIndex
-                if (isNextDifferentExercise) {
-                    Text(
-                        text = stringResource(R.string.next_exercise_label, nextExercise.name),
-                        fontSize = 18.sp,
-                        color = Slate300,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
+                // 次の種目名（常に表示）
+                Text(
+                    text = stringResource(R.string.next_exercise_label, nextExercise.name),
+                    fontSize = 18.sp,
+                    color = Slate300,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
 
+                // 次のセット情報
                 Text(
                     text = if (nextSideText != null) {
                         stringResource(R.string.set_format_with_side, next.setNumber, nextPe.sets, nextSideText)
@@ -2078,6 +2088,45 @@ private fun ProgramBilateralSetItem(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
         }
+    }
+}
+
+// 次の種目/セット情報を表示するコンポーザブル
+@Composable
+private fun NextExerciseInfo(
+    session: ProgramExecutionSession,
+    currentSetIndex: Int
+) {
+    val nextSetIndex = currentSetIndex + 1
+    val nextSet = session.sets.getOrNull(nextSetIndex) ?: return
+
+    val (nextPe, nextExercise) = session.exercises[nextSet.exerciseIndex]
+    val nextSideText = when (nextSet.side) {
+        "Right" -> stringResource(R.string.side_right)
+        "Left" -> stringResource(R.string.side_left)
+        else -> null
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(vertical = 8.dp)
+    ) {
+        // 次の種目名（常に表示）
+        Text(
+            text = stringResource(R.string.next_exercise_label, nextExercise.name),
+            fontSize = 16.sp,
+            color = Slate400
+        )
+        // 次のセット情報
+        Text(
+            text = if (nextSideText != null) {
+                stringResource(R.string.set_format_with_side, nextSet.setNumber, nextPe.sets, nextSideText)
+            } else {
+                stringResource(R.string.set_format, nextSet.setNumber, nextPe.sets)
+            },
+            fontSize = 14.sp,
+            color = Slate400
+        )
     }
 }
 
