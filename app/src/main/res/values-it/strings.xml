@@ -231,6 +231,7 @@
     <string name="pause_button">Pausa</string>
     <string name="resume_button">Riprendi</string>
     <string name="stop_button">Ferma</string>
+    <string name="retry_set_button">Riprova serie</string>
     <string name="interval_label">Intervallo</string>
     <string name="next_set_format">Prossima: Serie %1$d/%2$d</string>
     <string name="next_set_format_with_side">Prossima: Serie %1$d/%2$d - %3$s</string>

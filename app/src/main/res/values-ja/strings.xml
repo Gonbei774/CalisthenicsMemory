@@ -231,6 +231,7 @@
     <string name="pause_button">一時停止</string>
     <string name="resume_button">再開</string>
     <string name="stop_button">中断</string>
+    <string name="retry_set_button">やり直し</string>
     <string name="interval_label">インターバル</string>
     <string name="next_set_format">次: セット %1$d/%2$d</string>
     <string name="next_set_format_with_side">次: セット %1$d/%2$d - %3$s</string>
@@ -562,6 +563,11 @@
     <string name="program_previous_value">前回の値を使用</string>
     <string name="next_exercise_label">次: %s</string>
     <string name="program_set_label">セット%d:</string>
+
+    <!-- Isometric Manual Mode -->
+    <string name="paused_label">一時停止中</string>
+    <string name="elapsed_target_format">経過: %1$d秒 / 目標: %2$d秒</string>
+    <string name="complete_with_time">✓ 完了（%d秒で記録）</string>
 
     <!-- Exit Workout Confirmation -->
     <string name="exit_workout_title">トレーニングを中断しますか？</string>

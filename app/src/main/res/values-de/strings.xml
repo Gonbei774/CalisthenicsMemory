@@ -231,6 +231,7 @@
     <string name="pause_button">Pause</string>
     <string name="resume_button">Fortsetzen</string>
     <string name="stop_button">Stoppen</string>
+    <string name="retry_set_button">Satz wiederholen</string>
     <string name="interval_label">Pause</string>
     <string name="next_set_format">Nächster: Satz %1$d/%2$d</string>
     <string name="next_set_format_with_side">Nächster: Satz %1$d/%2$d - %3$s</string>

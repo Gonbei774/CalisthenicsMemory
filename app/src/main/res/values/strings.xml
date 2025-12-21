@@ -234,6 +234,7 @@
     <string name="pause_button">Pause</string>
     <string name="resume_button">Resume</string>
     <string name="stop_button">Stop</string>
+    <string name="retry_set_button">Retry Set</string>
     <string name="interval_label">Interval</string>
     <string name="next_set_format">Next: Set %1$d/%2$d</string>
     <string name="next_set_format_with_side">Next: Set %1$d/%2$d - %3$s</string>
@@ -559,6 +560,11 @@
     <string name="program_previous_value">Using previous value</string>
     <string name="next_exercise_label">Next: %s</string>
     <string name="program_set_label">Set %d:</string>
+
+    <!-- Isometric Manual Mode -->
+    <string name="paused_label">Paused</string>
+    <string name="elapsed_target_format">Elapsed: %1$ds / Target: %2$ds</string>
+    <string name="complete_with_time">✓ Complete (%ds)</string>
 
     <!-- Exit Workout Confirmation -->
     <string name="exit_workout_title">Exit workout?</string>

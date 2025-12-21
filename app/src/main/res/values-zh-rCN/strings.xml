@@ -231,6 +231,7 @@
     <string name="pause_button">暂停</string>
     <string name="resume_button">继续</string>
     <string name="stop_button">停止</string>
+    <string name="retry_set_button">重试组</string>
     <string name="interval_label">间隔</string>
     <string name="next_set_format">下一组：第%1$d/%2$d组</string>
     <string name="next_set_format_with_side">下一组：第%1$d/%2$d组 - %3$s</string>

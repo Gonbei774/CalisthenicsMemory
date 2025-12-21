@@ -231,6 +231,7 @@
     <string name="pause_button">Pause</string>
     <string name="resume_button">Reprendre</string>
     <string name="stop_button">Arrêter</string>
+    <string name="retry_set_button">Recommencer la série</string>
     <string name="interval_label">Repos</string>
     <string name="next_set_format">Suivant : Série %1$d/%2$d</string>
     <string name="next_set_format_with_side">Suivant : Série %1$d/%2$d - %3$s</string>
