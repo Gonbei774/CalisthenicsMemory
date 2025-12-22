@@ -3387,14 +3387,14 @@ private fun ProgramCircularTimer(
                 startAngle = -90f,
                 sweepAngle = 360f,
                 useCenter = false,
-                style = Stroke(width = 20.dp.toPx(), cap = StrokeCap.Round)
+                style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
             )
             drawArc(
                 color = color,
                 startAngle = -90f,
                 sweepAngle = 360f * progress,
                 useCenter = false,
-                style = Stroke(width = 20.dp.toPx(), cap = StrokeCap.Round)
+                style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
             )
         }
         Text(
