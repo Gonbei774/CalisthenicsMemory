@@ -5,6 +5,7 @@ import android.media.ToneGenerator
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -66,9 +67,7 @@ data class ProgramExecutionSession(
     val program: Program,
     val exercises: List<Pair<ProgramExercise, Exercise>>, // ProgramExercise + Exercise情報
     val sets: MutableList<ProgramWorkoutSet>,             // 実行順の全セット
-    var comment: String = "",
-    val timerMode: Boolean,                               // タイマーモード（SharedPreferencesから）
-    val startInterval: Int                                // 開始カウントダウン（SharedPreferencesから）
+    var comment: String = ""
 )
 
 // プログラム実行画面のステップ
@@ -194,21 +193,11 @@ fun ProgramExecutionScreen(
             }
         }
 
-        // timerModeとstartIntervalはSharedPreferencesから取得
-        val timerMode = workoutPreferences.isTimerModeAuto()
-        val startInterval = if (workoutPreferences.isStartCountdownEnabled()) {
-            workoutPreferences.getStartCountdown()
-        } else {
-            0
-        }
-
         val newSession = ProgramExecutionSession(
             program = prog,
             exercises = exercisePairs,
             sets = allSets,
-            comment = "【Program】${prog.name}",
-            timerMode = timerMode,
-            startInterval = startInterval
+            comment = "【Program】${prog.name}"
         )
         session = newSession
         currentStep = ProgramExecutionStep.Confirm(newSession)
@@ -219,6 +208,13 @@ fun ProgramExecutionScreen(
     val flashController = remember { FlashController(context) }
     val isFlashEnabled = remember { workoutPreferences.isFlashNotificationEnabled() }
     val isKeepScreenOnEnabled = remember { workoutPreferences.isKeepScreenOnEnabled() }
+
+    // 音声設定（ProgramConfirmStepで変更可能）
+    var isAutoMode by remember { mutableStateOf(workoutPreferences.isAutoMode()) }
+    var startCountdownSeconds by remember { mutableIntStateOf(workoutPreferences.getStartCountdown()) }
+    var isDynamicCountSoundEnabled by remember { mutableStateOf(workoutPreferences.isDynamicCountSoundEnabled()) }
+    var isIsometricIntervalSoundEnabled by remember { mutableStateOf(workoutPreferences.isIsometricIntervalSoundEnabled()) }
+    var isometricIntervalSeconds by remember { mutableIntStateOf(workoutPreferences.getIsometricIntervalSeconds()) }
 
     // Foreground Service制御
     LaunchedEffect(currentStep) {
@@ -350,8 +346,9 @@ fun ProgramExecutionScreen(
                         ProgramConfirmStep(
                             session = step.session,
                             onUpdateTargetValue = { setIndex, newValue ->
-                                val sets = step.session.sets
-                                sets[setIndex] = sets[setIndex].copy(targetValue = newValue)
+                                val newSets = step.session.sets.toMutableList()
+                                newSets[setIndex] = newSets[setIndex].copy(targetValue = newValue)
+                                currentStep = ProgramExecutionStep.Confirm(step.session.copy(sets = newSets))
                             },
                             onUpdateInterval = { exerciseIndex, newInterval ->
                                 // この種目の全セットのインターバルを更新
@@ -361,6 +358,19 @@ fun ProgramExecutionScreen(
                                         sets[index] = set.copy(intervalSeconds = newInterval)
                                     }
                                 }
+                                // 再構成をトリガー（新しいセッションオブジェクトを作成）
+                                currentStep = ProgramExecutionStep.Confirm(step.session.copy())
+                            },
+                            onUpdateExerciseSetsValue = { exerciseIndex, delta ->
+                                // この種目の全セットの値を一括更新
+                                val newSets = step.session.sets.toMutableList()
+                                newSets.forEachIndexed { index, set ->
+                                    if (set.exerciseIndex == exerciseIndex) {
+                                        val newValue = (set.targetValue + delta).coerceAtLeast(0)
+                                        newSets[index] = set.copy(targetValue = newValue)
+                                    }
+                                }
+                                currentStep = ProgramExecutionStep.Confirm(step.session.copy(sets = newSets))
                             },
                             onUpdateSetCount = { exerciseIndex, newSetCount ->
                                 // セット数を変更: セットリストを再構築
@@ -455,8 +465,8 @@ fun ProgramExecutionScreen(
                                         }
                                     }
                                 }
-                                step.session.sets.clear()
-                                step.session.sets.addAll(newSets)
+                                val newSession = step.session.copy(sets = newSets.toMutableList())
+                                currentStep = ProgramExecutionStep.Confirm(newSession)
                             },
                             onUseAllChallengeValues = {
                                 // セット一覧を再構築（種目設定のセット数・目標値・インターバルを使用、なければプログラム設定）
@@ -492,8 +502,8 @@ fun ProgramExecutionScreen(
                                         }
                                     }
                                 }
-                                step.session.sets.clear()
-                                step.session.sets.addAll(newSets)
+                                val newSession = step.session.copy(sets = newSets.toMutableList())
+                                currentStep = ProgramExecutionStep.Confirm(newSession)
                             },
                             onUseAllPreviousRecordValues = {
                                 // 前回記録を取得してセット一覧を再構築（非同期）
@@ -559,13 +569,49 @@ fun ProgramExecutionScreen(
                                             }
                                         }
                                     }
-                                    step.session.sets.clear()
-                                    step.session.sets.addAll(newSets)
+                                    val newSession = step.session.copy(sets = newSets.toMutableList())
+                                    currentStep = ProgramExecutionStep.Confirm(newSession)
                                 }
+                            },
+                            onUpdateAllExercisesValue = { delta ->
+                                // 全種目の全セットの値を更新（最小値0）
+                                val sets = step.session.sets
+                                sets.forEachIndexed { index, set ->
+                                    val newValue = (set.targetValue + delta).coerceAtLeast(0)
+                                    sets[index] = set.copy(targetValue = newValue)
+                                }
+                                // 再構成をトリガー（新しいセッションオブジェクトを作成）
+                                currentStep = ProgramExecutionStep.Confirm(step.session.copy())
+                            },
+                            // 音声設定
+                            isAutoMode = isAutoMode,
+                            startCountdownSeconds = startCountdownSeconds,
+                            isDynamicCountSoundEnabled = isDynamicCountSoundEnabled,
+                            isIsometricIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
+                            isometricIntervalSeconds = isometricIntervalSeconds,
+                            onAutoModeChange = { value ->
+                                isAutoMode = value
+                                workoutPreferences.setAutoMode(value)
+                            },
+                            onStartCountdownChange = { value ->
+                                startCountdownSeconds = value
+                                workoutPreferences.setStartCountdown(value)
+                            },
+                            onDynamicCountSoundChange = { value ->
+                                isDynamicCountSoundEnabled = value
+                                workoutPreferences.setDynamicCountSoundEnabled(value)
+                            },
+                            onIsometricIntervalSoundChange = { value ->
+                                isIsometricIntervalSoundEnabled = value
+                                workoutPreferences.setIsometricIntervalSoundEnabled(value)
+                            },
+                            onIsometricIntervalSecondsChange = { value ->
+                                isometricIntervalSeconds = value
+                                workoutPreferences.setIsometricIntervalSeconds(value)
                             },
                             onStart = {
                                 // プログラムの開始カウントダウンが0より大きい場合のみ表示
-                                if (step.session.startInterval > 0) {
+                                if (startCountdownSeconds > 0) {
                                     currentStep = ProgramExecutionStep.StartInterval(step.session, 0)
                                 } else {
                                     currentStep = ProgramExecutionStep.Executing(step.session, 0)
@@ -578,6 +624,7 @@ fun ProgramExecutionScreen(
                         ProgramStartIntervalStep(
                             session = step.session,
                             currentSetIndex = step.currentSetIndex,
+                            startCountdownSeconds = startCountdownSeconds,
                             toneGenerator = toneGenerator,
                             flashController = flashController,
                             isFlashEnabled = isFlashEnabled,
@@ -592,7 +639,7 @@ fun ProgramExecutionScreen(
                         val currentSet = step.session.sets[step.currentSetIndex]
                         val (_, currentExercise) = step.session.exercises[currentSet.exerciseIndex]
 
-                        if (step.session.timerMode) {
+                        if (isAutoMode) {
                             // タイマーON: 自動カウント
                             if (currentExercise.type == "Isometric") {
                                 // Isometric種目: 新UIで自動遷移
@@ -602,6 +649,8 @@ fun ProgramExecutionScreen(
                                     toneGenerator = toneGenerator,
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
+                                    isIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
+                                    intervalSeconds = isometricIntervalSeconds,
                                     onSetComplete = { actualValue ->
                                         val sets = step.session.sets
                                         sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
@@ -614,7 +663,7 @@ fun ProgramExecutionScreen(
                                         if (nextIndex < sets.size) {
                                             if (completedSet.intervalSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
-                                            } else if (step.session.startInterval > 0) {
+                                            } else if (startCountdownSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                             } else {
                                                 currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
@@ -635,6 +684,7 @@ fun ProgramExecutionScreen(
                                     toneGenerator = toneGenerator,
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
+                                    isCountSoundEnabled = isDynamicCountSoundEnabled,
                                     onSetComplete = { actualValue ->
                                         val sets = step.session.sets
                                         sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
@@ -647,7 +697,7 @@ fun ProgramExecutionScreen(
                                         if (nextIndex < sets.size) {
                                             if (completedSet.intervalSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
-                                            } else if (step.session.startInterval > 0) {
+                                            } else if (startCountdownSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                             } else {
                                                 currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
@@ -671,6 +721,8 @@ fun ProgramExecutionScreen(
                                     toneGenerator = toneGenerator,
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
+                                    isIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
+                                    intervalSeconds = isometricIntervalSeconds,
                                     onSetComplete = { actualValue ->
                                         val sets = step.session.sets
                                         sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
@@ -684,7 +736,7 @@ fun ProgramExecutionScreen(
                                         if (nextIndex < sets.size) {
                                             if (completedSet.intervalSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
-                                            } else if (step.session.startInterval > 0) {
+                                            } else if (startCountdownSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                             } else {
                                                 currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
@@ -705,6 +757,7 @@ fun ProgramExecutionScreen(
                                     toneGenerator = toneGenerator,
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
+                                    isCountSoundEnabled = isDynamicCountSoundEnabled,
                                     onSetComplete = { actualValue ->
                                         val sets = step.session.sets
                                         sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
@@ -718,7 +771,7 @@ fun ProgramExecutionScreen(
                                         if (nextIndex < sets.size) {
                                             if (completedSet.intervalSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
-                                            } else if (step.session.startInterval > 0) {
+                                            } else if (startCountdownSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                             } else {
                                                 currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
@@ -746,7 +799,7 @@ fun ProgramExecutionScreen(
                                 val nextIndex = step.currentSetIndex + 1
                                 if (nextIndex < step.session.sets.size) {
                                     // プログラムの開始カウントダウンが0より大きい場合のみ表示
-                                    if (step.session.startInterval > 0) {
+                                    if (startCountdownSeconds > 0) {
                                         currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                     } else {
                                         currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
@@ -759,7 +812,7 @@ fun ProgramExecutionScreen(
                                 val nextIndex = step.currentSetIndex + 1
                                 if (nextIndex < step.session.sets.size) {
                                     // プログラムの開始カウントダウンが0より大きい場合のみ表示
-                                    if (step.session.startInterval > 0) {
+                                    if (startCountdownSeconds > 0) {
                                         currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                     } else {
                                         currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
@@ -797,9 +850,22 @@ private fun ProgramConfirmStep(
     onUpdateTargetValue: (Int, Int) -> Unit,
     onUpdateInterval: (Int, Int) -> Unit,  // exerciseIndex, newInterval
     onUpdateSetCount: (Int, Int) -> Unit,  // exerciseIndex, newSetCount
+    onUpdateExerciseSetsValue: (Int, Int) -> Unit,  // exerciseIndex, delta - 種目内の全セット一括更新
     onUseAllProgramValues: () -> Unit,
     onUseAllChallengeValues: () -> Unit,
     onUseAllPreviousRecordValues: () -> Unit,
+    onUpdateAllExercisesValue: (Int) -> Unit,  // delta (+1 or -1)
+    // 音声設定
+    isAutoMode: Boolean,
+    startCountdownSeconds: Int,
+    isDynamicCountSoundEnabled: Boolean,
+    isIsometricIntervalSoundEnabled: Boolean,
+    isometricIntervalSeconds: Int,
+    onAutoModeChange: (Boolean) -> Unit,
+    onStartCountdownChange: (Int) -> Unit,
+    onDynamicCountSoundChange: (Boolean) -> Unit,
+    onIsometricIntervalSoundChange: (Boolean) -> Unit,
+    onIsometricIntervalSecondsChange: (Int) -> Unit,
     onStart: () -> Unit
 ) {
     var refreshKey by remember { mutableIntStateOf(0) }
@@ -811,6 +877,22 @@ private fun ProgramConfirmStep(
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        // 設定セクション
+        SettingsSection(
+            isAutoMode = isAutoMode,
+            startCountdownSeconds = startCountdownSeconds,
+            isDynamicCountSoundEnabled = isDynamicCountSoundEnabled,
+            isIsometricIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
+            isometricIntervalSeconds = isometricIntervalSeconds,
+            onAutoModeChange = onAutoModeChange,
+            onStartCountdownChange = onStartCountdownChange,
+            onDynamicCountSoundChange = onDynamicCountSoundChange,
+            onIsometricIntervalSoundChange = onIsometricIntervalSoundChange,
+            onIsometricIntervalSecondsChange = onIsometricIntervalSecondsChange
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
         // 一括適用ボタン（一列横並び）
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -868,7 +950,67 @@ private fun ProgramConfirmStep(
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // 全種目± ボタン行
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Slate700, RoundedCornerShape(6.dp))
+                .padding(vertical = 6.dp, horizontal = 8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = {
+                    onUpdateAllExercisesValue(-1)
+                    refreshKey++
+                },
+                modifier = Modifier.size(28.dp)
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = Color.Transparent,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
+                ) {
+                    Box(
+                        modifier = Modifier.size(28.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("−", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(R.string.all_exercises_label),
+                fontSize = 12.sp,
+                color = Slate400
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            IconButton(
+                onClick = {
+                    onUpdateAllExercisesValue(1)
+                    refreshKey++
+                },
+                modifier = Modifier.size(28.dp)
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = Color.Transparent,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
+                ) {
+                    Box(
+                        modifier = Modifier.size(28.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("+", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         // 種目リスト
         LazyColumn(
@@ -915,6 +1057,10 @@ private fun ProgramConfirmStep(
                     },
                     onUpdateSetCount = { newSetCount ->
                         onUpdateSetCount(exerciseIndex, newSetCount)
+                    },
+                    onUpdateAllSetsValue = { delta ->
+                        // この種目の全セットの値を一括更新
+                        onUpdateExerciseSetsValue(exerciseIndex, delta)
                     }
                 )
             }
@@ -940,6 +1086,228 @@ private fun ProgramConfirmStep(
     }
 }
 
+// 設定セクション（ProgramConfirmStep内）
+@Composable
+private fun SettingsSection(
+    isAutoMode: Boolean,
+    startCountdownSeconds: Int,
+    isDynamicCountSoundEnabled: Boolean,
+    isIsometricIntervalSoundEnabled: Boolean,
+    isometricIntervalSeconds: Int,
+    onAutoModeChange: (Boolean) -> Unit,
+    onStartCountdownChange: (Int) -> Unit,
+    onDynamicCountSoundChange: (Boolean) -> Unit,
+    onIsometricIntervalSoundChange: (Boolean) -> Unit,
+    onIsometricIntervalSecondsChange: (Int) -> Unit
+) {
+    // ローカル状態（間隔秒数入力用）
+    var intervalText by remember(isometricIntervalSeconds) { mutableStateOf(isometricIntervalSeconds.toString()) }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Slate800),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // タイマーモード
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = stringResource(R.string.auto_mode),
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
+                    Text(
+                        text = stringResource(R.string.auto_mode_description),
+                        fontSize = 11.sp,
+                        color = Slate400
+                    )
+                }
+                Switch(
+                    checked = isAutoMode,
+                    onCheckedChange = onAutoModeChange,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = Orange600,
+                        uncheckedThumbColor = Color.White,
+                        uncheckedTrackColor = Slate500
+                    )
+                )
+            }
+
+            // 開始カウントダウン
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.start_countdown),
+                    fontSize = 14.sp,
+                    color = Color.White
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    IconButton(
+                        onClick = { if (startCountdownSeconds > 0) onStartCountdownChange(startCountdownSeconds - 1) },
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Text("−", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Slate400)
+                    }
+                    Text(
+                        text = startCountdownSeconds.toString(),
+                        fontSize = 14.sp,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.width(24.dp)
+                    )
+                    IconButton(
+                        onClick = { onStartCountdownChange(startCountdownSeconds + 1) },
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Slate400)
+                    }
+                    Text(
+                        text = stringResource(R.string.unit_seconds_short),
+                        fontSize = 12.sp,
+                        color = Slate400
+                    )
+                }
+            }
+
+            // 数え上げ音（ダイナミック種目）
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = stringResource(R.string.dynamic_count_sound_label),
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
+                    Text(
+                        text = stringResource(R.string.dynamic_count_sound_description),
+                        fontSize = 11.sp,
+                        color = Slate400
+                    )
+                }
+                Switch(
+                    checked = isDynamicCountSoundEnabled,
+                    onCheckedChange = onDynamicCountSoundChange,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = Orange600,
+                        uncheckedThumbColor = Color.White,
+                        uncheckedTrackColor = Slate500
+                    )
+                )
+            }
+
+            // 間隔通知（アイソメトリック種目）
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.isometric_interval_sound_label),
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
+                    Text(
+                        text = stringResource(R.string.isometric_interval_sound_description),
+                        fontSize = 11.sp,
+                        color = Slate400
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(40.dp)
+                            .height(28.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        BasicTextField(
+                            value = intervalText,
+                            onValueChange = { newValue ->
+                                if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
+                                    intervalText = newValue
+                                    newValue.toIntOrNull()?.let { onIsometricIntervalSecondsChange(it) }
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            textStyle = androidx.compose.ui.text.TextStyle(
+                                fontSize = 14.sp,
+                                textAlign = TextAlign.Center,
+                                color = Color.White
+                            ),
+                            decorationBox = { innerTextField ->
+                                Column {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .weight(1f),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        innerTextField()
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(1.dp)
+                                            .padding(horizontal = 2.dp)
+                                            .then(Modifier.drawBehind {
+                                                drawLine(
+                                                    color = Slate400,
+                                                    start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                                                    end = androidx.compose.ui.geometry.Offset(size.width, 0f),
+                                                    strokeWidth = 1.dp.toPx()
+                                                )
+                                            })
+                                    )
+                                }
+                            }
+                        )
+                    }
+                    Text(
+                        text = stringResource(R.string.unit_seconds_short),
+                        fontSize = 12.sp,
+                        color = Slate400
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Switch(
+                        checked = isIsometricIntervalSoundEnabled,
+                        onCheckedChange = onIsometricIntervalSoundChange,
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = Orange600,
+                            uncheckedThumbColor = Color.White,
+                            uncheckedTrackColor = Slate500
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun ProgramConfirmExerciseCard(
     exerciseIndex: Int,
@@ -949,7 +1317,8 @@ private fun ProgramConfirmExerciseCard(
     allSets: List<ProgramWorkoutSet>,
     onUpdateValue: (Int, Int) -> Unit,
     onUpdateInterval: (Int) -> Unit,
-    onUpdateSetCount: (Int) -> Unit
+    onUpdateSetCount: (Int) -> Unit,
+    onUpdateAllSetsValue: (Int) -> Unit
 ) {
     val unit = stringResource(if (exercise.type == "Isometric") R.string.unit_seconds else R.string.unit_reps)
 
@@ -1095,6 +1464,60 @@ private fun ProgramConfirmExerciseCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // 全セット± ボタン行
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Slate700, RoundedCornerShape(6.dp))
+                    .padding(vertical = 6.dp, horizontal = 8.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    onClick = { onUpdateAllSetsValue(-1) },
+                    modifier = Modifier.size(28.dp)
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = Color.Transparent,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
+                    ) {
+                        Box(
+                            modifier = Modifier.size(28.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("−", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.all_sets_label),
+                    fontSize = 12.sp,
+                    color = Slate400
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                IconButton(
+                    onClick = { onUpdateAllSetsValue(1) },
+                    modifier = Modifier.size(28.dp)
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = Color.Transparent,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
+                    ) {
+                        Box(
+                            modifier = Modifier.size(28.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("+", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             // セットごとの値（コンパクト）
             sets.forEach { set ->
                 // オブジェクト参照ではなくセマンティックに検索（copy()で参照が変わるため）
@@ -1197,6 +1620,7 @@ private fun ProgramConfirmExerciseCard(
 private fun ProgramStartIntervalStep(
     session: ProgramExecutionSession,
     currentSetIndex: Int,
+    startCountdownSeconds: Int,
     toneGenerator: ToneGenerator,
     flashController: FlashController,
     isFlashEnabled: Boolean,
@@ -1205,8 +1629,8 @@ private fun ProgramStartIntervalStep(
     val currentSet = session.sets[currentSetIndex]
     val (_, exercise) = session.exercises[currentSet.exerciseIndex]
 
-    var remainingTime by remember { mutableIntStateOf(session.startInterval) }
-    val progress = remainingTime.toFloat() / session.startInterval
+    var remainingTime by remember { mutableIntStateOf(startCountdownSeconds) }
+    val progress = remainingTime.toFloat() / startCountdownSeconds
 
     LaunchedEffect(currentSetIndex) {
         while (remainingTime > 0) {
@@ -1464,6 +1888,7 @@ private fun ProgramExecutingStepDynamicManual(
     toneGenerator: ToneGenerator,
     flashController: FlashController,
     isFlashEnabled: Boolean,
+    isCountSoundEnabled: Boolean,
     onSetComplete: (Int) -> Unit,
     onAbort: () -> Unit
 ) {
@@ -1519,10 +1944,12 @@ private fun ProgramExecutingStepDynamicManual(
                         }
                         playTripleBeepTwice(toneGenerator)
                     } else {
-                        // 途中のレップは短いビープ
-                        toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
-                        if (isFlashEnabled) {
-                            launch { flashController.flashShort() }
+                        // 途中のレップは短いビープ（設定ONの場合のみ）
+                        if (isCountSoundEnabled) {
+                            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                            if (isFlashEnabled) {
+                                launch { flashController.flashShort() }
+                            }
                         }
                     }
                 }
@@ -1778,6 +2205,8 @@ private fun ProgramExecutingStepIsometricManual(
     toneGenerator: ToneGenerator,
     flashController: FlashController,
     isFlashEnabled: Boolean,
+    isIntervalSoundEnabled: Boolean,
+    intervalSeconds: Int,
     onSetComplete: (Int) -> Unit,
     onAbort: () -> Unit
 ) {
@@ -1820,8 +2249,8 @@ private fun ProgramExecutingStepIsometricManual(
                 delay(1000L)
                 elapsedTime++
 
-                // 10秒ごとにビープ音（目標達成前のみ）
-                if (elapsedTime > 0 && elapsedTime % 10 == 0 && elapsedTime < currentSet.targetValue) {
+                // 一定間隔ごとにビープ音（目標達成前のみ、設定ONの場合）
+                if (isIntervalSoundEnabled && intervalSeconds > 0 && elapsedTime > 0 && elapsedTime % intervalSeconds == 0 && elapsedTime < currentSet.targetValue) {
                     toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 200)
                     if (isFlashEnabled) {
                         launch { flashController.flashShort() }
@@ -2080,6 +2509,8 @@ private fun ProgramExecutingStepIsometricAuto(
     toneGenerator: ToneGenerator,
     flashController: FlashController,
     isFlashEnabled: Boolean,
+    isIntervalSoundEnabled: Boolean,
+    intervalSeconds: Int,
     onSetComplete: (Int) -> Unit,
     onAbort: () -> Unit
 ) {
@@ -2119,8 +2550,8 @@ private fun ProgramExecutingStepIsometricAuto(
                 delay(1000L)
                 elapsedTime++
 
-                // 10秒ごとにビープ音（目標達成前のみ）
-                if (elapsedTime > 0 && elapsedTime % 10 == 0 && elapsedTime < currentSet.targetValue) {
+                // 一定間隔ごとにビープ音（目標達成前のみ、設定ONの場合）
+                if (isIntervalSoundEnabled && intervalSeconds > 0 && elapsedTime > 0 && elapsedTime % intervalSeconds == 0 && elapsedTime < currentSet.targetValue) {
                     toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 200)
                     if (isFlashEnabled) {
                         launch { flashController.flashShort() }
@@ -2378,6 +2809,7 @@ private fun ProgramExecutingStepDynamicAuto(
     toneGenerator: ToneGenerator,
     flashController: FlashController,
     isFlashEnabled: Boolean,
+    isCountSoundEnabled: Boolean,
     onSetComplete: (Int) -> Unit,
     onAbort: () -> Unit
 ) {
@@ -2425,10 +2857,12 @@ private fun ProgramExecutingStepDynamicAuto(
                         onSetComplete(currentCount)
                         return@LaunchedEffect
                     } else {
-                        // 途中のレップは短いビープ
-                        toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
-                        if (isFlashEnabled) {
-                            launch { flashController.flashShort() }
+                        // 途中のレップは短いビープ（設定ONの場合のみ）
+                        if (isCountSoundEnabled) {
+                            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                            if (isFlashEnabled) {
+                                launch { flashController.flashShort() }
+                            }
                         }
                     }
                 }

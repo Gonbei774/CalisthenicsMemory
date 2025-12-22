@@ -126,19 +126,67 @@ class WorkoutPreferences(context: Context) {
     }
 
     /**
-     * タイマーモード（自動/手動）を取得
+     * オートモード（自動/手動）を取得
      * @return 自動: true, 手動: false（デフォルト: false）
      */
-    fun isTimerModeAuto(): Boolean {
+    fun isAutoMode(): Boolean {
         return prefs.getBoolean(KEY_TIMER_MODE_AUTO, false)
     }
 
     /**
-     * タイマーモード（自動/手動）を保存
+     * オートモード（自動/手動）を保存
      * @param auto 自動: true, 手動: false
      */
-    fun setTimerModeAuto(auto: Boolean) {
+    fun setAutoMode(auto: Boolean) {
         prefs.edit().putBoolean(KEY_TIMER_MODE_AUTO, auto).apply()
+    }
+
+    /**
+     * ダイナミック種目の数え上げ音の有効/無効を取得
+     * @return 有効: true, 無効: false（デフォルト: true）
+     */
+    fun isDynamicCountSoundEnabled(): Boolean {
+        return prefs.getBoolean(KEY_DYNAMIC_COUNT_SOUND_ENABLED, true)
+    }
+
+    /**
+     * ダイナミック種目の数え上げ音の有効/無効を保存
+     * @param enabled 有効: true, 無効: false
+     */
+    fun setDynamicCountSoundEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_DYNAMIC_COUNT_SOUND_ENABLED, enabled).apply()
+    }
+
+    /**
+     * アイソメトリック種目の間隔通知音の有効/無効を取得
+     * @return 有効: true, 無効: false（デフォルト: true）
+     */
+    fun isIsometricIntervalSoundEnabled(): Boolean {
+        return prefs.getBoolean(KEY_ISOMETRIC_INTERVAL_SOUND_ENABLED, true)
+    }
+
+    /**
+     * アイソメトリック種目の間隔通知音の有効/無効を保存
+     * @param enabled 有効: true, 無効: false
+     */
+    fun setIsometricIntervalSoundEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_ISOMETRIC_INTERVAL_SOUND_ENABLED, enabled).apply()
+    }
+
+    /**
+     * アイソメトリック種目の間隔通知秒数を取得
+     * @return 間隔秒数（デフォルト: 10秒）
+     */
+    fun getIsometricIntervalSeconds(): Int {
+        return prefs.getInt(KEY_ISOMETRIC_INTERVAL_SECONDS, DEFAULT_ISOMETRIC_INTERVAL_SECONDS)
+    }
+
+    /**
+     * アイソメトリック種目の間隔通知秒数を保存
+     * @param seconds 間隔秒数
+     */
+    fun setIsometricIntervalSeconds(seconds: Int) {
+        prefs.edit().putInt(KEY_ISOMETRIC_INTERVAL_SECONDS, seconds).apply()
     }
 
     companion object {
@@ -151,9 +199,13 @@ class WorkoutPreferences(context: Context) {
         private const val KEY_KEEP_SCREEN_ON_ENABLED = "keep_screen_on_enabled"
         private const val KEY_PREFILL_PREVIOUS_RECORD = "prefill_previous_record"
         private const val KEY_TIMER_MODE_AUTO = "timer_mode_auto"
+        private const val KEY_DYNAMIC_COUNT_SOUND_ENABLED = "dynamic_count_sound_enabled"
+        private const val KEY_ISOMETRIC_INTERVAL_SOUND_ENABLED = "isometric_interval_sound_enabled"
+        private const val KEY_ISOMETRIC_INTERVAL_SECONDS = "isometric_interval_seconds"
 
         const val DEFAULT_START_COUNTDOWN = 5
         const val DEFAULT_SET_INTERVAL = 240
         const val MAX_SET_INTERVAL = 600  // 10分
+        const val DEFAULT_ISOMETRIC_INTERVAL_SECONDS = 10
     }
 }
