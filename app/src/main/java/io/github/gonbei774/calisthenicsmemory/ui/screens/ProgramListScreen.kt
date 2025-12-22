@@ -227,21 +227,6 @@ private fun ProgramListItem(
                             fontWeight = FontWeight.Medium,
                             color = Color.White
                         )
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(top = 4.dp)
-                        ) {
-                            // Timer mode badge
-                            Text(
-                                text = stringResource(
-                                    if (program.timerMode) R.string.timer_on else R.string.timer_off
-                                ),
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (program.timerMode) Green400 else Slate400
-                            )
-                        }
                     }
 
                     // Edit button

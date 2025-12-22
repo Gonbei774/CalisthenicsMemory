@@ -125,6 +125,22 @@ class WorkoutPreferences(context: Context) {
         prefs.edit().putBoolean(KEY_PREFILL_PREVIOUS_RECORD, enabled).apply()
     }
 
+    /**
+     * タイマーモード（自動/手動）を取得
+     * @return 自動: true, 手動: false（デフォルト: false）
+     */
+    fun isTimerModeAuto(): Boolean {
+        return prefs.getBoolean(KEY_TIMER_MODE_AUTO, false)
+    }
+
+    /**
+     * タイマーモード（自動/手動）を保存
+     * @param auto 自動: true, 手動: false
+     */
+    fun setTimerModeAuto(auto: Boolean) {
+        prefs.edit().putBoolean(KEY_TIMER_MODE_AUTO, auto).apply()
+    }
+
     companion object {
         private const val PREFS_NAME = "workout_preferences"
         private const val KEY_START_COUNTDOWN = "start_countdown"
@@ -134,6 +150,7 @@ class WorkoutPreferences(context: Context) {
         private const val KEY_FLASH_NOTIFICATION_ENABLED = "flash_notification_enabled"
         private const val KEY_KEEP_SCREEN_ON_ENABLED = "keep_screen_on_enabled"
         private const val KEY_PREFILL_PREVIOUS_RECORD = "prefill_previous_record"
+        private const val KEY_TIMER_MODE_AUTO = "timer_mode_auto"
 
         const val DEFAULT_START_COUNTDOWN = 5
         const val DEFAULT_SET_INTERVAL = 240

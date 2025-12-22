@@ -10,7 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [Exercise::class, TrainingRecord::class, ExerciseGroup::class, TodoTask::class, Program::class, ProgramExercise::class],
-    version = 13,  // ← 変更: 12 → 13（Program機能追加）
+    version = 14,  // ← 変更: 13 → 14（timerMode/startIntervalをSharedPreferencesへ移行）
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -33,7 +33,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "bodyweight_trainer_database"
                 )
-                    .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13)
+                    .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
@@ -158,6 +158,33 @@ abstract class AppDatabase : RoomDatabase() {
                 // インデックス作成
                 database.execSQL("CREATE INDEX IF NOT EXISTS index_program_exercises_programId ON program_exercises(programId)")
                 database.execSQL("CREATE INDEX IF NOT EXISTS index_program_exercises_exerciseId ON program_exercises(exerciseId)")
+            }
+        }
+
+        // マイグレーション 13 → 14: timerMode/startIntervalをSharedPreferencesへ移行
+        // これらは「ユーザーの好み」であり「プログラムのコンテンツ」ではないため
+        val MIGRATION_13_14 = object : Migration(13, 14) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // SQLiteではカラム削除が直接できないため、テーブル再作成が必要
+                // 1. 新テーブル作成（timerMode, startIntervalなし）
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS programs_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        name TEXT NOT NULL
+                    )
+                """)
+
+                // 2. データコピー（id, nameのみ）
+                database.execSQL("""
+                    INSERT INTO programs_new (id, name)
+                    SELECT id, name FROM programs
+                """)
+
+                // 3. 旧テーブル削除
+                database.execSQL("DROP TABLE programs")
+
+                // 4. 新テーブルをリネーム
+                database.execSQL("ALTER TABLE programs_new RENAME TO programs")
             }
         }
     }

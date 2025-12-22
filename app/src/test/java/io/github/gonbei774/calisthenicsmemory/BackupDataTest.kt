@@ -41,9 +41,7 @@ class BackupDataTest {
             programs = listOf(
                 ExportProgram(
                     id = 1,
-                    name = "Morning Routine",
-                    timerMode = true,
-                    startInterval = 5
+                    name = "Morning Routine"
                 )
             ),
             programExercises = listOf(
@@ -73,8 +71,6 @@ class BackupDataTest {
         // Verify programs restored
         assertEquals(1, restored.programs.size)
         assertEquals("Morning Routine", restored.programs[0].name)
-        assertEquals(true, restored.programs[0].timerMode)
-        assertEquals(5, restored.programs[0].startInterval)
 
         // Verify programExercises restored
         assertEquals(1, restored.programExercises.size)
@@ -120,12 +116,10 @@ class BackupDataTest {
     }
 
     @Test
-    fun `program with all fields serializes correctly`() {
+    fun `program serializes correctly`() {
         val program = ExportProgram(
             id = 42,
-            name = "Test Program",
-            timerMode = false,
-            startInterval = 10
+            name = "Test Program"
         )
 
         val jsonString = json.encodeToString(program)
@@ -133,8 +127,36 @@ class BackupDataTest {
 
         assertEquals(42L, restored.id)
         assertEquals("Test Program", restored.name)
-        assertEquals(false, restored.timerMode)
-        assertEquals(10, restored.startInterval)
+    }
+
+    @Test
+    fun `old JSON with timerMode and startInterval imports correctly`() {
+        // Simulate old v4 backup JSON with timerMode/startInterval fields
+        val oldJson = """
+            {
+                "version": 4,
+                "exportDate": "2025-12-14T12:00:00",
+                "app": "CalisthenicsMemory",
+                "groups": [],
+                "exercises": [],
+                "records": [],
+                "programs": [{
+                    "id": 1,
+                    "name": "Old Program",
+                    "timerMode": true,
+                    "startInterval": 5
+                }],
+                "programExercises": []
+            }
+        """.trimIndent()
+
+        // Deserialize with ignoreUnknownKeys - should not fail
+        val restored = json.decodeFromString<BackupData>(oldJson)
+
+        // Verify program data restored (timerMode/startInterval are ignored)
+        assertEquals(1, restored.programs.size)
+        assertEquals("Old Program", restored.programs[0].name)
+        assertEquals(1L, restored.programs[0].id)
     }
 
     @Test
@@ -171,8 +193,8 @@ class BackupDataTest {
             exercises = emptyList(),
             records = emptyList(),
             programs = listOf(
-                ExportProgram(1, "Program A", true, 5),
-                ExportProgram(2, "Program B", false, 10)
+                ExportProgram(1, "Program A"),
+                ExportProgram(2, "Program B")
             ),
             programExercises = listOf(
                 ExportProgramExercise(1, 1, 1, 0, 3, 10, 60),
@@ -189,11 +211,9 @@ class BackupDataTest {
 
         // Verify Program A
         assertEquals("Program A", restored.programs[0].name)
-        assertEquals(true, restored.programs[0].timerMode)
 
         // Verify Program B
         assertEquals("Program B", restored.programs[1].name)
-        assertEquals(false, restored.programs[1].timerMode)
 
         // Verify program exercises belong to correct programs
         assertEquals(2, restored.programExercises.count { it.programId == 1L })

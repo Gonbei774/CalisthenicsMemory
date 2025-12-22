@@ -66,7 +66,9 @@ data class ProgramExecutionSession(
     val program: Program,
     val exercises: List<Pair<ProgramExercise, Exercise>>, // ProgramExercise + Exercise情報
     val sets: MutableList<ProgramWorkoutSet>,             // 実行順の全セット
-    var comment: String = ""
+    var comment: String = "",
+    val timerMode: Boolean,                               // タイマーモード（SharedPreferencesから）
+    val startInterval: Int                                // 開始カウントダウン（SharedPreferencesから）
 )
 
 // プログラム実行画面のステップ
@@ -192,11 +194,21 @@ fun ProgramExecutionScreen(
             }
         }
 
+        // timerModeとstartIntervalはSharedPreferencesから取得
+        val timerMode = workoutPreferences.isTimerModeAuto()
+        val startInterval = if (workoutPreferences.isStartCountdownEnabled()) {
+            workoutPreferences.getStartCountdown()
+        } else {
+            0
+        }
+
         val newSession = ProgramExecutionSession(
             program = prog,
             exercises = exercisePairs,
             sets = allSets,
-            comment = "【Program】${prog.name}"
+            comment = "【Program】${prog.name}",
+            timerMode = timerMode,
+            startInterval = startInterval
         )
         session = newSession
         currentStep = ProgramExecutionStep.Confirm(newSession)
@@ -553,7 +565,7 @@ fun ProgramExecutionScreen(
                             },
                             onStart = {
                                 // プログラムの開始カウントダウンが0より大きい場合のみ表示
-                                if (step.session.program.startInterval > 0) {
+                                if (step.session.startInterval > 0) {
                                     currentStep = ProgramExecutionStep.StartInterval(step.session, 0)
                                 } else {
                                     currentStep = ProgramExecutionStep.Executing(step.session, 0)
@@ -580,7 +592,7 @@ fun ProgramExecutionScreen(
                         val currentSet = step.session.sets[step.currentSetIndex]
                         val (_, currentExercise) = step.session.exercises[currentSet.exerciseIndex]
 
-                        if (step.session.program.timerMode) {
+                        if (step.session.timerMode) {
                             // タイマーON: 自動カウント
                             if (currentExercise.type == "Isometric") {
                                 // Isometric種目: 新UIで自動遷移
@@ -602,7 +614,7 @@ fun ProgramExecutionScreen(
                                         if (nextIndex < sets.size) {
                                             if (completedSet.intervalSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
-                                            } else if (step.session.program.startInterval > 0) {
+                                            } else if (step.session.startInterval > 0) {
                                                 currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                             } else {
                                                 currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
@@ -635,7 +647,7 @@ fun ProgramExecutionScreen(
                                         if (nextIndex < sets.size) {
                                             if (completedSet.intervalSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
-                                            } else if (step.session.program.startInterval > 0) {
+                                            } else if (step.session.startInterval > 0) {
                                                 currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                             } else {
                                                 currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
@@ -672,7 +684,7 @@ fun ProgramExecutionScreen(
                                         if (nextIndex < sets.size) {
                                             if (completedSet.intervalSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
-                                            } else if (step.session.program.startInterval > 0) {
+                                            } else if (step.session.startInterval > 0) {
                                                 currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                             } else {
                                                 currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
@@ -706,7 +718,7 @@ fun ProgramExecutionScreen(
                                         if (nextIndex < sets.size) {
                                             if (completedSet.intervalSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
-                                            } else if (step.session.program.startInterval > 0) {
+                                            } else if (step.session.startInterval > 0) {
                                                 currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                             } else {
                                                 currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
@@ -734,7 +746,7 @@ fun ProgramExecutionScreen(
                                 val nextIndex = step.currentSetIndex + 1
                                 if (nextIndex < step.session.sets.size) {
                                     // プログラムの開始カウントダウンが0より大きい場合のみ表示
-                                    if (step.session.program.startInterval > 0) {
+                                    if (step.session.startInterval > 0) {
                                         currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                     } else {
                                         currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
@@ -747,7 +759,7 @@ fun ProgramExecutionScreen(
                                 val nextIndex = step.currentSetIndex + 1
                                 if (nextIndex < step.session.sets.size) {
                                     // プログラムの開始カウントダウンが0より大きい場合のみ表示
-                                    if (step.session.program.startInterval > 0) {
+                                    if (step.session.startInterval > 0) {
                                         currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                     } else {
                                         currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
@@ -1193,8 +1205,8 @@ private fun ProgramStartIntervalStep(
     val currentSet = session.sets[currentSetIndex]
     val (_, exercise) = session.exercises[currentSet.exerciseIndex]
 
-    var remainingTime by remember { mutableIntStateOf(session.program.startInterval) }
-    val progress = remainingTime.toFloat() / session.program.startInterval
+    var remainingTime by remember { mutableIntStateOf(session.startInterval) }
+    val progress = remainingTime.toFloat() / session.startInterval
 
     LaunchedEffect(currentSetIndex) {
         while (remainingTime > 0) {
