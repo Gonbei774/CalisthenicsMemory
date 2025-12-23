@@ -4,7 +4,6 @@ import android.media.AudioManager
 import android.media.ToneGenerator
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.layout.*
@@ -25,8 +24,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -825,88 +822,6 @@ fun ProgramExecutionScreen(
                 }
             }
         }
-    }
-}
-
-
-// 次の種目/セット情報を表示するコンポーザブル
-@Composable
-internal fun NextExerciseInfo(
-    session: ProgramExecutionSession,
-    currentSetIndex: Int
-) {
-    val nextSetIndex = currentSetIndex + 1
-    val nextSet = session.sets.getOrNull(nextSetIndex) ?: return
-
-    val (nextPe, nextExercise) = session.exercises[nextSet.exerciseIndex]
-    val nextSideText = when (nextSet.side) {
-        "Right" -> stringResource(R.string.side_right)
-        "Left" -> stringResource(R.string.side_left)
-        else -> null
-    }
-
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(vertical = 8.dp)
-    ) {
-        // 次の種目名（常に表示）
-        Text(
-            text = stringResource(R.string.next_exercise_label, nextExercise.name),
-            fontSize = 16.sp,
-            color = Slate400
-        )
-        // 次のセット情報
-        Text(
-            text = if (nextSideText != null) {
-                stringResource(R.string.set_format_with_side, nextSet.setNumber, nextPe.sets, nextSideText)
-            } else {
-                stringResource(R.string.set_format, nextSet.setNumber, nextPe.sets)
-            },
-            fontSize = 14.sp,
-            color = Slate400
-        )
-    }
-}
-
-@Composable
-internal fun ProgramCircularTimer(
-    progress: Float,
-    remainingTime: Int,
-    color: Color
-) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.size(240.dp)
-    ) {
-        Canvas(modifier = Modifier.size(240.dp)) {
-            drawArc(
-                color = Slate600,
-                startAngle = -90f,
-                sweepAngle = 360f,
-                useCenter = false,
-                style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
-            )
-            drawArc(
-                color = color,
-                startAngle = -90f,
-                sweepAngle = 360f * progress,
-                useCenter = false,
-                style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
-            )
-        }
-        Text(
-            text = "$remainingTime",
-            fontSize = 72.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            style = androidx.compose.ui.text.TextStyle(
-                shadow = androidx.compose.ui.graphics.Shadow(
-                    color = Color.Black.copy(alpha = 0.3f),
-                    offset = androidx.compose.ui.geometry.Offset(0f, 4f),
-                    blurRadius = 8f
-                )
-            )
-        )
     }
 }
 

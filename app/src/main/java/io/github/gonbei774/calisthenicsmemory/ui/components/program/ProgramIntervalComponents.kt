@@ -14,8 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
-import io.github.gonbei774.calisthenicsmemory.ui.screens.NextExerciseInfo
-import io.github.gonbei774.calisthenicsmemory.ui.screens.ProgramCircularTimer
+import io.github.gonbei774.calisthenicsmemory.ui.components.common.ProgramCircularTimer
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
 import kotlinx.coroutines.delay
