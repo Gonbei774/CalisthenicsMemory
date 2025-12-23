@@ -53,12 +53,11 @@ import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramStart
 import io.github.gonbei774.calisthenicsmemory.ui.components.program.SettingsSection
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
+import io.github.gonbei774.calisthenicsmemory.util.buildChallengeValueSets
+import io.github.gonbei774.calisthenicsmemory.util.buildProgramValueSets
+import io.github.gonbei774.calisthenicsmemory.util.saveProgramResults
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -417,73 +416,14 @@ fun ProgramExecutionScreen(
                             },
                             onUseAllProgramValues = {
                                 // セット一覧を再構築（プログラム設定のセット数・目標値を使用）
-                                val newSets = mutableListOf<ProgramWorkoutSet>()
-                                step.session.exercises.forEachIndexed { index, (pe, exercise) ->
-                                    for (setNum in 1..pe.sets) {
-                                        if (exercise.laterality == "Unilateral") {
-                                            newSets.add(ProgramWorkoutSet(
-                                                exerciseIndex = index,
-                                                setNumber = setNum,
-                                                side = "Right",
-                                                targetValue = pe.targetValue,
-                                                intervalSeconds = pe.intervalSeconds
-                                            ))
-                                            newSets.add(ProgramWorkoutSet(
-                                                exerciseIndex = index,
-                                                setNumber = setNum,
-                                                side = "Left",
-                                                targetValue = pe.targetValue,
-                                                intervalSeconds = pe.intervalSeconds
-                                            ))
-                                        } else {
-                                            newSets.add(ProgramWorkoutSet(
-                                                exerciseIndex = index,
-                                                setNumber = setNum,
-                                                side = null,
-                                                targetValue = pe.targetValue,
-                                                intervalSeconds = pe.intervalSeconds
-                                            ))
-                                        }
-                                    }
-                                }
-                                val newSession = step.session.copy(sets = newSets.toMutableList())
+                                val newSets = buildProgramValueSets(step.session.exercises)
+                                val newSession = step.session.copy(sets = newSets)
                                 currentStep = ProgramExecutionStep.Confirm(newSession)
                             },
                             onUseAllChallengeValues = {
                                 // セット一覧を再構築（種目設定のセット数・目標値・インターバルを使用、なければプログラム設定）
-                                val newSets = mutableListOf<ProgramWorkoutSet>()
-                                step.session.exercises.forEachIndexed { index, (pe, exercise) ->
-                                    val sets = exercise.targetSets ?: pe.sets
-                                    val targetValue = exercise.targetValue ?: pe.targetValue
-                                    val interval = exercise.restInterval ?: pe.intervalSeconds
-                                    for (setNum in 1..sets) {
-                                        if (exercise.laterality == "Unilateral") {
-                                            newSets.add(ProgramWorkoutSet(
-                                                exerciseIndex = index,
-                                                setNumber = setNum,
-                                                side = "Right",
-                                                targetValue = targetValue,
-                                                intervalSeconds = interval
-                                            ))
-                                            newSets.add(ProgramWorkoutSet(
-                                                exerciseIndex = index,
-                                                setNumber = setNum,
-                                                side = "Left",
-                                                targetValue = targetValue,
-                                                intervalSeconds = interval
-                                            ))
-                                        } else {
-                                            newSets.add(ProgramWorkoutSet(
-                                                exerciseIndex = index,
-                                                setNumber = setNum,
-                                                side = null,
-                                                targetValue = targetValue,
-                                                intervalSeconds = interval
-                                            ))
-                                        }
-                                    }
-                                }
-                                val newSession = step.session.copy(sets = newSets.toMutableList())
+                                val newSets = buildChallengeValueSets(step.session.exercises)
+                                val newSession = step.session.copy(sets = newSets)
                                 currentStep = ProgramExecutionStep.Confirm(newSession)
                             },
                             onUseAllPreviousRecordValues = {
@@ -820,68 +760,6 @@ fun ProgramExecutionScreen(
 
                     null -> {}
                 }
-            }
-        }
-    }
-}
-
-// 記録保存
-private fun saveProgramResults(
-    viewModel: TrainingViewModel,
-    session: ProgramExecutionSession
-) {
-    val date = LocalDate.now().toString()
-    val time = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
-
-    // 同じ種目がプログラム内で複数回出てくる場合、全セットをまとめて1回で保存
-    // 種目IDでグループ化
-    val groupedByExerciseId = session.exercises
-        .mapIndexed { index, pair -> index to pair }
-        .groupBy { (_, pair) -> pair.second.id }
-
-    groupedByExerciseId.forEach { (exerciseId, exerciseInfoList) ->
-        val exercise = exerciseInfoList.first().second.second
-
-        // この種目の全セット（プログラム内で複数回出てきても全て収集）
-        // isCompleted または isSkipped のセットを記録対象とする
-        val allSetsForExercise = exerciseInfoList.flatMap { (exerciseIndex, _) ->
-            session.sets.filter {
-                it.exerciseIndex == exerciseIndex && (it.isCompleted || it.isSkipped)
-            }
-        }
-
-        if (allSetsForExercise.isEmpty()) return@forEach
-
-        if (exercise.laterality == "Unilateral") {
-            // 片側種目: 右・左をまとめて記録
-            val rightSets = allSetsForExercise.filter { it.side == "Right" }
-            val leftSets = allSetsForExercise.filter { it.side == "Left" }
-
-            val valuesRight = rightSets.map { it.actualValue }
-            val valuesLeft = leftSets.map { it.actualValue }
-
-            if (valuesRight.isNotEmpty()) {
-                viewModel.addTrainingRecordsUnilateral(
-                    exerciseId = exerciseId,
-                    valuesRight = valuesRight,
-                    valuesLeft = valuesLeft,
-                    date = date,
-                    time = time,
-                    comment = session.comment
-                )
-            }
-        } else {
-            // 両側種目
-            val values = allSetsForExercise.map { it.actualValue }
-
-            if (values.isNotEmpty()) {
-                viewModel.addTrainingRecords(
-                    exerciseId = exerciseId,
-                    values = values,
-                    date = date,
-                    time = time,
-                    comment = session.comment
-                )
             }
         }
     }
