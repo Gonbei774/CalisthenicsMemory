@@ -40,11 +40,20 @@ fun saveProgramResults(
 
         if (exercise.laterality == "Unilateral") {
             // 片側種目: 右・左をまとめて記録
-            val rightSets = allSetsForExercise.filter { it.side == "Right" }
-            val leftSets = allSetsForExercise.filter { it.side == "Left" }
+            // 両方0のセットは除外、片方だけ0は保存
+            val groupedBySetNumber = allSetsForExercise.groupBy { it.setNumber }
+            val validSets = groupedBySetNumber.filter { (_, sets) ->
+                val rightValue = sets.firstOrNull { it.side == "Right" }?.actualValue ?: 0
+                val leftValue = sets.firstOrNull { it.side == "Left" }?.actualValue ?: 0
+                rightValue > 0 || leftValue > 0  // 少なくとも片方が0より大きい
+            }
 
-            val valuesRight = rightSets.map { it.actualValue }
-            val valuesLeft = leftSets.map { it.actualValue }
+            val valuesRight = validSets.flatMap { (_, sets) ->
+                sets.filter { it.side == "Right" }.map { it.actualValue }
+            }
+            val valuesLeft = validSets.flatMap { (_, sets) ->
+                sets.filter { it.side == "Left" }.map { it.actualValue }
+            }
 
             if (valuesRight.isNotEmpty()) {
                 viewModel.addTrainingRecordsUnilateral(
@@ -57,8 +66,8 @@ fun saveProgramResults(
                 )
             }
         } else {
-            // 両側種目
-            val values = allSetsForExercise.map { it.actualValue }
+            // 両側種目: 0のセットは除外
+            val values = allSetsForExercise.map { it.actualValue }.filter { it > 0 }
 
             if (values.isNotEmpty()) {
                 viewModel.addTrainingRecords(

@@ -242,6 +242,7 @@
     <string name="minus_10sec">-10 sec</string>
     <string name="plus_10sec">+10 sec</string>
     <string name="workout_complete">Workout Complete</string>
+    <string name="program_result_zero_warning">Sets with 0 value exist. Zero sets for bilateral exercises, and sets where both sides are 0 for unilateral exercises, will not be saved.</string>
     <string name="comment_label">Comment</string>
     <string name="record_workout">Record</string>
     <string name="set_number">Set %d</string>

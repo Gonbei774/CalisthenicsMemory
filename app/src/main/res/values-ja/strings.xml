@@ -239,6 +239,7 @@
     <string name="minus_10sec">-10秒</string>
     <string name="plus_10sec">+10秒</string>
     <string name="workout_complete">ワークアウト完了</string>
+    <string name="program_result_zero_warning">0のセットが存在します。両側種目の0セット、および片側種目の両側0セットは保存されません。</string>
     <string name="comment_label">コメント</string>
     <string name="record_workout">記録する</string>
     <string name="set_number">セット %d</string>
