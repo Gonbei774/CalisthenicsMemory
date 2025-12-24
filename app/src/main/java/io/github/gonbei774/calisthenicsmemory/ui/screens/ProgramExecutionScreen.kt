@@ -45,6 +45,7 @@ import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramConfi
 import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramConfirmStep
 import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramExecutingStepDynamicAuto
 import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramExecutingStepDynamicManual
+import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramExecutingStepDynamicSimple
 import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramExecutingStepIsometricAuto
 import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramExecutingStepIsometricManual
 import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramIntervalStep
@@ -600,8 +601,38 @@ fun ProgramExecutionScreen(
                                         currentStep = ProgramExecutionStep.Result(step.session)
                                     }
                                 )
+                            } else if (!isDynamicCountSoundEnabled) {
+                                // Dynamic種目 + レップ数数え上げOFF: シンプルカウンター
+                                ProgramExecutingStepDynamicSimple(
+                                    session = step.session,
+                                    currentSetIndex = step.currentSetIndex,
+                                    onSetComplete = { actualValue ->
+                                        val sets = step.session.sets
+                                        sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
+                                            actualValue = actualValue,
+                                            isCompleted = true
+                                        )
+                                        val completedSet = sets[step.currentSetIndex]
+
+                                        val nextIndex = step.currentSetIndex + 1
+                                        if (nextIndex < sets.size) {
+                                            if (completedSet.intervalSeconds > 0) {
+                                                currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                            } else if (startCountdownSeconds > 0) {
+                                                currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                            } else {
+                                                currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                            }
+                                        } else {
+                                            currentStep = ProgramExecutionStep.Result(step.session)
+                                        }
+                                    },
+                                    onAbort = {
+                                        currentStep = ProgramExecutionStep.Result(step.session)
+                                    }
+                                )
                             } else {
-                                // Dynamic種目: 新UI（Isometricと統一）
+                                // Dynamic種目: 自動カウント（タイマー付き）
                                 ProgramExecutingStepDynamicAuto(
                                     session = step.session,
                                     currentSetIndex = step.currentSetIndex,
@@ -673,8 +704,39 @@ fun ProgramExecutionScreen(
                                         currentStep = ProgramExecutionStep.Result(step.session)
                                     }
                                 )
+                            } else if (!isDynamicCountSoundEnabled) {
+                                // Dynamic種目 + レップ数数え上げOFF: シンプルカウンター
+                                ProgramExecutingStepDynamicSimple(
+                                    session = step.session,
+                                    currentSetIndex = step.currentSetIndex,
+                                    onSetComplete = { actualValue ->
+                                        val sets = step.session.sets
+                                        sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
+                                            actualValue = actualValue,
+                                            isCompleted = true
+                                        )
+                                        val completedSet = sets[step.currentSetIndex]
+                                        val nextIndex = step.currentSetIndex + 1
+
+                                        // 次のセットへ
+                                        if (nextIndex < sets.size) {
+                                            if (completedSet.intervalSeconds > 0) {
+                                                currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                            } else if (startCountdownSeconds > 0) {
+                                                currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                            } else {
+                                                currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                            }
+                                        } else {
+                                            currentStep = ProgramExecutionStep.Result(step.session)
+                                        }
+                                    },
+                                    onAbort = {
+                                        currentStep = ProgramExecutionStep.Result(step.session)
+                                    }
+                                )
                             } else {
-                                // Dynamic種目: 新UI（Timer ONと統一、自動遷移なし）
+                                // Dynamic種目: タイマー付き手動完了
                                 ProgramExecutingStepDynamicManual(
                                     session = step.session,
                                     currentSetIndex = step.currentSetIndex,

@@ -228,6 +228,7 @@
     <string name="side_right">右</string>
     <string name="side_left">左</string>
     <string name="reps_count">%d回</string>
+    <string name="reps_unit">回</string>
     <string name="pause_button">一時停止</string>
     <string name="resume_button">再開</string>
     <string name="stop_button">中断</string>

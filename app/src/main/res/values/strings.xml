@@ -231,6 +231,7 @@
     <string name="side_right">Right</string>
     <string name="side_left">Left</string>
     <string name="reps_count">%d reps</string>
+    <string name="reps_unit">reps</string>
     <string name="pause_button">Pause</string>
     <string name="resume_button">Resume</string>
     <string name="stop_button">Stop</string>

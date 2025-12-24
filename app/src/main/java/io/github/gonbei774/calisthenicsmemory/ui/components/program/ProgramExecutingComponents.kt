@@ -1253,3 +1253,170 @@ internal fun ProgramExecutingStepDynamicAuto(
         }
     }
 }
+
+// レップ数数え上げOFF版 Dynamic専用: タイマーなし、静的カウンター
+@Composable
+internal fun ProgramExecutingStepDynamicSimple(
+    session: ProgramExecutionSession,
+    currentSetIndex: Int,
+    onSetComplete: (Int) -> Unit,
+    onAbort: () -> Unit
+) {
+    val currentSet = session.sets[currentSetIndex]
+    val (pe, exercise) = session.exercises[currentSet.exerciseIndex]
+
+    // 状態管理: 初期値は目標回数
+    var repsCount by remember(currentSetIndex) { mutableIntStateOf(currentSet.targetValue) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // 種目名
+        Text(
+            text = exercise.name,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+
+        // セット情報
+        val sideText = when (currentSet.side) {
+            "Right" -> stringResource(R.string.side_right)
+            "Left" -> stringResource(R.string.side_left)
+            else -> null
+        }
+        Text(
+            text = if (sideText != null) {
+                stringResource(R.string.set_format_with_side, currentSet.setNumber, pe.sets, sideText)
+            } else {
+                stringResource(R.string.set_format, currentSet.setNumber, pe.sets)
+            },
+            fontSize = 18.sp,
+            color = Slate300,
+            modifier = Modifier.padding(top = 4.dp)
+        )
+
+        // 次の種目/セット情報
+        NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        // カウンター表示（+/- ボタン付き）
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // マイナスボタン
+            IconButton(
+                onClick = { if (repsCount > 0) repsCount-- },
+                modifier = Modifier.size(56.dp)
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = Color.Transparent,
+                    border = BorderStroke(2.dp, Slate500)
+                ) {
+                    Box(
+                        modifier = Modifier.size(56.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "-",
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                }
+            }
+
+            // カウンター値
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "$repsCount",
+                    fontSize = 96.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Green400
+                )
+                Text(
+                    text = stringResource(R.string.reps_unit),
+                    fontSize = 24.sp,
+                    color = Slate400
+                )
+            }
+
+            // プラスボタン
+            IconButton(
+                onClick = { repsCount++ },
+                modifier = Modifier.size(56.dp)
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = Color.Transparent,
+                    border = BorderStroke(2.dp, Slate500)
+                ) {
+                    Box(
+                        modifier = Modifier.size(56.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "+",
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                }
+            }
+        }
+
+        // 目標レップ数
+        Text(
+            text = stringResource(R.string.target_reps_format, currentSet.targetValue),
+            fontSize = 14.sp,
+            color = Slate400,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        // 完了ボタン
+        Button(
+            onClick = { onSetComplete(repsCount) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(64.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Green600),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.complete_with_reps, repsCount),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // 中断ボタン
+        Button(
+            onClick = { onAbort() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Red600),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.stop_button),
+                fontSize = 14.sp
+            )
+        }
+    }
+}
