@@ -169,8 +169,8 @@ internal fun ProgramConfirmStep(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Slate700, RoundedCornerShape(6.dp))
-                .padding(vertical = 6.dp, horizontal = 8.dp),
+                .background(Slate700, RoundedCornerShape(8.dp))
+                .padding(vertical = 10.dp, horizontal = 16.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -179,45 +179,45 @@ internal fun ProgramConfirmStep(
                     onUpdateAllExercisesValue(-1)
                     refreshKey++
                 },
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(32.dp)
             ) {
                 Surface(
-                    shape = RoundedCornerShape(6.dp),
+                    shape = RoundedCornerShape(8.dp),
                     color = Color.Transparent,
                     border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
                 ) {
                     Box(
-                        modifier = Modifier.size(28.dp),
+                        modifier = Modifier.size(32.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("−", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("−", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     }
                 }
             }
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = stringResource(R.string.all_exercises_label),
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 color = Slate400
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(12.dp))
             IconButton(
                 onClick = {
                     onUpdateAllExercisesValue(1)
                     refreshKey++
                 },
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(32.dp)
             ) {
                 Surface(
-                    shape = RoundedCornerShape(6.dp),
+                    shape = RoundedCornerShape(8.dp),
                     color = Color.Transparent,
                     border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
                 ) {
                     Box(
-                        modifier = Modifier.size(28.dp),
+                        modifier = Modifier.size(32.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("+", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     }
                 }
             }
