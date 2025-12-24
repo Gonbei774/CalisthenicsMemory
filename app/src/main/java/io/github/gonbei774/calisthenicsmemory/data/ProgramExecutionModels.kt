@@ -7,11 +7,12 @@ data class ProgramWorkoutSet(
     val exerciseIndex: Int,       // プログラム内の種目インデックス
     val setNumber: Int,           // セット番号（1始まり）
     val side: String?,            // "Right" or "Left" or null
-    val targetValue: Int,         // 目標値
+    var targetValue: Int,         // 目標値
     var actualValue: Int = 0,     // 実際の値
     var isCompleted: Boolean = false,
     var isSkipped: Boolean = false,
-    val intervalSeconds: Int      // このセット後のインターバル
+    var intervalSeconds: Int,     // このセット後のインターバル
+    val previousValue: Int? = null // 前回値（表示用）
 )
 
 /**

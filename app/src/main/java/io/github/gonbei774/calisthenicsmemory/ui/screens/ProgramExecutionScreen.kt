@@ -103,19 +103,35 @@ fun ProgramExecutionScreen(
 
         if (exercisePairs.isEmpty()) return@LaunchedEffect
 
-        // 実行順のセットリストを構築
+        // 前回値を取得（表示用に常に取得）
+        val previousRecordsMap = mutableMapOf<Long, List<io.github.gonbei774.calisthenicsmemory.data.TrainingRecord>>()
+        exercisePairs.forEach { (_, exercise) ->
+            previousRecordsMap[exercise.id] = viewModel.getLatestSession(exercise.id)
+        }
+
+        val isPrefillEnabled = workoutPreferences.isPrefillPreviousRecordEnabled()
+
+        // 実行順のセットリストを構築（前回値を含む）
         val allSets = mutableListOf<ProgramWorkoutSet>()
         exercisePairs.forEachIndexed { index, (pe, exercise) ->
+            val latestRecords = previousRecordsMap[exercise.id] ?: emptyList()
+
             for (setNum in 1..pe.sets) {
+                val matchingRecord = latestRecords.find { it.setNumber == setNum }
+
                 if (exercise.laterality == "Unilateral") {
-                    // 片側種目: 右→左（両方にインターバルを設定）
+                    // 片側種目: 右→左
+                    val prevRight = matchingRecord?.valueRight
+                    val prevLeft = matchingRecord?.valueLeft ?: matchingRecord?.valueRight
+
                     allSets.add(
                         ProgramWorkoutSet(
                             exerciseIndex = index,
                             setNumber = setNum,
                             side = "Right",
-                            targetValue = pe.targetValue,
-                            intervalSeconds = pe.intervalSeconds
+                            targetValue = if (isPrefillEnabled && prevRight != null) prevRight else pe.targetValue,
+                            intervalSeconds = pe.intervalSeconds,
+                            previousValue = prevRight
                         )
                     )
                     allSets.add(
@@ -123,52 +139,24 @@ fun ProgramExecutionScreen(
                             exerciseIndex = index,
                             setNumber = setNum,
                             side = "Left",
-                            targetValue = pe.targetValue,
-                            intervalSeconds = pe.intervalSeconds
+                            targetValue = if (isPrefillEnabled && prevLeft != null) prevLeft else pe.targetValue,
+                            intervalSeconds = pe.intervalSeconds,
+                            previousValue = prevLeft
                         )
                     )
                 } else {
+                    val prevValue = matchingRecord?.valueRight
+
                     allSets.add(
                         ProgramWorkoutSet(
                             exerciseIndex = index,
                             setNumber = setNum,
                             side = null,
-                            targetValue = pe.targetValue,
-                            intervalSeconds = pe.intervalSeconds
+                            targetValue = if (isPrefillEnabled && prevValue != null) prevValue else pe.targetValue,
+                            intervalSeconds = pe.intervalSeconds,
+                            previousValue = prevValue
                         )
                     )
-                }
-            }
-        }
-
-        // 前回値をプリフィル（設定がONの場合のみ）
-        if (workoutPreferences.isPrefillPreviousRecordEnabled()) {
-            exercisePairs.forEachIndexed { index, (_, exercise) ->
-                val latestRecords = viewModel.getLatestSession(exercise.id)
-                if (latestRecords.isNotEmpty()) {
-                    // セットごとに前回値を適用
-                    val setsForExercise = allSets.filter { it.exerciseIndex == index }
-                    setsForExercise.forEach { set ->
-                        val matchingRecord = latestRecords.find { r ->
-                            r.setNumber == set.setNumber
-                        }
-                        if (matchingRecord != null) {
-                            when (set.side) {
-                                "Right" -> set.targetValue.let {
-                                    val newValue = matchingRecord.valueRight
-                                    allSets[allSets.indexOf(set)] = set.copy(targetValue = newValue)
-                                }
-                                "Left" -> set.targetValue.let {
-                                    val newValue = matchingRecord.valueLeft ?: matchingRecord.valueRight
-                                    allSets[allSets.indexOf(set)] = set.copy(targetValue = newValue)
-                                }
-                                else -> set.targetValue.let {
-                                    val newValue = matchingRecord.valueRight
-                                    allSets[allSets.indexOf(set)] = set.copy(targetValue = newValue)
-                                }
-                            }
-                        }
-                    }
                 }
             }
         }
