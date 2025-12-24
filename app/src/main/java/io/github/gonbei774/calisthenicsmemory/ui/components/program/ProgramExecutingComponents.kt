@@ -34,7 +34,8 @@ internal fun ProgramExecutingStepDynamicManual(
     isFlashEnabled: Boolean,
     isCountSoundEnabled: Boolean,
     onSetComplete: (Int) -> Unit,
-    onAbort: () -> Unit
+    onAbort: () -> Unit,
+    onRetry: () -> Unit
 ) {
     val currentSet = session.sets[currentSetIndex]
     val (pe, exercise) = session.exercises[currentSet.exerciseIndex]
@@ -320,12 +321,7 @@ internal fun ProgramExecutingStepDynamicManual(
 
         // やり直しボタン
         OutlinedButton(
-            onClick = {
-                elapsedTime = 0
-                currentCount = 0
-                adjustedReps = 0
-                isPaused = false
-            },
+            onClick = { onRetry() },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(44.dp),
@@ -352,7 +348,8 @@ internal fun ProgramExecutingStepIsometricManual(
     isIntervalSoundEnabled: Boolean,
     intervalSeconds: Int,
     onSetComplete: (Int) -> Unit,
-    onAbort: () -> Unit
+    onAbort: () -> Unit,
+    onRetry: () -> Unit
 ) {
     val currentSet = session.sets[currentSetIndex]
     val (pe, exercise) = session.exercises[currentSet.exerciseIndex]
@@ -624,12 +621,7 @@ internal fun ProgramExecutingStepIsometricManual(
 
         // やり直しボタン
         OutlinedButton(
-            onClick = {
-                elapsedTime = 0
-                adjustedValue = 0
-                hasPlayedCompletionBeep = false
-                isPaused = false
-            },
+            onClick = { onRetry() },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(44.dp),
@@ -656,7 +648,8 @@ internal fun ProgramExecutingStepIsometricAuto(
     isIntervalSoundEnabled: Boolean,
     intervalSeconds: Int,
     onSetComplete: (Int) -> Unit,
-    onAbort: () -> Unit
+    onAbort: () -> Unit,
+    onRetry: () -> Unit
 ) {
     val currentSet = session.sets[currentSetIndex]
     val (pe, exercise) = session.exercises[currentSet.exerciseIndex]
@@ -925,11 +918,7 @@ internal fun ProgramExecutingStepIsometricAuto(
 
         // やり直しボタン
         OutlinedButton(
-            onClick = {
-                elapsedTime = 0
-                adjustedValue = 0
-                isPaused = false
-            },
+            onClick = { onRetry() },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(44.dp),
@@ -955,7 +944,8 @@ internal fun ProgramExecutingStepDynamicAuto(
     isFlashEnabled: Boolean,
     isCountSoundEnabled: Boolean,
     onSetComplete: (Int) -> Unit,
-    onAbort: () -> Unit
+    onAbort: () -> Unit,
+    onRetry: () -> Unit
 ) {
     val currentSet = session.sets[currentSetIndex]
     val (pe, exercise) = session.exercises[currentSet.exerciseIndex]
@@ -1233,12 +1223,7 @@ internal fun ProgramExecutingStepDynamicAuto(
 
         // やり直しボタン
         OutlinedButton(
-            onClick = {
-                elapsedTime = 0
-                currentCount = 0
-                adjustedReps = 0
-                isPaused = false
-            },
+            onClick = { onRetry() },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(44.dp),

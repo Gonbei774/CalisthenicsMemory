@@ -236,6 +236,9 @@ fun ProgramExecutionScreen(
     // 中断確認ダイアログ
     var showExitConfirmDialog by remember { mutableStateOf(false) }
 
+    // やり直し用キー（startCountdownSeconds == 0 のときにコンポーネントをリセットするため）
+    var retryKey by remember { mutableIntStateOf(0) }
+
     // 戻るボタンのハンドリング
     BackHandler {
         when (currentStep) {
@@ -564,44 +567,56 @@ fun ProgramExecutionScreen(
                         val currentSet = step.session.sets[step.currentSetIndex]
                         val (_, currentExercise) = step.session.exercises[currentSet.exerciseIndex]
 
-                        if (isAutoMode) {
-                            // タイマーON: 自動カウント
-                            if (currentExercise.type == "Isometric") {
-                                // Isometric種目: 新UIで自動遷移
-                                ProgramExecutingStepIsometricAuto(
-                                    session = step.session,
-                                    currentSetIndex = step.currentSetIndex,
-                                    toneGenerator = toneGenerator,
-                                    flashController = flashController,
-                                    isFlashEnabled = isFlashEnabled,
-                                    isIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
-                                    intervalSeconds = isometricIntervalSeconds,
-                                    onSetComplete = { actualValue ->
-                                        val sets = step.session.sets
-                                        sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
-                                            actualValue = actualValue,
-                                            isCompleted = true
-                                        )
-                                        val completedSet = sets[step.currentSetIndex]
-                                        val nextIndex = step.currentSetIndex + 1
+                        // やり直し処理（準備カウントダウンに戻る or 内部リセット）
+                        val handleRetry: () -> Unit = {
+                            if (startCountdownSeconds > 0) {
+                                currentStep = ProgramExecutionStep.StartInterval(step.session, step.currentSetIndex)
+                            } else {
+                                retryKey++
+                            }
+                        }
 
-                                        if (nextIndex < sets.size) {
-                                            if (completedSet.intervalSeconds > 0) {
-                                                currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
-                                            } else if (startCountdownSeconds > 0) {
-                                                currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                        // key() でラップすることで、retryKey が変わったときにコンポーネントが再生成される
+                        key(step.currentSetIndex, retryKey) {
+                            if (isAutoMode) {
+                                // タイマーON: 自動カウント
+                                if (currentExercise.type == "Isometric") {
+                                    // Isometric種目: 新UIで自動遷移
+                                    ProgramExecutingStepIsometricAuto(
+                                        session = step.session,
+                                        currentSetIndex = step.currentSetIndex,
+                                        toneGenerator = toneGenerator,
+                                        flashController = flashController,
+                                        isFlashEnabled = isFlashEnabled,
+                                        isIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
+                                        intervalSeconds = isometricIntervalSeconds,
+                                        onSetComplete = { actualValue ->
+                                            val sets = step.session.sets
+                                            sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
+                                                actualValue = actualValue,
+                                                isCompleted = true
+                                            )
+                                            val completedSet = sets[step.currentSetIndex]
+                                            val nextIndex = step.currentSetIndex + 1
+
+                                            if (nextIndex < sets.size) {
+                                                if (completedSet.intervalSeconds > 0) {
+                                                    currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                                } else if (startCountdownSeconds > 0) {
+                                                    currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                                } else {
+                                                    currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                                }
                                             } else {
-                                                currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                                currentStep = ProgramExecutionStep.Result(step.session)
                                             }
-                                        } else {
+                                        },
+                                        onAbort = {
                                             currentStep = ProgramExecutionStep.Result(step.session)
-                                        }
-                                    },
-                                    onAbort = {
-                                        currentStep = ProgramExecutionStep.Result(step.session)
-                                    }
-                                )
-                            } else if (!isDynamicCountSoundEnabled) {
+                                        },
+                                        onRetry = handleRetry
+                                    )
+                                } else if (!isDynamicCountSoundEnabled) {
                                 // Dynamic種目 + レップ数数え上げOFF: シンプルカウンター
                                 ProgramExecutingStepDynamicSimple(
                                     session = step.session,
@@ -663,113 +678,117 @@ fun ProgramExecutionScreen(
                                     },
                                     onAbort = {
                                         currentStep = ProgramExecutionStep.Result(step.session)
-                                    }
+                                    },
+                                    onRetry = handleRetry
                                 )
                             }
-                        } else {
-                            // タイマーOFF: 手動完了
-                            if (currentExercise.type == "Isometric") {
-                                // Isometric種目: タイマー付き手動完了
-                                ProgramExecutingStepIsometricManual(
-                                    session = step.session,
-                                    currentSetIndex = step.currentSetIndex,
-                                    toneGenerator = toneGenerator,
-                                    flashController = flashController,
-                                    isFlashEnabled = isFlashEnabled,
-                                    isIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
-                                    intervalSeconds = isometricIntervalSeconds,
-                                    onSetComplete = { actualValue ->
-                                        val sets = step.session.sets
-                                        sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
-                                            actualValue = actualValue,
-                                            isCompleted = true
-                                        )
-                                        val completedSet = sets[step.currentSetIndex]
-                                        val nextIndex = step.currentSetIndex + 1
-
-                                        // 次のセットへ
-                                        if (nextIndex < sets.size) {
-                                            if (completedSet.intervalSeconds > 0) {
-                                                currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
-                                            } else if (startCountdownSeconds > 0) {
-                                                currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
-                                            } else {
-                                                currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
-                                            }
-                                        } else {
-                                            currentStep = ProgramExecutionStep.Result(step.session)
-                                        }
-                                    },
-                                    onAbort = {
-                                        currentStep = ProgramExecutionStep.Result(step.session)
-                                    }
-                                )
-                            } else if (!isDynamicCountSoundEnabled) {
-                                // Dynamic種目 + レップ数数え上げOFF: シンプルカウンター
-                                ProgramExecutingStepDynamicSimple(
-                                    session = step.session,
-                                    currentSetIndex = step.currentSetIndex,
-                                    onSetComplete = { actualValue ->
-                                        val sets = step.session.sets
-                                        sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
-                                            actualValue = actualValue,
-                                            isCompleted = true
-                                        )
-                                        val completedSet = sets[step.currentSetIndex]
-                                        val nextIndex = step.currentSetIndex + 1
-
-                                        // 次のセットへ
-                                        if (nextIndex < sets.size) {
-                                            if (completedSet.intervalSeconds > 0) {
-                                                currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
-                                            } else if (startCountdownSeconds > 0) {
-                                                currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
-                                            } else {
-                                                currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
-                                            }
-                                        } else {
-                                            currentStep = ProgramExecutionStep.Result(step.session)
-                                        }
-                                    },
-                                    onAbort = {
-                                        currentStep = ProgramExecutionStep.Result(step.session)
-                                    }
-                                )
                             } else {
-                                // Dynamic種目: タイマー付き手動完了
-                                ProgramExecutingStepDynamicManual(
-                                    session = step.session,
-                                    currentSetIndex = step.currentSetIndex,
-                                    toneGenerator = toneGenerator,
-                                    flashController = flashController,
-                                    isFlashEnabled = isFlashEnabled,
-                                    isCountSoundEnabled = isDynamicCountSoundEnabled,
-                                    onSetComplete = { actualValue ->
-                                        val sets = step.session.sets
-                                        sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
-                                            actualValue = actualValue,
-                                            isCompleted = true
-                                        )
-                                        val completedSet = sets[step.currentSetIndex]
-                                        val nextIndex = step.currentSetIndex + 1
+                                // タイマーOFF: 手動完了
+                                if (currentExercise.type == "Isometric") {
+                                    // Isometric種目: タイマー付き手動完了
+                                    ProgramExecutingStepIsometricManual(
+                                        session = step.session,
+                                        currentSetIndex = step.currentSetIndex,
+                                        toneGenerator = toneGenerator,
+                                        flashController = flashController,
+                                        isFlashEnabled = isFlashEnabled,
+                                        isIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
+                                        intervalSeconds = isometricIntervalSeconds,
+                                        onSetComplete = { actualValue ->
+                                            val sets = step.session.sets
+                                            sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
+                                                actualValue = actualValue,
+                                                isCompleted = true
+                                            )
+                                            val completedSet = sets[step.currentSetIndex]
+                                            val nextIndex = step.currentSetIndex + 1
 
-                                        // 次のセットへ
-                                        if (nextIndex < sets.size) {
-                                            if (completedSet.intervalSeconds > 0) {
-                                                currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
-                                            } else if (startCountdownSeconds > 0) {
-                                                currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                            // 次のセットへ
+                                            if (nextIndex < sets.size) {
+                                                if (completedSet.intervalSeconds > 0) {
+                                                    currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                                } else if (startCountdownSeconds > 0) {
+                                                    currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                                } else {
+                                                    currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                                }
                                             } else {
-                                                currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                                currentStep = ProgramExecutionStep.Result(step.session)
                                             }
-                                        } else {
+                                        },
+                                        onAbort = {
+                                            currentStep = ProgramExecutionStep.Result(step.session)
+                                        },
+                                        onRetry = handleRetry
+                                    )
+                                } else if (!isDynamicCountSoundEnabled) {
+                                    // Dynamic種目 + レップ数数え上げOFF: シンプルカウンター
+                                    ProgramExecutingStepDynamicSimple(
+                                        session = step.session,
+                                        currentSetIndex = step.currentSetIndex,
+                                        onSetComplete = { actualValue ->
+                                            val sets = step.session.sets
+                                            sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
+                                                actualValue = actualValue,
+                                                isCompleted = true
+                                            )
+                                            val completedSet = sets[step.currentSetIndex]
+                                            val nextIndex = step.currentSetIndex + 1
+
+                                            // 次のセットへ
+                                            if (nextIndex < sets.size) {
+                                                if (completedSet.intervalSeconds > 0) {
+                                                    currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                                } else if (startCountdownSeconds > 0) {
+                                                    currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                                } else {
+                                                    currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                                }
+                                            } else {
+                                                currentStep = ProgramExecutionStep.Result(step.session)
+                                            }
+                                        },
+                                        onAbort = {
                                             currentStep = ProgramExecutionStep.Result(step.session)
                                         }
-                                    },
-                                    onAbort = {
-                                        currentStep = ProgramExecutionStep.Result(step.session)
-                                    }
-                                )
+                                    )
+                                } else {
+                                    // Dynamic種目: タイマー付き手動完了
+                                    ProgramExecutingStepDynamicManual(
+                                        session = step.session,
+                                        currentSetIndex = step.currentSetIndex,
+                                        toneGenerator = toneGenerator,
+                                        flashController = flashController,
+                                        isFlashEnabled = isFlashEnabled,
+                                        isCountSoundEnabled = isDynamicCountSoundEnabled,
+                                        onSetComplete = { actualValue ->
+                                            val sets = step.session.sets
+                                            sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
+                                                actualValue = actualValue,
+                                                isCompleted = true
+                                            )
+                                            val completedSet = sets[step.currentSetIndex]
+                                            val nextIndex = step.currentSetIndex + 1
+
+                                            // 次のセットへ
+                                            if (nextIndex < sets.size) {
+                                                if (completedSet.intervalSeconds > 0) {
+                                                    currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                                } else if (startCountdownSeconds > 0) {
+                                                    currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                                } else {
+                                                    currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                                }
+                                            } else {
+                                                currentStep = ProgramExecutionStep.Result(step.session)
+                                            }
+                                        },
+                                        onAbort = {
+                                            currentStep = ProgramExecutionStep.Result(step.session)
+                                        },
+                                        onRetry = handleRetry
+                                    )
+                                }
                             }
                         }
                     }
