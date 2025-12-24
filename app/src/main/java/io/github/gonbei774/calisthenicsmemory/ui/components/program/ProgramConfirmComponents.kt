@@ -760,6 +760,37 @@ internal fun ProgramConfirmExerciseCard(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
+                    // カラムヘッダー（目標 / 前回）
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // 空（セットラベル用スペース）
+                        Text(
+                            text = "",
+                            modifier = Modifier.weight(1f)
+                        )
+                        // 目標
+                        Text(
+                            text = stringResource(R.string.target_value_label),
+                            fontSize = 12.sp,
+                            color = Slate500,
+                            modifier = Modifier.width(80.dp),
+                            textAlign = TextAlign.Center
+                        )
+                        // 前回
+                        Text(
+                            text = stringResource(R.string.program_use_previous),
+                            fontSize = 12.sp,
+                            color = Slate500,
+                            modifier = Modifier.width(50.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
                     // セットごとの値
                     sets.forEach { set ->
                 // オブジェクト参照ではなくセマンティックに検索（copy()で参照が変わるため）
@@ -781,19 +812,22 @@ internal fun ProgramConfirmExerciseCard(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 2.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                        .padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // セットラベル
                     Text(
                         text = stringResource(R.string.set_format, set.setNumber, actualTotalSets),
                         fontSize = 14.sp,
-                        color = Slate300
+                        color = Slate300,
+                        modifier = Modifier.weight(1f)
                     )
 
+                    // 目標値入力（80dp）
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        modifier = Modifier.width(80.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
@@ -846,12 +880,16 @@ internal fun ProgramConfirmExerciseCard(
                                 }
                             )
                         }
-                        Text(
-                            text = unit,
-                            fontSize = 14.sp,
-                            color = Slate400
-                        )
                     }
+
+                    // 前回値（50dp）
+                    Text(
+                        text = set.previousValue?.toString() ?: "-",
+                        fontSize = 13.sp,
+                        color = Slate500,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.width(50.dp)
+                    )
                 }
             }
 
