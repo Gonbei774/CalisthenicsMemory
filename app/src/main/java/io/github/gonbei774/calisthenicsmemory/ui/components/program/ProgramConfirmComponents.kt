@@ -25,6 +25,7 @@ import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
 import io.github.gonbei774.calisthenicsmemory.data.ProgramWorkoutSet
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import kotlin.math.roundToInt
 
 @Composable
 internal fun ProgramConfirmStep(
@@ -53,12 +54,44 @@ internal fun ProgramConfirmStep(
     var refreshKey by remember { mutableIntStateOf(0) }
     // 課題設定がある種目が1つでもあるか
     val hasChallengeExercise = session.exercises.any { (_, exercise) -> exercise.targetValue != null }
+    // 推定時間を計算
+    val estimatedMinutes = calculateEstimatedMinutes(session)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        // ヘッダー: プログラム名 + 種目数 + 推定時間
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp)
+        ) {
+            Text(
+                text = session.program.name,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.program_exercise_count, session.exercises.size),
+                    fontSize = 14.sp,
+                    color = Slate400
+                )
+                Text(
+                    text = stringResource(R.string.program_estimated_time, estimatedMinutes),
+                    fontSize = 14.sp,
+                    color = Slate400
+                )
+            }
+        }
+
         // 設定セクション
         SettingsSection(
             isAutoMode = isAutoMode,
@@ -796,4 +829,24 @@ internal fun ProgramConfirmExerciseCard(
             }
         }
     }
+}
+
+/**
+ * 推定時間を計算
+ * - Dynamic: 1レップ2秒として概算
+ * - Isometric: 目標秒数をそのまま使用
+ * - 各セット後のインターバルを加算
+ */
+internal fun calculateEstimatedMinutes(session: ProgramExecutionSession): Int {
+    var totalSeconds = 0
+    session.sets.forEach { set ->
+        val exercise = session.exercises[set.exerciseIndex].second
+        val repSeconds = if (exercise.type == "Isometric") {
+            set.targetValue
+        } else {
+            set.targetValue * 2  // 1レップ2秒
+        }
+        totalSeconds += repSeconds + set.intervalSeconds
+    }
+    return (totalSeconds / 60.0).roundToInt().coerceAtLeast(1)
 }
