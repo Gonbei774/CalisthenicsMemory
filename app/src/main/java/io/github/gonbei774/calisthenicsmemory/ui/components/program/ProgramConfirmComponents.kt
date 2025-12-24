@@ -114,59 +114,51 @@ internal fun ProgramConfirmStep(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // 一括適用ボタン（一列横並び）
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = {
-                    onUseAllProgramValues()
-                    refreshKey++
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Amber600),
-                shape = RoundedCornerShape(8.dp),
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
+        // 一括適用タブ（タブ切替UI）
+        var selectedBulkTab by remember { mutableIntStateOf(0) } // 0=Program, 1=Challenge, 2=Previous
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // ラベル
+            Text(
+                text = stringResource(R.string.auto_fill_target_label),
+                fontSize = 12.sp,
+                color = Slate500,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            // タブ行
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
+                // Program tab
+                BulkSettingTab(
                     text = stringResource(R.string.program_use_program),
-                    fontSize = 13.sp,
-                    color = Color.White
-                )
-            }
-            if (hasChallengeExercise) {
-                Spacer(modifier = Modifier.width(6.dp))
-                Button(
+                    isSelected = selectedBulkTab == 0,
                     onClick = {
-                        onUseAllChallengeValues()
+                        selectedBulkTab = 0
+                        onUseAllProgramValues()
                         refreshKey++
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Green600),
-                    shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
-                ) {
-                    Text(
+                    }
+                )
+                // Challenge tab (conditional)
+                if (hasChallengeExercise) {
+                    BulkSettingTab(
                         text = stringResource(R.string.program_use_challenge),
-                        fontSize = 13.sp,
-                        color = Color.White
+                        isSelected = selectedBulkTab == 1,
+                        onClick = {
+                            selectedBulkTab = 1
+                            onUseAllChallengeValues()
+                            refreshKey++
+                        }
                     )
                 }
-            }
-            Spacer(modifier = Modifier.width(6.dp))
-            Button(
-                onClick = {
-                    onUseAllPreviousRecordValues()
-                    refreshKey++
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Purple600),
-                shape = RoundedCornerShape(8.dp),
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
-            ) {
-                Text(
+                // Previous tab
+                BulkSettingTab(
                     text = stringResource(R.string.program_use_previous),
-                    fontSize = 13.sp,
-                    color = Color.White
+                    isSelected = selectedBulkTab == if (hasChallengeExercise) 2 else 1,
+                    onClick = {
+                        selectedBulkTab = if (hasChallengeExercise) 2 else 1
+                        onUseAllPreviousRecordValues()
+                        refreshKey++
+                    }
                 )
             }
         }
@@ -882,6 +874,32 @@ internal fun ProgramConfirmExerciseCard(
                 }
             }
         }
+    }
+}
+
+/**
+ * 一括設定タブ（pill型ボタン）
+ */
+@Composable
+private fun BulkSettingTab(
+    text: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .background(
+                color = if (isSelected) Amber600 else Color.Transparent,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = text,
+            fontSize = 13.sp,
+            color = if (isSelected) Color.White else Slate400
+        )
     }
 }
 

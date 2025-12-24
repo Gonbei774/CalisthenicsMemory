@@ -562,6 +562,7 @@
     <string name="program_use_all_program">All Program</string>
     <string name="program_use_all_challenge">All Challenge</string>
     <string name="program_previous_value">Using previous value</string>
+    <string name="auto_fill_target_label">Auto-fill target values</string>
     <string name="next_exercise_label">Next: %s</string>
     <string name="program_set_label">Set %d:</string>
     <string name="program_estimated_time">~%d min</string>
