@@ -76,35 +76,43 @@ fun saveProgramResults(
 /**
  * セットリストを構築するファクトリ関数
  * プログラム設定の値を使用
+ * @param originalSets 元のセットリスト（previousValueを引き継ぐため）
  */
 fun buildProgramValueSets(
-    exercises: List<Pair<ProgramExercise, Exercise>>
+    exercises: List<Pair<ProgramExercise, Exercise>>,
+    originalSets: List<ProgramWorkoutSet> = emptyList()
 ): MutableList<ProgramWorkoutSet> {
     val sets = mutableListOf<ProgramWorkoutSet>()
     exercises.forEachIndexed { index, (pe, exercise) ->
         for (setNum in 1..pe.sets) {
             if (exercise.laterality == "Unilateral") {
+                val prevRight = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Right" }?.previousValue
+                val prevLeft = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Left" }?.previousValue
                 sets.add(ProgramWorkoutSet(
                     exerciseIndex = index,
                     setNumber = setNum,
                     side = "Right",
                     targetValue = pe.targetValue,
-                    intervalSeconds = pe.intervalSeconds
+                    intervalSeconds = pe.intervalSeconds,
+                    previousValue = prevRight
                 ))
                 sets.add(ProgramWorkoutSet(
                     exerciseIndex = index,
                     setNumber = setNum,
                     side = "Left",
                     targetValue = pe.targetValue,
-                    intervalSeconds = pe.intervalSeconds
+                    intervalSeconds = pe.intervalSeconds,
+                    previousValue = prevLeft
                 ))
             } else {
+                val prevValue = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == null }?.previousValue
                 sets.add(ProgramWorkoutSet(
                     exerciseIndex = index,
                     setNumber = setNum,
                     side = null,
                     targetValue = pe.targetValue,
-                    intervalSeconds = pe.intervalSeconds
+                    intervalSeconds = pe.intervalSeconds,
+                    previousValue = prevValue
                 ))
             }
         }
@@ -115,9 +123,11 @@ fun buildProgramValueSets(
 /**
  * セットリストを構築するファクトリ関数
  * チャレンジ設定（種目のデフォルト値）を使用、なければプログラム設定
+ * @param originalSets 元のセットリスト（previousValueを引き継ぐため）
  */
 fun buildChallengeValueSets(
-    exercises: List<Pair<ProgramExercise, Exercise>>
+    exercises: List<Pair<ProgramExercise, Exercise>>,
+    originalSets: List<ProgramWorkoutSet> = emptyList()
 ): MutableList<ProgramWorkoutSet> {
     val sets = mutableListOf<ProgramWorkoutSet>()
     exercises.forEachIndexed { index, (pe, exercise) ->
@@ -126,27 +136,33 @@ fun buildChallengeValueSets(
         val interval = exercise.restInterval ?: pe.intervalSeconds
         for (setNum in 1..setCount) {
             if (exercise.laterality == "Unilateral") {
+                val prevRight = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Right" }?.previousValue
+                val prevLeft = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Left" }?.previousValue
                 sets.add(ProgramWorkoutSet(
                     exerciseIndex = index,
                     setNumber = setNum,
                     side = "Right",
                     targetValue = targetValue,
-                    intervalSeconds = interval
+                    intervalSeconds = interval,
+                    previousValue = prevRight
                 ))
                 sets.add(ProgramWorkoutSet(
                     exerciseIndex = index,
                     setNumber = setNum,
                     side = "Left",
                     targetValue = targetValue,
-                    intervalSeconds = interval
+                    intervalSeconds = interval,
+                    previousValue = prevLeft
                 ))
             } else {
+                val prevValue = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == null }?.previousValue
                 sets.add(ProgramWorkoutSet(
                     exerciseIndex = index,
                     setNumber = setNum,
                     side = null,
                     targetValue = targetValue,
-                    intervalSeconds = interval
+                    intervalSeconds = interval,
+                    previousValue = prevValue
                 ))
             }
         }

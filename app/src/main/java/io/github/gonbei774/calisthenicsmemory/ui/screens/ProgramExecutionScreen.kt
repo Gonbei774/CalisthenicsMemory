@@ -124,6 +124,14 @@ fun ProgramExecutionScreen(
                     val prevRight = matchingRecord?.valueRight
                     val prevLeft = matchingRecord?.valueLeft ?: matchingRecord?.valueRight
 
+                    // 前回値は左右の平均値を使用
+                    val prevAverage = when {
+                        prevRight != null && prevLeft != null -> (prevRight + prevLeft) / 2
+                        prevRight != null -> prevRight
+                        prevLeft != null -> prevLeft
+                        else -> null
+                    }
+
                     allSets.add(
                         ProgramWorkoutSet(
                             exerciseIndex = index,
@@ -131,7 +139,7 @@ fun ProgramExecutionScreen(
                             side = "Right",
                             targetValue = if (isPrefillEnabled && prevRight != null) prevRight else pe.targetValue,
                             intervalSeconds = pe.intervalSeconds,
-                            previousValue = prevRight
+                            previousValue = prevAverage
                         )
                     )
                     allSets.add(
@@ -141,7 +149,7 @@ fun ProgramExecutionScreen(
                             side = "Left",
                             targetValue = if (isPrefillEnabled && prevLeft != null) prevLeft else pe.targetValue,
                             intervalSeconds = pe.intervalSeconds,
-                            previousValue = prevLeft
+                            previousValue = prevAverage
                         )
                     )
                 } else {
@@ -374,14 +382,16 @@ fun ProgramExecutionScreen(
                                                     setNumber = setNum,
                                                     side = "Right",
                                                     targetValue = existingRight?.targetValue ?: targetValue,
-                                                    intervalSeconds = interval
+                                                    intervalSeconds = interval,
+                                                    previousValue = existingRight?.previousValue
                                                 ))
                                                 newSets.add(ProgramWorkoutSet(
                                                     exerciseIndex = idx,
                                                     setNumber = setNum,
                                                     side = "Left",
                                                     targetValue = existingLeft?.targetValue ?: targetValue,
-                                                    intervalSeconds = interval
+                                                    intervalSeconds = interval,
+                                                    previousValue = existingLeft?.previousValue
                                                 ))
                                             } else {
                                                 newSets.add(ProgramWorkoutSet(
@@ -389,7 +399,8 @@ fun ProgramExecutionScreen(
                                                     setNumber = setNum,
                                                     side = null,
                                                     targetValue = existingBilateral?.targetValue ?: targetValue,
-                                                    intervalSeconds = interval
+                                                    intervalSeconds = interval,
+                                                    previousValue = existingBilateral?.previousValue
                                                 ))
                                             }
                                         }
@@ -404,19 +415,20 @@ fun ProgramExecutionScreen(
                             },
                             onUseAllProgramValues = {
                                 // セット一覧を再構築（プログラム設定のセット数・目標値を使用）
-                                val newSets = buildProgramValueSets(step.session.exercises)
+                                val newSets = buildProgramValueSets(step.session.exercises, step.session.sets)
                                 val newSession = step.session.copy(sets = newSets)
                                 currentStep = ProgramExecutionStep.Confirm(newSession)
                             },
                             onUseAllChallengeValues = {
                                 // セット一覧を再構築（種目設定のセット数・目標値・インターバルを使用、なければプログラム設定）
-                                val newSets = buildChallengeValueSets(step.session.exercises)
+                                val newSets = buildChallengeValueSets(step.session.exercises, step.session.sets)
                                 val newSession = step.session.copy(sets = newSets)
                                 currentStep = ProgramExecutionStep.Confirm(newSession)
                             },
                             onUseAllPreviousRecordValues = {
                                 // 前回記録を取得してセット一覧を再構築（非同期）
                                 scope.launch {
+                                    val originalSets = step.session.sets
                                     val newSets = mutableListOf<ProgramWorkoutSet>()
                                     step.session.exercises.forEachIndexed { index, (pe, exercise) ->
                                         val latestRecords = viewModel.getLatestSession(exercise.id)
@@ -424,19 +436,25 @@ fun ProgramExecutionScreen(
                                             // 前回記録のセット数を使用
                                             latestRecords.forEach { record ->
                                                 if (exercise.laterality == "Unilateral") {
+                                                    val valueRight = record.valueRight
+                                                    val valueLeft = record.valueLeft ?: record.valueRight
+                                                    // 前回値は左右の平均値を使用（目標値も平均値に設定）
+                                                    val prevAverage = (valueRight + valueLeft) / 2
                                                     newSets.add(ProgramWorkoutSet(
                                                         exerciseIndex = index,
                                                         setNumber = record.setNumber,
                                                         side = "Right",
-                                                        targetValue = record.valueRight,
-                                                        intervalSeconds = pe.intervalSeconds
+                                                        targetValue = prevAverage,
+                                                        intervalSeconds = pe.intervalSeconds,
+                                                        previousValue = prevAverage
                                                     ))
                                                     newSets.add(ProgramWorkoutSet(
                                                         exerciseIndex = index,
                                                         setNumber = record.setNumber,
                                                         side = "Left",
-                                                        targetValue = record.valueLeft ?: record.valueRight,
-                                                        intervalSeconds = pe.intervalSeconds
+                                                        targetValue = prevAverage,
+                                                        intervalSeconds = pe.intervalSeconds,
+                                                        previousValue = prevAverage
                                                     ))
                                                 } else {
                                                     newSets.add(ProgramWorkoutSet(
@@ -444,35 +462,42 @@ fun ProgramExecutionScreen(
                                                         setNumber = record.setNumber,
                                                         side = null,
                                                         targetValue = record.valueRight,
-                                                        intervalSeconds = pe.intervalSeconds
+                                                        intervalSeconds = pe.intervalSeconds,
+                                                        previousValue = record.valueRight
                                                     ))
                                                 }
                                             }
                                         } else {
-                                            // 前回記録がない場合はプログラム設定を使用
+                                            // 前回記録がない場合はプログラム設定を使用（元のpreviousValueを引き継ぐ）
                                             for (setNum in 1..pe.sets) {
                                                 if (exercise.laterality == "Unilateral") {
+                                                    val prevRight = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Right" }?.previousValue
+                                                    val prevLeft = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Left" }?.previousValue
                                                     newSets.add(ProgramWorkoutSet(
                                                         exerciseIndex = index,
                                                         setNumber = setNum,
                                                         side = "Right",
                                                         targetValue = pe.targetValue,
-                                                        intervalSeconds = pe.intervalSeconds
+                                                        intervalSeconds = pe.intervalSeconds,
+                                                        previousValue = prevRight
                                                     ))
                                                     newSets.add(ProgramWorkoutSet(
                                                         exerciseIndex = index,
                                                         setNumber = setNum,
                                                         side = "Left",
                                                         targetValue = pe.targetValue,
-                                                        intervalSeconds = pe.intervalSeconds
+                                                        intervalSeconds = pe.intervalSeconds,
+                                                        previousValue = prevLeft
                                                     ))
                                                 } else {
+                                                    val prevValue = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == null }?.previousValue
                                                     newSets.add(ProgramWorkoutSet(
                                                         exerciseIndex = index,
                                                         setNumber = setNum,
                                                         side = null,
                                                         targetValue = pe.targetValue,
-                                                        intervalSeconds = pe.intervalSeconds
+                                                        intervalSeconds = pe.intervalSeconds,
+                                                        previousValue = prevValue
                                                     ))
                                                 }
                                             }
@@ -481,16 +506,6 @@ fun ProgramExecutionScreen(
                                     val newSession = step.session.copy(sets = newSets.toMutableList())
                                     currentStep = ProgramExecutionStep.Confirm(newSession)
                                 }
-                            },
-                            onUpdateAllExercisesValue = { delta ->
-                                // 全種目の全セットの値を更新（最小値0）
-                                val sets = step.session.sets
-                                sets.forEachIndexed { index, set ->
-                                    val newValue = (set.targetValue + delta).coerceAtLeast(0)
-                                    sets[index] = set.copy(targetValue = newValue)
-                                }
-                                // 再構成をトリガー（新しいセッションオブジェクトを作成）
-                                currentStep = ProgramExecutionStep.Confirm(step.session.copy())
                             },
                             // 音声設定
                             isAutoMode = isAutoMode,

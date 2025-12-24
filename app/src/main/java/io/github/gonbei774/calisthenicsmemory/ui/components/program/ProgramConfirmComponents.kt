@@ -43,7 +43,6 @@ internal fun ProgramConfirmStep(
     onUseAllProgramValues: () -> Unit,
     onUseAllChallengeValues: () -> Unit,
     onUseAllPreviousRecordValues: () -> Unit,
-    onUpdateAllExercisesValue: (Int) -> Unit,  // delta (+1 or -1)
     // 音声設定
     isAutoMode: Boolean,
     startCountdownSeconds: Int,
@@ -165,69 +164,9 @@ internal fun ProgramConfirmStep(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 全種目± ボタン行
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Slate700, RoundedCornerShape(8.dp))
-                .padding(vertical = 10.dp, horizontal = 16.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = {
-                    onUpdateAllExercisesValue(-1)
-                    refreshKey++
-                },
-                modifier = Modifier.size(32.dp)
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = Color.Transparent,
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
-                ) {
-                    Box(
-                        modifier = Modifier.size(32.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("−", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = stringResource(R.string.all_exercises_label),
-                fontSize = 13.sp,
-                color = Slate400
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            IconButton(
-                onClick = {
-                    onUpdateAllExercisesValue(1)
-                    refreshKey++
-                },
-                modifier = Modifier.size(32.dp)
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = Color.Transparent,
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
-                ) {
-                    Box(
-                        modifier = Modifier.size(32.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // 種目リスト
+        // 種目リスト + 開始ボタン（スクロール対応）
         LazyColumn(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // key = refreshKey ensures recomposition
@@ -277,24 +216,25 @@ internal fun ProgramConfirmStep(
                     }
                 )
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 開始ボタン
-        Button(
-            onClick = onStart,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Green600),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.program_start),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
+            // 開始ボタン（リストの最後、スクロール対応）
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = onStart,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Green600),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.program_start),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
         }
     }
 }
