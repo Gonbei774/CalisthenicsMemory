@@ -590,197 +590,178 @@ internal fun ProgramConfirmExerciseCard(
     // ローカル状態（UIの編集用）
     var intervalText by remember(exerciseIndex, currentInterval) { mutableStateOf(currentInterval.toString()) }
 
+    // 折りたたみ状態（デフォルト開く）
+    var isExpanded by remember { mutableStateOf(true) }
+    val chevronRotation by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        label = "chevron"
+    )
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = Slate800),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(12.dp)
-        ) {
-            // ヘッダー: 種目名
-            Text(
-                text = exercise.name,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // セット数・インターバル編集行
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // セット数（+/-ボタン）
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.sets_label_short),
-                        fontSize = 12.sp,
-                        color = Slate400
-                    )
-                    IconButton(
-                        onClick = { if (currentSetCount > 1) onUpdateSetCount(currentSetCount - 1) },
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Text(
-                            text = "−",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Slate400
-                        )
-                    }
-                    Text(
-                        text = currentSetCount.toString(),
-                        fontSize = 14.sp,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.width(20.dp)
-                    )
-                    IconButton(
-                        onClick = { onUpdateSetCount(currentSetCount + 1) },
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Text(
-                            text = "+",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Slate400
-                        )
-                    }
-                }
-
-                // インターバル
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.interval_short),
-                        fontSize = 12.sp,
-                        color = Slate400
-                    )
-                    Box(
-                        modifier = Modifier
-                            .width(48.dp)
-                            .height(28.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        BasicTextField(
-                            value = intervalText,
-                            onValueChange = { newValue ->
-                                if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
-                                    intervalText = newValue
-                                    newValue.toIntOrNull()?.let { onUpdateInterval(it) }
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            textStyle = androidx.compose.ui.text.TextStyle(
-                                fontSize = 14.sp,
-                                textAlign = TextAlign.Center,
-                                color = Color.White
-                            ),
-                            decorationBox = { innerTextField ->
-                                Column {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .weight(1f),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        innerTextField()
-                                    }
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(1.dp)
-                                            .padding(horizontal = 2.dp)
-                                            .then(Modifier.drawBehind {
-                                                drawLine(
-                                                    color = Slate400,
-                                                    start = androidx.compose.ui.geometry.Offset(0f, 0f),
-                                                    end = androidx.compose.ui.geometry.Offset(size.width, 0f),
-                                                    strokeWidth = 1.dp.toPx()
-                                                )
-                                            })
-                                    )
-                                }
-                            }
-                        )
-                    }
-                    Text(
-                        text = stringResource(R.string.unit_seconds_short),
-                        fontSize = 12.sp,
-                        color = Slate400
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // 全セット± ボタン行
+        Column {
+            // ヘッダー: 番号バッジ + 種目名 + セット数バッジ + シェブロン
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Slate700, RoundedCornerShape(6.dp))
-                    .padding(vertical = 6.dp, horizontal = 8.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                    .clickable { isExpanded = !isExpanded }
+                    .padding(14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                IconButton(
-                    onClick = { onUpdateAllSetsValue(-1) },
-                    modifier = Modifier.size(28.dp)
+                // 番号バッジ
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .background(Amber600, RoundedCornerShape(8.dp)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Surface(
-                        shape = RoundedCornerShape(6.dp),
-                        color = Color.Transparent,
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
-                    ) {
-                        Box(
-                            modifier = Modifier.size(28.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("−", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                        }
-                    }
+                    Text(
+                        text = (exerciseIndex + 1).toString(),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
                 }
-                Spacer(modifier = Modifier.width(8.dp))
+
+                // 種目名
                 Text(
-                    text = stringResource(R.string.all_sets_label),
-                    fontSize = 12.sp,
-                    color = Slate400
+                    text = exercise.name,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White,
+                    modifier = Modifier.weight(1f)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                IconButton(
-                    onClick = { onUpdateAllSetsValue(1) },
-                    modifier = Modifier.size(28.dp)
+
+                // セット数バッジ
+                Box(
+                    modifier = Modifier
+                        .background(Slate700, RoundedCornerShape(12.dp))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
-                    Surface(
-                        shape = RoundedCornerShape(6.dp),
-                        color = Color.Transparent,
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
-                    ) {
-                        Box(
-                            modifier = Modifier.size(28.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("+", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                        }
-                    }
+                    Text(
+                        text = stringResource(R.string.sets_format, currentSetCount),
+                        fontSize = 12.sp,
+                        color = Slate300
+                    )
                 }
+
+                // シェブロン
+                Text(
+                    text = "▼",
+                    fontSize = 12.sp,
+                    color = Slate400,
+                    modifier = Modifier.rotate(chevronRotation)
+                )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            // コンテンツ（折りたたみ可能）
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column(
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                ) {
+                    // セット数変更（ステッパー）
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.sets_label_short),
+                            fontSize = 13.sp,
+                            color = Slate400
+                        )
+                        Row(
+                            modifier = Modifier
+                                .background(Slate700, RoundedCornerShape(8.dp))
+                                .padding(2.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(
+                                onClick = { if (currentSetCount > 1) onUpdateSetCount(currentSetCount - 1) },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Text("−", fontSize = 16.sp, color = Slate400)
+                            }
+                            Text(
+                                text = currentSetCount.toString(),
+                                fontSize = 14.sp,
+                                color = Color.White,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.width(28.dp)
+                            )
+                            IconButton(
+                                onClick = { onUpdateSetCount(currentSetCount + 1) },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Text("+", fontSize = 16.sp, color = Slate400)
+                            }
+                        }
+                    }
 
-            // セットごとの値（コンパクト）
-            sets.forEach { set ->
+                    // 全セット± ボタン行
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Slate700, RoundedCornerShape(8.dp))
+                            .padding(vertical = 10.dp, horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            onClick = { onUpdateAllSetsValue(-1) },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color.Transparent,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
+                            ) {
+                                Box(
+                                    modifier = Modifier.size(32.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("−", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(R.string.all_sets_label),
+                            fontSize = 13.sp,
+                            color = Slate400
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        IconButton(
+                            onClick = { onUpdateAllSetsValue(1) },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color.Transparent,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
+                            ) {
+                                Box(
+                                    modifier = Modifier.size(32.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // セットごとの値
+                    sets.forEach { set ->
                 // オブジェクト参照ではなくセマンティックに検索（copy()で参照が変わるため）
                 val setIndex = allSets.indexOfFirst {
                     it.exerciseIndex == set.exerciseIndex &&
@@ -869,6 +850,69 @@ internal fun ProgramConfirmExerciseCard(
                             text = unit,
                             fontSize = 14.sp,
                             color = Slate400
+                        )
+                    }
+                }
+            }
+
+                    // 休憩時間
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "⏱",
+                            fontSize = 12.sp,
+                            color = Slate500
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.interval_short),
+                            fontSize = 12.sp,
+                            color = Slate500
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .width(48.dp)
+                                .height(28.dp)
+                                .background(Slate700, RoundedCornerShape(6.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            BasicTextField(
+                                value = intervalText,
+                                onValueChange = { newValue ->
+                                    if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
+                                        intervalText = newValue
+                                        newValue.toIntOrNull()?.let { onUpdateInterval(it) }
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                textStyle = androidx.compose.ui.text.TextStyle(
+                                    fontSize = 13.sp,
+                                    textAlign = TextAlign.Center,
+                                    color = Color.White
+                                ),
+                                decorationBox = { innerTextField ->
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        innerTextField()
+                                    }
+                                }
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(R.string.unit_seconds_short),
+                            fontSize = 12.sp,
+                            color = Slate500
                         )
                     }
                 }
