@@ -523,6 +523,7 @@
     <string name="auto_mode_label">Auto Mode</string>
     <string name="auto_mode">Auto Mode</string>
     <string name="auto_mode_description">Manual completion button</string>
+    <string name="auto_mode_disabled_hint">Requires Count Sound to be ON</string>
     <string name="timer_on">ON</string>
     <string name="timer_off">OFF</string>
     <string name="timer_mode_on_description">Auto countdown during exercise</string>
@@ -575,6 +576,7 @@
     <string name="complete_with_time">✓ Complete (%ds)</string>
     <string name="complete_with_reps">✓ Complete (%d reps)</string>
     <string name="target_reps_format">Target: %d reps</string>
+    <string name="previous_value_format">Previous: %d</string>
 
     <!-- Exit Workout Confirmation -->
     <string name="exit_workout_title">Exit workout?</string>
