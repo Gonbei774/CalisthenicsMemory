@@ -1,6 +1,11 @@
 package io.github.gonbei774.calisthenicsmemory.ui.components.program
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,6 +14,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -301,7 +307,7 @@ internal fun ProgramConfirmStep(
     }
 }
 
-// 設定セクション（ProgramConfirmStep内）
+// 設定セクション（ProgramConfirmStep内）折りたたみ式
 @Composable
 internal fun SettingsSection(
     isAutoMode: Boolean,
@@ -315,6 +321,13 @@ internal fun SettingsSection(
     onIsometricIntervalSoundChange: (Boolean) -> Unit,
     onIsometricIntervalSecondsChange: (Int) -> Unit
 ) {
+    // 折りたたみ状態（デフォルトは閉じた状態）
+    var isExpanded by remember { mutableStateOf(false) }
+    // シェブロンの回転アニメーション
+    val chevronRotation by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        label = "chevron"
+    )
     // ローカル状態（間隔秒数入力用）
     var intervalText by remember(isometricIntervalSeconds) { mutableStateOf(isometricIntervalSeconds.toString()) }
 
@@ -323,11 +336,50 @@ internal fun SettingsSection(
         colors = CardDefaults.cardColors(containerColor = Slate800),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // タイマーモード
+        Column {
+            // 折りたたみヘッダー
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { isExpanded = !isExpanded }
+                    .padding(14.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "⚙",
+                        fontSize = 14.sp,
+                        color = Slate300
+                    )
+                    Text(
+                        text = stringResource(R.string.settings),
+                        fontSize = 14.sp,
+                        color = Slate300
+                    )
+                }
+                Text(
+                    text = "▼",
+                    fontSize = 12.sp,
+                    color = Slate400,
+                    modifier = Modifier.rotate(chevronRotation)
+                )
+            }
+
+            // 折りたたみコンテンツ
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column(
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // タイマーモード
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -517,6 +569,8 @@ internal fun SettingsSection(
                             uncheckedTrackColor = Slate500
                         )
                     )
+                }
+            }
                 }
             }
         }
