@@ -1639,6 +1639,21 @@ fun ConfirmationStep(
         }
     }
 
+    // 0のセットがあるかチェック
+    val hasZeroSets = remember(session.sets) {
+        if (session.exercise.laterality == "Unilateral") {
+            // 片側種目: 両方0のセットがあるか
+            session.sets.groupBy { it.setNumber }.any { (_, sets) ->
+                val rightValue = sets.firstOrNull { it.side == "Right" }?.actualValue ?: 0
+                val leftValue = sets.firstOrNull { it.side == "Left" }?.actualValue ?: 0
+                rightValue == 0 && leftValue == 0
+            }
+        } else {
+            // 両側種目: 0のセットがあるか
+            session.sets.any { it.actualValue == 0 }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -1704,6 +1719,23 @@ fun ConfirmationStep(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        // 0セット警告
+        if (hasZeroSets) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                colors = CardDefaults.cardColors(containerColor = Amber600.copy(alpha = 0.2f))
+            ) {
+                Text(
+                    text = stringResource(R.string.program_result_zero_warning),
+                    fontSize = 14.sp,
+                    color = Amber500,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+        }
 
         Button(
             onClick = {
