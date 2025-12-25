@@ -320,7 +320,13 @@ fun WorkoutScreen(
                         }
                         currentStep = WorkoutStep.Confirmation(updatedSession)
                     }
-                    val onRetry: () -> Unit = { retryKey++ }
+                    val onRetry: () -> Unit = {
+                        if (step.session.startInterval > 0) {
+                            currentStep = WorkoutStep.StartInterval(step.session, step.currentSetIndex)
+                        } else {
+                            retryKey++
+                        }
+                    }
 
                     // key()でラップしてretryKeyの変更でリセット可能に
                     key(retryKey) {
