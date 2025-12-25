@@ -732,7 +732,15 @@ fun SettingsStep(
 
     var sets by remember { mutableStateOf("") }
     var targetValue by remember { mutableStateOf("") }
-    var repDuration by remember { mutableStateOf("") }
+    var repDuration by remember {
+        mutableStateOf(
+            if (exercise.type == "Dynamic" && exercise.repDuration != null) {
+                exercise.repDuration.toString()
+            } else {
+                ""
+            }
+        )
+    }
     var startInterval by remember {
         mutableStateOf(
             if (workoutPrefs.isStartCountdownEnabled()) {
@@ -842,6 +850,51 @@ fun SettingsStep(
         )
 
         Spacer(modifier = Modifier.height(8.dp))
+
+        // 種目設定を適用ボタン
+        Button(
+            onClick = {
+                // セット数を反映
+                if (exercise.targetSets != null) {
+                    sets = exercise.targetSets.toString()
+                }
+                // 目標値を反映
+                if (exercise.targetValue != null) {
+                    targetValue = exercise.targetValue.toString()
+                }
+                // 1レップ時間を反映（Dynamic種目のみ）
+                if (exercise.type == "Dynamic" && exercise.repDuration != null) {
+                    repDuration = exercise.repDuration.toString()
+                }
+                // 休憩時間を反映（種目設定がある場合のみ）
+                if (exercise.restInterval != null) {
+                    interval = exercise.restInterval.toString()
+                }
+                // 種目設定がない場合はユーザー入力を保持
+                // 開始カウントダウンは種目設定がないため、ここでは何もしない
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Orange600
+            ),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(R.string.apply_exercise_settings),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = sets,
@@ -970,51 +1023,6 @@ fun SettingsStep(
                     focusedTextColor = Color.White,
                     unfocusedTextColor = Color.White
                 )
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 種目設定を適用ボタン
-        Button(
-            onClick = {
-                // セット数を反映
-                if (exercise.targetSets != null) {
-                    sets = exercise.targetSets.toString()
-                }
-                // 目標値を反映
-                if (exercise.targetValue != null) {
-                    targetValue = exercise.targetValue.toString()
-                }
-                // 1レップ時間を反映（Dynamic種目のみ）
-                if (exercise.type == "Dynamic" && exercise.repDuration != null) {
-                    repDuration = exercise.repDuration.toString()
-                }
-                // 休憩時間を反映（種目設定がある場合のみ）
-                if (exercise.restInterval != null) {
-                    interval = exercise.restInterval.toString()
-                }
-                // 種目設定がない場合はユーザー入力を保持
-                // 開始カウントダウンは種目設定がないため、ここでは何もしない
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Orange600
-            ),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = stringResource(R.string.apply_exercise_settings),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
             )
         }
 
