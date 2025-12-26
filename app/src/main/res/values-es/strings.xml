@@ -564,7 +564,6 @@
     <string name="single_mode">Individual</string>
     <string name="single_mode_description">Un ejercicio a la vez</string>
     <string name="start_countdown">Cuenta regresiva inicial</string>
-    <string name="timer_mode_label">Modo temporizador</string>
     <string name="timer_on">ACT</string>
     <string name="timer_off">DES</string>
     <string name="timer_mode_on_description">Cuenta regresiva automática durante el ejercicio</string>
@@ -576,4 +575,46 @@
     <string name="paused_label">Pausado</string>
     <string name="elapsed_target_format">Transcurrido: %1$ds / Objetivo: %2$ds</string>
     <string name="complete_with_time">✓ Completar (%ds)</string>
+    <string name="previous_value_format">Anterior: %d</string>
+    <string name="reps_unit">reps</string>
+    <string name="program_result_zero_warning">Hay series con valor 0. Las series con valor cero para ejercicios bilaterales, y las series donde ambos lados son 0 para ejercicios unilaterales, no se guardarán.</string>
+
+    <!-- Sound Settings (Program Confirm) -->
+    <string name="sound_settings_section">Ajustes de sonido</string>
+    <string name="dynamic_count_sound_label">Sonido de conteo</string>
+    <string name="dynamic_count_sound_description">Ejercicios dinámicos</string>
+    <string name="isometric_interval_sound_label">Notificación de intervalo</string>
+    <string name="isometric_interval_sound_description">Ejercicios isométricos</string>
+    <string name="interval_seconds_short">%d seg</string>
+
+    <!-- Auto Mode -->
+    <string name="auto_mode_label">Modo automático</string>
+    <string name="auto_mode">Modo automático</string>
+    <string name="auto_mode_description">Botón de finalización manual</string>
+    <string name="auto_mode_disabled_hint">Requiere sonido de conteo activado</string>
+
+    <!-- Program Settings -->
+    <string name="all_exercises_label">Todos los ejercicios</string>
+    <string name="all_sets_label">Todas las series</string>
+    <string name="auto_fill_target_label">Autocompletar valores objetivo</string>
+    <string name="program_estimated_time">~%d min</string>
+
+    <!-- Navigation Sheet (Program Execution) -->
+    <string name="nav_program_overview">Resumen del programa</string>
+    <string name="nav_overall_progress">Progreso general</string>
+    <string name="nav_sets_format">%1$d / %2$d series</string>
+    <string name="nav_done">Hecho</string>
+    <string name="nav_current">Actual</string>
+    <string name="nav_redo">Repetir</string>
+    <string name="nav_jump">Saltar</string>
+    <string name="nav_finish">Terminar</string>
+    <string name="nav_save_and_exit">Guardar y Salir</string>
+    <string name="nav_save_overwrite_title">¿Sobrescribir entrenamiento guardado?</string>
+    <string name="nav_save_overwrite_message">Solo se puede guardar un entrenamiento a la vez. El entrenamiento guardado anteriormente será sobrescrito.</string>
+    <string name="nav_discard">Descartar</string>
+    <string name="nav_resume">Reanudar</string>
+    <string name="nav_target">Objetivo</string>
+    <string name="nav_skipped">Omitido</string>
+    <string name="nav_type_dynamic_short">Din</string>
+    <string name="nav_type_isometric_short">Iso</string>
 </resources>

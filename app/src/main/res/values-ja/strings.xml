@@ -523,7 +523,6 @@
     <string name="edit_program">プログラムを編集</string>
     <string name="program_name">プログラム名</string>
     <string name="program_name_hint">例: 朝のルーティン</string>
-    <string name="timer_mode_label">タイマーモード</string>
     <string name="timer_on">ON</string>
     <string name="timer_off">OFF</string>
     <string name="timer_mode_on_description">運動中に自動カウント</string>
@@ -583,4 +582,44 @@
     <string name="record_weight_for_graph">この種目の重量を記録する</string>
     <string name="complete_with_reps">✓ 完了 (%d回)</string>
     <string name="target_reps_format">目標: %d回</string>
+    <string name="previous_value_format">前回: %d</string>
+
+    <!-- Sound Settings (Program Confirm) -->
+    <string name="sound_settings_section">サウンド設定</string>
+    <string name="dynamic_count_sound_label">カウント音</string>
+    <string name="dynamic_count_sound_description">回数系の種目</string>
+    <string name="isometric_interval_sound_label">インターバル通知</string>
+    <string name="isometric_interval_sound_description">静止系の種目</string>
+    <string name="interval_seconds_short">%d秒</string>
+
+    <!-- Auto Mode -->
+    <string name="auto_mode_label">自動モード</string>
+    <string name="auto_mode">自動モード</string>
+    <string name="auto_mode_description">手動で完了ボタンを押す</string>
+    <string name="auto_mode_disabled_hint">カウント音がONの場合のみ使用可</string>
+
+    <!-- Program Settings -->
+    <string name="all_exercises_label">全種目</string>
+    <string name="all_sets_label">全セット</string>
+    <string name="auto_fill_target_label">目標値を自動入力</string>
+    <string name="program_estimated_time">約%d分</string>
+
+    <!-- Navigation Sheet (Program Execution) -->
+    <string name="nav_program_overview">プログラム概要</string>
+    <string name="nav_overall_progress">全体の進捗</string>
+    <string name="nav_sets_format">%1$d / %2$d セット</string>
+    <string name="nav_done">完了</string>
+    <string name="nav_current">現在</string>
+    <string name="nav_redo">やり直し</string>
+    <string name="nav_jump">ジャンプ</string>
+    <string name="nav_finish">終了</string>
+    <string name="nav_save_and_exit">保存して終了</string>
+    <string name="nav_save_overwrite_title">保存データを上書きしますか？</string>
+    <string name="nav_save_overwrite_message">保存できるワークアウトは1つだけです。以前の保存データは上書きされます。</string>
+    <string name="nav_discard">破棄</string>
+    <string name="nav_resume">再開</string>
+    <string name="nav_target">目標</string>
+    <string name="nav_skipped">スキップ</string>
+    <string name="nav_type_dynamic_short">回数</string>
+    <string name="nav_type_isometric_short">静止</string>
 </resources>

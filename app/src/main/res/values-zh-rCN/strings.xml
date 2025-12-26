@@ -564,7 +564,6 @@
     <string name="single_mode">单项</string>
     <string name="single_mode_description">一次一个动作</string>
     <string name="start_countdown">开始倒计时</string>
-    <string name="timer_mode_label">计时模式</string>
     <string name="timer_on">开</string>
     <string name="timer_off">关</string>
     <string name="timer_mode_on_description">运动时自动倒计时</string>
@@ -576,4 +575,46 @@
     <string name="paused_label">已暂停</string>
     <string name="elapsed_target_format">已用时：%1$d秒 / 目标：%2$d秒</string>
     <string name="complete_with_time">✓ 完成 (%d秒)</string>
+    <string name="previous_value_format">上次：%d</string>
+    <string name="reps_unit">次</string>
+    <string name="program_result_zero_warning">存在值为0的组数。双侧动作的0值组数，以及单侧动作中两侧都为0的组数，将不会被保存。</string>
+
+    <!-- Sound Settings (Program Confirm) -->
+    <string name="sound_settings_section">声音设置</string>
+    <string name="dynamic_count_sound_label">计数音效</string>
+    <string name="dynamic_count_sound_description">次数类动作</string>
+    <string name="isometric_interval_sound_label">间隔提醒</string>
+    <string name="isometric_interval_sound_description">静态类动作</string>
+    <string name="interval_seconds_short">%d秒</string>
+
+    <!-- Auto Mode -->
+    <string name="auto_mode_label">自动模式</string>
+    <string name="auto_mode">自动模式</string>
+    <string name="auto_mode_description">手动完成按钮</string>
+    <string name="auto_mode_disabled_hint">需要开启计数音效</string>
+
+    <!-- Program Settings -->
+    <string name="all_exercises_label">所有动作</string>
+    <string name="all_sets_label">所有组数</string>
+    <string name="auto_fill_target_label">自动填入目标值</string>
+    <string name="program_estimated_time">约%d分钟</string>
+
+    <!-- Navigation Sheet (Program Execution) -->
+    <string name="nav_program_overview">计划概览</string>
+    <string name="nav_overall_progress">整体进度</string>
+    <string name="nav_sets_format">%1$d / %2$d 组</string>
+    <string name="nav_done">完成</string>
+    <string name="nav_current">当前</string>
+    <string name="nav_redo">重做</string>
+    <string name="nav_jump">跳转</string>
+    <string name="nav_finish">结束</string>
+    <string name="nav_save_and_exit">保存并退出</string>
+    <string name="nav_save_overwrite_title">覆盖已保存的训练？</string>
+    <string name="nav_save_overwrite_message">一次只能保存一个训练。之前保存的训练将被覆盖。</string>
+    <string name="nav_discard">放弃</string>
+    <string name="nav_resume">继续</string>
+    <string name="nav_target">目标</string>
+    <string name="nav_skipped">已跳过</string>
+    <string name="nav_type_dynamic_short">次数</string>
+    <string name="nav_type_isometric_short">静态</string>
 </resources>
