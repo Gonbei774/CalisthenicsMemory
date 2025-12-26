@@ -600,7 +600,11 @@
     <string name="nav_redo">Redo</string>
     <string name="nav_jump">Jump</string>
     <string name="nav_finish">Finish</string>
+    <string name="nav_save_and_exit">Save &amp; Exit</string>
+    <string name="nav_save_overwrite_title">Overwrite saved workout?</string>
+    <string name="nav_save_overwrite_message">Only one workout can be saved at a time. The previous saved workout will be overwritten.</string>
     <string name="nav_discard">Discard</string>
+    <string name="nav_resume">Resume</string>
     <string name="nav_target">Target</string>
     <string name="nav_skipped">Skipped</string>
     <string name="nav_type_dynamic_short">Dyn</string>

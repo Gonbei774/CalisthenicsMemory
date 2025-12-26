@@ -27,17 +27,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Program
+import io.github.gonbei774.calisthenicsmemory.data.SavedWorkoutState
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun ProgramListScreen(
     viewModel: TrainingViewModel,
     onNavigateBack: () -> Unit,
     onNavigateToEdit: (Long?) -> Unit,  // null = new program
-    onNavigateToExecute: (Long) -> Unit
+    onNavigateToExecute: (Long) -> Unit,
+    onNavigateToResume: (Long) -> Unit = onNavigateToExecute  // デフォルトは通常実行と同じ
 ) {
     val programs by viewModel.programs.collectAsState()
+    val context = LocalContext.current
+    val savedWorkoutState = remember { SavedWorkoutState(context) }
+    val savedProgramId = savedWorkoutState.getSavedProgramId()
 
     Scaffold(
         topBar = {
@@ -109,8 +115,10 @@ fun ProgramListScreen(
                 ) { program ->
                     ProgramListItem(
                         program = program,
+                        hasSavedState = savedProgramId == program.id,
                         onEdit = { onNavigateToEdit(program.id) },
                         onExecute = { onNavigateToExecute(program.id) },
+                        onResume = { onNavigateToResume(program.id) },
                         onDelete = { viewModel.deleteProgram(program.id) },
                         onDuplicate = { viewModel.duplicateProgram(program.id, copySuffix) }
                     )
@@ -124,8 +132,10 @@ fun ProgramListScreen(
 @Composable
 private fun ProgramListItem(
     program: Program,
+    hasSavedState: Boolean,
     onEdit: () -> Unit,
     onExecute: () -> Unit,
+    onResume: () -> Unit,
     onDelete: () -> Unit,
     onDuplicate: () -> Unit
 ) {
@@ -239,6 +249,29 @@ private fun ProgramListItem(
                             contentDescription = stringResource(R.string.edit_program),
                             tint = Slate400
                         )
+                    }
+
+                    // Resume button (保存された状態がある場合のみ表示)
+                    if (hasSavedState) {
+                        Button(
+                            onClick = onResume,
+                            colors = ButtonDefaults.buttonColors(containerColor = Green600),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.PlayArrow,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = stringResource(R.string.nav_resume),
+                                fontSize = 12.sp,
+                                color = Color.White
+                            )
+                        }
                     }
 
                     // Execute button

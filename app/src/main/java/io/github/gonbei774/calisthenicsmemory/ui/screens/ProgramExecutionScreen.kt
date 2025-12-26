@@ -40,6 +40,7 @@ import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionStep
 import io.github.gonbei774.calisthenicsmemory.data.ProgramWorkoutSet
+import io.github.gonbei774.calisthenicsmemory.data.SavedWorkoutState
 import io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences
 import io.github.gonbei774.calisthenicsmemory.service.WorkoutTimerService
 import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramConfirmExerciseCard
@@ -67,6 +68,7 @@ import kotlinx.coroutines.launch
 fun ProgramExecutionScreen(
     viewModel: TrainingViewModel,
     programId: Long,
+    resumeSavedState: Boolean = false,
     onNavigateBack: () -> Unit,
     onComplete: () -> Unit
 ) {
@@ -172,6 +174,38 @@ fun ProgramExecutionScreen(
             }
         }
 
+        // 保存状態からの復元チェック
+        val savedState = SavedWorkoutState(context)
+        if (resumeSavedState && savedState.getSavedProgramId() == programId) {
+            // 保存された状態を復元
+            val savedSets = savedState.getSets()
+            val savedComment = savedState.getComment()
+            val savedSetIndex = savedState.getCurrentSetIndex()
+
+            if (savedSets != null && savedSets.size == allSets.size) {
+                // 保存されたセット状態を適用
+                val newSession = ProgramExecutionSession(
+                    program = prog,
+                    exercises = exercisePairs,
+                    sets = savedSets.toMutableList(),
+                    comment = savedComment
+                )
+                session = newSession
+
+                // 保存状態をクリア
+                savedState.clear()
+
+                // 保存されたセットインデックスから再開（準備カウントダウンありの場合）
+                val resumeIndex = savedSetIndex.coerceIn(0, savedSets.size - 1)
+                if (workoutPreferences.getStartCountdown() > 0) {
+                    currentStep = ProgramExecutionStep.StartInterval(newSession, resumeIndex)
+                } else {
+                    currentStep = ProgramExecutionStep.Executing(newSession, resumeIndex)
+                }
+                return@LaunchedEffect
+            }
+        }
+
         val newSession = ProgramExecutionSession(
             program = prog,
             exercises = exercisePairs,
@@ -238,6 +272,11 @@ fun ProgramExecutionScreen(
     // 中断確認ダイアログ
     var showExitConfirmDialog by remember { mutableStateOf(false) }
 
+    // Save & Exit上書き確認ダイアログ
+    var showSaveOverwriteDialog by remember { mutableStateOf(false) }
+    var pendingSaveSession by remember { mutableStateOf<ProgramExecutionSession?>(null) }
+    var pendingSaveSetIndex by remember { mutableIntStateOf(0) }
+
     // ナビゲーションシート表示状態
     var showNavigationSheet by remember { mutableStateOf(false) }
 
@@ -276,6 +315,44 @@ fun ProgramExecutionScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showExitConfirmDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    // Save & Exit上書き確認ダイアログ
+    if (showSaveOverwriteDialog) {
+        AlertDialog(
+            onDismissRequest = { showSaveOverwriteDialog = false },
+            title = { Text(stringResource(R.string.nav_save_overwrite_title)) },
+            text = { Text(stringResource(R.string.nav_save_overwrite_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showSaveOverwriteDialog = false
+                        // 保存を実行
+                        pendingSaveSession?.let { saveSession ->
+                            val savedState = SavedWorkoutState(context)
+                            savedState.save(
+                                programId = programId,
+                                currentSetIndex = pendingSaveSetIndex,
+                                sets = saveSession.sets.toList(),
+                                comment = saveSession.comment
+                            )
+                        }
+                        pendingSaveSession = null
+                        onNavigateBack()
+                    }
+                ) {
+                    Text(stringResource(R.string.nav_save_and_exit))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showSaveOverwriteDialog = false
+                    pendingSaveSession = null
+                }) {
                     Text(stringResource(R.string.cancel))
                 }
             }
@@ -999,11 +1076,40 @@ fun ProgramExecutionScreen(
                 }
                 showNavigationSheet = false
             },
-            onSaveAndExit = {
+            onFinish = {
                 // 結果画面に遷移（完了したセットのみ保存される）
                 isRedoMode = false
                 showNavigationSheet = false
                 currentStep = ProgramExecutionStep.Result(navSession)
+            },
+            onSaveAndExit = {
+                // 途中状態を保存してホームへ戻る
+                val savedState = SavedWorkoutState(context)
+                val currentIndex = when (val s = currentStep) {
+                    is ProgramExecutionStep.StartInterval -> s.currentSetIndex
+                    is ProgramExecutionStep.Executing -> s.currentSetIndex
+                    is ProgramExecutionStep.Interval -> s.currentSetIndex
+                    else -> 0
+                }
+
+                // 既に保存された状態があるかチェック
+                if (savedState.hasSavedState()) {
+                    // 確認ダイアログを表示
+                    pendingSaveSession = navSession
+                    pendingSaveSetIndex = currentIndex
+                    showNavigationSheet = false
+                    showSaveOverwriteDialog = true
+                } else {
+                    // 直接保存
+                    savedState.save(
+                        programId = programId,
+                        currentSetIndex = currentIndex,
+                        sets = navSession.sets.toList(),
+                        comment = navSession.comment
+                    )
+                    showNavigationSheet = false
+                    onNavigateBack()
+                }
             },
             onDiscard = {
                 // 確認ダイアログを表示（既存のダイアログを流用）

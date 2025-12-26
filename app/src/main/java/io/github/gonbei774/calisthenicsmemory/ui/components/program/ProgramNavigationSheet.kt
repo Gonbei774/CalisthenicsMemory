@@ -41,6 +41,7 @@ fun ProgramNavigationSheet(
     onDismiss: () -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
+    onFinish: () -> Unit,
     onSaveAndExit: () -> Unit,
     onDiscard: () -> Unit
 ) {
@@ -91,6 +92,7 @@ fun ProgramNavigationSheet(
             // フッター（Result画面では非表示）
             if (!isFromResult) {
                 NavigationSheetFooter(
+                    onFinish = onFinish,
                     onSaveAndExit = onSaveAndExit,
                     onDiscard = onDiscard
                 )
@@ -964,14 +966,15 @@ private fun SetActionButton(
 }
 
 /**
- * フッター: Save & Exit / Discard
+ * フッター: Finish / Save & Exit / Discard (3ボタン構成)
  */
 @Composable
 private fun NavigationSheetFooter(
+    onFinish: () -> Unit,
     onSaveAndExit: () -> Unit,
     onDiscard: () -> Unit
 ) {
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .drawBehind {
@@ -983,13 +986,13 @@ private fun NavigationSheetFooter(
                 )
             }
             .padding(horizontal = 20.dp, vertical = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Save & Exit
+        // Finish (Result画面へ)
         Button(
-            onClick = onSaveAndExit,
+            onClick = onFinish,
             modifier = Modifier
-                .weight(1f)
+                .fillMaxWidth()
                 .height(48.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Green600),
             shape = RoundedCornerShape(12.dp)
@@ -1001,21 +1004,43 @@ private fun NavigationSheetFooter(
             )
         }
 
-        // Discard
-        OutlinedButton(
-            onClick = onDiscard,
-            modifier = Modifier
-                .weight(1f)
-                .height(48.dp),
-            shape = RoundedCornerShape(12.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
+        // Save & Exit / Discard (横並び)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = stringResource(R.string.nav_discard),
-                fontSize = 15.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Slate300
-            )
+            // Save & Exit
+            OutlinedButton(
+                onClick = onSaveAndExit,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(44.dp),
+                shape = RoundedCornerShape(12.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Orange600)
+            ) {
+                Text(
+                    text = stringResource(R.string.nav_save_and_exit),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Orange600
+                )
+            }
+
+            // Discard
+            OutlinedButton(
+                onClick = onDiscard,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(44.dp),
+                shape = RoundedCornerShape(12.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
+            ) {
+                Text(
+                    text = stringResource(R.string.nav_discard),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Slate300
+                )
+            }
         }
     }
 }

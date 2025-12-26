@@ -1,8 +1,11 @@
 package io.github.gonbei774.calisthenicsmemory.data
 
+import kotlinx.serialization.Serializable
+
 /**
  * プログラム実行用のセットデータ
  */
+@Serializable
 data class ProgramWorkoutSet(
     val exerciseIndex: Int,       // プログラム内の種目インデックス
     val setNumber: Int,           // セット番号（1始まり）
