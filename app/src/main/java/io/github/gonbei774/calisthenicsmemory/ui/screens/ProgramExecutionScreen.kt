@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -49,6 +50,7 @@ import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramExecu
 import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramExecutingStepIsometricAuto
 import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramExecutingStepIsometricManual
 import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramIntervalStep
+import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramNavigationSheet
 import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramResultStep
 import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramStartIntervalStep
 import io.github.gonbei774.calisthenicsmemory.ui.components.program.SettingsSection
@@ -236,6 +238,9 @@ fun ProgramExecutionScreen(
     // 中断確認ダイアログ
     var showExitConfirmDialog by remember { mutableStateOf(false) }
 
+    // ナビゲーションシート表示状態
+    var showNavigationSheet by remember { mutableStateOf(false) }
+
     // やり直し用キー（startCountdownSeconds == 0 のときにコンポーネントをリセットするため）
     var retryKey by remember { mutableIntStateOf(0) }
 
@@ -274,6 +279,14 @@ fun ProgramExecutionScreen(
         )
     }
 
+    // ナビゲーションボタンを表示するかどうか
+    val showNavigationButton = when (currentStep) {
+        is ProgramExecutionStep.StartInterval,
+        is ProgramExecutionStep.Executing,
+        is ProgramExecutionStep.Interval -> true
+        else -> false
+    }
+
     Scaffold(
         topBar = {
             Surface(
@@ -304,8 +317,19 @@ fun ProgramExecutionScreen(
                         text = program?.name ?: stringResource(R.string.program_list_title),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = Color.White,
+                        modifier = Modifier.weight(1f)
                     )
+                    // ナビゲーションボタン（実行中/インターバル時のみ表示）
+                    if (showNavigationButton) {
+                        IconButton(onClick = { showNavigationSheet = true }) {
+                            Icon(
+                                Icons.Default.Menu,
+                                contentDescription = stringResource(R.string.nav_program_overview),
+                                tint = Color.White
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -556,6 +580,7 @@ fun ProgramExecutionScreen(
                             toneGenerator = toneGenerator,
                             flashController = flashController,
                             isFlashEnabled = isFlashEnabled,
+                            isNavigationOpen = showNavigationSheet,
                             onComplete = {
                                 currentStep = ProgramExecutionStep.Executing(step.session, step.currentSetIndex)
                             }
@@ -590,6 +615,7 @@ fun ProgramExecutionScreen(
                                         isFlashEnabled = isFlashEnabled,
                                         isIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
                                         intervalSeconds = isometricIntervalSeconds,
+                                        isNavigationOpen = showNavigationSheet,
                                         onSetComplete = { actualValue ->
                                             val sets = step.session.sets
                                             sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
@@ -614,7 +640,8 @@ fun ProgramExecutionScreen(
                                         onAbort = {
                                             currentStep = ProgramExecutionStep.Result(step.session)
                                         },
-                                        onRetry = handleRetry
+                                        onRetry = handleRetry,
+                                        onOpenNavigation = { showNavigationSheet = true }
                                     )
                                 } else if (!isDynamicCountSoundEnabled) {
                                 // Dynamic種目 + レップ数数え上げOFF: シンプルカウンター
@@ -644,7 +671,8 @@ fun ProgramExecutionScreen(
                                     },
                                     onAbort = {
                                         currentStep = ProgramExecutionStep.Result(step.session)
-                                    }
+                                    },
+                                    onOpenNavigation = { showNavigationSheet = true }
                                 )
                             } else {
                                 // Dynamic種目: 自動カウント（タイマー付き）
@@ -655,6 +683,7 @@ fun ProgramExecutionScreen(
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
                                     isCountSoundEnabled = isDynamicCountSoundEnabled,
+                                    isNavigationOpen = showNavigationSheet,
                                     onSetComplete = { actualValue ->
                                         val sets = step.session.sets
                                         sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
@@ -679,7 +708,8 @@ fun ProgramExecutionScreen(
                                     onAbort = {
                                         currentStep = ProgramExecutionStep.Result(step.session)
                                     },
-                                    onRetry = handleRetry
+                                    onRetry = handleRetry,
+                                    onOpenNavigation = { showNavigationSheet = true }
                                 )
                             }
                             } else {
@@ -694,6 +724,7 @@ fun ProgramExecutionScreen(
                                         isFlashEnabled = isFlashEnabled,
                                         isIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
                                         intervalSeconds = isometricIntervalSeconds,
+                                        isNavigationOpen = showNavigationSheet,
                                         onSetComplete = { actualValue ->
                                             val sets = step.session.sets
                                             sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
@@ -719,7 +750,8 @@ fun ProgramExecutionScreen(
                                         onAbort = {
                                             currentStep = ProgramExecutionStep.Result(step.session)
                                         },
-                                        onRetry = handleRetry
+                                        onRetry = handleRetry,
+                                        onOpenNavigation = { showNavigationSheet = true }
                                     )
                                 } else if (!isDynamicCountSoundEnabled) {
                                     // Dynamic種目 + レップ数数え上げOFF: シンプルカウンター
@@ -750,7 +782,8 @@ fun ProgramExecutionScreen(
                                         },
                                         onAbort = {
                                             currentStep = ProgramExecutionStep.Result(step.session)
-                                        }
+                                        },
+                                        onOpenNavigation = { showNavigationSheet = true }
                                     )
                                 } else {
                                     // Dynamic種目: タイマー付き手動完了
@@ -761,6 +794,7 @@ fun ProgramExecutionScreen(
                                         flashController = flashController,
                                         isFlashEnabled = isFlashEnabled,
                                         isCountSoundEnabled = isDynamicCountSoundEnabled,
+                                        isNavigationOpen = showNavigationSheet,
                                         onSetComplete = { actualValue ->
                                             val sets = step.session.sets
                                             sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
@@ -786,7 +820,8 @@ fun ProgramExecutionScreen(
                                         onAbort = {
                                             currentStep = ProgramExecutionStep.Result(step.session)
                                         },
-                                        onRetry = handleRetry
+                                        onRetry = handleRetry,
+                                        onOpenNavigation = { showNavigationSheet = true }
                                     )
                                 }
                             }
@@ -800,6 +835,7 @@ fun ProgramExecutionScreen(
                             toneGenerator = toneGenerator,
                             flashController = flashController,
                             isFlashEnabled = isFlashEnabled,
+                            isNavigationOpen = showNavigationSheet,
                             onComplete = {
                                 val nextIndex = step.currentSetIndex + 1
                                 if (nextIndex < step.session.sets.size) {
@@ -846,5 +882,44 @@ fun ProgramExecutionScreen(
                 }
             }
         }
+    }
+
+    // ナビゲーションシート（Executing, Interval, StartInterval で表示可能）
+    val step = currentStep
+    val navSession = when (step) {
+        is ProgramExecutionStep.Executing -> step.session
+        is ProgramExecutionStep.Interval -> step.session
+        is ProgramExecutionStep.StartInterval -> step.session
+        else -> null
+    }
+    val navCurrentSetIndex = when (step) {
+        is ProgramExecutionStep.Executing -> step.currentSetIndex
+        is ProgramExecutionStep.Interval -> step.currentSetIndex + 1  // 次のセット
+        is ProgramExecutionStep.StartInterval -> step.currentSetIndex
+        else -> 0
+    }
+    if (showNavigationSheet && navSession != null) {
+        ProgramNavigationSheet(
+            session = navSession,
+            currentSetIndex = navCurrentSetIndex.coerceIn(0, navSession.sets.size - 1),
+            onDismiss = { showNavigationSheet = false },
+            onJumpToSet = { targetIndex ->
+                // Phase 3 で実装
+                showNavigationSheet = false
+            },
+            onRedoSet = { targetIndex ->
+                // Phase 4 で実装
+                showNavigationSheet = false
+            },
+            onSaveAndExit = {
+                // Phase 5 で実装
+                showNavigationSheet = false
+            },
+            onDiscard = {
+                // Phase 5 で実装
+                showNavigationSheet = false
+                showExitConfirmDialog = true
+            }
+        )
     }
 }

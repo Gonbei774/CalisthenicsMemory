@@ -33,9 +33,11 @@ internal fun ProgramExecutingStepDynamicManual(
     flashController: FlashController,
     isFlashEnabled: Boolean,
     isCountSoundEnabled: Boolean,
+    isNavigationOpen: Boolean = false,
     onSetComplete: (Int) -> Unit,
     onAbort: () -> Unit,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    onOpenNavigation: () -> Unit = {}
 ) {
     val currentSet = session.sets[currentSetIndex]
     val (pe, exercise) = session.exercises[currentSet.exerciseIndex]
@@ -45,6 +47,9 @@ internal fun ProgramExecutingStepDynamicManual(
     var isPaused by remember(currentSetIndex) { mutableStateOf(false) }
     var currentCount by remember(currentSetIndex) { mutableIntStateOf(0) }
     var adjustedReps by remember(currentSetIndex) { mutableIntStateOf(0) }
+
+    // ナビゲーション表示中は強制的に一時停止
+    val effectivelyPaused = isPaused || isNavigationOpen
 
     // 1レップの秒数（種目設定があればそれを使用、なければ5秒）
     val repDuration = exercise.repDuration ?: 5
@@ -63,7 +68,7 @@ internal fun ProgramExecutingStepDynamicManual(
 
     // 色（一時停止中=グレー、完了=緑、実行中=オレンジ）
     val statusColor = when {
-        isPaused -> Slate400
+        effectivelyPaused -> Slate400
         isTimerComplete -> Green600
         else -> Orange600
     }
@@ -71,9 +76,9 @@ internal fun ProgramExecutingStepDynamicManual(
     val scope = rememberCoroutineScope()
 
     // タイマー処理（自動遷移なし、目標達成時に停止）
-    LaunchedEffect(currentSetIndex) {
+    LaunchedEffect(currentSetIndex, isNavigationOpen) {
         while (true) {
-            if (!isPaused && currentCount < currentSet.targetValue) {
+            if (!effectivelyPaused && currentCount < currentSet.targetValue) {
                 delay(1000L)
                 elapsedTime++
 
@@ -347,9 +352,11 @@ internal fun ProgramExecutingStepIsometricManual(
     isFlashEnabled: Boolean,
     isIntervalSoundEnabled: Boolean,
     intervalSeconds: Int,
+    isNavigationOpen: Boolean = false,
     onSetComplete: (Int) -> Unit,
     onAbort: () -> Unit,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    onOpenNavigation: () -> Unit = {}
 ) {
     val currentSet = session.sets[currentSetIndex]
     val (pe, exercise) = session.exercises[currentSet.exerciseIndex]
@@ -358,6 +365,9 @@ internal fun ProgramExecutingStepIsometricManual(
     var elapsedTime by remember(currentSetIndex) { mutableIntStateOf(0) }
     var isPaused by remember(currentSetIndex) { mutableStateOf(false) }
     var adjustedValue by remember(currentSetIndex) { mutableIntStateOf(0) }
+
+    // ナビゲーション表示中は強制的に一時停止
+    val effectivelyPaused = isPaused || isNavigationOpen
 
     // 記録する値（経過時間 + 調整値）
     val recordValue = (elapsedTime + adjustedValue).coerceAtLeast(0)
@@ -373,9 +383,9 @@ internal fun ProgramExecutingStepIsometricManual(
     // タイマー完了フラグ
     val isTimerComplete = remainingTime <= 0
 
-    // 色（一時停止中=オレンジ、完了=緑、実行中=オレンジ）
+    // 色（一時停止中=グレー、完了=緑、実行中=オレンジ）
     val statusColor = when {
-        isPaused -> Slate400  // 一時停止中はグレー
+        effectivelyPaused -> Slate400  // 一時停止中はグレー
         isTimerComplete -> Green600  // 完了は緑
         else -> Orange600  // 実行中はオレンジ
     }
@@ -384,9 +394,9 @@ internal fun ProgramExecutingStepIsometricManual(
     var hasPlayedCompletionBeep by remember(currentSetIndex) { mutableStateOf(false) }
 
     // タイマー処理
-    LaunchedEffect(currentSetIndex) {
+    LaunchedEffect(currentSetIndex, isNavigationOpen) {
         while (true) {
-            if (!isPaused && elapsedTime < currentSet.targetValue) {
+            if (!effectivelyPaused && elapsedTime < currentSet.targetValue) {
                 delay(1000L)
                 elapsedTime++
 
@@ -647,9 +657,11 @@ internal fun ProgramExecutingStepIsometricAuto(
     isFlashEnabled: Boolean,
     isIntervalSoundEnabled: Boolean,
     intervalSeconds: Int,
+    isNavigationOpen: Boolean = false,
     onSetComplete: (Int) -> Unit,
     onAbort: () -> Unit,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    onOpenNavigation: () -> Unit = {}
 ) {
     val currentSet = session.sets[currentSetIndex]
     val (pe, exercise) = session.exercises[currentSet.exerciseIndex]
@@ -658,6 +670,9 @@ internal fun ProgramExecutingStepIsometricAuto(
     var elapsedTime by remember(currentSetIndex) { mutableIntStateOf(0) }
     var isPaused by remember(currentSetIndex) { mutableStateOf(false) }
     var adjustedValue by remember(currentSetIndex) { mutableIntStateOf(0) }
+
+    // ナビゲーション表示中は強制的に一時停止
+    val effectivelyPaused = isPaused || isNavigationOpen
 
     // 記録する値（経過時間 + 調整値）
     val recordValue = (elapsedTime + adjustedValue).coerceAtLeast(0)
@@ -675,15 +690,15 @@ internal fun ProgramExecutingStepIsometricAuto(
 
     // 色（一時停止中=グレー、完了=緑、実行中=オレンジ）
     val statusColor = when {
-        isPaused -> Slate400
+        effectivelyPaused -> Slate400
         isTimerComplete -> Green600
         else -> Orange600
     }
 
     // タイマー処理
-    LaunchedEffect(currentSetIndex) {
+    LaunchedEffect(currentSetIndex, isNavigationOpen) {
         while (true) {
-            if (!isPaused && elapsedTime < currentSet.targetValue) {
+            if (!effectivelyPaused && elapsedTime < currentSet.targetValue) {
                 delay(1000L)
                 elapsedTime++
 
@@ -943,9 +958,11 @@ internal fun ProgramExecutingStepDynamicAuto(
     flashController: FlashController,
     isFlashEnabled: Boolean,
     isCountSoundEnabled: Boolean,
+    isNavigationOpen: Boolean = false,
     onSetComplete: (Int) -> Unit,
     onAbort: () -> Unit,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    onOpenNavigation: () -> Unit = {}
 ) {
     val currentSet = session.sets[currentSetIndex]
     val (pe, exercise) = session.exercises[currentSet.exerciseIndex]
@@ -955,6 +972,9 @@ internal fun ProgramExecutingStepDynamicAuto(
     var isPaused by remember(currentSetIndex) { mutableStateOf(false) }
     var currentCount by remember(currentSetIndex) { mutableIntStateOf(0) }
     var adjustedReps by remember(currentSetIndex) { mutableIntStateOf(0) }
+
+    // ナビゲーション表示中は強制的に一時停止
+    val effectivelyPaused = isPaused || isNavigationOpen
 
     // 1レップの秒数（種目設定があればそれを使用、なければ5秒）
     val repDuration = exercise.repDuration ?: 5
@@ -969,12 +989,12 @@ internal fun ProgramExecutingStepDynamicAuto(
     val progress = repTimeElapsed.toFloat() / repDuration
 
     // 色（一時停止中=グレー、実行中=オレンジ）
-    val statusColor = if (isPaused) Slate400 else Orange600
+    val statusColor = if (effectivelyPaused) Slate400 else Orange600
 
     // タイマー処理
-    LaunchedEffect(currentSetIndex) {
+    LaunchedEffect(currentSetIndex, isNavigationOpen) {
         while (true) {
-            if (!isPaused) {
+            if (!effectivelyPaused) {
                 delay(1000L)
                 elapsedTime++
 
@@ -1245,7 +1265,8 @@ internal fun ProgramExecutingStepDynamicSimple(
     session: ProgramExecutionSession,
     currentSetIndex: Int,
     onSetComplete: (Int) -> Unit,
-    onAbort: () -> Unit
+    onAbort: () -> Unit,
+    onOpenNavigation: () -> Unit = {}
 ) {
     val currentSet = session.sets[currentSetIndex]
     val (pe, exercise) = session.exercises[currentSet.exerciseIndex]

@@ -28,6 +28,7 @@ internal fun ProgramStartIntervalStep(
     toneGenerator: ToneGenerator,
     flashController: FlashController,
     isFlashEnabled: Boolean,
+    isNavigationOpen: Boolean = false,
     onComplete: () -> Unit
 ) {
     val currentSet = session.sets[currentSetIndex]
@@ -36,8 +37,12 @@ internal fun ProgramStartIntervalStep(
     var remainingTime by remember { mutableIntStateOf(startCountdownSeconds) }
     val progress = remainingTime.toFloat() / startCountdownSeconds
 
-    LaunchedEffect(currentSetIndex) {
+    LaunchedEffect(currentSetIndex, isNavigationOpen) {
         while (remainingTime > 0) {
+            if (isNavigationOpen) {
+                delay(100L)
+                continue
+            }
             delay(1000L)
             remainingTime--
             if (remainingTime <= 3 && remainingTime > 0) {
@@ -121,6 +126,7 @@ internal fun ProgramIntervalStep(
     toneGenerator: ToneGenerator,
     flashController: FlashController,
     isFlashEnabled: Boolean,
+    isNavigationOpen: Boolean = false,
     onComplete: () -> Unit,
     onSkip: () -> Unit
 ) {
@@ -134,9 +140,13 @@ internal fun ProgramIntervalStep(
         remainingTime.toFloat() / currentSet.intervalSeconds
     } else 0f
 
-    LaunchedEffect(currentSetIndex) {
-        while (remainingTime > 0 && isRunning) {
+    // ナビゲーション表示中は強制的に一時停止
+    val effectivelyRunning = isRunning && !isNavigationOpen
+
+    LaunchedEffect(currentSetIndex, isNavigationOpen, isRunning) {
+        while (remainingTime > 0 && effectivelyRunning) {
             delay(1000L)
+            if (!effectivelyRunning) break
             remainingTime--
             if (remainingTime <= 3 && remainingTime > 0) {
                 toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
