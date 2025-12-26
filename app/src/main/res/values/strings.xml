@@ -599,7 +599,7 @@
     <string name="nav_current">Current</string>
     <string name="nav_redo">Redo</string>
     <string name="nav_jump">Jump</string>
-    <string name="nav_save_and_exit">Save &amp; Exit</string>
+    <string name="nav_finish">Finish</string>
     <string name="nav_discard">Discard</string>
     <string name="nav_target">Target</string>
     <string name="nav_skipped">Skipped</string>

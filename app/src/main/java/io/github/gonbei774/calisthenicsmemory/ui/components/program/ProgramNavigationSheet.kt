@@ -37,6 +37,7 @@ import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 fun ProgramNavigationSheet(
     session: ProgramExecutionSession,
     currentSetIndex: Int,
+    isFromResult: Boolean = false,
     onDismiss: () -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
@@ -87,11 +88,13 @@ fun ProgramNavigationSheet(
                 modifier = Modifier.weight(1f)
             )
 
-            // フッター
-            NavigationSheetFooter(
-                onSaveAndExit = onSaveAndExit,
-                onDiscard = onDiscard
-            )
+            // フッター（Result画面では非表示）
+            if (!isFromResult) {
+                NavigationSheetFooter(
+                    onSaveAndExit = onSaveAndExit,
+                    onDiscard = onDiscard
+                )
+            }
         }
     }
 }
@@ -213,6 +216,11 @@ private fun NavigationSetsList(
             // 種目のステータスを判定
             val exerciseStatus = getExerciseStatus(setsForExercise, session.sets, currentSetIndex)
 
+            // 実際のセット数を計算（動的に変更される可能性があるため）
+            val actualTotalSets = session.sets
+                .filter { it.exerciseIndex == exerciseIndex }
+                .maxOfOrNull { it.setNumber } ?: pe.sets
+
             NavigationExerciseCard(
                 exerciseIndex = exerciseIndex,
                 exerciseName = exercise.name,
@@ -221,7 +229,7 @@ private fun NavigationSetsList(
                 sets = setsForExercise,
                 allSets = session.sets,
                 currentSetIndex = currentSetIndex,
-                totalSets = pe.sets,
+                totalSets = actualTotalSets,
                 isUnilateral = exercise.laterality == "Unilateral",
                 onJumpToSet = onJumpToSet,
                 onRedoSet = onRedoSet
@@ -987,7 +995,7 @@ private fun NavigationSheetFooter(
             shape = RoundedCornerShape(12.dp)
         ) {
             Text(
-                text = stringResource(R.string.nav_save_and_exit),
+                text = stringResource(R.string.nav_finish),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold
             )

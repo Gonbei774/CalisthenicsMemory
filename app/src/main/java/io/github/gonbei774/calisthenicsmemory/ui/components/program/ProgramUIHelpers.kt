@@ -17,9 +17,10 @@ import io.github.gonbei774.calisthenicsmemory.ui.theme.Slate400
 @Composable
 fun NextExerciseInfo(
     session: ProgramExecutionSession,
-    currentSetIndex: Int
+    currentSetIndex: Int,
+    nextSetIndexOverride: Int? = null  // Redoモード時など、次のセットが+1でない場合に使用
 ) {
-    val nextSetIndex = currentSetIndex + 1
+    val nextSetIndex = nextSetIndexOverride ?: (currentSetIndex + 1)
     val nextSet = session.sets.getOrNull(nextSetIndex) ?: return
 
     val (nextPe, nextExercise) = session.exercises[nextSet.exerciseIndex]
@@ -28,6 +29,10 @@ fun NextExerciseInfo(
         "Left" -> stringResource(R.string.side_left)
         else -> null
     }
+    // 次の種目の実際のセット数を計算
+    val nextActualTotalSets = session.sets
+        .filter { it.exerciseIndex == nextSet.exerciseIndex }
+        .maxOfOrNull { it.setNumber } ?: nextPe.sets
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -42,9 +47,9 @@ fun NextExerciseInfo(
         // 次のセット情報
         Text(
             text = if (nextSideText != null) {
-                stringResource(R.string.set_format_with_side, nextSet.setNumber, nextPe.sets, nextSideText)
+                stringResource(R.string.set_format_with_side, nextSet.setNumber, nextActualTotalSets, nextSideText)
             } else {
-                stringResource(R.string.set_format, nextSet.setNumber, nextPe.sets)
+                stringResource(R.string.set_format, nextSet.setNumber, nextActualTotalSets)
             },
             fontSize = 14.sp,
             color = Slate400

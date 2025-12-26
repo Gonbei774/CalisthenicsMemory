@@ -29,6 +29,7 @@ internal fun ProgramStartIntervalStep(
     flashController: FlashController,
     isFlashEnabled: Boolean,
     isNavigationOpen: Boolean = false,
+    nextSetIndexOverride: Int? = null,  // Redoモード時など、次のセットが+1でない場合に使用
     onComplete: () -> Unit
 ) {
     val currentSet = session.sets[currentSetIndex]
@@ -82,11 +83,15 @@ internal fun ProgramStartIntervalStep(
             else -> null
         }
         val (pe, _) = session.exercises[currentSet.exerciseIndex]
+        // 実際のセット数を計算（動的に変更される可能性があるため）
+        val actualTotalSets = session.sets
+            .filter { it.exerciseIndex == currentSet.exerciseIndex }
+            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, pe.sets, sideText)
+                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, pe.sets)
+                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
             },
             fontSize = 18.sp,
             color = Slate300,
@@ -115,7 +120,11 @@ internal fun ProgramStartIntervalStep(
         Spacer(modifier = Modifier.weight(1f))
 
         // 次の種目/セット情報
-        NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
+        NextExerciseInfo(
+            session = session,
+            currentSetIndex = currentSetIndex,
+            nextSetIndexOverride = nextSetIndexOverride
+        )
     }
 }
 
@@ -127,11 +136,13 @@ internal fun ProgramIntervalStep(
     flashController: FlashController,
     isFlashEnabled: Boolean,
     isNavigationOpen: Boolean = false,
+    nextSetIndexOverride: Int? = null,  // Redoモード時など、次のセットが+1でない場合に使用
     onComplete: () -> Unit,
     onSkip: () -> Unit
 ) {
     val currentSet = session.sets[currentSetIndex]
-    val nextSetIndex = currentSetIndex + 1
+    // 次のセット：オーバーライドがあればそれを使用、なければ+1
+    val nextSetIndex = nextSetIndexOverride ?: (currentSetIndex + 1)
     val nextSet = session.sets.getOrNull(nextSetIndex)
 
     var remainingTime by remember { mutableIntStateOf(currentSet.intervalSeconds) }
@@ -205,6 +216,10 @@ internal fun ProgramIntervalStep(
                     "Left" -> stringResource(R.string.side_left)
                     else -> null
                 }
+                // 次の種目の実際のセット数を計算
+                val nextActualTotalSets = session.sets
+                    .filter { it.exerciseIndex == next.exerciseIndex }
+                    .maxOfOrNull { it.setNumber } ?: nextPe.sets
 
                 // 次の種目名（常に表示）
                 Text(
@@ -217,9 +232,9 @@ internal fun ProgramIntervalStep(
                 // 次のセット情報
                 Text(
                     text = if (nextSideText != null) {
-                        stringResource(R.string.set_format_with_side, next.setNumber, nextPe.sets, nextSideText)
+                        stringResource(R.string.set_format_with_side, next.setNumber, nextActualTotalSets, nextSideText)
                     } else {
-                        stringResource(R.string.set_format, next.setNumber, nextPe.sets)
+                        stringResource(R.string.set_format, next.setNumber, nextActualTotalSets)
                     },
                     fontSize = 18.sp,
                     color = Slate300,

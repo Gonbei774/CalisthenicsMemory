@@ -130,11 +130,15 @@ internal fun ProgramExecutingStepDynamicManual(
             "Left" -> stringResource(R.string.side_left)
             else -> null
         }
+        // 実際のセット数を計算（動的に変更される可能性があるため）
+        val actualTotalSets = session.sets
+            .filter { it.exerciseIndex == currentSet.exerciseIndex }
+            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, pe.sets, sideText)
+                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, pe.sets)
+                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
             },
             fontSize = 18.sp,
             color = Slate300,
@@ -444,11 +448,15 @@ internal fun ProgramExecutingStepIsometricManual(
             "Left" -> stringResource(R.string.side_left)
             else -> null
         }
+        // 実際のセット数を計算（動的に変更される可能性があるため）
+        val actualTotalSets = session.sets
+            .filter { it.exerciseIndex == currentSet.exerciseIndex }
+            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, pe.sets, sideText)
+                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, pe.sets)
+                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
             },
             fontSize = 18.sp,
             color = Slate300,
@@ -746,11 +754,15 @@ internal fun ProgramExecutingStepIsometricAuto(
             "Left" -> stringResource(R.string.side_left)
             else -> null
         }
+        // 実際のセット数を計算（動的に変更される可能性があるため）
+        val actualTotalSets = session.sets
+            .filter { it.exerciseIndex == currentSet.exerciseIndex }
+            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, pe.sets, sideText)
+                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, pe.sets)
+                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
             },
             fontSize = 18.sp,
             color = Slate300,
@@ -1047,11 +1059,15 @@ internal fun ProgramExecutingStepDynamicAuto(
             "Left" -> stringResource(R.string.side_left)
             else -> null
         }
+        // 実際のセット数を計算（動的に変更される可能性があるため）
+        val actualTotalSets = session.sets
+            .filter { it.exerciseIndex == currentSet.exerciseIndex }
+            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, pe.sets, sideText)
+                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, pe.sets)
+                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
             },
             fontSize = 18.sp,
             color = Slate300,
@@ -1295,11 +1311,15 @@ internal fun ProgramExecutingStepDynamicSimple(
             "Left" -> stringResource(R.string.side_left)
             else -> null
         }
+        // 実際のセット数を計算（動的に変更される可能性があるため）
+        val actualTotalSets = session.sets
+            .filter { it.exerciseIndex == currentSet.exerciseIndex }
+            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, pe.sets, sideText)
+                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, pe.sets)
+                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
             },
             fontSize = 18.sp,
             color = Slate300,

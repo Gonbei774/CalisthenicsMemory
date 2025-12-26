@@ -244,6 +244,9 @@ fun ProgramExecutionScreen(
     // やり直し用キー（startCountdownSeconds == 0 のときにコンポーネントをリセットするため）
     var retryKey by remember { mutableIntStateOf(0) }
 
+    // Redoモード（やり直し後は次の未完了セットへ自動ジャンプ）
+    var isRedoMode by remember { mutableStateOf(false) }
+
     // 戻るボタンのハンドリング
     BackHandler {
         when (currentStep) {
@@ -283,7 +286,8 @@ fun ProgramExecutionScreen(
     val showNavigationButton = when (currentStep) {
         is ProgramExecutionStep.StartInterval,
         is ProgramExecutionStep.Executing,
-        is ProgramExecutionStep.Interval -> true
+        is ProgramExecutionStep.Interval,
+        is ProgramExecutionStep.Result -> true
         else -> false
     }
 
@@ -829,6 +833,26 @@ fun ProgramExecutionScreen(
                     }
 
                     is ProgramExecutionStep.Interval -> {
+                        // Redoモード時は次の未完了セットを探す処理
+                        val findNextIncompleteSetIndex: () -> Int = {
+                            val sets = step.session.sets
+                            var nextIndex = -1
+                            for (i in (step.currentSetIndex + 1) until sets.size) {
+                                if (!sets[i].isCompleted) {
+                                    nextIndex = i
+                                    break
+                                }
+                            }
+                            nextIndex
+                        }
+
+                        // Redoモード時は次の未完了セットのインデックスを計算
+                        val nextSetIndexForDisplay = if (isRedoMode) {
+                            findNextIncompleteSetIndex().takeIf { it >= 0 }
+                        } else {
+                            null
+                        }
+
                         ProgramIntervalStep(
                             session = step.session,
                             currentSetIndex = step.currentSetIndex,
@@ -836,30 +860,62 @@ fun ProgramExecutionScreen(
                             flashController = flashController,
                             isFlashEnabled = isFlashEnabled,
                             isNavigationOpen = showNavigationSheet,
+                            nextSetIndexOverride = nextSetIndexForDisplay,
                             onComplete = {
-                                val nextIndex = step.currentSetIndex + 1
-                                if (nextIndex < step.session.sets.size) {
-                                    // プログラムの開始カウントダウンが0より大きい場合のみ表示
-                                    if (startCountdownSeconds > 0) {
-                                        currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                if (isRedoMode) {
+                                    // Redoモード: 次の未完了セットを探す
+                                    val nextIncompleteIndex = findNextIncompleteSetIndex()
+                                    isRedoMode = false // Redoモード終了
+                                    if (nextIncompleteIndex >= 0) {
+                                        if (startCountdownSeconds > 0) {
+                                            currentStep = ProgramExecutionStep.StartInterval(step.session, nextIncompleteIndex)
+                                        } else {
+                                            currentStep = ProgramExecutionStep.Executing(step.session, nextIncompleteIndex)
+                                        }
                                     } else {
-                                        currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                        // 未完了セットなし → Result画面へ
+                                        currentStep = ProgramExecutionStep.Result(step.session)
                                     }
                                 } else {
-                                    currentStep = ProgramExecutionStep.Result(step.session)
+                                    // 通常モード: 順番に進む
+                                    val nextIndex = step.currentSetIndex + 1
+                                    if (nextIndex < step.session.sets.size) {
+                                        if (startCountdownSeconds > 0) {
+                                            currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                        } else {
+                                            currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                        }
+                                    } else {
+                                        currentStep = ProgramExecutionStep.Result(step.session)
+                                    }
                                 }
                             },
                             onSkip = {
-                                val nextIndex = step.currentSetIndex + 1
-                                if (nextIndex < step.session.sets.size) {
-                                    // プログラムの開始カウントダウンが0より大きい場合のみ表示
-                                    if (startCountdownSeconds > 0) {
-                                        currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                if (isRedoMode) {
+                                    // Redoモード: 次の未完了セットを探す
+                                    val nextIncompleteIndex = findNextIncompleteSetIndex()
+                                    isRedoMode = false // Redoモード終了
+                                    if (nextIncompleteIndex >= 0) {
+                                        if (startCountdownSeconds > 0) {
+                                            currentStep = ProgramExecutionStep.StartInterval(step.session, nextIncompleteIndex)
+                                        } else {
+                                            currentStep = ProgramExecutionStep.Executing(step.session, nextIncompleteIndex)
+                                        }
                                     } else {
-                                        currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                        currentStep = ProgramExecutionStep.Result(step.session)
                                     }
                                 } else {
-                                    currentStep = ProgramExecutionStep.Result(step.session)
+                                    // 通常モード: 順番に進む
+                                    val nextIndex = step.currentSetIndex + 1
+                                    if (nextIndex < step.session.sets.size) {
+                                        if (startCountdownSeconds > 0) {
+                                            currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                        } else {
+                                            currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                        }
+                                    } else {
+                                        currentStep = ProgramExecutionStep.Result(step.session)
+                                    }
                                 }
                             }
                         )
@@ -884,39 +940,73 @@ fun ProgramExecutionScreen(
         }
     }
 
-    // ナビゲーションシート（Executing, Interval, StartInterval で表示可能）
+    // ナビゲーションシート（Executing, Interval, StartInterval, Result で表示可能）
     val step = currentStep
     val navSession = when (step) {
         is ProgramExecutionStep.Executing -> step.session
         is ProgramExecutionStep.Interval -> step.session
         is ProgramExecutionStep.StartInterval -> step.session
+        is ProgramExecutionStep.Result -> step.session
         else -> null
     }
     val navCurrentSetIndex = when (step) {
         is ProgramExecutionStep.Executing -> step.currentSetIndex
         is ProgramExecutionStep.Interval -> step.currentSetIndex + 1  // 次のセット
         is ProgramExecutionStep.StartInterval -> step.currentSetIndex
+        is ProgramExecutionStep.Result -> -1  // Result画面では「現在セット」なし
         else -> 0
     }
+    val isFromResult = step is ProgramExecutionStep.Result
     if (showNavigationSheet && navSession != null) {
         ProgramNavigationSheet(
             session = navSession,
-            currentSetIndex = navCurrentSetIndex.coerceIn(0, navSession.sets.size - 1),
+            currentSetIndex = if (navCurrentSetIndex >= 0) navCurrentSetIndex.coerceIn(0, navSession.sets.size - 1) else -1,
+            isFromResult = isFromResult,
             onDismiss = { showNavigationSheet = false },
             onJumpToSet = { targetIndex ->
-                // Phase 3 で実装
+                // Jumpでも次の未完了セットを探すようにする（完了済みセットをスキップ）
+                isRedoMode = true
+                // 現在のセットからジャンプ先までのセットをスキップ済みにする（Result画面からの場合はスキップしない）
+                if (!isFromResult) {
+                    for (i in navCurrentSetIndex until targetIndex) {
+                        if (!navSession.sets[i].isCompleted) {
+                            navSession.sets[i] = navSession.sets[i].copy(isSkipped = true)
+                        }
+                    }
+                }
+                // ジャンプ先に遷移
+                if (startCountdownSeconds > 0) {
+                    currentStep = ProgramExecutionStep.StartInterval(navSession, targetIndex)
+                } else {
+                    currentStep = ProgramExecutionStep.Executing(navSession, targetIndex)
+                }
                 showNavigationSheet = false
             },
             onRedoSet = { targetIndex ->
-                // Phase 4 で実装
+                // Redoモードを有効化
+                isRedoMode = true
+                // 対象セットのみリセット
+                navSession.sets[targetIndex] = navSession.sets[targetIndex].copy(
+                    isCompleted = false,
+                    isSkipped = false,
+                    actualValue = 0
+                )
+                // やり直し対象セットに遷移
+                if (startCountdownSeconds > 0) {
+                    currentStep = ProgramExecutionStep.StartInterval(navSession, targetIndex)
+                } else {
+                    currentStep = ProgramExecutionStep.Executing(navSession, targetIndex)
+                }
                 showNavigationSheet = false
             },
             onSaveAndExit = {
-                // Phase 5 で実装
+                // 結果画面に遷移（完了したセットのみ保存される）
+                isRedoMode = false
                 showNavigationSheet = false
+                currentStep = ProgramExecutionStep.Result(navSession)
             },
             onDiscard = {
-                // Phase 5 で実装
+                // 確認ダイアログを表示（既存のダイアログを流用）
                 showNavigationSheet = false
                 showExitConfirmDialog = true
             }
