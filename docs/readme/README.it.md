@@ -2,33 +2,32 @@
   <img src="../../icon.png" width="150" alt="Calisthenics Memory Icon">
 </p>
 
-# Calisthenics Memory
-
----
-
-🌐 [English](../../README.md) | [日本語](README.ja.md) | [Deutsch](README.de.md) | [Español](README.es.md) | [Français](README.fr.md) | [简体中文](README.zh-CN.md)
-
----
-
-[![Build Status](https://ci.codeberg.org/api/badges/15682/status.svg)](https://ci.codeberg.org/repos/15682)
-[![RB Status](https://shields.rbtlog.dev/simple/io.github.gonbei774.calisthenicsmemory)](https://shields.rbtlog.dev/io.github.gonbei774.calisthenicsmemory)
-<br>
-[![IzzyOnDroid Downloads](https://img.shields.io/badge/dynamic/json?url=https://dlstats.izzyondroid.org/iod-stats-collector/stats/basic/monthly/rolling.json&query=$.['io.github.gonbei774.calisthenicsmemory']&label=IzzyOnDroid%20monthly%20downloads)](https://apt.izzysoft.de/packages/io.github.gonbei774.calisthenicsmemory)
-
----
+<h1 align="center">Calisthenics Memory</h1>
 
 <p align="center">
-  <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/">
-    <img src="https://fdroid.org/badge/get-it-on.png" alt="Disponibile su F-Droid" height="80">
-  </a>
-</p>
-<p align="center">
-  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.gonbei774.calisthenicsmemory">
-    <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButton.png" alt="Disponibile su IzzyOnDroid" height="54">
-  </a>
+  <a href="../../README.md">English</a> |
+  <a href="README.ja.md">日本語</a> |
+  <a href="README.de.md">Deutsch</a> |
+  <a href="README.es.md">Español</a> |
+  <a href="README.fr.md">Français</a> |
+  <a href="README.zh-CN.md">简体中文</a>
 </p>
 
----
+<p align="center">
+  <a href="https://ci.codeberg.org/repos/15682"><img src="https://ci.codeberg.org/api/badges/15682/status.svg" alt="Build Status"></a>
+  <img src="https://img.shields.io/badge/Android-8.0%2B-green.svg" alt="Android 8.0+">
+  <img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0">
+  <a href="https://apt.izzysoft.de/packages/io.github.gonbei774.calisthenicsmemory"><img src="https://img.shields.io/badge/dynamic/json?url=https://dlstats.izzyondroid.org/iod-stats-collector/stats/basic/monthly/rolling.json&query=$.['io.github.gonbei774.calisthenicsmemory']&label=IzzyOnDroid%20monthly%20downloads" alt="IzzyOnDroid Downloads"></a>
+  <a href="https://shields.rbtlog.dev/io.github.gonbei774.calisthenicsmemory"><img src="https://shields.rbtlog.dev/simple/io.github.gonbei774.calisthenicsmemory" alt="Reproducible Builds"></a>
+</p>
+
+<p align="center">
+  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.gonbei774.calisthenicsmemory"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="80" alt="Disponibile su IzzyOnDroid"></a>
+</p>
+
+<p align="center">
+  <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="Disponibile su F-Droid"></a>
+</p>
 
 ## Informazioni
 
