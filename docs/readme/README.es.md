@@ -43,6 +43,10 @@ Un rastreador de entrenamientos con peso corporal. Crea ejercicios personalizado
   - Modo registro: Entrada manual rápida con botón "Aplicar configuración del ejercicio"
   - Modo entrenamiento: Entrenamiento guiado automático con ajustes de temporizador por ejercicio (intervalo de descanso, duración de repetición), notificación de flash LED al completar serie
 - **Programa** - Crea rutinas de múltiples ejercicios con modos Temporizador ON (cuenta regresiva) o Temporizador OFF (a tu ritmo), intervalos de descanso configurables entre series
+  - Navegación Jump/Redo/Finish para control flexible del progreso
+  - Guardar y Salir para pausar y continuar después
+  - Valores anteriores mostrados en tarjetas de ejercicio como referencia
+  - Ajustar series y objetivos durante la ejecución
 - **Seguimiento del progreso** - Ve registros como listas, gráficos o barras de progreso de desafíos
 - **Soporte unilateral/bilateral** - Registra lados izquierdo y derecho por separado para ejercicios de un lado
 - **Objetivos de desafío** - Establece series × repeticiones objetivo y rastrea el estado de logro

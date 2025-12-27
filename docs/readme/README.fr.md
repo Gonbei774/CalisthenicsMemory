@@ -43,6 +43,10 @@ Un tracker d'entraînement au poids du corps. Créez des exercices personnalisé
   - Mode enregistrement : Saisie manuelle rapide avec le bouton "Appliquer les paramètres de l'exercice"
   - Mode entraînement : Entraînement guidé automatique avec paramètres de minuterie par exercice (intervalle de repos, durée de répétition), notification flash LED à la fin de la série
 - **Programme** - Créez des routines multi-exercices avec les modes Minuteur ON (compte à rebours) ou Minuteur OFF (à votre rythme), intervalles de repos configurables entre les séries
+  - Navigation Jump/Redo/Finish pour un contrôle flexible de la progression
+  - Sauvegarder et Quitter pour mettre en pause et reprendre plus tard
+  - Valeurs précédentes affichées sur les cartes d'exercice comme référence
+  - Ajuster les séries et objectifs pendant l'exécution
 - **Suivi des progrès** - Visualisez les enregistrements sous forme de listes, graphiques ou barres de progression des défis
 - **Support unilatéral/bilatéral** - Suivez les côtés gauche et droit séparément pour les exercices unilatéraux
 - **Objectifs de défi** - Définissez des séries × répétitions cibles et suivez l'état d'accomplissement

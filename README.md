@@ -43,6 +43,10 @@ A bodyweight training tracker. Create custom exercises, organize by groups and l
   - Record mode: Quick manual input with "Apply Exercise Settings" button
   - Workout mode: Automatic guided training with per-exercise timer settings (rest interval, rep duration), LED flash notification on set completion
 - **Program** - Create multi-exercise routines with Timer ON (countdown-based) or Timer OFF (self-paced) modes, configurable rest intervals between sets
+  - Jump/Redo/Finish navigation for flexible progress control
+  - Save & Exit to pause and resume later
+  - Previous values displayed on exercise cards for reference
+  - Bulk adjust sets and targets during execution
 - **Progress Tracking** - View records as lists, graphs, or challenge progress bars
 - **Unilateral/Bilateral Support** - Track left and right sides separately for one-sided exercises
 - **Challenge Goals** - Set target sets × reps and track achievement status

@@ -43,6 +43,10 @@ Un tracker per allenamenti a corpo libero. Crea esercizi personalizzati, organiz
   - Modalità registrazione: Inserimento manuale rapido con pulsante "Applica impostazioni esercizio"
   - Modalità allenamento: Allenamento guidato automatico con impostazioni timer per esercizio (intervallo di riposo, durata ripetizione), notifica flash LED al completamento della serie
 - **Programma** - Crea routine con più esercizi con modalità Timer ON (conto alla rovescia) o Timer OFF (al tuo ritmo), intervalli di riposo configurabili tra le serie
+  - Navigazione Jump/Redo/Finish per un controllo flessibile del progresso
+  - Salva ed Esci per mettere in pausa e riprendere dopo
+  - Valori precedenti mostrati sulle schede esercizio come riferimento
+  - Regola serie e obiettivi durante l'esecuzione
 - **Monitoraggio progressi** - Visualizza i record come liste, grafici o barre di progresso delle sfide
 - **Supporto unilaterale/bilaterale** - Traccia i lati sinistro e destro separatamente per esercizi unilaterali
 - **Obiettivi sfida** - Imposta serie × ripetizioni target e traccia lo stato di raggiungimento
