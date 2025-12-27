@@ -17,7 +17,7 @@
   <a href="https://ci.codeberg.org/repos/15682"><img src="https://ci.codeberg.org/api/badges/15682/status.svg" alt="Build Status"></a>
   <img src="https://img.shields.io/badge/Android-8.0%2B-green.svg" alt="Android 8.0+">
   <img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0">
-  <a href="https://apt.izzysoft.de/packages/io.github.gonbei774.calisthenicsmemory"><img src="https://img.shields.io/endpoint?url=https://apt.izzysoft.de/fdroid/api/v1/shield/io.github.gonbei774.calisthenicsmemory&label=IzzyOnDroid" alt="IzzyOnDroid"></a>
+  <img src="https://img.shields.io/badge/dynamic/json?url=https://dlstats.izzyondroid.org/iod-stats-collector/stats/basic/yearly/rolling.json&query=$.['io.github.gonbei774.calisthenicsmemory']&label=Downloads" alt="Downloads">
   <a href="https://shields.rbtlog.dev/io.github.gonbei774.calisthenicsmemory"><img src="https://shields.rbtlog.dev/simple/io.github.gonbei774.calisthenicsmemory" alt="Reproducible Builds"></a>
 </p>
 
