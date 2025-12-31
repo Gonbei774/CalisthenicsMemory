@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -401,6 +402,32 @@ fun ProgramExecutionScreen(
                         color = Color.White,
                         modifier = Modifier.weight(1f)
                     )
+                    // 開始ボタン（Confirm画面のみ表示）
+                    if (currentStep is ProgramExecutionStep.Confirm) {
+                        val confirmStep = currentStep as ProgramExecutionStep.Confirm
+                        TextButton(
+                            onClick = {
+                                if (startCountdownSeconds > 0) {
+                                    currentStep = ProgramExecutionStep.StartInterval(confirmStep.session, 0)
+                                } else {
+                                    currentStep = ProgramExecutionStep.Executing(confirmStep.session, 0)
+                                }
+                            }
+                        ) {
+                            Icon(
+                                Icons.Default.PlayArrow,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = stringResource(R.string.program_start),
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
                     // ナビゲーションボタン（実行中/インターバル時のみ表示）
                     if (showNavigationButton) {
                         IconButton(onClick = { showNavigationSheet = true }) {
