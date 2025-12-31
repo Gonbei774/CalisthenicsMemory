@@ -30,7 +30,8 @@ internal fun ProgramStartIntervalStep(
     isFlashEnabled: Boolean,
     isNavigationOpen: Boolean = false,
     nextSetIndexOverride: Int? = null,  // Redoモード時など、次のセットが+1でない場合に使用
-    onComplete: () -> Unit
+    onComplete: () -> Unit,
+    onSkip: () -> Unit
 ) {
     val currentSet = session.sets[currentSetIndex]
     val (_, exercise) = session.exercises[currentSet.exerciseIndex]
@@ -125,6 +126,16 @@ internal fun ProgramStartIntervalStep(
             currentSetIndex = currentSetIndex,
             nextSetIndexOverride = nextSetIndexOverride
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // スキップボタン
+        TextButton(onClick = onSkip) {
+            Text(
+                text = stringResource(R.string.skip_button),
+                color = Slate400
+            )
+        }
     }
 }
 

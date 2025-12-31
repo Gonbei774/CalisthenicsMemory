@@ -691,6 +691,9 @@ fun ProgramExecutionScreen(
                             isNavigationOpen = showNavigationSheet,
                             onComplete = {
                                 currentStep = ProgramExecutionStep.Executing(step.session, step.currentSetIndex)
+                            },
+                            onSkip = {
+                                currentStep = ProgramExecutionStep.Executing(step.session, step.currentSetIndex)
                             }
                         )
                     }
