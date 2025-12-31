@@ -1,0 +1,2 @@
+• Navigation du mode programme : Sauvegarder et quitter, Aller à l'exercice, Refaire la série, Terminer plus tôt
+• Écran de confirmation du programme : Affichage des valeurs précédentes, UI pliable, ajustements groupés

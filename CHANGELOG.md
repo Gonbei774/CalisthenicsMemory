@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.0] - 2025-12-31
+
+### Added
+- **Program Mode Navigation**
+  - Save & Exit option
+  - Jump to exercise
+  - Redo set
+  - Finish early
+- **Program Confirmation Screen improvements**
+  - Previous values display
+  - Collapsible UI
+  - Bulk adjustments
+
 ## [1.14.1] - 2025-12-14
 
 ### Fixed
@@ -297,6 +310,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.15.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.15.0
 [1.14.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.14.1
 [1.14.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.14.0
 [1.13.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.13.0

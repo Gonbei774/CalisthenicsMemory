@@ -1,0 +1,2 @@
+• Program Mode Navigation: Save & Exit, Jump to exercise, Redo set, Finish early
+• Program Confirmation Screen: Previous values display, collapsible UI, bulk adjustments

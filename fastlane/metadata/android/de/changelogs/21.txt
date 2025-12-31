@@ -1,0 +1,2 @@
+• Programmmodus-Navigation: Speichern & Beenden, Zur Übung springen, Satz wiederholen, Früher beenden
+• Programmbestätigungsbildschirm: Vorherige Werte anzeigen, einklappbare UI, Massenanpassungen
