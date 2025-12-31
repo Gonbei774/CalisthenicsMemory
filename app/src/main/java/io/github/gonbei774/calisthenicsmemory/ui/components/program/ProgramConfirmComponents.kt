@@ -263,8 +263,8 @@ internal fun SettingsSection(
     onIsometricIntervalSoundChange: (Boolean) -> Unit,
     onIsometricIntervalSecondsChange: (Int) -> Unit
 ) {
-    // 折りたたみ状態（デフォルトは閉じた状態）
-    var isExpanded by remember { mutableStateOf(false) }
+    // 折りたたみ状態（デフォルトは展開状態）
+    var isExpanded by remember { mutableStateOf(true) }
     // シェブロンの回転アニメーション
     val chevronRotation by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
