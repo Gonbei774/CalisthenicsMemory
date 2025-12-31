@@ -57,6 +57,8 @@ internal fun ProgramConfirmStep(
     onStart: () -> Unit
 ) {
     var refreshKey by remember { mutableIntStateOf(0) }
+    // 各種目の展開状態を親で管理（スクロール時も状態を保持）
+    var expandedExercises by remember { mutableStateOf(session.exercises.indices.toSet()) }
     // 課題設定がある種目が1つでもあるか
     val hasChallengeExercise = session.exercises.any { (_, exercise) -> exercise.targetValue != null }
     // 推定時間を計算
@@ -189,6 +191,14 @@ internal fun ProgramConfirmStep(
                     programExercise = pe,
                     sets = displaySets,
                     allSets = session.sets,
+                    isExpanded = exerciseIndex in expandedExercises,
+                    onToggleExpanded = {
+                        expandedExercises = if (exerciseIndex in expandedExercises) {
+                            expandedExercises - exerciseIndex
+                        } else {
+                            expandedExercises + exerciseIndex
+                        }
+                    },
                     onUpdateValue = { setIndex, newValue ->
                         onUpdateTargetValue(setIndex, newValue)
                         // 片側種目の場合、左側も同じ値に更新
@@ -516,6 +526,8 @@ internal fun ProgramConfirmExerciseCard(
     programExercise: ProgramExercise,
     sets: List<ProgramWorkoutSet>,
     allSets: List<ProgramWorkoutSet>,
+    isExpanded: Boolean,
+    onToggleExpanded: () -> Unit,
     onUpdateValue: (Int, Int) -> Unit,
     onUpdateInterval: (Int) -> Unit,
     onUpdateSetCount: (Int) -> Unit,
@@ -530,8 +542,7 @@ internal fun ProgramConfirmExerciseCard(
     // ローカル状態（UIの編集用）
     var intervalText by remember(exerciseIndex, currentInterval) { mutableStateOf(currentInterval.toString()) }
 
-    // 折りたたみ状態（デフォルト開く）
-    var isExpanded by remember { mutableStateOf(true) }
+    // シェブロン回転アニメーション（状態は親から渡される）
     val chevronRotation by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
         label = "chevron"
@@ -547,7 +558,7 @@ internal fun ProgramConfirmExerciseCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { isExpanded = !isExpanded }
+                    .clickable { onToggleExpanded() }
                     .padding(14.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
