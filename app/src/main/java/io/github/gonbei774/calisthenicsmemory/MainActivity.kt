@@ -264,6 +264,9 @@ fun CalisthenicsMemoryApp() {
                         onNavigateToEdit = { programId -> currentScreen = Screen.ProgramEdit(programId) },
                         onNavigateToExecute = { programId ->
                             currentScreen = Screen.ProgramExecution(programId)
+                        },
+                        onNavigateToResume = { programId ->
+                            currentScreen = Screen.ProgramExecution(programId, resumeSavedState = true)
                         }
                     )
                 }
@@ -283,6 +286,7 @@ fun CalisthenicsMemoryApp() {
                     ProgramExecutionScreen(
                         viewModel = viewModel,
                         programId = execScreen.programId,
+                        resumeSavedState = execScreen.resumeSavedState,
                         onNavigateBack = { currentScreen = Screen.ProgramList },
                         onComplete = { currentScreen = Screen.ProgramList }
                     )
@@ -303,5 +307,5 @@ sealed class Screen {
     data class Workout(val exerciseId: Long? = null, val fromToDo: Boolean = false) : Screen()
     object ProgramList : Screen()
     data class ProgramEdit(val programId: Long?) : Screen()
-    data class ProgramExecution(val programId: Long) : Screen()
+    data class ProgramExecution(val programId: Long, val resumeSavedState: Boolean = false) : Screen()
 }

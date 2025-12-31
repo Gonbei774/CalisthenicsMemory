@@ -4,7 +4,7 @@ import android.media.AudioManager
 import android.media.ToneGenerator
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,13 +19,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -38,51 +38,38 @@ import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.Program
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
+import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
+import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionStep
+import io.github.gonbei774.calisthenicsmemory.data.ProgramWorkoutSet
+import io.github.gonbei774.calisthenicsmemory.data.SavedWorkoutState
 import io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences
 import io.github.gonbei774.calisthenicsmemory.service.WorkoutTimerService
+import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramConfirmExerciseCard
+import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramConfirmStep
+import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramExecutingStepDynamicAuto
+import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramExecutingStepDynamicManual
+import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramExecutingStepDynamicSimple
+import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramExecutingStepIsometricAuto
+import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramExecutingStepIsometricManual
+import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramIntervalStep
+import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramNavigationSheet
+import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramResultStep
+import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramStartIntervalStep
+import io.github.gonbei774.calisthenicsmemory.ui.components.program.SettingsSection
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
+import io.github.gonbei774.calisthenicsmemory.util.buildChallengeValueSets
+import io.github.gonbei774.calisthenicsmemory.util.buildProgramValueSets
+import io.github.gonbei774.calisthenicsmemory.util.saveProgramResults
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
-
-// プログラム実行用のセットデータ
-data class ProgramWorkoutSet(
-    val exerciseIndex: Int,       // プログラム内の種目インデックス
-    val setNumber: Int,           // セット番号（1始まり）
-    val side: String?,            // "Right" or "Left" or null
-    val targetValue: Int,         // 目標値
-    var actualValue: Int = 0,     // 実際の値
-    var isCompleted: Boolean = false,
-    var isSkipped: Boolean = false,
-    val intervalSeconds: Int      // このセット後のインターバル
-)
-
-// プログラム実行用のセッションデータ
-data class ProgramExecutionSession(
-    val program: Program,
-    val exercises: List<Pair<ProgramExercise, Exercise>>, // ProgramExercise + Exercise情報
-    val sets: MutableList<ProgramWorkoutSet>,             // 実行順の全セット
-    var comment: String = ""
-)
-
-// プログラム実行画面のステップ
-sealed class ProgramExecutionStep {
-    data class Confirm(val session: ProgramExecutionSession) : ProgramExecutionStep()
-    data class StartInterval(val session: ProgramExecutionSession, val currentSetIndex: Int) : ProgramExecutionStep()
-    data class Executing(val session: ProgramExecutionSession, val currentSetIndex: Int) : ProgramExecutionStep()
-    data class Interval(val session: ProgramExecutionSession, val currentSetIndex: Int) : ProgramExecutionStep()
-    data class Result(val session: ProgramExecutionSession) : ProgramExecutionStep()
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProgramExecutionScreen(
     viewModel: TrainingViewModel,
     programId: Long,
+    resumeSavedState: Boolean = false,
     onNavigateBack: () -> Unit,
     onComplete: () -> Unit
 ) {
@@ -122,19 +109,43 @@ fun ProgramExecutionScreen(
 
         if (exercisePairs.isEmpty()) return@LaunchedEffect
 
-        // 実行順のセットリストを構築
+        // 前回値を取得（表示用に常に取得）
+        val previousRecordsMap = mutableMapOf<Long, List<io.github.gonbei774.calisthenicsmemory.data.TrainingRecord>>()
+        exercisePairs.forEach { (_, exercise) ->
+            previousRecordsMap[exercise.id] = viewModel.getLatestSession(exercise.id)
+        }
+
+        val isPrefillEnabled = workoutPreferences.isPrefillPreviousRecordEnabled()
+
+        // 実行順のセットリストを構築（前回値を含む）
         val allSets = mutableListOf<ProgramWorkoutSet>()
         exercisePairs.forEachIndexed { index, (pe, exercise) ->
+            val latestRecords = previousRecordsMap[exercise.id] ?: emptyList()
+
             for (setNum in 1..pe.sets) {
+                val matchingRecord = latestRecords.find { it.setNumber == setNum }
+
                 if (exercise.laterality == "Unilateral") {
-                    // 片側種目: 右→左（両方にインターバルを設定）
+                    // 片側種目: 右→左
+                    val prevRight = matchingRecord?.valueRight
+                    val prevLeft = matchingRecord?.valueLeft ?: matchingRecord?.valueRight
+
+                    // 前回値は左右の平均値を使用
+                    val prevAverage = when {
+                        prevRight != null && prevLeft != null -> (prevRight + prevLeft) / 2
+                        prevRight != null -> prevRight
+                        prevLeft != null -> prevLeft
+                        else -> null
+                    }
+
                     allSets.add(
                         ProgramWorkoutSet(
                             exerciseIndex = index,
                             setNumber = setNum,
                             side = "Right",
-                            targetValue = pe.targetValue,
-                            intervalSeconds = pe.intervalSeconds
+                            targetValue = if (isPrefillEnabled && prevRight != null) prevRight else pe.targetValue,
+                            intervalSeconds = pe.intervalSeconds,
+                            previousValue = prevAverage
                         )
                     )
                     allSets.add(
@@ -142,53 +153,57 @@ fun ProgramExecutionScreen(
                             exerciseIndex = index,
                             setNumber = setNum,
                             side = "Left",
-                            targetValue = pe.targetValue,
-                            intervalSeconds = pe.intervalSeconds
+                            targetValue = if (isPrefillEnabled && prevLeft != null) prevLeft else pe.targetValue,
+                            intervalSeconds = pe.intervalSeconds,
+                            previousValue = prevAverage
                         )
                     )
                 } else {
+                    val prevValue = matchingRecord?.valueRight
+
                     allSets.add(
                         ProgramWorkoutSet(
                             exerciseIndex = index,
                             setNumber = setNum,
                             side = null,
-                            targetValue = pe.targetValue,
-                            intervalSeconds = pe.intervalSeconds
+                            targetValue = if (isPrefillEnabled && prevValue != null) prevValue else pe.targetValue,
+                            intervalSeconds = pe.intervalSeconds,
+                            previousValue = prevValue
                         )
                     )
                 }
             }
         }
 
-        // 前回値をプリフィル（設定がONの場合のみ）
-        if (workoutPreferences.isPrefillPreviousRecordEnabled()) {
-            exercisePairs.forEachIndexed { index, (_, exercise) ->
-                val latestRecords = viewModel.getLatestSession(exercise.id)
-                if (latestRecords.isNotEmpty()) {
-                    // セットごとに前回値を適用
-                    val setsForExercise = allSets.filter { it.exerciseIndex == index }
-                    setsForExercise.forEach { set ->
-                        val matchingRecord = latestRecords.find { r ->
-                            r.setNumber == set.setNumber
-                        }
-                        if (matchingRecord != null) {
-                            when (set.side) {
-                                "Right" -> set.targetValue.let {
-                                    val newValue = matchingRecord.valueRight
-                                    allSets[allSets.indexOf(set)] = set.copy(targetValue = newValue)
-                                }
-                                "Left" -> set.targetValue.let {
-                                    val newValue = matchingRecord.valueLeft ?: matchingRecord.valueRight
-                                    allSets[allSets.indexOf(set)] = set.copy(targetValue = newValue)
-                                }
-                                else -> set.targetValue.let {
-                                    val newValue = matchingRecord.valueRight
-                                    allSets[allSets.indexOf(set)] = set.copy(targetValue = newValue)
-                                }
-                            }
-                        }
-                    }
+        // 保存状態からの復元チェック
+        val savedState = SavedWorkoutState(context)
+        if (resumeSavedState && savedState.getSavedProgramId() == programId) {
+            // 保存された状態を復元
+            val savedSets = savedState.getSets()
+            val savedComment = savedState.getComment()
+            val savedSetIndex = savedState.getCurrentSetIndex()
+
+            if (savedSets != null && savedSets.size == allSets.size) {
+                // 保存されたセット状態を適用
+                val newSession = ProgramExecutionSession(
+                    program = prog,
+                    exercises = exercisePairs,
+                    sets = savedSets.toMutableList(),
+                    comment = savedComment
+                )
+                session = newSession
+
+                // 保存状態をクリア
+                savedState.clear()
+
+                // 保存されたセットインデックスから再開（準備カウントダウンありの場合）
+                val resumeIndex = savedSetIndex.coerceIn(0, savedSets.size - 1)
+                if (workoutPreferences.getStartCountdown() > 0) {
+                    currentStep = ProgramExecutionStep.StartInterval(newSession, resumeIndex)
+                } else {
+                    currentStep = ProgramExecutionStep.Executing(newSession, resumeIndex)
                 }
+                return@LaunchedEffect
             }
         }
 
@@ -207,6 +222,13 @@ fun ProgramExecutionScreen(
     val flashController = remember { FlashController(context) }
     val isFlashEnabled = remember { workoutPreferences.isFlashNotificationEnabled() }
     val isKeepScreenOnEnabled = remember { workoutPreferences.isKeepScreenOnEnabled() }
+
+    // 音声設定（ProgramConfirmStepで変更可能）
+    var isAutoMode by remember { mutableStateOf(workoutPreferences.isAutoMode()) }
+    var startCountdownSeconds by remember { mutableIntStateOf(workoutPreferences.getStartCountdown()) }
+    var isDynamicCountSoundEnabled by remember { mutableStateOf(workoutPreferences.isDynamicCountSoundEnabled()) }
+    var isIsometricIntervalSoundEnabled by remember { mutableStateOf(workoutPreferences.isIsometricIntervalSoundEnabled()) }
+    var isometricIntervalSeconds by remember { mutableIntStateOf(workoutPreferences.getIsometricIntervalSeconds()) }
 
     // Foreground Service制御
     LaunchedEffect(currentStep) {
@@ -248,16 +270,103 @@ fun ProgramExecutionScreen(
         }
     }
 
+    // 中断確認ダイアログ
+    var showExitConfirmDialog by remember { mutableStateOf(false) }
+
+    // Save & Exit上書き確認ダイアログ
+    var showSaveOverwriteDialog by remember { mutableStateOf(false) }
+    var pendingSaveSession by remember { mutableStateOf<ProgramExecutionSession?>(null) }
+    var pendingSaveSetIndex by remember { mutableIntStateOf(0) }
+
+    // ナビゲーションシート表示状態
+    var showNavigationSheet by remember { mutableStateOf(false) }
+
+    // やり直し用キー（startCountdownSeconds == 0 のときにコンポーネントをリセットするため）
+    var retryKey by remember { mutableIntStateOf(0) }
+
+    // Redoモード（やり直し後は次の未完了セットへ自動ジャンプ）
+    var isRedoMode by remember { mutableStateOf(false) }
+
     // 戻るボタンのハンドリング
     BackHandler {
         when (currentStep) {
             is ProgramExecutionStep.Confirm -> onNavigateBack()
-            is ProgramExecutionStep.Result -> onNavigateBack()
             else -> {
-                // 実行中は確認ダイアログを表示（簡略化のため直接戻る）
-                onNavigateBack()
+                // 実行中・完了画面は確認ダイアログを表示
+                showExitConfirmDialog = true
             }
         }
+    }
+
+    // 中断確認ダイアログ
+    if (showExitConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitConfirmDialog = false },
+            title = { Text(stringResource(R.string.exit_workout_title)) },
+            text = { Text(stringResource(R.string.exit_workout_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showExitConfirmDialog = false
+                        onNavigateBack()
+                    }
+                ) {
+                    Text(stringResource(R.string.exit_workout_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExitConfirmDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    // Save & Exit上書き確認ダイアログ
+    if (showSaveOverwriteDialog) {
+        AlertDialog(
+            onDismissRequest = { showSaveOverwriteDialog = false },
+            title = { Text(stringResource(R.string.nav_save_overwrite_title)) },
+            text = { Text(stringResource(R.string.nav_save_overwrite_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showSaveOverwriteDialog = false
+                        // 保存を実行
+                        pendingSaveSession?.let { saveSession ->
+                            val savedState = SavedWorkoutState(context)
+                            savedState.save(
+                                programId = programId,
+                                currentSetIndex = pendingSaveSetIndex,
+                                sets = saveSession.sets.toList(),
+                                comment = saveSession.comment
+                            )
+                        }
+                        pendingSaveSession = null
+                        onNavigateBack()
+                    }
+                ) {
+                    Text(stringResource(R.string.nav_save_and_exit))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showSaveOverwriteDialog = false
+                    pendingSaveSession = null
+                }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    // ナビゲーションボタンを表示するかどうか
+    val showNavigationButton = when (currentStep) {
+        is ProgramExecutionStep.StartInterval,
+        is ProgramExecutionStep.Executing,
+        is ProgramExecutionStep.Interval,
+        is ProgramExecutionStep.Result -> true
+        else -> false
     }
 
     Scaffold(
@@ -274,7 +383,12 @@ fun ProgramExecutionScreen(
                         .padding(horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = {
+                        when (currentStep) {
+                            is ProgramExecutionStep.Confirm -> onNavigateBack()
+                            else -> showExitConfirmDialog = true
+                        }
+                    }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back),
@@ -285,8 +399,45 @@ fun ProgramExecutionScreen(
                         text = program?.name ?: stringResource(R.string.program_list_title),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = Color.White,
+                        modifier = Modifier.weight(1f)
                     )
+                    // 開始ボタン（Confirm画面のみ表示）
+                    if (currentStep is ProgramExecutionStep.Confirm) {
+                        val confirmStep = currentStep as ProgramExecutionStep.Confirm
+                        TextButton(
+                            onClick = {
+                                if (startCountdownSeconds > 0) {
+                                    currentStep = ProgramExecutionStep.StartInterval(confirmStep.session, 0)
+                                } else {
+                                    currentStep = ProgramExecutionStep.Executing(confirmStep.session, 0)
+                                }
+                            }
+                        ) {
+                            Icon(
+                                Icons.Default.PlayArrow,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = stringResource(R.string.program_start),
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                    // ナビゲーションボタン（実行中/インターバル時のみ表示）
+                    if (showNavigationButton) {
+                        IconButton(onClick = { showNavigationSheet = true }) {
+                            Icon(
+                                Icons.Default.Menu,
+                                contentDescription = stringResource(R.string.nav_program_overview),
+                                tint = Color.White
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -307,8 +458,9 @@ fun ProgramExecutionScreen(
                         ProgramConfirmStep(
                             session = step.session,
                             onUpdateTargetValue = { setIndex, newValue ->
-                                val sets = step.session.sets
-                                sets[setIndex] = sets[setIndex].copy(targetValue = newValue)
+                                val newSets = step.session.sets.toMutableList()
+                                newSets[setIndex] = newSets[setIndex].copy(targetValue = newValue)
+                                currentStep = ProgramExecutionStep.Confirm(step.session.copy(sets = newSets))
                             },
                             onUpdateInterval = { exerciseIndex, newInterval ->
                                 // この種目の全セットのインターバルを更新
@@ -318,6 +470,19 @@ fun ProgramExecutionScreen(
                                         sets[index] = set.copy(intervalSeconds = newInterval)
                                     }
                                 }
+                                // 再構成をトリガー（新しいセッションオブジェクトを作成）
+                                currentStep = ProgramExecutionStep.Confirm(step.session.copy())
+                            },
+                            onUpdateExerciseSetsValue = { exerciseIndex, delta ->
+                                // この種目の全セットの値を一括更新
+                                val newSets = step.session.sets.toMutableList()
+                                newSets.forEachIndexed { index, set ->
+                                    if (set.exerciseIndex == exerciseIndex) {
+                                        val newValue = (set.targetValue + delta).coerceAtLeast(0)
+                                        newSets[index] = set.copy(targetValue = newValue)
+                                    }
+                                }
+                                currentStep = ProgramExecutionStep.Confirm(step.session.copy(sets = newSets))
                             },
                             onUpdateSetCount = { exerciseIndex, newSetCount ->
                                 // セット数を変更: セットリストを再構築
@@ -353,14 +518,16 @@ fun ProgramExecutionScreen(
                                                     setNumber = setNum,
                                                     side = "Right",
                                                     targetValue = existingRight?.targetValue ?: targetValue,
-                                                    intervalSeconds = interval
+                                                    intervalSeconds = interval,
+                                                    previousValue = existingRight?.previousValue
                                                 ))
                                                 newSets.add(ProgramWorkoutSet(
                                                     exerciseIndex = idx,
                                                     setNumber = setNum,
                                                     side = "Left",
                                                     targetValue = existingLeft?.targetValue ?: targetValue,
-                                                    intervalSeconds = interval
+                                                    intervalSeconds = interval,
+                                                    previousValue = existingLeft?.previousValue
                                                 ))
                                             } else {
                                                 newSets.add(ProgramWorkoutSet(
@@ -368,7 +535,8 @@ fun ProgramExecutionScreen(
                                                     setNumber = setNum,
                                                     side = null,
                                                     targetValue = existingBilateral?.targetValue ?: targetValue,
-                                                    intervalSeconds = interval
+                                                    intervalSeconds = interval,
+                                                    previousValue = existingBilateral?.previousValue
                                                 ))
                                             }
                                         }
@@ -383,78 +551,20 @@ fun ProgramExecutionScreen(
                             },
                             onUseAllProgramValues = {
                                 // セット一覧を再構築（プログラム設定のセット数・目標値を使用）
-                                val newSets = mutableListOf<ProgramWorkoutSet>()
-                                step.session.exercises.forEachIndexed { index, (pe, exercise) ->
-                                    for (setNum in 1..pe.sets) {
-                                        if (exercise.laterality == "Unilateral") {
-                                            newSets.add(ProgramWorkoutSet(
-                                                exerciseIndex = index,
-                                                setNumber = setNum,
-                                                side = "Right",
-                                                targetValue = pe.targetValue,
-                                                intervalSeconds = pe.intervalSeconds
-                                            ))
-                                            newSets.add(ProgramWorkoutSet(
-                                                exerciseIndex = index,
-                                                setNumber = setNum,
-                                                side = "Left",
-                                                targetValue = pe.targetValue,
-                                                intervalSeconds = pe.intervalSeconds
-                                            ))
-                                        } else {
-                                            newSets.add(ProgramWorkoutSet(
-                                                exerciseIndex = index,
-                                                setNumber = setNum,
-                                                side = null,
-                                                targetValue = pe.targetValue,
-                                                intervalSeconds = pe.intervalSeconds
-                                            ))
-                                        }
-                                    }
-                                }
-                                step.session.sets.clear()
-                                step.session.sets.addAll(newSets)
+                                val newSets = buildProgramValueSets(step.session.exercises, step.session.sets)
+                                val newSession = step.session.copy(sets = newSets)
+                                currentStep = ProgramExecutionStep.Confirm(newSession)
                             },
                             onUseAllChallengeValues = {
                                 // セット一覧を再構築（種目設定のセット数・目標値・インターバルを使用、なければプログラム設定）
-                                val newSets = mutableListOf<ProgramWorkoutSet>()
-                                step.session.exercises.forEachIndexed { index, (pe, exercise) ->
-                                    val sets = exercise.targetSets ?: pe.sets
-                                    val targetValue = exercise.targetValue ?: pe.targetValue
-                                    val interval = exercise.restInterval ?: pe.intervalSeconds
-                                    for (setNum in 1..sets) {
-                                        if (exercise.laterality == "Unilateral") {
-                                            newSets.add(ProgramWorkoutSet(
-                                                exerciseIndex = index,
-                                                setNumber = setNum,
-                                                side = "Right",
-                                                targetValue = targetValue,
-                                                intervalSeconds = interval
-                                            ))
-                                            newSets.add(ProgramWorkoutSet(
-                                                exerciseIndex = index,
-                                                setNumber = setNum,
-                                                side = "Left",
-                                                targetValue = targetValue,
-                                                intervalSeconds = interval
-                                            ))
-                                        } else {
-                                            newSets.add(ProgramWorkoutSet(
-                                                exerciseIndex = index,
-                                                setNumber = setNum,
-                                                side = null,
-                                                targetValue = targetValue,
-                                                intervalSeconds = interval
-                                            ))
-                                        }
-                                    }
-                                }
-                                step.session.sets.clear()
-                                step.session.sets.addAll(newSets)
+                                val newSets = buildChallengeValueSets(step.session.exercises, step.session.sets)
+                                val newSession = step.session.copy(sets = newSets)
+                                currentStep = ProgramExecutionStep.Confirm(newSession)
                             },
                             onUseAllPreviousRecordValues = {
                                 // 前回記録を取得してセット一覧を再構築（非同期）
                                 scope.launch {
+                                    val originalSets = step.session.sets
                                     val newSets = mutableListOf<ProgramWorkoutSet>()
                                     step.session.exercises.forEachIndexed { index, (pe, exercise) ->
                                         val latestRecords = viewModel.getLatestSession(exercise.id)
@@ -462,19 +572,25 @@ fun ProgramExecutionScreen(
                                             // 前回記録のセット数を使用
                                             latestRecords.forEach { record ->
                                                 if (exercise.laterality == "Unilateral") {
+                                                    val valueRight = record.valueRight
+                                                    val valueLeft = record.valueLeft ?: record.valueRight
+                                                    // 前回値は左右の平均値を使用（目標値も平均値に設定）
+                                                    val prevAverage = (valueRight + valueLeft) / 2
                                                     newSets.add(ProgramWorkoutSet(
                                                         exerciseIndex = index,
                                                         setNumber = record.setNumber,
                                                         side = "Right",
-                                                        targetValue = record.valueRight,
-                                                        intervalSeconds = pe.intervalSeconds
+                                                        targetValue = prevAverage,
+                                                        intervalSeconds = pe.intervalSeconds,
+                                                        previousValue = prevAverage
                                                     ))
                                                     newSets.add(ProgramWorkoutSet(
                                                         exerciseIndex = index,
                                                         setNumber = record.setNumber,
                                                         side = "Left",
-                                                        targetValue = record.valueLeft ?: record.valueRight,
-                                                        intervalSeconds = pe.intervalSeconds
+                                                        targetValue = prevAverage,
+                                                        intervalSeconds = pe.intervalSeconds,
+                                                        previousValue = prevAverage
                                                     ))
                                                 } else {
                                                     newSets.add(ProgramWorkoutSet(
@@ -482,47 +598,80 @@ fun ProgramExecutionScreen(
                                                         setNumber = record.setNumber,
                                                         side = null,
                                                         targetValue = record.valueRight,
-                                                        intervalSeconds = pe.intervalSeconds
+                                                        intervalSeconds = pe.intervalSeconds,
+                                                        previousValue = record.valueRight
                                                     ))
                                                 }
                                             }
                                         } else {
-                                            // 前回記録がない場合はプログラム設定を使用
+                                            // 前回記録がない場合はプログラム設定を使用（元のpreviousValueを引き継ぐ）
                                             for (setNum in 1..pe.sets) {
                                                 if (exercise.laterality == "Unilateral") {
+                                                    val prevRight = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Right" }?.previousValue
+                                                    val prevLeft = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Left" }?.previousValue
                                                     newSets.add(ProgramWorkoutSet(
                                                         exerciseIndex = index,
                                                         setNumber = setNum,
                                                         side = "Right",
                                                         targetValue = pe.targetValue,
-                                                        intervalSeconds = pe.intervalSeconds
+                                                        intervalSeconds = pe.intervalSeconds,
+                                                        previousValue = prevRight
                                                     ))
                                                     newSets.add(ProgramWorkoutSet(
                                                         exerciseIndex = index,
                                                         setNumber = setNum,
                                                         side = "Left",
                                                         targetValue = pe.targetValue,
-                                                        intervalSeconds = pe.intervalSeconds
+                                                        intervalSeconds = pe.intervalSeconds,
+                                                        previousValue = prevLeft
                                                     ))
                                                 } else {
+                                                    val prevValue = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == null }?.previousValue
                                                     newSets.add(ProgramWorkoutSet(
                                                         exerciseIndex = index,
                                                         setNumber = setNum,
                                                         side = null,
                                                         targetValue = pe.targetValue,
-                                                        intervalSeconds = pe.intervalSeconds
+                                                        intervalSeconds = pe.intervalSeconds,
+                                                        previousValue = prevValue
                                                     ))
                                                 }
                                             }
                                         }
                                     }
-                                    step.session.sets.clear()
-                                    step.session.sets.addAll(newSets)
+                                    val newSession = step.session.copy(sets = newSets.toMutableList())
+                                    currentStep = ProgramExecutionStep.Confirm(newSession)
                                 }
+                            },
+                            // 音声設定
+                            isAutoMode = isAutoMode,
+                            startCountdownSeconds = startCountdownSeconds,
+                            isDynamicCountSoundEnabled = isDynamicCountSoundEnabled,
+                            isIsometricIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
+                            isometricIntervalSeconds = isometricIntervalSeconds,
+                            onAutoModeChange = { value ->
+                                isAutoMode = value
+                                workoutPreferences.setAutoMode(value)
+                            },
+                            onStartCountdownChange = { value ->
+                                startCountdownSeconds = value
+                                workoutPreferences.setStartCountdown(value)
+                            },
+                            onDynamicCountSoundChange = { value ->
+                                isDynamicCountSoundEnabled = value
+                                workoutPreferences.setDynamicCountSoundEnabled(value)
+                            },
+                            onIsometricIntervalSoundChange = { value ->
+                                isIsometricIntervalSoundEnabled = value
+                                workoutPreferences.setIsometricIntervalSoundEnabled(value)
+                            },
+                            onIsometricIntervalSecondsChange = { value ->
+                                isometricIntervalSeconds = value
+                                workoutPreferences.setIsometricIntervalSeconds(value)
                             },
                             onStart = {
                                 // プログラムの開始カウントダウンが0より大きい場合のみ表示
-                                if (step.session.program.startInterval > 0) {
+                                if (startCountdownSeconds > 0) {
                                     currentStep = ProgramExecutionStep.StartInterval(step.session, 0)
                                 } else {
                                     currentStep = ProgramExecutionStep.Executing(step.session, 0)
@@ -535,10 +684,15 @@ fun ProgramExecutionScreen(
                         ProgramStartIntervalStep(
                             session = step.session,
                             currentSetIndex = step.currentSetIndex,
+                            startCountdownSeconds = startCountdownSeconds,
                             toneGenerator = toneGenerator,
                             flashController = flashController,
                             isFlashEnabled = isFlashEnabled,
+                            isNavigationOpen = showNavigationSheet,
                             onComplete = {
+                                currentStep = ProgramExecutionStep.Executing(step.session, step.currentSetIndex)
+                            },
+                            onSkip = {
                                 currentStep = ProgramExecutionStep.Executing(step.session, step.currentSetIndex)
                             }
                         )
@@ -546,162 +700,329 @@ fun ProgramExecutionScreen(
 
                     is ProgramExecutionStep.Executing -> {
                         // タイマーモードに応じて分岐
-                        if (step.session.program.timerMode) {
-                            // タイマーON: 自動カウント
-                            ProgramExecutingStepTimerOn(
-                                session = step.session,
-                                currentSetIndex = step.currentSetIndex,
-                                toneGenerator = toneGenerator,
-                                flashController = flashController,
-                                isFlashEnabled = isFlashEnabled,
-                                onSetComplete = { actualValue ->
-                                    val sets = step.session.sets
-                                    sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
-                                        actualValue = actualValue,
-                                        isCompleted = true
-                                    )
-                                    val currentSet = sets[step.currentSetIndex]
+                        val currentSet = step.session.sets[step.currentSetIndex]
+                        val (_, currentExercise) = step.session.exercises[currentSet.exerciseIndex]
 
-                                    // 次のセットへ
-                                    val nextIndex = step.currentSetIndex + 1
-                                    if (nextIndex < sets.size) {
-                                        if (currentSet.intervalSeconds > 0) {
-                                            currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
-                                        } else if (step.session.program.startInterval > 0) {
-                                            // インターバル0でも準備カウントダウンを表示
-                                            currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
-                                        } else {
-                                            currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
-                                        }
-                                    } else {
-                                        // 全セット完了
-                                        currentStep = ProgramExecutionStep.Result(step.session)
-                                    }
-                                },
-                                onSkip = { actualValue ->
-                                    val sets = step.session.sets
-                                    sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
-                                        actualValue = actualValue,
-                                        isSkipped = true
-                                    )
-                                    val currentSet = sets[step.currentSetIndex]
+                        // やり直し処理（準備カウントダウンに戻る or 内部リセット）
+                        val handleRetry: () -> Unit = {
+                            if (startCountdownSeconds > 0) {
+                                currentStep = ProgramExecutionStep.StartInterval(step.session, step.currentSetIndex)
+                            } else {
+                                retryKey++
+                            }
+                        }
 
-                                    val nextIndex = step.currentSetIndex + 1
-                                    val nextSet = sets.getOrNull(nextIndex)
-                                    if (nextIndex < sets.size) {
-                                        if (currentSet.intervalSeconds > 0) {
-                                            currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
-                                        } else if (step.session.program.startInterval > 0) {
-                                            // インターバル0でも準備カウントダウンを表示
-                                            currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
-                                        } else {
-                                            currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
-                                        }
-                                    } else {
-                                        currentStep = ProgramExecutionStep.Result(step.session)
-                                    }
-                                },
-                                onAbort = { actualValue ->
-                                    val sets = step.session.sets
-                                    sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
-                                        actualValue = actualValue,
-                                        isSkipped = true
+                        // key() でラップすることで、retryKey が変わったときにコンポーネントが再生成される
+                        key(step.currentSetIndex, retryKey) {
+                            if (isAutoMode) {
+                                // タイマーON: 自動カウント
+                                if (currentExercise.type == "Isometric") {
+                                    // Isometric種目: 新UIで自動遷移
+                                    ProgramExecutingStepIsometricAuto(
+                                        session = step.session,
+                                        currentSetIndex = step.currentSetIndex,
+                                        toneGenerator = toneGenerator,
+                                        flashController = flashController,
+                                        isFlashEnabled = isFlashEnabled,
+                                        isIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
+                                        intervalSeconds = isometricIntervalSeconds,
+                                        isNavigationOpen = showNavigationSheet,
+                                        onSetComplete = { actualValue ->
+                                            val sets = step.session.sets
+                                            sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
+                                                actualValue = actualValue,
+                                                isCompleted = true
+                                            )
+                                            val completedSet = sets[step.currentSetIndex]
+                                            val nextIndex = step.currentSetIndex + 1
+
+                                            if (nextIndex < sets.size) {
+                                                if (completedSet.intervalSeconds > 0) {
+                                                    currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                                } else if (startCountdownSeconds > 0) {
+                                                    currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                                } else {
+                                                    currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                                }
+                                            } else {
+                                                currentStep = ProgramExecutionStep.Result(step.session)
+                                            }
+                                        },
+                                        onAbort = {
+                                            currentStep = ProgramExecutionStep.Result(step.session)
+                                        },
+                                        onRetry = handleRetry,
+                                        onOpenNavigation = { showNavigationSheet = true }
                                     )
-                                    currentStep = ProgramExecutionStep.Result(step.session)
+                                } else if (!isDynamicCountSoundEnabled) {
+                                // Dynamic種目 + レップ数数え上げOFF: シンプルカウンター
+                                ProgramExecutingStepDynamicSimple(
+                                    session = step.session,
+                                    currentSetIndex = step.currentSetIndex,
+                                    onSetComplete = { actualValue ->
+                                        val sets = step.session.sets
+                                        sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
+                                            actualValue = actualValue,
+                                            isCompleted = true
+                                        )
+                                        val completedSet = sets[step.currentSetIndex]
+
+                                        val nextIndex = step.currentSetIndex + 1
+                                        if (nextIndex < sets.size) {
+                                            if (completedSet.intervalSeconds > 0) {
+                                                currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                            } else if (startCountdownSeconds > 0) {
+                                                currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                            } else {
+                                                currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                            }
+                                        } else {
+                                            currentStep = ProgramExecutionStep.Result(step.session)
+                                        }
+                                    },
+                                    onAbort = {
+                                        currentStep = ProgramExecutionStep.Result(step.session)
+                                    },
+                                    onOpenNavigation = { showNavigationSheet = true }
+                                )
+                            } else {
+                                // Dynamic種目: 自動カウント（タイマー付き）
+                                ProgramExecutingStepDynamicAuto(
+                                    session = step.session,
+                                    currentSetIndex = step.currentSetIndex,
+                                    toneGenerator = toneGenerator,
+                                    flashController = flashController,
+                                    isFlashEnabled = isFlashEnabled,
+                                    isCountSoundEnabled = isDynamicCountSoundEnabled,
+                                    isNavigationOpen = showNavigationSheet,
+                                    onSetComplete = { actualValue ->
+                                        val sets = step.session.sets
+                                        sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
+                                            actualValue = actualValue,
+                                            isCompleted = true
+                                        )
+                                        val completedSet = sets[step.currentSetIndex]
+
+                                        val nextIndex = step.currentSetIndex + 1
+                                        if (nextIndex < sets.size) {
+                                            if (completedSet.intervalSeconds > 0) {
+                                                currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                            } else if (startCountdownSeconds > 0) {
+                                                currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                            } else {
+                                                currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                            }
+                                        } else {
+                                            currentStep = ProgramExecutionStep.Result(step.session)
+                                        }
+                                    },
+                                    onAbort = {
+                                        currentStep = ProgramExecutionStep.Result(step.session)
+                                    },
+                                    onRetry = handleRetry,
+                                    onOpenNavigation = { showNavigationSheet = true }
+                                )
+                            }
+                            } else {
+                                // タイマーOFF: 手動完了
+                                if (currentExercise.type == "Isometric") {
+                                    // Isometric種目: タイマー付き手動完了
+                                    ProgramExecutingStepIsometricManual(
+                                        session = step.session,
+                                        currentSetIndex = step.currentSetIndex,
+                                        toneGenerator = toneGenerator,
+                                        flashController = flashController,
+                                        isFlashEnabled = isFlashEnabled,
+                                        isIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
+                                        intervalSeconds = isometricIntervalSeconds,
+                                        isNavigationOpen = showNavigationSheet,
+                                        onSetComplete = { actualValue ->
+                                            val sets = step.session.sets
+                                            sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
+                                                actualValue = actualValue,
+                                                isCompleted = true
+                                            )
+                                            val completedSet = sets[step.currentSetIndex]
+                                            val nextIndex = step.currentSetIndex + 1
+
+                                            // 次のセットへ
+                                            if (nextIndex < sets.size) {
+                                                if (completedSet.intervalSeconds > 0) {
+                                                    currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                                } else if (startCountdownSeconds > 0) {
+                                                    currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                                } else {
+                                                    currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                                }
+                                            } else {
+                                                currentStep = ProgramExecutionStep.Result(step.session)
+                                            }
+                                        },
+                                        onAbort = {
+                                            currentStep = ProgramExecutionStep.Result(step.session)
+                                        },
+                                        onRetry = handleRetry,
+                                        onOpenNavigation = { showNavigationSheet = true }
+                                    )
+                                } else if (!isDynamicCountSoundEnabled) {
+                                    // Dynamic種目 + レップ数数え上げOFF: シンプルカウンター
+                                    ProgramExecutingStepDynamicSimple(
+                                        session = step.session,
+                                        currentSetIndex = step.currentSetIndex,
+                                        onSetComplete = { actualValue ->
+                                            val sets = step.session.sets
+                                            sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
+                                                actualValue = actualValue,
+                                                isCompleted = true
+                                            )
+                                            val completedSet = sets[step.currentSetIndex]
+                                            val nextIndex = step.currentSetIndex + 1
+
+                                            // 次のセットへ
+                                            if (nextIndex < sets.size) {
+                                                if (completedSet.intervalSeconds > 0) {
+                                                    currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                                } else if (startCountdownSeconds > 0) {
+                                                    currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                                } else {
+                                                    currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                                }
+                                            } else {
+                                                currentStep = ProgramExecutionStep.Result(step.session)
+                                            }
+                                        },
+                                        onAbort = {
+                                            currentStep = ProgramExecutionStep.Result(step.session)
+                                        },
+                                        onOpenNavigation = { showNavigationSheet = true }
+                                    )
+                                } else {
+                                    // Dynamic種目: タイマー付き手動完了
+                                    ProgramExecutingStepDynamicManual(
+                                        session = step.session,
+                                        currentSetIndex = step.currentSetIndex,
+                                        toneGenerator = toneGenerator,
+                                        flashController = flashController,
+                                        isFlashEnabled = isFlashEnabled,
+                                        isCountSoundEnabled = isDynamicCountSoundEnabled,
+                                        isNavigationOpen = showNavigationSheet,
+                                        onSetComplete = { actualValue ->
+                                            val sets = step.session.sets
+                                            sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
+                                                actualValue = actualValue,
+                                                isCompleted = true
+                                            )
+                                            val completedSet = sets[step.currentSetIndex]
+                                            val nextIndex = step.currentSetIndex + 1
+
+                                            // 次のセットへ
+                                            if (nextIndex < sets.size) {
+                                                if (completedSet.intervalSeconds > 0) {
+                                                    currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                                } else if (startCountdownSeconds > 0) {
+                                                    currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                                } else {
+                                                    currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                                }
+                                            } else {
+                                                currentStep = ProgramExecutionStep.Result(step.session)
+                                            }
+                                        },
+                                        onAbort = {
+                                            currentStep = ProgramExecutionStep.Result(step.session)
+                                        },
+                                        onRetry = handleRetry,
+                                        onOpenNavigation = { showNavigationSheet = true }
+                                    )
                                 }
-                            )
-                        } else {
-                            // タイマーOFF: 手動完了
-                            ProgramExecutingStepTimerOff(
-                                session = step.session,
-                                currentSetIndex = step.currentSetIndex,
-                                onSetComplete = { actualValue ->
-                                    val sets = step.session.sets
-                                    sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
-                                        actualValue = actualValue,
-                                        isCompleted = true
-                                    )
-                                    val currentSet = sets[step.currentSetIndex]
-                                    val nextIndex = step.currentSetIndex + 1
-                                    val nextSet = sets.getOrNull(nextIndex)
-
-                                    // 次のセットへ
-                                    if (nextIndex < sets.size) {
-                                        if (currentSet.intervalSeconds > 0) {
-                                            currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
-                                        } else if (step.session.program.startInterval > 0) {
-                                            // インターバル0でも準備カウントダウンを表示
-                                            currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
-                                        } else {
-                                            currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
-                                        }
-                                    } else {
-                                        // 全セット完了
-                                        currentStep = ProgramExecutionStep.Result(step.session)
-                                    }
-                                },
-                                onSkip = { actualValue ->
-                                    val sets = step.session.sets
-                                    sets[step.currentSetIndex] = sets[step.currentSetIndex].copy(
-                                        actualValue = actualValue,
-                                        isSkipped = true
-                                    )
-                                    val currentSet = sets[step.currentSetIndex]
-                                    val nextIndex = step.currentSetIndex + 1
-                                    val nextSet = sets.getOrNull(nextIndex)
-
-                                    if (nextIndex < sets.size) {
-                                        if (currentSet.intervalSeconds > 0) {
-                                            currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
-                                        } else if (step.session.program.startInterval > 0) {
-                                            // インターバル0でも準備カウントダウンを表示
-                                            currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
-                                        } else {
-                                            currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
-                                        }
-                                    } else {
-                                        currentStep = ProgramExecutionStep.Result(step.session)
-                                    }
-                                },
-                                onAbort = {
-                                    // タイマーOFF版: 中断したセットは記録しない（何も設定せずにResult画面へ）
-                                    currentStep = ProgramExecutionStep.Result(step.session)
-                                }
-                            )
+                            }
                         }
                     }
 
                     is ProgramExecutionStep.Interval -> {
+                        // Redoモード時は次の未完了セットを探す処理
+                        val findNextIncompleteSetIndex: () -> Int = {
+                            val sets = step.session.sets
+                            var nextIndex = -1
+                            for (i in (step.currentSetIndex + 1) until sets.size) {
+                                if (!sets[i].isCompleted) {
+                                    nextIndex = i
+                                    break
+                                }
+                            }
+                            nextIndex
+                        }
+
+                        // Redoモード時は次の未完了セットのインデックスを計算
+                        val nextSetIndexForDisplay = if (isRedoMode) {
+                            findNextIncompleteSetIndex().takeIf { it >= 0 }
+                        } else {
+                            null
+                        }
+
                         ProgramIntervalStep(
                             session = step.session,
                             currentSetIndex = step.currentSetIndex,
                             toneGenerator = toneGenerator,
                             flashController = flashController,
                             isFlashEnabled = isFlashEnabled,
+                            isNavigationOpen = showNavigationSheet,
+                            nextSetIndexOverride = nextSetIndexForDisplay,
                             onComplete = {
-                                val nextIndex = step.currentSetIndex + 1
-                                if (nextIndex < step.session.sets.size) {
-                                    // プログラムの開始カウントダウンが0より大きい場合のみ表示
-                                    if (step.session.program.startInterval > 0) {
-                                        currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                if (isRedoMode) {
+                                    // Redoモード: 次の未完了セットを探す
+                                    val nextIncompleteIndex = findNextIncompleteSetIndex()
+                                    isRedoMode = false // Redoモード終了
+                                    if (nextIncompleteIndex >= 0) {
+                                        if (startCountdownSeconds > 0) {
+                                            currentStep = ProgramExecutionStep.StartInterval(step.session, nextIncompleteIndex)
+                                        } else {
+                                            currentStep = ProgramExecutionStep.Executing(step.session, nextIncompleteIndex)
+                                        }
                                     } else {
-                                        currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                        // 未完了セットなし → Result画面へ
+                                        currentStep = ProgramExecutionStep.Result(step.session)
                                     }
                                 } else {
-                                    currentStep = ProgramExecutionStep.Result(step.session)
+                                    // 通常モード: 順番に進む
+                                    val nextIndex = step.currentSetIndex + 1
+                                    if (nextIndex < step.session.sets.size) {
+                                        if (startCountdownSeconds > 0) {
+                                            currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                        } else {
+                                            currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                        }
+                                    } else {
+                                        currentStep = ProgramExecutionStep.Result(step.session)
+                                    }
                                 }
                             },
                             onSkip = {
-                                val nextIndex = step.currentSetIndex + 1
-                                if (nextIndex < step.session.sets.size) {
-                                    // プログラムの開始カウントダウンが0より大きい場合のみ表示
-                                    if (step.session.program.startInterval > 0) {
-                                        currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                if (isRedoMode) {
+                                    // Redoモード: 次の未完了セットを探す
+                                    val nextIncompleteIndex = findNextIncompleteSetIndex()
+                                    isRedoMode = false // Redoモード終了
+                                    if (nextIncompleteIndex >= 0) {
+                                        if (startCountdownSeconds > 0) {
+                                            currentStep = ProgramExecutionStep.StartInterval(step.session, nextIncompleteIndex)
+                                        } else {
+                                            currentStep = ProgramExecutionStep.Executing(step.session, nextIncompleteIndex)
+                                        }
                                     } else {
-                                        currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                        currentStep = ProgramExecutionStep.Result(step.session)
                                     }
                                 } else {
-                                    currentStep = ProgramExecutionStep.Result(step.session)
+                                    // 通常モード: 順番に進む
+                                    val nextIndex = step.currentSetIndex + 1
+                                    if (nextIndex < step.session.sets.size) {
+                                        if (startCountdownSeconds > 0) {
+                                            currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
+                                        } else {
+                                            currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
+                                        }
+                                    } else {
+                                        currentStep = ProgramExecutionStep.Result(step.session)
+                                    }
                                 }
                             }
                         )
@@ -725,1431 +1046,106 @@ fun ProgramExecutionScreen(
             }
         }
     }
-}
 
-@Composable
-private fun ProgramConfirmStep(
-    session: ProgramExecutionSession,
-    onUpdateTargetValue: (Int, Int) -> Unit,
-    onUpdateInterval: (Int, Int) -> Unit,  // exerciseIndex, newInterval
-    onUpdateSetCount: (Int, Int) -> Unit,  // exerciseIndex, newSetCount
-    onUseAllProgramValues: () -> Unit,
-    onUseAllChallengeValues: () -> Unit,
-    onUseAllPreviousRecordValues: () -> Unit,
-    onStart: () -> Unit
-) {
-    var refreshKey by remember { mutableIntStateOf(0) }
-    // 課題設定がある種目が1つでもあるか
-    val hasChallengeExercise = session.exercises.any { (_, exercise) -> exercise.targetValue != null }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // 一括適用ボタン（一列横並び）
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = {
-                    onUseAllProgramValues()
-                    refreshKey++
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Amber600),
-                shape = RoundedCornerShape(8.dp),
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.program_use_program),
-                    fontSize = 13.sp,
-                    color = Color.White
-                )
-            }
-            if (hasChallengeExercise) {
-                Spacer(modifier = Modifier.width(6.dp))
-                Button(
-                    onClick = {
-                        onUseAllChallengeValues()
-                        refreshKey++
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Green600),
-                    shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.program_use_challenge),
-                        fontSize = 13.sp,
-                        color = Color.White
-                    )
+    // ナビゲーションシート（Executing, Interval, StartInterval, Result で表示可能）
+    val step = currentStep
+    val navSession = when (step) {
+        is ProgramExecutionStep.Executing -> step.session
+        is ProgramExecutionStep.Interval -> step.session
+        is ProgramExecutionStep.StartInterval -> step.session
+        is ProgramExecutionStep.Result -> step.session
+        else -> null
+    }
+    val navCurrentSetIndex = when (step) {
+        is ProgramExecutionStep.Executing -> step.currentSetIndex
+        is ProgramExecutionStep.Interval -> step.currentSetIndex + 1  // 次のセット
+        is ProgramExecutionStep.StartInterval -> step.currentSetIndex
+        is ProgramExecutionStep.Result -> -1  // Result画面では「現在セット」なし
+        else -> 0
+    }
+    val isFromResult = step is ProgramExecutionStep.Result
+    if (showNavigationSheet && navSession != null) {
+        ProgramNavigationSheet(
+            session = navSession,
+            currentSetIndex = if (navCurrentSetIndex >= 0) navCurrentSetIndex.coerceIn(0, navSession.sets.size - 1) else -1,
+            isFromResult = isFromResult,
+            onDismiss = { showNavigationSheet = false },
+            onJumpToSet = { targetIndex ->
+                // Jumpでも次の未完了セットを探すようにする（完了済みセットをスキップ）
+                isRedoMode = true
+                // 現在のセットからジャンプ先までのセットをスキップ済みにする（Result画面からの場合はスキップしない）
+                if (!isFromResult) {
+                    for (i in navCurrentSetIndex until targetIndex) {
+                        if (!navSession.sets[i].isCompleted) {
+                            navSession.sets[i] = navSession.sets[i].copy(isSkipped = true)
+                        }
+                    }
                 }
-            }
-            Spacer(modifier = Modifier.width(6.dp))
-            Button(
-                onClick = {
-                    onUseAllPreviousRecordValues()
-                    refreshKey++
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Purple600),
-                shape = RoundedCornerShape(8.dp),
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.program_use_previous),
-                    fontSize = 13.sp,
-                    color = Color.White
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // 種目リスト
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // key = refreshKey ensures recomposition
-            items(
-                items = session.exercises.mapIndexed { index, pair -> index to pair },
-                key = { (index, _) -> "$index-$refreshKey" }
-            ) { (exerciseIndex, pair) ->
-                val (pe, exercise) = pair
-                val setsForExercise = session.sets.filter { it.exerciseIndex == exerciseIndex }
-                val displaySets = if (exercise.laterality == "Unilateral") {
-                    // 片側種目: 右側のセットのみ表示（代表値として）
-                    setsForExercise.filter { it.side == "Right" }
+                // ジャンプ先に遷移
+                if (startCountdownSeconds > 0) {
+                    currentStep = ProgramExecutionStep.StartInterval(navSession, targetIndex)
                 } else {
-                    setsForExercise
+                    currentStep = ProgramExecutionStep.Executing(navSession, targetIndex)
                 }
-
-                ProgramConfirmExerciseCard(
-                    exerciseIndex = exerciseIndex,
-                    exercise = exercise,
-                    programExercise = pe,
-                    sets = displaySets,
-                    allSets = session.sets,
-                    onUpdateValue = { setIndex, newValue ->
-                        onUpdateTargetValue(setIndex, newValue)
-                        // 片側種目の場合、左側も同じ値に更新
-                        if (exercise.laterality == "Unilateral") {
-                            val rightSet = session.sets[setIndex]
-                            val leftSetIndex = session.sets.indexOfFirst {
-                                it.exerciseIndex == exerciseIndex &&
-                                it.setNumber == rightSet.setNumber &&
-                                it.side == "Left"
-                            }
-                            if (leftSetIndex >= 0) {
-                                onUpdateTargetValue(leftSetIndex, newValue)
-                            }
-                        }
-                    },
-                    onUpdateInterval = { newInterval ->
-                        onUpdateInterval(exerciseIndex, newInterval)
-                    },
-                    onUpdateSetCount = { newSetCount ->
-                        onUpdateSetCount(exerciseIndex, newSetCount)
-                    }
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 開始ボタン
-        Button(
-            onClick = onStart,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Green600),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.program_start),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-@Composable
-private fun ProgramConfirmExerciseCard(
-    exerciseIndex: Int,
-    exercise: Exercise,
-    programExercise: ProgramExercise,
-    sets: List<ProgramWorkoutSet>,
-    allSets: List<ProgramWorkoutSet>,
-    onUpdateValue: (Int, Int) -> Unit,
-    onUpdateInterval: (Int) -> Unit,
-    onUpdateSetCount: (Int) -> Unit
-) {
-    val unit = stringResource(if (exercise.type == "Isometric") R.string.unit_seconds else R.string.unit_reps)
-
-    // 現在のセット数とインターバルを取得
-    val currentSetCount = sets.maxOfOrNull { it.setNumber } ?: programExercise.sets
-    val currentInterval = sets.firstOrNull()?.intervalSeconds ?: programExercise.intervalSeconds
-
-    // ローカル状態（UIの編集用）
-    var intervalText by remember(exerciseIndex, currentInterval) { mutableStateOf(currentInterval.toString()) }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Slate800),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(12.dp)
-        ) {
-            // ヘッダー: 種目名
-            Text(
-                text = exercise.name,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // セット数・インターバル編集行
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // セット数（+/-ボタン）
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.sets_label_short),
-                        fontSize = 12.sp,
-                        color = Slate400
-                    )
-                    IconButton(
-                        onClick = { if (currentSetCount > 1) onUpdateSetCount(currentSetCount - 1) },
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Text(
-                            text = "−",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Slate400
-                        )
-                    }
-                    Text(
-                        text = currentSetCount.toString(),
-                        fontSize = 14.sp,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.width(20.dp)
-                    )
-                    IconButton(
-                        onClick = { onUpdateSetCount(currentSetCount + 1) },
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Text(
-                            text = "+",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Slate400
-                        )
-                    }
-                }
-
-                // インターバル
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.interval_short),
-                        fontSize = 12.sp,
-                        color = Slate400
-                    )
-                    Box(
-                        modifier = Modifier
-                            .width(48.dp)
-                            .height(28.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        BasicTextField(
-                            value = intervalText,
-                            onValueChange = { newValue ->
-                                if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
-                                    intervalText = newValue
-                                    newValue.toIntOrNull()?.let { onUpdateInterval(it) }
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            textStyle = androidx.compose.ui.text.TextStyle(
-                                fontSize = 14.sp,
-                                textAlign = TextAlign.Center,
-                                color = Color.White
-                            ),
-                            decorationBox = { innerTextField ->
-                                Column {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .weight(1f),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        innerTextField()
-                                    }
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(1.dp)
-                                            .padding(horizontal = 2.dp)
-                                            .then(Modifier.drawBehind {
-                                                drawLine(
-                                                    color = Slate400,
-                                                    start = androidx.compose.ui.geometry.Offset(0f, 0f),
-                                                    end = androidx.compose.ui.geometry.Offset(size.width, 0f),
-                                                    strokeWidth = 1.dp.toPx()
-                                                )
-                                            })
-                                    )
-                                }
-                            }
-                        )
-                    }
-                    Text(
-                        text = stringResource(R.string.unit_seconds_short),
-                        fontSize = 12.sp,
-                        color = Slate400
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // セットごとの値（コンパクト）
-            sets.forEach { set ->
-                // オブジェクト参照ではなくセマンティックに検索（copy()で参照が変わるため）
-                val setIndex = allSets.indexOfFirst {
-                    it.exerciseIndex == set.exerciseIndex &&
-                    it.setNumber == set.setNumber &&
-                    it.side == set.side
-                }
-                if (setIndex < 0) return@forEach
-
-                val currentSet = allSets[setIndex]
-                var textValue by remember(setIndex, currentSet.targetValue) {
-                    mutableStateOf(currentSet.targetValue.toString())
-                }
-
-                // 現在の種目の実際のセット数（Program/Challenge切り替え後も正しい値）
-                val actualTotalSets = sets.maxOfOrNull { it.setNumber } ?: programExercise.sets
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 2.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.set_format, set.setNumber, actualTotalSets),
-                        fontSize = 14.sp,
-                        color = Slate300
-                    )
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .width(56.dp)
-                                .height(32.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            BasicTextField(
-                                value = textValue,
-                                onValueChange = { newValue ->
-                                    if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
-                                        textValue = newValue
-                                        newValue.toIntOrNull()?.let { onUpdateValue(setIndex, it) }
-                                    }
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                singleLine = true,
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                textStyle = androidx.compose.ui.text.TextStyle(
-                                    fontSize = 16.sp,
-                                    textAlign = TextAlign.Center,
-                                    color = Color.White
-                                ),
-                                decorationBox = { innerTextField ->
-                                    Column {
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .weight(1f),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            innerTextField()
-                                        }
-                                        // 下線
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(1.dp)
-                                                .padding(horizontal = 4.dp)
-                                                .then(Modifier.drawBehind {
-                                                    drawLine(
-                                                        color = Slate400,
-                                                        start = androidx.compose.ui.geometry.Offset(0f, 0f),
-                                                        end = androidx.compose.ui.geometry.Offset(size.width, 0f),
-                                                        strokeWidth = 1.dp.toPx()
-                                                    )
-                                                })
-                                        )
-                                    }
-                                }
-                            )
-                        }
-                        Text(
-                            text = unit,
-                            fontSize = 14.sp,
-                            color = Slate400
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ProgramStartIntervalStep(
-    session: ProgramExecutionSession,
-    currentSetIndex: Int,
-    toneGenerator: ToneGenerator,
-    flashController: FlashController,
-    isFlashEnabled: Boolean,
-    onComplete: () -> Unit
-) {
-    val currentSet = session.sets[currentSetIndex]
-    val (_, exercise) = session.exercises[currentSet.exerciseIndex]
-
-    var remainingTime by remember { mutableIntStateOf(session.program.startInterval) }
-    val progress = remainingTime.toFloat() / session.program.startInterval
-
-    LaunchedEffect(currentSetIndex) {
-        while (remainingTime > 0) {
-            delay(1000L)
-            remainingTime--
-            if (remainingTime <= 3 && remainingTime > 0) {
-                toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
-                if (isFlashEnabled) {
-                    launch { flashController.flashShort() }
-                }
-            }
-        }
-        toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 300)
-        if (isFlashEnabled) {
-            launch { flashController.flashComplete() }
-        }
-        delay(300L)
-        onComplete()
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // 種目名
-        Text(
-            text = exercise.name,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.padding(top = 8.dp)
-        )
-
-        // セット情報
-        val sideText = when (currentSet.side) {
-            "Right" -> stringResource(R.string.side_right)
-            "Left" -> stringResource(R.string.side_left)
-            else -> null
-        }
-        val (pe, _) = session.exercises[currentSet.exerciseIndex]
-        Text(
-            text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, pe.sets, sideText)
-            } else {
-                stringResource(R.string.set_format, currentSet.setNumber, pe.sets)
+                showNavigationSheet = false
             },
-            fontSize = 18.sp,
-            color = Slate300,
-            modifier = Modifier.padding(top = 4.dp)
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        // 準備中表示
-        Text(
-            text = stringResource(R.string.get_ready),
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            color = Orange600
-        )
-
-        Spacer(modifier = Modifier.height(48.dp))
-
-        // タイマー
-        ProgramCircularTimer(
-            progress = progress,
-            remainingTime = remainingTime,
-            color = Orange600
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-    }
-}
-
-// タイマーOFF版: 手動で完了ボタンを押す
-@Composable
-private fun ProgramExecutingStepTimerOff(
-    session: ProgramExecutionSession,
-    currentSetIndex: Int,
-    onSetComplete: (Int) -> Unit,
-    onSkip: (Int) -> Unit,
-    onAbort: () -> Unit
-) {
-    val currentSet = session.sets[currentSetIndex]
-    val (pe, exercise) = session.exercises[currentSet.exerciseIndex]
-
-    var currentValue by remember(currentSetIndex) { mutableIntStateOf(currentSet.targetValue) }
-
-    val unit = if (exercise.type == "Isometric") {
-        stringResource(R.string.unit_seconds)
-    } else {
-        stringResource(R.string.unit_reps)
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // 種目名
-        Text(
-            text = exercise.name,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.padding(top = 8.dp)
-        )
-
-        // セット情報
-        val sideText = when (currentSet.side) {
-            "Right" -> stringResource(R.string.side_right)
-            "Left" -> stringResource(R.string.side_left)
-            else -> null
-        }
-        Text(
-            text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, pe.sets, sideText)
-            } else {
-                stringResource(R.string.set_format, currentSet.setNumber, pe.sets)
-            },
-            fontSize = 18.sp,
-            color = Slate300,
-            modifier = Modifier.padding(top = 4.dp)
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        // 実行中表示
-        Text(
-            text = stringResource(R.string.executing_label),
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = Green600
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // 値調整
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(24.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = { if (currentValue > 1) currentValue-- },
-                modifier = Modifier.size(64.dp)
-            ) {
-                Text(
-                    text = "-",
-                    fontSize = 48.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
+            onRedoSet = { targetIndex ->
+                // Redoモードを有効化
+                isRedoMode = true
+                // 対象セットのみリセット
+                navSession.sets[targetIndex] = navSession.sets[targetIndex].copy(
+                    isCompleted = false,
+                    isSkipped = false,
+                    actualValue = 0
                 )
-            }
-
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "$currentValue",
-                    fontSize = 72.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-                Text(
-                    text = unit,
-                    fontSize = 20.sp,
-                    color = Slate300
-                )
-            }
-
-            IconButton(
-                onClick = { currentValue++ },
-                modifier = Modifier.size(64.dp)
-            ) {
-                Text(
-                    text = "+",
-                    fontSize = 48.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        // 完了ボタン
-        Button(
-            onClick = { onSetComplete(currentValue) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(64.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Green600),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Icon(
-                Icons.Default.Check,
-                contentDescription = null,
-                modifier = Modifier.size(28.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = stringResource(R.string.complete_button),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // スキップ・中止ボタン
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // スキップボタン（実行していないので0）
-            OutlinedButton(
-                onClick = { onSkip(0) },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(stringResource(R.string.skip_button))
-            }
-
-            // 中止ボタン（中断したセットは記録しない）
-            Button(
-                onClick = { onAbort() },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Red600),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(stringResource(R.string.stop_button))
-            }
-        }
-    }
-}
-
-// タイマーON版: 自動カウント（Dynamic=レップカウント、Isometric=カウントダウン）
-@Composable
-private fun ProgramExecutingStepTimerOn(
-    session: ProgramExecutionSession,
-    currentSetIndex: Int,
-    toneGenerator: ToneGenerator,
-    flashController: FlashController,
-    isFlashEnabled: Boolean,
-    onSetComplete: (Int) -> Unit,
-    onSkip: (Int) -> Unit,
-    onAbort: (Int) -> Unit
-) {
-    val currentSet = session.sets[currentSetIndex]
-    val (pe, exercise) = session.exercises[currentSet.exerciseIndex]
-
-    var elapsedTime by remember(currentSetIndex) { mutableIntStateOf(0) }
-    var isRunning by remember(currentSetIndex) { mutableStateOf(true) }
-    var currentCount by remember(currentSetIndex) { mutableIntStateOf(0) }
-
-    // 1レップの秒数（種目設定があればそれを使用、なければ5秒）
-    val repDuration = exercise.repDuration ?: 5
-
-    // Dynamic: レップ内の経過時間を計算（カウントアップ）
-    val repTimeElapsed = if (exercise.type == "Dynamic") {
-        elapsedTime % repDuration
-    } else {
-        0
-    }
-
-    val progress = if (exercise.type == "Isometric") {
-        (currentSet.targetValue - elapsedTime).toFloat() / currentSet.targetValue
-    } else {
-        // Dynamic: レップ内の進捗
-        (elapsedTime % repDuration).toFloat() / repDuration
-    }
-
-    LaunchedEffect(currentSetIndex) {
-        while (true) {
-            if (isRunning) {
-                delay(1000L)
-                elapsedTime++
-
-                // Dynamic: レップカウント
-                if (exercise.type == "Dynamic") {
-                    if (elapsedTime % repDuration == 0) {
-                        currentCount++
-
-                        // Dynamic: 目標達成時に自動遷移
-                        if (currentCount >= currentSet.targetValue) {
-                            // 音とフラッシュを同時に開始
-                            if (isFlashEnabled) {
-                                launch { flashController.flashSetComplete() }
-                            }
-                            playTripleBeepTwice(toneGenerator)
-                            onSetComplete(currentCount)
-                            return@LaunchedEffect
-                        } else {
-                            // 途中のレップは短いフラッシュ
-                            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
-                            if (isFlashEnabled) {
-                                launch { flashController.flashShort() }
-                            }
-                        }
-                    }
-                }
-
-                // Isometric: 目標達成時に自動遷移
-                if (exercise.type == "Isometric" && elapsedTime >= currentSet.targetValue) {
-                    // 音とフラッシュを同時に開始
-                    if (isFlashEnabled) {
-                        launch { flashController.flashSetComplete() }
-                    }
-                    playTripleBeepTwice(toneGenerator)
-                    onSetComplete(elapsedTime)
-                    return@LaunchedEffect
-                }
-            } else {
-                delay(100L)  // 一時停止中は短い間隔でチェック
-            }
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // 種目名（上部）
-        Text(
-            text = exercise.name,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.padding(top = 8.dp)
-        )
-
-        // セット情報
-        val sideText = when (currentSet.side) {
-            "Right" -> stringResource(R.string.side_right)
-            "Left" -> stringResource(R.string.side_left)
-            else -> null
-        }
-        Text(
-            text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, pe.sets, sideText)
-            } else {
-                stringResource(R.string.set_format, currentSet.setNumber, pe.sets)
-            },
-            fontSize = 18.sp,
-            color = Slate300,
-            modifier = Modifier.padding(top = 4.dp)
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // 中央固定エリア
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            // 状態表示
-            Text(
-                text = stringResource(R.string.workout_in_progress),
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Orange600
-            )
-
-            Spacer(modifier = Modifier.height(48.dp))
-
-            ProgramCircularTimer(
-                progress = progress.coerceIn(0f, 1f),
-                remainingTime = if (exercise.type == "Isometric") {
-                    (currentSet.targetValue - elapsedTime).coerceAtLeast(0)
+                // やり直し対象セットに遷移
+                if (startCountdownSeconds > 0) {
+                    currentStep = ProgramExecutionStep.StartInterval(navSession, targetIndex)
                 } else {
-                    // Dynamic: レップ内の経過時間を表示（カウントアップ）
-                    repTimeElapsed
-                },
-                color = Orange600
-            )
-
-            if (exercise.type == "Dynamic") {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(R.string.reps_count, currentCount),
-                    fontSize = 48.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Green400
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // 一時停止/再開ボタン
-        Button(
-            onClick = { isRunning = !isRunning },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(64.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isRunning) Red600 else Green600
-            ),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text(
-                stringResource(if (isRunning) R.string.pause_button else R.string.resume_button),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // スキップボタン
-            OutlinedButton(
-                onClick = {
-                    // 途中までの記録を保存してからスキップ
-                    val actualValue = if (exercise.type == "Dynamic") currentCount else elapsedTime
-                    onSkip(actualValue)
-                },
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text(stringResource(R.string.skip_button))
-            }
-
-            // 中止ボタン
-            Button(
-                onClick = {
-                    // 現在のセットは途中までの記録を保存
-                    val actualValue = if (exercise.type == "Dynamic") currentCount else elapsedTime
-                    onAbort(actualValue)
-                },
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(containerColor = Red600),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text(stringResource(R.string.stop_button))
-            }
-        }
-    }
-}
-
-@Composable
-private fun ProgramIntervalStep(
-    session: ProgramExecutionSession,
-    currentSetIndex: Int,
-    toneGenerator: ToneGenerator,
-    flashController: FlashController,
-    isFlashEnabled: Boolean,
-    onComplete: () -> Unit,
-    onSkip: () -> Unit
-) {
-    val currentSet = session.sets[currentSetIndex]
-    val nextSetIndex = currentSetIndex + 1
-    val nextSet = session.sets.getOrNull(nextSetIndex)
-
-    var remainingTime by remember { mutableIntStateOf(currentSet.intervalSeconds) }
-    var isRunning by remember { mutableStateOf(true) }
-    val progress = if (currentSet.intervalSeconds > 0) {
-        remainingTime.toFloat() / currentSet.intervalSeconds
-    } else 0f
-
-    LaunchedEffect(currentSetIndex) {
-        while (remainingTime > 0 && isRunning) {
-            delay(1000L)
-            remainingTime--
-            if (remainingTime <= 3 && remainingTime > 0) {
-                toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
-                if (isFlashEnabled) {
-                    launch { flashController.flashShort() }
+                    currentStep = ProgramExecutionStep.Executing(navSession, targetIndex)
                 }
-            }
-        }
-        if (remainingTime == 0) {
-            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 300)
-            if (isFlashEnabled) {
-                launch { flashController.flashComplete() }
-            }
-            delay(300L)
-            onComplete()
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // 現在の種目名
-        val (_, currentExercise) = session.exercises[currentSet.exerciseIndex]
-        Text(
-            text = currentExercise.name,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.padding(top = 8.dp)
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // 中央エリア
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            // 休憩表示
-            Text(
-                text = stringResource(R.string.interval_label),
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Cyan600
-            )
-
-            // 次のセット/種目表示
-            nextSet?.let { next ->
-                val (nextPe, nextExercise) = session.exercises[next.exerciseIndex]
-                val nextSideText = when (next.side) {
-                    "Right" -> stringResource(R.string.side_right)
-                    "Left" -> stringResource(R.string.side_left)
-                    else -> null
-                }
-
-                val isNextDifferentExercise = next.exerciseIndex != currentSet.exerciseIndex
-                if (isNextDifferentExercise) {
-                    Text(
-                        text = stringResource(R.string.next_exercise_label, nextExercise.name),
-                        fontSize = 18.sp,
-                        color = Slate300,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
-
-                Text(
-                    text = if (nextSideText != null) {
-                        stringResource(R.string.set_format_with_side, next.setNumber, nextPe.sets, nextSideText)
-                    } else {
-                        stringResource(R.string.set_format, next.setNumber, nextPe.sets)
-                    },
-                    fontSize = 18.sp,
-                    color = Slate300,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(48.dp))
-
-            // タイマー
-            ProgramCircularTimer(
-                progress = progress,
-                remainingTime = remainingTime,
-                color = Cyan600
-            )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // 一時停止/再開ボタン
-        Button(
-            onClick = { isRunning = !isRunning },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isRunning) Red600 else Green600
-            ),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text(
-                stringResource(if (isRunning) R.string.pause_button else R.string.resume_button),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 調整ボタン
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            IconButton(
-                onClick = { remainingTime = (remainingTime - 10).coerceAtLeast(0) }
-            ) {
-                Text("-", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = Color.White)
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Text(
-                text = stringResource(R.string.ten_seconds),
-                fontSize = 18.sp,
-                color = Color.White
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            IconButton(
-                onClick = { remainingTime += 10 }
-            ) {
-                Text("+", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = Color.White)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // スキップボタン
-        TextButton(onClick = onSkip) {
-            Text(
-                text = stringResource(R.string.skip_button),
-                color = Slate400
-            )
-        }
-    }
-}
-
-@Composable
-private fun ProgramResultStep(
-    session: ProgramExecutionSession,
-    onSave: () -> Unit,
-    onCancel: () -> Unit
-) {
-    var comment by remember { mutableStateOf(session.comment) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.workout_complete),
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // コメント入力
-        OutlinedTextField(
-            value = comment,
-            onValueChange = {
-                comment = it
-                session.comment = it
+                showNavigationSheet = false
             },
-            label = { Text(stringResource(R.string.comment_label)) },
-            modifier = Modifier.fillMaxWidth(),
-            maxLines = 3,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Orange600,
-                focusedLabelColor = Orange600
-            )
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 結果一覧
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            session.exercises.forEachIndexed { exerciseIndex, (_, exercise) ->
-                val setsForExercise = session.sets.filter { it.exerciseIndex == exerciseIndex }
-
-                // 種目名ヘッダー
-                item(key = "header-$exerciseIndex") {
-                    Text(
-                        text = exercise.name,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        modifier = Modifier.padding(top = if (exerciseIndex > 0) 8.dp else 0.dp)
-                    )
+            onFinish = {
+                // 結果画面に遷移（完了したセットのみ保存される）
+                isRedoMode = false
+                showNavigationSheet = false
+                currentStep = ProgramExecutionStep.Result(navSession)
+            },
+            onSaveAndExit = {
+                // 途中状態を保存してホームへ戻る
+                val savedState = SavedWorkoutState(context)
+                val currentIndex = when (val s = currentStep) {
+                    is ProgramExecutionStep.StartInterval -> s.currentSetIndex
+                    is ProgramExecutionStep.Executing -> s.currentSetIndex
+                    is ProgramExecutionStep.Interval -> s.currentSetIndex
+                    else -> 0
                 }
 
-                if (exercise.laterality == "Unilateral") {
-                    // 片側種目: セット番号でグループ化
-                    val groupedSets = setsForExercise.groupBy { it.setNumber }
-                    groupedSets.forEach { (setNumber, sets) ->
-                        val rightSet = sets.firstOrNull { it.side == "Right" }
-                        val leftSet = sets.firstOrNull { it.side == "Left" }
-
-                        item(key = "exercise-$exerciseIndex-set-$setNumber") {
-                            ProgramUnilateralSetItem(
-                                setNumber = setNumber,
-                                rightSet = rightSet,
-                                leftSet = leftSet,
-                                exerciseType = exercise.type
-                            )
-                        }
-                    }
+                // 既に保存された状態があるかチェック
+                if (savedState.hasSavedState()) {
+                    // 確認ダイアログを表示
+                    pendingSaveSession = navSession
+                    pendingSaveSetIndex = currentIndex
+                    showNavigationSheet = false
+                    showSaveOverwriteDialog = true
                 } else {
-                    // 両側種目
-                    setsForExercise.forEach { set ->
-                        item(key = "exercise-$exerciseIndex-set-${set.setNumber}") {
-                            ProgramBilateralSetItem(
-                                set = set,
-                                exerciseType = exercise.type
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 保存ボタン
-        Button(
-            onClick = onSave,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Orange600)
-        ) {
-            Text(
-                text = stringResource(R.string.record_workout),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        OutlinedButton(
-            onClick = onCancel,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.cancel))
-        }
-    }
-}
-
-// Program用 Unilateralセットアイテム（1行表示）
-@Composable
-private fun ProgramUnilateralSetItem(
-    setNumber: Int,
-    rightSet: ProgramWorkoutSet?,
-    leftSet: ProgramWorkoutSet?,
-    exerciseType: String
-) {
-    var rightValue by remember(rightSet) { mutableStateOf(rightSet?.actualValue?.toString() ?: "0") }
-    var leftValue by remember(leftSet) { mutableStateOf(leftSet?.actualValue?.toString() ?: "0") }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (rightSet?.isSkipped == true && leftSet?.isSkipped == true) Slate700 else Slate800
-        ),
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.set_label, setNumber),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-
-            if (rightSet?.isSkipped == true && leftSet?.isSkipped == true) {
-                Text(
-                    text = stringResource(R.string.skipped_label),
-                    fontSize = 12.sp,
-                    color = Slate400,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // 右側
-                Text(
-                    text = stringResource(R.string.right_colon),
-                    fontSize = 14.sp,
-                    color = Slate400,
-                    modifier = Modifier.width(30.dp)
-                )
-                OutlinedTextField(
-                    value = rightValue,
-                    onValueChange = { newValue ->
-                        if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
-                            rightValue = newValue
-                            newValue.toIntOrNull()?.let { rightSet?.actualValue = it }
-                        }
-                    },
-                    label = {
-                        Text(
-                            stringResource(if (exerciseType == "Dynamic") R.string.reps_input else R.string.seconds_input),
-                            fontSize = 12.sp
-                        )
-                    },
-                    modifier = Modifier.weight(1f),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                // 左側
-                Text(
-                    text = stringResource(R.string.left_colon),
-                    fontSize = 14.sp,
-                    color = Slate400,
-                    modifier = Modifier.width(30.dp)
-                )
-                OutlinedTextField(
-                    value = leftValue,
-                    onValueChange = { newValue ->
-                        if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
-                            leftValue = newValue
-                            newValue.toIntOrNull()?.let { leftSet?.actualValue = it }
-                        }
-                    },
-                    label = {
-                        Text(
-                            stringResource(if (exerciseType == "Dynamic") R.string.reps_input else R.string.seconds_input),
-                            fontSize = 12.sp
-                        )
-                    },
-                    modifier = Modifier.weight(1f),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
-            }
-        }
-    }
-}
-
-// Program用 Bilateralセットアイテム
-@Composable
-private fun ProgramBilateralSetItem(
-    set: ProgramWorkoutSet,
-    exerciseType: String
-) {
-    var value by remember(set) { mutableStateOf(set.actualValue.toString()) }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (set.isSkipped) Slate700 else Slate800
-        ),
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.set_label, set.setNumber),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-                if (set.isSkipped) {
-                    Text(
-                        text = stringResource(R.string.skipped_label),
-                        fontSize = 12.sp,
-                        color = Slate400
+                    // 直接保存
+                    savedState.save(
+                        programId = programId,
+                        currentSetIndex = currentIndex,
+                        sets = navSession.sets.toList(),
+                        comment = navSession.comment
                     )
+                    showNavigationSheet = false
+                    onNavigateBack()
                 }
+            },
+            onDiscard = {
+                // 確認ダイアログを表示（既存のダイアログを流用）
+                showNavigationSheet = false
+                showExitConfirmDialog = true
             }
-
-            OutlinedTextField(
-                value = value,
-                onValueChange = { newValue ->
-                    if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
-                        value = newValue
-                        newValue.toIntOrNull()?.let { set.actualValue = it }
-                    }
-                },
-                label = {
-                    Text(
-                        stringResource(if (exerciseType == "Dynamic") R.string.reps_input else R.string.seconds_input),
-                        fontSize = 12.sp
-                    )
-                },
-                modifier = Modifier.width(100.dp),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-        }
-    }
-}
-
-@Composable
-private fun ProgramCircularTimer(
-    progress: Float,
-    remainingTime: Int,
-    color: Color
-) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.size(240.dp)
-    ) {
-        Canvas(modifier = Modifier.size(240.dp)) {
-            drawArc(
-                color = Slate600,
-                startAngle = -90f,
-                sweepAngle = 360f,
-                useCenter = false,
-                style = Stroke(width = 20.dp.toPx(), cap = StrokeCap.Round)
-            )
-            drawArc(
-                color = color,
-                startAngle = -90f,
-                sweepAngle = 360f * progress,
-                useCenter = false,
-                style = Stroke(width = 20.dp.toPx(), cap = StrokeCap.Round)
-            )
-        }
-        Text(
-            text = "$remainingTime",
-            fontSize = 72.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            style = androidx.compose.ui.text.TextStyle(
-                shadow = androidx.compose.ui.graphics.Shadow(
-                    color = Color.Black.copy(alpha = 0.3f),
-                    offset = androidx.compose.ui.geometry.Offset(0f, 4f),
-                    blurRadius = 8f
-                )
-            )
         )
-    }
-}
-
-// 記録保存
-private fun saveProgramResults(
-    viewModel: TrainingViewModel,
-    session: ProgramExecutionSession
-) {
-    val date = LocalDate.now().toString()
-    val time = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
-
-    // 同じ種目がプログラム内で複数回出てくる場合、全セットをまとめて1回で保存
-    // 種目IDでグループ化
-    val groupedByExerciseId = session.exercises
-        .mapIndexed { index, pair -> index to pair }
-        .groupBy { (_, pair) -> pair.second.id }
-
-    groupedByExerciseId.forEach { (exerciseId, exerciseInfoList) ->
-        val exercise = exerciseInfoList.first().second.second
-
-        // この種目の全セット（プログラム内で複数回出てきても全て収集）
-        // isCompleted または isSkipped のセットを記録対象とする
-        val allSetsForExercise = exerciseInfoList.flatMap { (exerciseIndex, _) ->
-            session.sets.filter {
-                it.exerciseIndex == exerciseIndex && (it.isCompleted || it.isSkipped)
-            }
-        }
-
-        if (allSetsForExercise.isEmpty()) return@forEach
-
-        if (exercise.laterality == "Unilateral") {
-            // 片側種目: 右・左をまとめて記録
-            val rightSets = allSetsForExercise.filter { it.side == "Right" }
-            val leftSets = allSetsForExercise.filter { it.side == "Left" }
-
-            val valuesRight = rightSets.map { it.actualValue }
-            val valuesLeft = leftSets.map { it.actualValue }
-
-            if (valuesRight.isNotEmpty()) {
-                viewModel.addTrainingRecordsUnilateral(
-                    exerciseId = exerciseId,
-                    valuesRight = valuesRight,
-                    valuesLeft = valuesLeft,
-                    date = date,
-                    time = time,
-                    comment = session.comment
-                )
-            }
-        } else {
-            // 両側種目
-            val values = allSetsForExercise.map { it.actualValue }
-
-            if (values.isNotEmpty()) {
-                viewModel.addTrainingRecords(
-                    exerciseId = exerciseId,
-                    values = values,
-                    date = date,
-                    time = time,
-                    comment = session.comment
-                )
-            }
-        }
     }
 }

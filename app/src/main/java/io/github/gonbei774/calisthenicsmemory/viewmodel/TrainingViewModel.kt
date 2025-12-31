@@ -81,9 +81,9 @@ data class ExportRecord(
 @Serializable
 data class ExportProgram(
     val id: Long,
-    val name: String,
-    val timerMode: Boolean,
-    val startInterval: Int
+    val name: String
+    // timerMode/startIntervalはSharedPreferencesへ移行（v14）
+    // 旧JSONインポート時はignoreUnknownKeysで無視される
 )
 
 @Serializable
@@ -587,9 +587,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             val exportPrograms = currentPrograms.map { program ->
                 ExportProgram(
                     id = program.id,
-                    name = program.name,
-                    timerMode = program.timerMode,
-                    startInterval = program.startInterval
+                    name = program.name
                 )
             }
 
@@ -700,9 +698,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 backupData.programs.forEach { exportProgram ->
                     val program = Program(
                         id = exportProgram.id,
-                        name = exportProgram.name,
-                        timerMode = exportProgram.timerMode,
-                        startInterval = exportProgram.startInterval
+                        name = exportProgram.name
                     )
                     programDao.insert(program)
                 }
@@ -1330,18 +1326,10 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             initialValue = emptyList()
         )
 
-    fun createProgram(
-        name: String,
-        timerMode: Boolean = false,
-        startInterval: Int = 5
-    ) {
+    fun createProgram(name: String) {
         viewModelScope.launch {
             try {
-                val program = Program(
-                    name = name,
-                    timerMode = timerMode,
-                    startInterval = startInterval
-                )
+                val program = Program(name = name)
                 programDao.insert(program)
             } catch (e: Exception) {
                 _snackbarMessage.value = UiMessage.ErrorOccurred
@@ -1349,17 +1337,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    suspend fun createProgramAndGetId(
-        name: String,
-        timerMode: Boolean = false,
-        startInterval: Int = 5
-    ): Long? {
+    suspend fun createProgramAndGetId(name: String): Long? {
         return try {
-            val program = Program(
-                name = name,
-                timerMode = timerMode,
-                startInterval = startInterval
-            )
+            val program = Program(name = name)
             programDao.insert(program)
         } catch (e: Exception) {
             _snackbarMessage.value = UiMessage.ErrorOccurred
@@ -1392,11 +1372,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 val sourceExercises = programExerciseDao.getExercisesForProgramSync(programId)
 
                 // Create new program with copy suffix
-                val newProgram = Program(
-                    name = "${sourceProgram.name} $copySuffix",
-                    timerMode = sourceProgram.timerMode,
-                    startInterval = sourceProgram.startInterval
-                )
+                val newProgram = Program(name = "${sourceProgram.name} $copySuffix")
                 val newProgramId = programDao.insert(newProgram)
 
                 // Copy all exercises

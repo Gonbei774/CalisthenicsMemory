@@ -231,6 +231,7 @@
     <string name="pause_button">Pause</string>
     <string name="resume_button">Reprendre</string>
     <string name="stop_button">Arrêter</string>
+    <string name="retry_set_button">Recommencer la série</string>
     <string name="interval_label">Repos</string>
     <string name="next_set_format">Suivant : Série %1$d/%2$d</string>
     <string name="next_set_format_with_side">Suivant : Série %1$d/%2$d - %3$s</string>
@@ -523,6 +524,9 @@
     <string name="program_interval_format">Repos %ds</string>
     <string name="delete_program">Supprimer le programme</string>
     <string name="delete_program_warning">Supprimer \"%s\" ?</string>
+    <string name="duplicate_program">Dupliquer</string>
+    <string name="program_duplicated">Programme dupliqué</string>
+    <string name="program_copy_suffix">(Copie)</string>
     <string name="discard_changes_title">Abandonner les modifications ?</string>
     <string name="discard_changes_message">Vous avez des modifications non enregistrées. Voulez-vous vraiment les abandonner ?</string>
     <string name="discard">Abandonner</string>
@@ -532,11 +536,85 @@
     <string name="target_value_label">Objectif</string>
     <string name="interval_seconds_label">Durée du repos (sec.)</string>
     <string name="program_start">Démarrer</string>
+    <string name="exercise_settings">Paramètres de l\'exercice</string>
+    <string name="sets_label">Séries</string>
+    <string name="get_ready">Préparez-vous</string>
+    <string name="executing_label">En cours</string>
+    <string name="complete_button">Terminer</string>
+    <string name="abort_button">Abandonner</string>
     <string name="program_use_program">Programme</string>
     <string name="program_use_challenge">Exercice</string>
+    <string name="program_use_previous">Précédent</string>
     <string name="program_use_all_program">Tout Programme</string>
     <string name="program_use_all_challenge">Tout Défi</string>
     <string name="program_previous_value">Utilisation de la valeur précédente</string>
     <string name="next_exercise_label">Suivant : %s</string>
     <string name="program_set_label">Série %d :</string>
+
+    <!-- Exit Workout Confirmation -->
+    <string name="exit_workout_title">Quitter l\'entraînement ?</string>
+    <string name="exit_workout_message">La progression ne sera pas sauvegardée.</string>
+    <string name="exit_workout_confirm">Quitter</string>
+
+    <!-- Missing keys -->
+    <string name="interval_short">Repos:</string>
+    <string name="sets_label_short">Séries:</string>
+    <string name="unit_seconds_short">s</string>
+    <string name="new_program">Nouveau programme</string>
+    <string name="single_mode">Individuel</string>
+    <string name="single_mode_description">Un exercice à la fois</string>
+    <string name="start_countdown">Compte à rebours de départ</string>
+    <string name="timer_on">ON</string>
+    <string name="timer_off">OFF</string>
+    <string name="timer_mode_on_description">Compte à rebours auto pendant l\'exercice</string>
+    <string name="timer_mode_off_description">Bouton de validation manuel</string>
+    <string name="workout_mode_selection">Sélectionner le mode</string>
+    <string name="record_weight_for_graph">Enregistrer le poids pour cet exercice</string>
+    <string name="complete_with_reps">✓ Terminer (%d reps)</string>
+    <string name="target_reps_format">Objectif : %d reps</string>
+    <string name="paused_label">En pause</string>
+    <string name="elapsed_target_format">Écoulé : %1$ds / Objectif : %2$ds</string>
+    <string name="complete_with_time">✓ Terminer (%ds)</string>
+    <string name="previous_value_format">Précédent : %d</string>
+    <string name="reps_unit">reps</string>
+    <string name="program_result_zero_warning">Des séries avec une valeur de 0 existent. Les séries à zéro pour les exercices bilatéraux, et les séries où les deux côtés sont à 0 pour les exercices unilatéraux, ne seront pas enregistrées.</string>
+
+    <!-- Sound Settings (Program Confirm) -->
+    <string name="sound_settings_section">Paramètres sonores</string>
+    <string name="dynamic_count_sound_label">Son de comptage</string>
+    <string name="dynamic_count_sound_description">Exercices dynamiques</string>
+    <string name="isometric_interval_sound_label">Notification d\'intervalle</string>
+    <string name="isometric_interval_sound_description">Exercices isométriques</string>
+    <string name="interval_seconds_short">%d sec</string>
+
+    <!-- Auto Mode -->
+    <string name="auto_mode_label">Mode auto</string>
+    <string name="auto_mode">Mode auto</string>
+    <string name="auto_mode_description">Bouton de validation manuel</string>
+    <string name="auto_mode_disabled_hint">Nécessite le son de comptage activé</string>
+
+    <!-- Program Settings -->
+    <string name="all_exercises_label">Tous les exercices</string>
+    <string name="all_sets_label">Toutes les séries</string>
+    <string name="auto_fill_target_label">Remplir auto les valeurs cibles</string>
+    <string name="program_estimated_time">~%d min</string>
+
+    <!-- Navigation Sheet (Program Execution) -->
+    <string name="nav_program_overview">Aperçu du programme</string>
+    <string name="nav_overall_progress">Progression globale</string>
+    <string name="nav_sets_format">%1$d / %2$d séries</string>
+    <string name="nav_done">Fait</string>
+    <string name="nav_current">Actuel</string>
+    <string name="nav_redo">Refaire</string>
+    <string name="nav_jump">Aller à</string>
+    <string name="nav_finish">Terminer</string>
+    <string name="nav_save_and_exit">Sauvegarder et Quitter</string>
+    <string name="nav_save_overwrite_title">Écraser l\'entraînement sauvegardé ?</string>
+    <string name="nav_save_overwrite_message">Un seul entraînement peut être sauvegardé à la fois. L\'entraînement précédent sera écrasé.</string>
+    <string name="nav_discard">Abandonner</string>
+    <string name="nav_resume">Reprendre</string>
+    <string name="nav_target">Objectif</string>
+    <string name="nav_skipped">Sauté</string>
+    <string name="nav_type_dynamic_short">Dyn</string>
+    <string name="nav_type_isometric_short">Iso</string>
 </resources>

@@ -2,11 +2,16 @@ package io.github.gonbei774.calisthenicsmemory.ui.screens
 
 import android.media.ToneGenerator
 import android.media.AudioManager
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,7 +25,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
@@ -40,6 +47,7 @@ import android.view.WindowManager
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
 import io.github.gonbei774.calisthenicsmemory.service.WorkoutTimerService
+import io.github.gonbei774.calisthenicsmemory.ui.components.single.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -53,7 +61,8 @@ data class WorkoutSet(
     val targetValue: Int, // 目標値
     var actualValue: Int = 0, // 実際の値
     var isCompleted: Boolean = false,
-    var isSkipped: Boolean = false
+    var isSkipped: Boolean = false,
+    val previousValue: Int? = null // 前回値（参考用）
 )
 
 // ワークアウトセッションのデータ
@@ -67,7 +76,9 @@ data class WorkoutSession(
     val sets: MutableList<WorkoutSet>,
     var comment: String = "",
     val distanceCm: Int? = null, // 距離（cm）
-    val weightG: Int? = null // 追加ウエイト（g）
+    val weightG: Int? = null, // 追加ウエイト（g）
+    val isAutoMode: Boolean = true, // 自動モード（目標達成時に自動遷移）
+    val isDynamicCountSoundEnabled: Boolean = true // レップカウント音有効
 )
 
 // ワークアウト画面の状態
@@ -131,6 +142,25 @@ fun WorkoutScreen(
     // ワークアウトモードのコメント文字列
     val workoutModeComment = stringResource(R.string.workout_mode_comment)
 
+    // 中断確認ダイアログ
+    var showExitConfirmDialog by remember { mutableStateOf(false) }
+
+    // やり直しボタン用のキー（インクリメントで実行ステップをリセット）
+    var retryKey by remember { mutableIntStateOf(0) }
+
+    // 戻るボタンのハンドリング
+    BackHandler {
+        when (currentStep) {
+            is WorkoutStep.ModeSelection,
+            is WorkoutStep.ExerciseSelection,
+            is WorkoutStep.Settings -> onNavigateBack()
+            else -> {
+                // 実行中・完了画面は確認ダイアログを表示
+                showExitConfirmDialog = true
+            }
+        }
+    }
+
     // ワークアウト実行中（タイマーが動いている間）のみForeground Serviceを起動
     LaunchedEffect(currentStep) {
         when (currentStep) {
@@ -186,7 +216,14 @@ fun WorkoutScreen(
                         .padding(horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = {
+                        when (currentStep) {
+                            is WorkoutStep.ModeSelection,
+                            is WorkoutStep.ExerciseSelection,
+                            is WorkoutStep.Settings -> onNavigateBack()
+                            else -> showExitConfirmDialog = true
+                        }
+                    }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back),
@@ -245,6 +282,7 @@ fun WorkoutScreen(
                 is WorkoutStep.StartInterval -> {
                     StartIntervalStep(
                         session = step.session,
+                        currentSetIndex = step.currentSetIndex,
                         toneGenerator = toneGenerator,
                         flashController = flashController,
                         isFlashEnabled = isFlashEnabled,
@@ -257,39 +295,120 @@ fun WorkoutScreen(
                     )
                 }
                 is WorkoutStep.Executing -> {
-                    ExecutingStep(
-                        session = step.session,
-                        currentSetIndex = step.currentSetIndex,
-                        toneGenerator = toneGenerator,
-                        flashController = flashController,
-                        isFlashEnabled = isFlashEnabled,
-                        onSetComplete = { updatedSession ->
-                            val nextIndex = step.currentSetIndex + 1
-                            currentStep = if (nextIndex < updatedSession.sets.size) {
-                                WorkoutStep.Interval(updatedSession, nextIndex)
-                            } else {
-                                WorkoutStep.Confirmation(updatedSession)
-                            }
-                        },
-                        onSkip = { updatedSession ->
-                            // actualValueとisSkippedは既にExecutingStep内で設定済み
-                            val nextIndex = step.currentSetIndex + 1
-                            currentStep = if (nextIndex < updatedSession.sets.size) {
-                                WorkoutStep.Interval(updatedSession, nextIndex)
-                            } else {
-                                WorkoutStep.Confirmation(updatedSession)
-                            }
-                        },
-                        onAbort = { updatedSession ->
-                            // 現在のセットは既にExecutingStep内で途中までの記録を保存済み
-                            // 次のセット以降を全てスキップ扱いにする
-                            for (i in step.currentSetIndex + 1 until updatedSession.sets.size) {
-                                updatedSession.sets[i].isSkipped = true
-                                updatedSession.sets[i].actualValue = 0
-                            }
-                            currentStep = WorkoutStep.Confirmation(updatedSession)
+                    // 設定に基づいて適切なExecutingコンポーネントを選択
+                    val exercise = step.session.exercise
+                    val onSetComplete: (WorkoutSession) -> Unit = { updatedSession ->
+                        val nextIndex = step.currentSetIndex + 1
+                        currentStep = if (nextIndex < updatedSession.sets.size) {
+                            WorkoutStep.Interval(updatedSession, nextIndex)
+                        } else {
+                            WorkoutStep.Confirmation(updatedSession)
                         }
-                    )
+                    }
+                    val onSkip: (WorkoutSession) -> Unit = { updatedSession ->
+                        val nextIndex = step.currentSetIndex + 1
+                        currentStep = if (nextIndex < updatedSession.sets.size) {
+                            WorkoutStep.Interval(updatedSession, nextIndex)
+                        } else {
+                            WorkoutStep.Confirmation(updatedSession)
+                        }
+                    }
+                    val onAbort: (WorkoutSession) -> Unit = { updatedSession ->
+                        for (i in step.currentSetIndex + 1 until updatedSession.sets.size) {
+                            updatedSession.sets[i].isSkipped = true
+                            updatedSession.sets[i].actualValue = 0
+                        }
+                        currentStep = WorkoutStep.Confirmation(updatedSession)
+                    }
+                    val onRetry: () -> Unit = {
+                        if (step.session.startInterval > 0) {
+                            currentStep = WorkoutStep.StartInterval(step.session, step.currentSetIndex)
+                        } else {
+                            retryKey++
+                        }
+                    }
+
+                    // key()でラップしてretryKeyの変更でリセット可能に
+                    key(retryKey) {
+                        when {
+                            // Isometric + AutoMode
+                            exercise.type == "Isometric" && step.session.isAutoMode -> {
+                                SingleExecutingStepIsometricAuto(
+                                    session = step.session,
+                                    currentSetIndex = step.currentSetIndex,
+                                    toneGenerator = toneGenerator,
+                                    flashController = flashController,
+                                    isFlashEnabled = isFlashEnabled,
+                                    isIntervalSoundEnabled = workoutPreferences.isIsometricIntervalSoundEnabled(),
+                                    intervalSeconds = workoutPreferences.getIsometricIntervalSeconds(),
+                                    onSetComplete = onSetComplete,
+                                    onSkip = onSkip,
+                                    onAbort = onAbort,
+                                    onRetry = onRetry
+                                )
+                            }
+                            // Isometric + ManualMode
+                            exercise.type == "Isometric" && !step.session.isAutoMode -> {
+                                SingleExecutingStepIsometricManual(
+                                    session = step.session,
+                                    currentSetIndex = step.currentSetIndex,
+                                    toneGenerator = toneGenerator,
+                                    flashController = flashController,
+                                    isFlashEnabled = isFlashEnabled,
+                                    isIntervalSoundEnabled = workoutPreferences.isIsometricIntervalSoundEnabled(),
+                                    intervalSeconds = workoutPreferences.getIsometricIntervalSeconds(),
+                                    onSetComplete = onSetComplete,
+                                    onSkip = onSkip,
+                                    onAbort = onAbort,
+                                    onRetry = onRetry
+                                )
+                            }
+                            // Dynamic + CountSound OFF → Simple
+                            exercise.type == "Dynamic" && !step.session.isDynamicCountSoundEnabled -> {
+                                SingleExecutingStepDynamicSimple(
+                                    session = step.session,
+                                    currentSetIndex = step.currentSetIndex,
+                                    toneGenerator = toneGenerator,
+                                    flashController = flashController,
+                                    isFlashEnabled = isFlashEnabled,
+                                    onSetComplete = onSetComplete,
+                                    onSkip = onSkip,
+                                    onAbort = onAbort,
+                                    onRetry = onRetry
+                                )
+                            }
+                            // Dynamic + AutoMode
+                            exercise.type == "Dynamic" && step.session.isAutoMode -> {
+                                SingleExecutingStepDynamicAuto(
+                                    session = step.session,
+                                    currentSetIndex = step.currentSetIndex,
+                                    toneGenerator = toneGenerator,
+                                    flashController = flashController,
+                                    isFlashEnabled = isFlashEnabled,
+                                    isCountSoundEnabled = step.session.isDynamicCountSoundEnabled,
+                                    onSetComplete = onSetComplete,
+                                    onSkip = onSkip,
+                                    onAbort = onAbort,
+                                    onRetry = onRetry
+                                )
+                            }
+                            // Dynamic + ManualMode (default)
+                            else -> {
+                                SingleExecutingStepDynamicManual(
+                                    session = step.session,
+                                    currentSetIndex = step.currentSetIndex,
+                                    toneGenerator = toneGenerator,
+                                    flashController = flashController,
+                                    isFlashEnabled = isFlashEnabled,
+                                    isCountSoundEnabled = step.session.isDynamicCountSoundEnabled,
+                                    onSetComplete = onSetComplete,
+                                    onSkip = onSkip,
+                                    onAbort = onAbort,
+                                    onRetry = onRetry
+                                )
+                            }
+                        }
+                    }
                 }
                 is WorkoutStep.Interval -> {
                     IntervalStep(
@@ -342,6 +461,30 @@ fun WorkoutScreen(
                 }
             }
         }
+    }
+
+    // 中断確認ダイアログ
+    if (showExitConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitConfirmDialog = false },
+            title = { Text(stringResource(R.string.exit_workout_title)) },
+            text = { Text(stringResource(R.string.exit_workout_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showExitConfirmDialog = false
+                        onNavigateBack()
+                    }
+                ) {
+                    Text(stringResource(R.string.exit_workout_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExitConfirmDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 }
 
@@ -589,7 +732,15 @@ fun SettingsStep(
 
     var sets by remember { mutableStateOf("") }
     var targetValue by remember { mutableStateOf("") }
-    var repDuration by remember { mutableStateOf("") }
+    var repDuration by remember {
+        mutableStateOf(
+            if (exercise.type == "Dynamic" && exercise.repDuration != null) {
+                exercise.repDuration.toString()
+            } else {
+                ""
+            }
+        )
+    }
     var startInterval by remember {
         mutableStateOf(
             if (workoutPrefs.isStartCountdownEnabled()) {
@@ -614,27 +765,40 @@ fun SettingsStep(
     var distanceInput by remember { mutableStateOf("") }
     var weightInput by remember { mutableStateOf("") }
 
+    // 実行設定（WorkoutPreferencesと連動）
+    // Isometricはデフォルトでタイマーオフ（手動完了）、Dynamicはオン（既存ユーザー体験維持）
+    var isAutoMode by remember {
+        mutableStateOf(
+            if (exercise.type == "Isometric") false else workoutPrefs.isAutoMode()
+        )
+    }
+    var isDynamicCountSoundEnabled by remember { mutableStateOf(workoutPrefs.isDynamicCountSoundEnabled()) }
+    var isIsometricIntervalSoundEnabled by remember { mutableStateOf(workoutPrefs.isIsometricIntervalSoundEnabled()) }
+    var isometricIntervalSeconds by remember { mutableIntStateOf(workoutPrefs.getIsometricIntervalSeconds()) }
+
+    // 前回セッションデータ（前回値表示用）
+    var previousSessionRecords by remember { mutableStateOf<List<io.github.gonbei774.calisthenicsmemory.data.TrainingRecord>>(emptyList()) }
+
     // プリフィル：前回セッションのデータを取得
     LaunchedEffect(exercise.id) {
-        if (workoutPrefs.isPrefillPreviousRecordEnabled()) {
-            val previousSession = viewModel.getLatestSession(exercise.id)
-            if (previousSession.isNotEmpty()) {
-                // セット数をプリフィル
-                sets = previousSession.size.toString()
-                // 目標値（前回値の最大値）をプリフィル
-                val maxValue = previousSession.maxOf { it.valueRight }
-                targetValue = maxValue.toString()
-                // 距離をプリフィル（トラッキング有効時）
-                if (exercise.distanceTrackingEnabled) {
-                    previousSession.firstOrNull()?.distanceCm?.let {
-                        distanceInput = it.toString()
-                    }
+        val prevSession = viewModel.getLatestSession(exercise.id)
+        previousSessionRecords = prevSession
+        if (workoutPrefs.isPrefillPreviousRecordEnabled() && prevSession.isNotEmpty()) {
+            // セット数をプリフィル
+            sets = prevSession.size.toString()
+            // 目標値（前回値の最大値）をプリフィル
+            val maxValue = prevSession.maxOf { it.valueRight }
+            targetValue = maxValue.toString()
+            // 距離をプリフィル（トラッキング有効時）
+            if (exercise.distanceTrackingEnabled) {
+                prevSession.firstOrNull()?.distanceCm?.let {
+                    distanceInput = it.toString()
                 }
-                // 荷重をプリフィル（トラッキング有効時）
-                if (exercise.weightTrackingEnabled) {
-                    previousSession.firstOrNull()?.weightG?.let {
-                        weightInput = (it / 1000.0).toString()
-                    }
+            }
+            // 荷重をプリフィル（トラッキング有効時）
+            if (exercise.weightTrackingEnabled) {
+                prevSession.firstOrNull()?.weightG?.let {
+                    weightInput = (it / 1000.0).toString()
                 }
             }
         }
@@ -660,7 +824,77 @@ fun SettingsStep(
             color = Slate400
         )
 
+        // 実行設定セクション（上部に配置）
+        SingleWorkoutSettingsSection(
+            isAutoMode = isAutoMode,
+            isDynamicCountSoundEnabled = isDynamicCountSoundEnabled,
+            isIsometricIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
+            isometricIntervalSeconds = isometricIntervalSeconds,
+            isDynamicExercise = exercise.type == "Dynamic",
+            onAutoModeChange = { value ->
+                isAutoMode = value
+                workoutPrefs.setAutoMode(value)
+            },
+            onDynamicCountSoundChange = { value ->
+                isDynamicCountSoundEnabled = value
+                workoutPrefs.setDynamicCountSoundEnabled(value)
+            },
+            onIsometricIntervalSoundChange = { value ->
+                isIsometricIntervalSoundEnabled = value
+                workoutPrefs.setIsometricIntervalSoundEnabled(value)
+            },
+            onIsometricIntervalSecondsChange = { value ->
+                isometricIntervalSeconds = value
+                workoutPrefs.setIsometricIntervalSeconds(value)
+            }
+        )
+
         Spacer(modifier = Modifier.height(8.dp))
+
+        // 種目設定を適用ボタン
+        Button(
+            onClick = {
+                // セット数を反映
+                if (exercise.targetSets != null) {
+                    sets = exercise.targetSets.toString()
+                }
+                // 目標値を反映
+                if (exercise.targetValue != null) {
+                    targetValue = exercise.targetValue.toString()
+                }
+                // 1レップ時間を反映（Dynamic種目のみ）
+                if (exercise.type == "Dynamic" && exercise.repDuration != null) {
+                    repDuration = exercise.repDuration.toString()
+                }
+                // 休憩時間を反映（種目設定がある場合のみ）
+                if (exercise.restInterval != null) {
+                    interval = exercise.restInterval.toString()
+                }
+                // 種目設定がない場合はユーザー入力を保持
+                // 開始カウントダウンは種目設定がないため、ここでは何もしない
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Orange600
+            ),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(R.string.apply_exercise_settings),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = sets,
@@ -691,7 +925,11 @@ fun SettingsStep(
         if (exercise.type == "Dynamic") {
             OutlinedTextField(
                 value = repDuration,
-                onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) repDuration = it },
+                onValueChange = {
+                    if (it.isEmpty() || (it.all { c -> c.isDigit() } && it.toIntOrNull()?.let { num -> num in 1..60 } == true)) {
+                        repDuration = it
+                    }
+                },
                 label = { Text(stringResource(R.string.rep_duration_label)) },
                 placeholder = { Text("5", color = Slate400) },
                 modifier = Modifier.fillMaxWidth(),
@@ -788,55 +1026,10 @@ fun SettingsStep(
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 種目設定を適用ボタン
-        Button(
-            onClick = {
-                // セット数を反映
-                if (exercise.targetSets != null) {
-                    sets = exercise.targetSets.toString()
-                }
-                // 目標値を反映
-                if (exercise.targetValue != null) {
-                    targetValue = exercise.targetValue.toString()
-                }
-                // 1レップ時間を反映（Dynamic種目のみ）
-                if (exercise.type == "Dynamic" && exercise.repDuration != null) {
-                    repDuration = exercise.repDuration.toString()
-                }
-                // 休憩時間を反映（種目設定がある場合のみ）
-                if (exercise.restInterval != null) {
-                    interval = exercise.restInterval.toString()
-                }
-                // 種目設定がない場合はユーザー入力を保持
-                // 開始カウントダウンは種目設定がないため、ここでは何もしない
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Orange600
-            ),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = stringResource(R.string.apply_exercise_settings),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
         Spacer(modifier = Modifier.height(24.dp))
 
         val isValid = sets.isNotEmpty() && targetValue.isNotEmpty() &&
-                (exercise.type != "Dynamic" || repDuration.isNotEmpty())
+                (exercise.type != "Dynamic" || repDuration.toIntOrNull()?.let { it >= 1 } == true)
 
         Button(
             onClick = {
@@ -849,12 +1042,16 @@ fun SettingsStep(
                 val workoutSets = mutableListOf<WorkoutSet>()
                 if (exercise.laterality == "Unilateral") {
                     for (i in 1..totalSets) {
-                        workoutSets.add(WorkoutSet(i, "Right", target))
-                        workoutSets.add(WorkoutSet(i, "Left", target))
+                        // 前回セッションからこのセット番号のレコードを探す
+                        val prevRecord = previousSessionRecords.find { it.setNumber == i }
+                        workoutSets.add(WorkoutSet(i, "Right", target, previousValue = prevRecord?.valueRight))
+                        workoutSets.add(WorkoutSet(i, "Left", target, previousValue = prevRecord?.valueLeft))
                     }
                 } else {
                     for (i in 1..totalSets) {
-                        workoutSets.add(WorkoutSet(i, null, target))
+                        // 前回セッションからこのセット番号のレコードを探す
+                        val prevRecord = previousSessionRecords.find { it.setNumber == i }
+                        workoutSets.add(WorkoutSet(i, null, target, previousValue = prevRecord?.valueRight))
                     }
                 }
 
@@ -872,7 +1069,9 @@ fun SettingsStep(
                     intervalDuration = inter,
                     sets = workoutSets,
                     distanceCm = distanceCm,
-                    weightG = weightG
+                    weightG = weightG,
+                    isAutoMode = isAutoMode,
+                    isDynamicCountSoundEnabled = isDynamicCountSoundEnabled
                 )
                 onStartWorkout(session)
             },
@@ -898,6 +1097,7 @@ fun SettingsStep(
 @Composable
 fun StartIntervalStep(
     session: WorkoutSession,
+    currentSetIndex: Int,
     toneGenerator: ToneGenerator,
     flashController: FlashController,
     isFlashEnabled: Boolean,
@@ -966,6 +1166,9 @@ fun StartIntervalStep(
                 color = Orange600
             )
         }
+
+        // 次のセット情報
+        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -1179,6 +1382,9 @@ fun ExecutingStep(
                 )
             }
         }
+
+        // 次のセット情報
+        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -1402,13 +1608,11 @@ fun IntervalStep(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = onSkip,
-            colors = ButtonDefaults.buttonColors(containerColor = Slate600),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.skip_button))
+        TextButton(onClick = onSkip) {
+            Text(
+                text = stringResource(R.string.skip_button),
+                color = Slate400
+            )
         }
     }
 }
@@ -1432,6 +1636,21 @@ fun ConfirmationStep(
             }
         } else {
             emptyList()
+        }
+    }
+
+    // 0のセットがあるかチェック
+    val hasZeroSets = remember(session.sets) {
+        if (session.exercise.laterality == "Unilateral") {
+            // 片側種目: 両方0のセットがあるか
+            session.sets.groupBy { it.setNumber }.any { (_, sets) ->
+                val rightValue = sets.firstOrNull { it.side == "Right" }?.actualValue ?: 0
+                val leftValue = sets.firstOrNull { it.side == "Left" }?.actualValue ?: 0
+                rightValue == 0 && leftValue == 0
+            }
+        } else {
+            // 両側種目: 0のセットがあるか
+            session.sets.any { it.actualValue == 0 }
         }
     }
 
@@ -1501,6 +1720,23 @@ fun ConfirmationStep(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // 0セット警告
+        if (hasZeroSets) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                colors = CardDefaults.cardColors(containerColor = Amber600.copy(alpha = 0.2f))
+            ) {
+                Text(
+                    text = stringResource(R.string.program_result_zero_warning),
+                    fontSize = 14.sp,
+                    color = Amber500,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+        }
+
         Button(
             onClick = {
                 session.comment = comment
@@ -1549,12 +1785,32 @@ fun UnilateralSetItem(
                 .fillMaxWidth()
                 .padding(12.dp)
         ) {
-            Text(
-                text = stringResource(R.string.set_label, setNumber),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.set_label, setNumber),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+
+                // 前回値表示（右/左）
+                val prevRight = rightSet?.previousValue
+                val prevLeft = leftSet?.previousValue
+                if (prevRight != null || prevLeft != null) {
+                    Text(
+                        text = stringResource(
+                            R.string.previous_value_format,
+                            "${prevRight ?: "-"}/${prevLeft ?: "-"}"
+                        ),
+                        fontSize = 12.sp,
+                        color = Slate500
+                    )
+                }
+            }
 
             if (rightSet?.isSkipped == true && leftSet?.isSkipped == true) {
                 Text(
@@ -1666,6 +1922,14 @@ fun BilateralSetItem(
                         color = Slate400
                     )
                 }
+                // 前回値表示
+                set.previousValue?.let { prev ->
+                    Text(
+                        text = stringResource(R.string.previous_value_format, prev),
+                        fontSize = 12.sp,
+                        color = Slate500
+                    )
+                }
             }
 
             OutlinedTextField(
@@ -1737,6 +2001,38 @@ fun saveWorkoutRecords(
     }
 }
 
+// 次のセット情報を表示するコンポーザブル（シングルモード用）
+@Composable
+fun NextSetInfo(
+    session: WorkoutSession,
+    currentSetIndex: Int
+) {
+    val nextSetIndex = currentSetIndex + 1
+    val nextSet = session.sets.getOrNull(nextSetIndex) ?: return
+
+    val nextSideText = when (nextSet.side) {
+        "Right" -> stringResource(R.string.side_right)
+        "Left" -> stringResource(R.string.side_left)
+        else -> null
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(vertical = 8.dp)
+    ) {
+        // 次のセット情報
+        Text(
+            text = if (nextSideText != null) {
+                stringResource(R.string.next_set_format_with_side, nextSet.setNumber, session.totalSets, nextSideText)
+            } else {
+                stringResource(R.string.next_set_format, nextSet.setNumber, session.totalSets)
+            },
+            fontSize = 16.sp,
+            color = Slate400
+        )
+    }
+}
+
 // ピピピ、ピピピ、ピピピ（3連×3セット）のビープ音を再生
 suspend fun playTripleBeepTwice(toneGenerator: ToneGenerator) {
     // 3セット繰り返す
@@ -1749,6 +2045,230 @@ suspend fun playTripleBeepTwice(toneGenerator: ToneGenerator) {
         // 最後のセット以外は間隔を入れる
         if (setIndex < 2) {
             delay(150L) // セット間の間隔
+        }
+    }
+}
+
+// シングルワークアウト設定セクション
+@Composable
+fun SingleWorkoutSettingsSection(
+    isAutoMode: Boolean,
+    isDynamicCountSoundEnabled: Boolean,
+    isIsometricIntervalSoundEnabled: Boolean,
+    isometricIntervalSeconds: Int,
+    isDynamicExercise: Boolean,
+    onAutoModeChange: (Boolean) -> Unit,
+    onDynamicCountSoundChange: (Boolean) -> Unit,
+    onIsometricIntervalSoundChange: (Boolean) -> Unit,
+    onIsometricIntervalSecondsChange: (Int) -> Unit
+) {
+    // ローカル状態（間隔秒数入力用）
+    var intervalText by remember(isometricIntervalSeconds) { mutableStateOf(isometricIntervalSeconds.toString()) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, Slate700, RoundedCornerShape(12.dp))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.settings),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = Slate300
+        )
+
+        if (isDynamicExercise) {
+            // ダイナミック種目: 数え上げ音を先に表示
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = stringResource(R.string.dynamic_count_sound_label),
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
+                    Text(
+                        text = stringResource(R.string.dynamic_count_sound_description),
+                        fontSize = 11.sp,
+                        color = Slate400
+                    )
+                }
+                Switch(
+                    checked = isDynamicCountSoundEnabled,
+                    onCheckedChange = onDynamicCountSoundChange,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = Orange600,
+                        uncheckedThumbColor = Color.White,
+                        uncheckedTrackColor = Slate500
+                    )
+                )
+            }
+
+            // タイマーモード（Count Sound OFFの時は無効化）
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = stringResource(R.string.auto_mode),
+                        fontSize = 14.sp,
+                        color = if (isDynamicCountSoundEnabled) Color.White else Slate500
+                    )
+                    Text(
+                        text = if (isDynamicCountSoundEnabled) {
+                            stringResource(R.string.auto_mode_description)
+                        } else {
+                            stringResource(R.string.auto_mode_disabled_hint)
+                        },
+                        fontSize = 11.sp,
+                        color = if (isDynamicCountSoundEnabled) Slate400 else Slate600
+                    )
+                }
+                Switch(
+                    checked = isAutoMode && isDynamicCountSoundEnabled,
+                    onCheckedChange = onAutoModeChange,
+                    enabled = isDynamicCountSoundEnabled,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = Orange600,
+                        uncheckedThumbColor = Color.White,
+                        uncheckedTrackColor = Slate500,
+                        disabledCheckedThumbColor = Slate400,
+                        disabledCheckedTrackColor = Slate600,
+                        disabledUncheckedThumbColor = Slate400,
+                        disabledUncheckedTrackColor = Slate600
+                    )
+                )
+            }
+        } else {
+            // アイソメトリック種目: タイマーモード
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = stringResource(R.string.auto_mode),
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
+                    Text(
+                        text = stringResource(R.string.auto_mode_description),
+                        fontSize = 11.sp,
+                        color = Slate400
+                    )
+                }
+                Switch(
+                    checked = isAutoMode,
+                    onCheckedChange = onAutoModeChange,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = Orange600,
+                        uncheckedThumbColor = Color.White,
+                        uncheckedTrackColor = Slate500
+                    )
+                )
+            }
+
+            // アイソメトリック種目: 間隔通知音（秒数入力付き）
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.isometric_interval_sound_label),
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
+                    Text(
+                        text = stringResource(R.string.isometric_interval_sound_description),
+                        fontSize = 11.sp,
+                        color = Slate400
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(40.dp)
+                            .height(28.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        BasicTextField(
+                            value = intervalText,
+                            onValueChange = { newValue ->
+                                if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
+                                    intervalText = newValue
+                                    newValue.toIntOrNull()?.let { onIsometricIntervalSecondsChange(it) }
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            textStyle = androidx.compose.ui.text.TextStyle(
+                                fontSize = 14.sp,
+                                textAlign = TextAlign.Center,
+                                color = Color.White
+                            ),
+                            decorationBox = { innerTextField ->
+                                Column {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .weight(1f),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        innerTextField()
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(1.dp)
+                                            .padding(horizontal = 2.dp)
+                                            .then(Modifier.drawBehind {
+                                                drawLine(
+                                                    color = Slate400,
+                                                    start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                                                    end = androidx.compose.ui.geometry.Offset(size.width, 0f),
+                                                    strokeWidth = 1.dp.toPx()
+                                                )
+                                            })
+                                    )
+                                }
+                            }
+                        )
+                    }
+                    Text(
+                        text = stringResource(R.string.unit_seconds_short),
+                        fontSize = 12.sp,
+                        color = Slate400
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Switch(
+                        checked = isIsometricIntervalSoundEnabled,
+                        onCheckedChange = onIsometricIntervalSoundChange,
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = Orange600,
+                            uncheckedThumbColor = Color.White,
+                            uncheckedTrackColor = Slate500
+                        )
+                    )
+                }
+            }
         }
     }
 }

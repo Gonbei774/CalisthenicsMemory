@@ -7,7 +7,5 @@ import androidx.room.PrimaryKey
 data class Program(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val name: String,
-    val timerMode: Boolean = false,    // true=ON, false=OFF
-    val startInterval: Int = 5         // 開始カウントダウン（秒）
+    val name: String
 )

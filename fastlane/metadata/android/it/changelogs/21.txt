@@ -1,0 +1,2 @@
+• Navigazione modalità programma: Salva ed esci, Vai all'esercizio, Rifai serie, Termina prima
+• Schermata di conferma programma: Visualizzazione valori precedenti, UI comprimibile, regolazioni di massa

@@ -9,10 +9,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -41,7 +41,8 @@ import io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import kotlinx.coroutines.launch
-import sh.calvin.reorderable.ReorderableColumn
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @Composable
 fun ProgramEditScreen(
@@ -54,25 +55,15 @@ fun ProgramEditScreen(
     val coroutineScope = rememberCoroutineScope()
     val exercises by viewModel.exercises.collectAsState()
     val workoutPreferences = remember { WorkoutPreferences(context) }
-    val scrollState = rememberScrollState()
+    val lazyListState = rememberLazyListState()
 
     // Load existing program if editing
     var program by remember { mutableStateOf<Program?>(null) }
     var programExercises by remember { mutableStateOf<List<ProgramExercise>>(emptyList()) }
     var isLoading by remember { mutableStateOf(programId != null) }
 
-    // Form state - 新規作成時はグローバル設定を参照
+    // Form state
     var name by remember { mutableStateOf("") }
-    var timerMode by remember { mutableStateOf(false) }
-    var startInterval by remember {
-        mutableStateOf(
-            if (workoutPreferences.isStartCountdownEnabled()) {
-                workoutPreferences.getStartCountdown()
-            } else {
-                0
-            }
-        )
-    }
 
     // Dialog states
     var showAddExerciseDialog by remember { mutableStateOf(false) }
@@ -82,8 +73,6 @@ fun ProgramEditScreen(
 
     // Track original values for existing programs (to detect changes)
     var originalName by remember { mutableStateOf("") }
-    var originalTimerMode by remember { mutableStateOf(false) }
-    var originalStartInterval by remember { mutableStateOf(5) }
     var originalProgramExercises by remember { mutableStateOf<List<ProgramExercise>>(emptyList()) }
 
     // Load existing program data
@@ -92,12 +81,7 @@ fun ProgramEditScreen(
             program = viewModel.getProgramById(programId)
             program?.let {
                 name = it.name
-                timerMode = it.timerMode
-                startInterval = it.startInterval
-                // Store original values
                 originalName = it.name
-                originalTimerMode = it.timerMode
-                originalStartInterval = it.startInterval
             }
             val loadedExercises = viewModel.getProgramExercisesSync(programId)
             programExercises = loadedExercises
@@ -112,7 +96,7 @@ fun ProgramEditScreen(
         name.isNotBlank() || programExercises.isNotEmpty()
     } else {
         // Existing program: check if settings or exercises differ from original
-        val settingsChanged = name != originalName || timerMode != originalTimerMode || startInterval != originalStartInterval
+        val settingsChanged = name != originalName
         val exercisesChanged = programExercises != originalProgramExercises
         settingsChanged || exercisesChanged
     }
@@ -140,11 +124,7 @@ fun ProgramEditScreen(
         coroutineScope.launch {
             if (programId != null) {
                 // Update existing program
-                program?.copy(
-                    name = name,
-                    timerMode = timerMode,
-                    startInterval = startInterval
-                )?.let { updatedProgram ->
+                program?.copy(name = name)?.let { updatedProgram ->
                     viewModel.updateProgram(updatedProgram)
                 }
 
@@ -187,7 +167,7 @@ fun ProgramEditScreen(
                 )
             } else {
                 // Create new program
-                val newProgramId = viewModel.createProgramAndGetId(name, timerMode, startInterval)
+                val newProgramId = viewModel.createProgramAndGetId(name)
                 if (newProgramId != null) {
                     // Add exercises to new program
                     programExercises.forEachIndexed { index, pe ->
@@ -262,200 +242,138 @@ fun ProgramEditScreen(
                 CircularProgressIndicator(color = Orange600)
             }
         } else {
-            Column(
+            // Number of header items before the exercise list (Program Name + Exercises Section)
+            val headerItemCount = 2
+
+            val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+                val fromIndex = from.index - headerItemCount
+                val toIndex = to.index - headerItemCount
+                if (fromIndex >= 0 && toIndex >= 0 && fromIndex < programExercises.size && toIndex < programExercises.size) {
+                    val reordered = programExercises.toMutableList()
+                    val item = reordered.removeAt(fromIndex)
+                    reordered.add(toIndex, item)
+                    programExercises = reordered
+                }
+            }
+
+            LazyColumn(
+                state = lazyListState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .verticalScroll(scrollState)
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Program Name
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text(stringResource(R.string.program_name)) },
-                    placeholder = { Text(stringResource(R.string.program_name_hint)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Orange600,
-                        focusedLabelColor = Orange600,
-                        cursorColor = Orange600,
-                        unfocusedTextColor = Color.White,
-                        focusedTextColor = Color.White,
-                        unfocusedLabelColor = Slate400,
-                        unfocusedBorderColor = Slate600
-                    ),
-                    singleLine = true
-                )
-
-                // Timer Mode Toggle
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            text = stringResource(R.string.timer_mode_label),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.White
-                        )
-                        Text(
-                            text = stringResource(
-                                if (timerMode) R.string.timer_mode_on_description
-                                else R.string.timer_mode_off_description
-                            ),
-                            fontSize = 11.sp,
-                            color = Slate400
-                        )
-                    }
-                    Switch(
-                        checked = timerMode,
-                        onCheckedChange = { timerMode = it },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White,
-                            checkedTrackColor = Orange600,
-                            uncheckedThumbColor = Slate400,
-                            uncheckedTrackColor = Slate600
-                        )
+                item {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text(stringResource(R.string.program_name)) },
+                        placeholder = { Text(stringResource(R.string.program_name_hint)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Orange600,
+                            focusedLabelColor = Orange600,
+                            cursorColor = Orange600,
+                            unfocusedTextColor = Color.White,
+                            focusedTextColor = Color.White,
+                            unfocusedLabelColor = Slate400,
+                            unfocusedBorderColor = Slate600
+                        ),
+                        singleLine = true
                     )
-                }
-
-                // Start Countdown
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.start_countdown) + " (sec)",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.White
-                    )
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(
-                            onClick = { if (startInterval > 0) startInterval-- },
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Text("-", fontSize = 20.sp, color = Color.White)
-                        }
-                        Text(
-                            text = "$startInterval",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.White,
-                            modifier = Modifier.width(32.dp),
-                            textAlign = TextAlign.Center
-                        )
-                        IconButton(
-                            onClick = { if (startInterval < 30) startInterval++ },
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Text("+", fontSize = 20.sp, color = Color.White)
-                        }
-                    }
                 }
 
                 // Exercises Section
-                Text(
-                    text = stringResource(R.string.program_exercises),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
+                item {
+                    Text(
+                        text = stringResource(R.string.program_exercises),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
 
                 // Exercise list with drag-and-drop
                 if (programExercises.isEmpty()) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = Slate800),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.program_exercises_required),
-                            modifier = Modifier.padding(16.dp),
-                            color = Slate400,
-                            fontSize = 14.sp
-                        )
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = Slate800),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.program_exercises_required),
+                                modifier = Modifier.padding(16.dp),
+                                color = Slate400,
+                                fontSize = 14.sp
+                            )
+                        }
                     }
                 } else {
-                    ReorderableColumn(
-                        list = programExercises,
-                        onSettle = { fromIndex, toIndex ->
-                            val reordered = programExercises.toMutableList()
-                            val item = reordered.removeAt(fromIndex)
-                            reordered.add(toIndex, item)
-                            programExercises = reordered
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) { index, pe, isDragging ->
+                    itemsIndexed(
+                        items = programExercises,
+                        key = { _, pe -> pe.id }
+                    ) { index, pe ->
                         val exercise = exerciseMap[pe.exerciseId]
                         if (exercise != null) {
-                            key(pe.id) {
-                                ReorderableItem {
-                                    val elevation by animateDpAsState(
-                                        targetValue = if (isDragging) 4.dp else 0.dp,
-                                        label = "elevation"
-                                    )
-                                    ProgramExerciseItem(
-                                        programExercise = pe,
-                                        exercise = exercise,
-                                        isDragging = isDragging,
-                                        elevation = elevation,
-                                        onEdit = { showExerciseSettingsDialog = pe },
-                                        onDelete = {
-                                            programExercises = programExercises.filter { it != pe }
-                                        },
-                                        dragHandle = { Modifier.longPressDraggableHandle() }
-                                    )
-                                }
+                            ReorderableItem(reorderableLazyListState, key = pe.id) { isDragging ->
+                                val elevation by animateDpAsState(
+                                    targetValue = if (isDragging) 4.dp else 0.dp,
+                                    label = "elevation"
+                                )
+                                ProgramExerciseItem(
+                                    programExercise = pe,
+                                    exercise = exercise,
+                                    isDragging = isDragging,
+                                    elevation = elevation,
+                                    onEdit = { showExerciseSettingsDialog = pe },
+                                    onDelete = {
+                                        programExercises = programExercises.filter { it != pe }
+                                    },
+                                    dragHandle = { Modifier.longPressDraggableHandle() }
+                                )
                             }
                         }
                     }
                 }
 
                 // Add exercise button (at the bottom)
-                Button(
-                    onClick = { showAddExerciseDialog = true },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Orange600)
-                ) {
-                    Icon(
-                        Icons.Default.Add,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(stringResource(R.string.add_exercise_to_program))
+                item {
+                    Button(
+                        onClick = { showAddExerciseDialog = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Orange600)
+                    ) {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(stringResource(R.string.add_exercise_to_program))
+                    }
                 }
 
                 // Delete program button (only for existing programs)
                 if (programId != null) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    OutlinedButton(
-                        onClick = { showDeleteConfirmDialog = true },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = Red600
-                        ),
-                        border = ButtonDefaults.outlinedButtonBorder.copy(
-                            brush = Brush.horizontalGradient(listOf(Red600, Red600))
-                        )
-                    ) {
-                        Icon(Icons.Default.Delete, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(stringResource(R.string.delete_program))
+                    item {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        OutlinedButton(
+                            onClick = { showDeleteConfirmDialog = true },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = Red600
+                            ),
+                            border = ButtonDefaults.outlinedButtonBorder.copy(
+                                brush = Brush.horizontalGradient(listOf(Red600, Red600))
+                            )
+                        ) {
+                            Icon(Icons.Default.Delete, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(R.string.delete_program))
+                        }
                     }
                 }
             }
@@ -482,7 +400,7 @@ fun ProgramEditScreen(
                 showAddExerciseDialog = false
                 // 追加後に最下部へスクロール
                 coroutineScope.launch {
-                    scrollState.animateScrollTo(scrollState.maxValue)
+                    lazyListState.animateScrollToItem(lazyListState.layoutInfo.totalItemsCount - 1)
                 }
             }
         )

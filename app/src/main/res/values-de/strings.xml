@@ -231,6 +231,7 @@
     <string name="pause_button">Pause</string>
     <string name="resume_button">Fortsetzen</string>
     <string name="stop_button">Stoppen</string>
+    <string name="retry_set_button">Satz wiederholen</string>
     <string name="interval_label">Pause</string>
     <string name="next_set_format">Nächster: Satz %1$d/%2$d</string>
     <string name="next_set_format_with_side">Nächster: Satz %1$d/%2$d - %3$s</string>
@@ -523,6 +524,9 @@
     <string name="program_interval_format">Pause %ds</string>
     <string name="delete_program">Programm löschen</string>
     <string name="delete_program_warning">\"%s\" löschen?</string>
+    <string name="duplicate_program">Duplizieren</string>
+    <string name="program_duplicated">Programm dupliziert</string>
+    <string name="program_copy_suffix">(Kopie)</string>
     <string name="discard_changes_title">Änderungen verwerfen?</string>
     <string name="discard_changes_message">Sie haben ungespeicherte Änderungen. Möchten Sie diese wirklich verwerfen?</string>
     <string name="discard">Verwerfen</string>
@@ -532,11 +536,85 @@
     <string name="target_value_label">Ziel</string>
     <string name="interval_seconds_label">Pausendauer (Sek.)</string>
     <string name="program_start">Start</string>
+    <string name="exercise_settings">Übungseinstellungen</string>
+    <string name="sets_label">Sätze</string>
+    <string name="get_ready">Bereit machen</string>
+    <string name="executing_label">In Bearbeitung</string>
+    <string name="complete_button">Fertig</string>
+    <string name="abort_button">Abbrechen</string>
     <string name="program_use_program">Programm</string>
     <string name="program_use_challenge">Übung</string>
+    <string name="program_use_previous">Vorherig</string>
     <string name="program_use_all_program">Alle Programm</string>
     <string name="program_use_all_challenge">Alle Vorgabe</string>
     <string name="program_previous_value">Vorherigen Wert verwenden</string>
     <string name="next_exercise_label">Nächste: %s</string>
     <string name="program_set_label">Satz %d:</string>
+
+    <!-- Exit Workout Confirmation -->
+    <string name="exit_workout_title">Training abbrechen?</string>
+    <string name="exit_workout_message">Der Fortschritt wird nicht gespeichert.</string>
+    <string name="exit_workout_confirm">Abbrechen</string>
+
+    <!-- Missing keys -->
+    <string name="interval_short">Pause:</string>
+    <string name="sets_label_short">Sätze:</string>
+    <string name="unit_seconds_short">s</string>
+    <string name="new_program">Neues Programm</string>
+    <string name="single_mode">Einzeln</string>
+    <string name="single_mode_description">Eine Übung nach der anderen</string>
+    <string name="start_countdown">Start-Countdown</string>
+    <string name="timer_on">AN</string>
+    <string name="timer_off">AUS</string>
+    <string name="timer_mode_on_description">Automatischer Countdown während der Übung</string>
+    <string name="timer_mode_off_description">Manueller Abschluss-Button</string>
+    <string name="workout_mode_selection">Modus wählen</string>
+    <string name="record_weight_for_graph">Gewicht für diese Übung aufzeichnen</string>
+    <string name="complete_with_reps">✓ Fertig (%d Wdh.)</string>
+    <string name="target_reps_format">Ziel: %d Wdh.</string>
+    <string name="paused_label">Pausiert</string>
+    <string name="elapsed_target_format">Vergangen: %1$ds / Ziel: %2$ds</string>
+    <string name="complete_with_time">✓ Fertig (%ds)</string>
+    <string name="previous_value_format">Vorherig: %d</string>
+    <string name="reps_unit">Wdh.</string>
+    <string name="program_result_zero_warning">Es gibt Sätze mit dem Wert 0. Null-Sätze für bilaterale Übungen und Sätze, bei denen beide Seiten 0 sind für unilaterale Übungen, werden nicht gespeichert.</string>
+
+    <!-- Sound Settings (Program Confirm) -->
+    <string name="sound_settings_section">Toneinstellungen</string>
+    <string name="dynamic_count_sound_label">Zählton</string>
+    <string name="dynamic_count_sound_description">Dynamische Übungen</string>
+    <string name="isometric_interval_sound_label">Intervallbenachrichtigung</string>
+    <string name="isometric_interval_sound_description">Isometrische Übungen</string>
+    <string name="interval_seconds_short">%d Sek.</string>
+
+    <!-- Auto Mode -->
+    <string name="auto_mode_label">Automatik</string>
+    <string name="auto_mode">Automatik</string>
+    <string name="auto_mode_description">Manueller Abschluss-Button</string>
+    <string name="auto_mode_disabled_hint">Nur bei aktiviertem Zählton verfügbar</string>
+
+    <!-- Program Settings -->
+    <string name="all_exercises_label">Alle Übungen</string>
+    <string name="all_sets_label">Alle Sätze</string>
+    <string name="auto_fill_target_label">Zielwerte automatisch ausfüllen</string>
+    <string name="program_estimated_time">~%d Min.</string>
+
+    <!-- Navigation Sheet (Program Execution) -->
+    <string name="nav_program_overview">Programmübersicht</string>
+    <string name="nav_overall_progress">Gesamtfortschritt</string>
+    <string name="nav_sets_format">%1$d / %2$d Sätze</string>
+    <string name="nav_done">Fertig</string>
+    <string name="nav_current">Aktuell</string>
+    <string name="nav_redo">Wiederholen</string>
+    <string name="nav_jump">Springen</string>
+    <string name="nav_finish">Beenden</string>
+    <string name="nav_save_and_exit">Speichern &amp; Beenden</string>
+    <string name="nav_save_overwrite_title">Gespeichertes Training überschreiben?</string>
+    <string name="nav_save_overwrite_message">Es kann nur ein Training gespeichert werden. Das vorherige Training wird überschrieben.</string>
+    <string name="nav_discard">Verwerfen</string>
+    <string name="nav_resume">Fortsetzen</string>
+    <string name="nav_target">Ziel</string>
+    <string name="nav_skipped">Übersprungen</string>
+    <string name="nav_type_dynamic_short">Dyn</string>
+    <string name="nav_type_isometric_short">Iso</string>
 </resources>
