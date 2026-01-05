@@ -1,3 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="ok">Гаразд</string>
+    <string name="cancel">Скасувати</string>
+    <string name="save">Зберегти</string>
+    <string name="delete">Видалити</string>
+    <string name="edit">Редагувати</string>
+    <string name="add">Додати</string>
+    <string name="create">Створити</string>
+    <string name="back">Назад</string>
+    <string name="close">Закрити</string>
+    <string name="search">Пошук</string>
+    <string name="select">Вибрати</string>
+    <string name="settings">Налаштування</string>
+    <string name="comment">Коментар</string>
+    <string name="comment_optional">Коментар (не обов\'язково)</string>
+    <string name="level">Рівень</string>
+    <string name="group">Група</string>
+    <string name="none">Немає</string>
+    <string name="type">Тип</string>
+    <string name="menu">Меню</string>
+    <string name="loading">Завантаження...</string>
+    <string name="home_create">Створити вправу</string>
+    <string name="home_record">Записати тренування</string>
+    <string name="home_workout">Тренування</string>
 </resources>
