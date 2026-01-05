@@ -43,6 +43,14 @@ Requires JDK 17 or higher.
 └── screenshots/            # Screenshots
 ```
 
+## Translations
+
+Help translate Calisthenics Memory via Weblate:
+
+<a href="https://translate.codeberg.org/engage/calisthenics-memory/">
+<img src="https://translate.codeberg.org/widget/calisthenics-memory/multi-auto.svg" alt="Translation status" />
+</a>
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under the [GNU General Public License v3.0](LICENSE).
