@@ -2,68 +2,60 @@
   <img src="../../icon.png" width="150" alt="Calisthenics Memory Icon">
 </p>
 
-# Calisthenics Memory
+<h1 align="center">Calisthenics Memory</h1>
 
----
-
-🌐 [English](../../README.md) | [日本語](README.ja.md) | [Deutsch](README.de.md) | [Español](README.es.md) | [Italiano](README.it.md) | [简体中文](README.zh-CN.md)
-
----
+<p align="center">
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/README.md">English</a> |
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.ja.md">日本語</a> |
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.de.md">Deutsch</a> |
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.es.md">Español</a> |
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.it.md">Italiano</a> |
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.zh-CN.md">简体中文</a>
+</p>
 
 <div align="center">
 <table>
 <tr><td align="center">
-<h3>⚠️ Ce dépôt a déménagé ⚠️</h3>
+<h3>⚠️ Ce dépôt a été déplacé ⚠️</h3>
 <p>Le développement a été déplacé vers <b><a href="https://codeberg.org/Gonbei774/CalisthenicsMemory">Codeberg</a></b></p>
 <p>Ce dépôt GitHub est un <b>miroir en lecture seule</b>.<br>
-Pour le code le plus récent, les releases et les contributions, visitez Codeberg.<br>
+Pour le code le plus récent, les versions et les contributions, veuillez visiter Codeberg.<br>
 Les issues sont acceptées ici par commodité.</p>
 </td></tr>
 </table>
 </div>
 
----
-
-[![Build Status](https://ci.codeberg.org/api/badges/15682/status.svg)](https://ci.codeberg.org/repos/15682)
-[![RB Status](https://shields.rbtlog.dev/simple/io.github.gonbei774.calisthenicsmemory)](https://shields.rbtlog.dev/io.github.gonbei774.calisthenicsmemory)
-<br>
-[![IzzyOnDroid Downloads](https://img.shields.io/badge/dynamic/json?url=https://dlstats.izzyondroid.org/iod-stats-collector/stats/basic/monthly/rolling.json&query=$.['io.github.gonbei774.calisthenicsmemory']&label=IzzyOnDroid%20monthly%20downloads)](https://apt.izzysoft.de/packages/io.github.gonbei774.calisthenicsmemory)
-
----
-
 <p align="center">
-  <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/">
-    <img src="https://fdroid.org/badge/get-it-on.png" alt="Télécharger sur F-Droid" height="80">
-  </a>
-</p>
-<p align="center">
-  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.gonbei774.calisthenicsmemory">
-    <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButton.png" alt="Télécharger sur IzzyOnDroid" height="54">
-  </a>
+  <a href="https://ci.codeberg.org/repos/15682"><img src="https://ci.codeberg.org/api/badges/15682/status.svg" alt="Build Status"></a>
+  <img src="https://img.shields.io/badge/Android-8.0%2B-green.svg" alt="Android 8.0+">
+  <img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0">
+  <img src="https://img.shields.io/badge/dynamic/json?url=https://dlstats.izzyondroid.org/iod-stats-collector/stats/basic/yearly/rolling.json&query=$.['io.github.gonbei774.calisthenicsmemory']&label=Downloads" alt="Downloads">
+  <a href="https://shields.rbtlog.dev/io.github.gonbei774.calisthenicsmemory"><img src="https://shields.rbtlog.dev/simple/io.github.gonbei774.calisthenicsmemory" alt="Reproducible Builds"></a>
+  <a href="https://translate.codeberg.org/engage/calisthenics-memory/"><img src="https://translate.codeberg.org/widget/calisthenics-memory/svg-badge.svg" alt="translated"></a>
 </p>
 
----
+<p align="center">
+  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.gonbei774.calisthenicsmemory"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="80" alt="Télécharger sur IzzyOnDroid"></a>
+</p>
+
+<p align="center">
+  <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="Télécharger sur F-Droid"></a>
+</p>
 
 ## À propos
 
-Un tracker d'entraînement au poids du corps. Créez des exercices personnalisés, organisez par groupes et niveaux, suivez vos progrès – entièrement hors ligne.
+Un tracker d'entraînement au poids du corps axé sur la confidentialité. Personnalisez tout selon vos préférences.
 
 ## Fonctionnalités
 
-- **Tableau de bord** - Visualisez les enregistrements d'entraînement du jour en un coup d'œil, appui long pour copier
-- **Entièrement personnalisable** - Créez des exercices librement, organisez par groupes, gérez avec 10 niveaux, suivez la distance et le poids par exercice
-- **Favoris** - Accès rapide aux exercices fréquemment utilisés
-- **To Do** - Planifiez votre entraînement en ajoutant des exercices à une liste de tâches quotidienne, appuyez pour accéder directement aux écrans Enregistrement ou Entraînement
-- **Deux modes d'enregistrement**
-  - Mode enregistrement : Saisie manuelle rapide avec le bouton "Appliquer les paramètres de l'exercice"
-  - Mode entraînement : Entraînement guidé automatique avec paramètres de minuterie par exercice (intervalle de repos, durée de répétition), notification flash LED à la fin de la série
-- **Programme** - Créez des routines multi-exercices avec les modes Minuteur ON (compte à rebours) ou Minuteur OFF (à votre rythme), intervalles de repos configurables entre les séries
-- **Suivi des progrès** - Visualisez les enregistrements sous forme de listes, graphiques ou barres de progression des défis
-- **Support unilatéral/bilatéral** - Suivez les côtés gauche et droit séparément pour les exercices unilatéraux
-- **Objectifs de défi** - Définissez des séries × répétitions cibles et suivez l'état d'accomplissement
-- **Gestion des données** - Export/import au format JSON ou CSV (support de sauvegarde complet)
-- **Multilingue** - Anglais, japonais, espagnol, allemand, chinois (simplifié), français, italien
-- **Confidentialité d'abord** - Entièrement hors ligne, aucune permission dangereuse, pas d'accès Internet
+- **To Do** - Planifiez votre entraînement, appuyez pour accéder directement
+- **Mode Enregistrement** - Saisie manuelle rapide
+- **Mode Entraînement** - Guidage automatique avec minuterie, notification à la fin de série
+  - Simple - Concentrez-vous sur un exercice
+  - Programme - Créez et exécutez des routines multi-exercices, navigation flexible
+- **Création d'Exercices** - Configurez dynamique/isométrique, unilatéral/bilatéral, intervalles et plus
+- **Suivi des Progrès** - Listes, graphiques, état des défis
+- **Gestion des Données** - Export/import en JSON/CSV
 
 ## Captures d'écran
 
@@ -78,26 +70,16 @@ Un tracker d'entraînement au poids du corps. Créez des exercices personnalisé
   <img src="../../screenshots/6.png" width="250">
 </p>
 
-## Configuration requise
-
-- **Android** 8.0 (API 26) ou supérieur
-- **Stockage** ~10 Mo
-- **Internet** Non requis
-
 ## Permissions
 
 - `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`, `WAKE_LOCK` - Exécuter la minuterie en arrière-plan
 - `FLASHLIGHT` - Notification flash pour les intervalles de repos
 
-## Compilation
+Voir [IzzyOnDroid Permissions](https://android.izzysoft.de/applists/perms) pour les détails.
 
-```bash
-git clone https://codeberg.org/Gonbei774/CalisthenicsMemory.git
-cd CalisthenicsMemory
-./gradlew assembleDebug
-```
+## Contribuer
 
-JDK 17 ou supérieur requis.
+Voir [CONTRIBUTING.md](../../CONTRIBUTING.md) pour les directives.
 
 ## Licence
 

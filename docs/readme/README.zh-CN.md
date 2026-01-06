@@ -2,68 +2,60 @@
   <img src="../../icon.png" width="150" alt="Calisthenics Memory Icon">
 </p>
 
-# Calisthenics Memory
+<h1 align="center">Calisthenics Memory</h1>
 
----
-
-🌐 [English](../../README.md) | [日本語](README.ja.md) | [Deutsch](README.de.md) | [Español](README.es.md) | [Français](README.fr.md) | [Italiano](README.it.md)
-
----
+<p align="center">
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/README.md">English</a> |
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.ja.md">日本語</a> |
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.de.md">Deutsch</a> |
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.es.md">Español</a> |
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.fr.md">Français</a> |
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.it.md">Italiano</a>
+</p>
 
 <div align="center">
 <table>
 <tr><td align="center">
-<h3>⚠️ 此仓库已迁移 ⚠️</h3>
+<h3>⚠️ 本仓库已迁移 ⚠️</h3>
 <p>开发已迁移至 <b><a href="https://codeberg.org/Gonbei774/CalisthenicsMemory">Codeberg</a></b></p>
 <p>此 GitHub 仓库为<b>只读镜像</b>。<br>
-如需最新代码、发布版本和贡献，请访问 Codeberg。<br>
-为方便起见，此处也接受 Issue。</p>
+如需获取最新代码、版本发布和贡献，请访问 Codeberg。<br>
+为方便起见，此处仍接受 Issue。</p>
 </td></tr>
 </table>
 </div>
 
----
-
-[![Build Status](https://ci.codeberg.org/api/badges/15682/status.svg)](https://ci.codeberg.org/repos/15682)
-[![RB Status](https://shields.rbtlog.dev/simple/io.github.gonbei774.calisthenicsmemory)](https://shields.rbtlog.dev/io.github.gonbei774.calisthenicsmemory)
-<br>
-[![IzzyOnDroid Downloads](https://img.shields.io/badge/dynamic/json?url=https://dlstats.izzyondroid.org/iod-stats-collector/stats/basic/monthly/rolling.json&query=$.['io.github.gonbei774.calisthenicsmemory']&label=IzzyOnDroid%20monthly%20downloads)](https://apt.izzysoft.de/packages/io.github.gonbei774.calisthenicsmemory)
-
----
-
 <p align="center">
-  <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/">
-    <img src="https://fdroid.org/badge/get-it-on.png" alt="在 F-Droid 下载" height="80">
-  </a>
-</p>
-<p align="center">
-  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.gonbei774.calisthenicsmemory">
-    <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButton.png" alt="在 IzzyOnDroid 下载" height="54">
-  </a>
+  <a href="https://ci.codeberg.org/repos/15682"><img src="https://ci.codeberg.org/api/badges/15682/status.svg" alt="Build Status"></a>
+  <img src="https://img.shields.io/badge/Android-8.0%2B-green.svg" alt="Android 8.0+">
+  <img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0">
+  <img src="https://img.shields.io/badge/dynamic/json?url=https://dlstats.izzyondroid.org/iod-stats-collector/stats/basic/yearly/rolling.json&query=$.['io.github.gonbei774.calisthenicsmemory']&label=Downloads" alt="Downloads">
+  <a href="https://shields.rbtlog.dev/io.github.gonbei774.calisthenicsmemory"><img src="https://shields.rbtlog.dev/simple/io.github.gonbei774.calisthenicsmemory" alt="Reproducible Builds"></a>
+  <a href="https://translate.codeberg.org/engage/calisthenics-memory/"><img src="https://translate.codeberg.org/widget/calisthenics-memory/svg-badge.svg" alt="translated"></a>
 </p>
 
----
+<p align="center">
+  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.gonbei774.calisthenicsmemory"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="80" alt="在 IzzyOnDroid 下载"></a>
+</p>
+
+<p align="center">
+  <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="在 F-Droid 下载"></a>
+</p>
 
 ## 关于
 
-自重训练记录应用。创建自定义动作，按组别和级别整理，跟踪进度 - 完全离线运行。
+注重隐私的自重训练记录应用。一切皆可自定义。
 
 ## 功能
 
-- **主页仪表板** - 一目了然查看今日训练记录，长按复制
-- **完全可自定义** - 自由创建动作，按组别整理，10级管理，按动作记录距离和重量
-- **收藏夹** - 快速访问常用动作
-- **待办** - 将训练添加到每日任务列表来规划锻炼，点击可直接跳转到记录或训练画面
-- **两种记录模式**
-  - 记录模式：使用"应用动作设置"按钮快速手动输入
-  - 训练模式：按动作设置计时器（休息间隔、每次时长）的自动引导训练，组完成时LED闪光通知
-- **程序** - 创建多动作训练计划，支持计时器开（倒计时）或计时器关（自定节奏）模式，可配置组间休息间隔
-- **进度跟踪** - 以列表、图表或挑战进度条查看记录
-- **单侧/双侧支持** - 单侧动作可分别记录左右两侧
-- **挑战目标** - 设置目标组数×次数并跟踪达成状态
-- **数据管理** - 以 JSON 或 CSV 格式导出/导入（完整备份支持）
-- **多语言** - 英语、日语、西班牙语、德语、简体中文、法语、意大利语
-- **隐私优先** - 完全离线运行，无危险权限，无网络访问
+- **待办** - 规划锻炼，点击直接跳转
+- **记录模式** - 快速手动输入
+- **训练模式** - 计时器自动引导，组完成通知
+  - 单项 - 专注于一个动作
+  - 程序 - 创建并执行多动作训练计划，灵活导航
+- **动作创建** - 配置动态/静态、单侧/双侧、间隔等
+- **进度跟踪** - 列表、图表、挑战状态
+- **数据管理** - JSON/CSV 导出/导入
 
 ## 截图
 
@@ -78,26 +70,16 @@
   <img src="../../screenshots/6.png" width="250">
 </p>
 
-## 系统要求
-
-- **Android** 8.0（API 26）或更高版本
-- **存储** 约 10MB
-- **网络** 不需要
-
 ## 权限
 
 - `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`, `WAKE_LOCK` - 在后台运行计时器
 - `FLASHLIGHT` - 休息间隔的闪光通知
 
-## 构建
+详情请参阅 [IzzyOnDroid Permissions](https://android.izzysoft.de/applists/perms)。
 
-```bash
-git clone https://codeberg.org/Gonbei774/CalisthenicsMemory.git
-cd CalisthenicsMemory
-./gradlew assembleDebug
-```
+## 贡献
 
-需要 JDK 17 或更高版本。
+请参阅 [CONTRIBUTING.md](../../CONTRIBUTING.md) 了解指南。
 
 ## 许可证
 
