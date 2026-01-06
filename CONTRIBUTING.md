@@ -26,20 +26,24 @@ Requires JDK 17 or higher.
 │   │   ├── data/           # Data layer (Room, Repository)
 │   │   ├── viewmodel/      # ViewModel
 │   │   ├── ui/
+│   │   │   ├── components/ # Reusable UI components
+│   │   │   │   ├── common/
+│   │   │   │   ├── program/
+│   │   │   │   └── single/
 │   │   │   ├── screens/    # Screen Composables
-│   │   │   │   └── view/   # Shared UI components
+│   │   │   │   └── view/
 │   │   │   └── theme/      # Theme definitions
 │   │   ├── service/        # Foreground service
 │   │   └── util/           # Utilities
 │   └── res/
-│       ├── values*/        # Multi-language resources (7 languages)
+│       ├── values*/        # Multi-language resources
 │       ├── drawable/       # Images
 │       └── xml/            # Configuration XML
 ├── app/src/test/           # Unit tests
 ├── app/src/androidTest/    # UI tests
 ├── docs/readme/            # Multi-language READMEs
 ├── examples/               # Sample data
-├── fastlane/               # F-Droid metadata
+├── fastlane/               # Store metadata
 └── screenshots/            # Screenshots
 ```
 
@@ -47,9 +51,13 @@ Requires JDK 17 or higher.
 
 Help translate Calisthenics Memory via Weblate:
 
+https://translate.codeberg.org/projects/calisthenics-memory/
+
 <a href="https://translate.codeberg.org/engage/calisthenics-memory/">
 <img src="https://translate.codeberg.org/widget/calisthenics-memory/multi-auto.svg" alt="Translation status" />
 </a>
+
+Translation files: [app/src/main/res/](https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/app/src/main/res)
 
 ## License
 
