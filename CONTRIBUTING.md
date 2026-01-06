@@ -61,8 +61,7 @@ Help translate Calisthenics Memory via [Weblate](https://translate.codeberg.org/
 - Some existing translations may still sound unnatural—corrections are welcome
 - Please do not use machine translation on Weblate
 
-If you'd like to add a new language (machine translation is fine as a starting point),
-please open an [issue](https://codeberg.org/Gonbei774/CalisthenicsMemory/issues).
+If you'd like to add a new language, please open an [issue](https://codeberg.org/Gonbei774/CalisthenicsMemory/issues) before using machine translation. If you can provide a natural, native-speaker translation, you can proceed without opening an issue.
 
 ### Source Strings
 
