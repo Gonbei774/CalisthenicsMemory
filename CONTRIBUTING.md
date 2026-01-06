@@ -55,6 +55,14 @@ Help translate Calisthenics Memory via [Weblate](https://translate.codeberg.org/
 <img src="https://translate.codeberg.org/widget/calisthenics-memory/multi-auto.svg" alt="Translation status" />
 </a>
 
+Weblate is intended for natural, native-speaker translations.
+Some existing translations may still sound unnatural, and corrections are always welcome.
+
+We kindly ask that machine translation not be used on Weblate.
+
+If you'd like to add a new language (machine translation is fine as a starting point),
+please open an [issue](https://codeberg.org/Gonbei774/CalisthenicsMemory/issues) and I'll handle it.
+
 Translation files: [app/src/main/res/](https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/app/src/main/res)
 
 ## License
