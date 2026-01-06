@@ -49,9 +49,7 @@ Requires JDK 17 or higher.
 
 ## Translations
 
-Help translate Calisthenics Memory via Weblate:
-
-https://translate.codeberg.org/projects/calisthenics-memory/
+Help translate Calisthenics Memory via [Weblate](https://translate.codeberg.org/projects/calisthenics-memory/):
 
 <a href="https://translate.codeberg.org/engage/calisthenics-memory/">
 <img src="https://translate.codeberg.org/widget/calisthenics-memory/multi-auto.svg" alt="Translation status" />
