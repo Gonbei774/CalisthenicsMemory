@@ -55,15 +55,34 @@ Help translate Calisthenics Memory via [Weblate](https://translate.codeberg.org/
 <img src="https://translate.codeberg.org/widget/calisthenics-memory/multi-auto.svg" alt="Translation status" />
 </a>
 
-Weblate is intended for natural, native-speaker translations.
-Some existing translations may still sound unnatural, and corrections are always welcome.
+### Guidelines
 
-We kindly ask that machine translation not be used on Weblate.
+- Weblate is intended for natural, native-speaker translations
+- Some existing translations may still sound unnatural—corrections are welcome
+- Please do not use machine translation on Weblate
 
 If you'd like to add a new language (machine translation is fine as a starting point),
-please open an [issue](https://codeberg.org/Gonbei774/CalisthenicsMemory/issues) and I'll handle it.
+please open an [issue](https://codeberg.org/Gonbei774/CalisthenicsMemory/issues).
 
-Translation files: [app/src/main/res/](https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/app/src/main/res)
+### Source Strings
+
+Source strings (English) are managed in the repository, not Weblate.
+Translators cannot add, delete, or edit source strings.
+
+| Component | Source location |
+|-----------|-----------------|
+| App | [`app/src/main/res/values/strings.xml`](https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/app/src/main/res/values/strings.xml) |
+| Fastlane | [`fastlane/metadata/android/en-US/`](https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/fastlane/metadata/android/en-US) |
+
+### Fastlane Limits
+
+| Field | Limit | Note |
+|-------|-------|------|
+| title | 30 chars | Read-only |
+| short_description | 80 chars | |
+| full_description | 4000 chars | |
+
+Changelogs are excluded from translation on Weblate.
 
 ## License
 
