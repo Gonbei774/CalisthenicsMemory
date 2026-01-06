@@ -32,28 +32,18 @@
 
 ## Über die App
 
-Ein Tracker für Eigengewichtstraining. Erstelle benutzerdefinierte Übungen, organisiere nach Gruppen und Stufen, verfolge deinen Fortschritt – komplett offline.
+Ein datenschutzorientierter Tracker für Eigengewichtstraining. Passe alles nach deinem Geschmack an.
 
 ## Funktionen
 
-- **Home-Dashboard** - Heutige Trainingseinträge auf einen Blick, lange drücken zum Kopieren
-- **Vollständig anpassbar** - Übungen frei erstellen, nach Gruppen organisieren, mit 10 Stufen verwalten, Distanz und Gewicht pro Übung verfolgen
-- **Favoriten** - Schneller Zugriff auf häufig verwendete Übungen
-- **To Do** - Plane dein Training, indem du Übungen zu einer täglichen Aufgabenliste hinzufügst, tippe, um direkt zu den Aufzeichnungs- oder Trainingsbildschirmen zu springen
-- **Zwei Aufzeichnungsmodi**
-  - Aufzeichnungsmodus: Schnelle manuelle Eingabe mit "Übungseinstellungen anwenden"-Taste
-  - Trainingsmodus: Automatisch geführtes Training mit übungsspezifischen Timer-Einstellungen (Pausenzeit, Wiederholungsdauer), LED-Blitz-Benachrichtigung bei Satzabschluss
-- **Programm** - Erstelle Routinen mit mehreren Übungen, Timer-AN (countdown-basiert) oder Timer-AUS (eigenes Tempo) Modi, konfigurierbare Pausen zwischen den Sätzen
-  - Jump/Redo/Finish-Navigation für flexible Fortschrittskontrolle
-  - Speichern & Beenden zum Pausieren und späteren Fortsetzen
-  - Vorherige Werte auf Übungskarten als Referenz angezeigt
-  - Sätze und Ziele während der Ausführung anpassen
-- **Fortschrittsverfolgung** - Einträge als Listen, Grafiken oder Herausforderungs-Fortschrittsbalken anzeigen
-- **Unilateral/Bilateral-Unterstützung** - Linke und rechte Seite separat für einseitige Übungen verfolgen
-- **Herausforderungsziele** - Zielsätze × Wiederholungen festlegen und Erfüllungsstatus verfolgen
-- **Datenverwaltung** - Export/Import im JSON- oder CSV-Format (vollständige Backup-Unterstützung)
-- **Mehrsprachig** - Englisch, Japanisch, Spanisch, Deutsch, Chinesisch (vereinfacht), Französisch, Italienisch
-- **Datenschutz-orientiert** - Komplett offline, keine gefährlichen Berechtigungen, kein Internetzugriff
+- **To Do** - Plane dein Training, tippe zum direkten Springen
+- **Aufzeichnungsmodus** - Schnelle manuelle Eingabe
+- **Trainingsmodus** - Automatisch geführt mit Timer, Benachrichtigung bei Satzabschluss
+  - Einzeln - Konzentriere dich auf eine Übung
+  - Programm - Erstelle und führe Multi-Übungs-Routinen aus, flexible Navigation
+- **Übungserstellung** - Konfiguriere dynamisch/isometrisch, unilateral/bilateral, Intervalle und mehr
+- **Fortschrittsverfolgung** - Listen, Grafiken, Herausforderungsstatus
+- **Datenverwaltung** - Export/Import in JSON/CSV
 
 ## Screenshots
 
@@ -68,26 +58,16 @@ Ein Tracker für Eigengewichtstraining. Erstelle benutzerdefinierte Übungen, or
   <img src="../../screenshots/6.png" width="250">
 </p>
 
-## Anforderungen
-
-- **Android** 8.0 (API 26) oder höher
-- **Speicher** ~10MB
-- **Internet** Nicht erforderlich
-
 ## Berechtigungen
 
 - `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`, `WAKE_LOCK` - Timer im Hintergrund ausführen
 - `FLASHLIGHT` - Blitz-Benachrichtigung für Pausenzeiten
 
-## Erstellen
+Details siehe [IzzyOnDroid Permissions](https://android.izzysoft.de/applists/perms).
 
-```bash
-git clone https://codeberg.org/Gonbei774/CalisthenicsMemory.git
-cd CalisthenicsMemory
-./gradlew assembleDebug
-```
+## Mitwirken
 
-JDK 17 oder höher erforderlich.
+Richtlinien siehe [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 ## Lizenz
 

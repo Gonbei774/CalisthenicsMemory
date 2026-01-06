@@ -32,28 +32,18 @@
 
 ## Acerca de
 
-Un rastreador de entrenamientos con peso corporal. Crea ejercicios personalizados, organiza por grupos y niveles, rastrea tu progreso – completamente sin conexión.
+Un rastreador de entrenamientos con peso corporal centrado en la privacidad. Personaliza todo a tu gusto.
 
 ## Características
 
-- **Panel de inicio** - Ve los registros de entrenamiento de hoy de un vistazo, mantén pulsado para copiar
-- **Totalmente personalizable** - Crea ejercicios libremente, organiza por grupos, gestiona con 10 niveles, registra distancia y peso por ejercicio
-- **Favoritos** - Acceso rápido a ejercicios frecuentes
-- **To Do** - Planifica tu entrenamiento añadiendo ejercicios a una lista de tareas diaria, toca para ir directamente a las pantallas de Registro o Entrenamiento
-- **Dos modos de registro**
-  - Modo registro: Entrada manual rápida con botón "Aplicar configuración del ejercicio"
-  - Modo entrenamiento: Entrenamiento guiado automático con ajustes de temporizador por ejercicio (intervalo de descanso, duración de repetición), notificación de flash LED al completar serie
-- **Programa** - Crea rutinas de múltiples ejercicios con modos Temporizador ON (cuenta regresiva) o Temporizador OFF (a tu ritmo), intervalos de descanso configurables entre series
-  - Navegación Jump/Redo/Finish para control flexible del progreso
-  - Guardar y Salir para pausar y continuar después
-  - Valores anteriores mostrados en tarjetas de ejercicio como referencia
-  - Ajustar series y objetivos durante la ejecución
-- **Seguimiento del progreso** - Ve registros como listas, gráficos o barras de progreso de desafíos
-- **Soporte unilateral/bilateral** - Registra lados izquierdo y derecho por separado para ejercicios de un lado
-- **Objetivos de desafío** - Establece series × repeticiones objetivo y rastrea el estado de logro
-- **Gestión de datos** - Exporta/importa en formato JSON o CSV (soporte de respaldo completo)
-- **Multiidioma** - Inglés, japonés, español, alemán, chino (simplificado), francés, italiano
-- **Privacidad primero** - Completamente sin conexión, sin permisos peligrosos, sin acceso a Internet
+- **To Do** - Planifica tu entrenamiento, toca para saltar directamente
+- **Modo Registro** - Entrada manual rápida
+- **Modo Entrenamiento** - Guiado automático con temporizador, notificación al completar serie
+  - Individual - Concéntrate en un ejercicio
+  - Programa - Crea y ejecuta rutinas de múltiples ejercicios, navegación flexible
+- **Creación de Ejercicios** - Configura dinámico/isométrico, unilateral/bilateral, intervalos y más
+- **Seguimiento del Progreso** - Listas, gráficos, estado de desafíos
+- **Gestión de Datos** - Exporta/importa en JSON/CSV
 
 ## Capturas de Pantalla
 
@@ -68,26 +58,16 @@ Un rastreador de entrenamientos con peso corporal. Crea ejercicios personalizado
   <img src="../../screenshots/6.png" width="250">
 </p>
 
-## Requisitos
-
-- **Android** 8.0 (API 26) o superior
-- **Almacenamiento** ~10MB
-- **Internet** No requerido
-
 ## Permisos
 
 - `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`, `WAKE_LOCK` - Ejecutar temporizador en segundo plano
 - `FLASHLIGHT` - Notificación de flash para intervalos de descanso
 
-## Compilación
+Ver [IzzyOnDroid Permissions](https://android.izzysoft.de/applists/perms) para detalles.
 
-```bash
-git clone https://codeberg.org/Gonbei774/CalisthenicsMemory.git
-cd CalisthenicsMemory
-./gradlew assembleDebug
-```
+## Contribuir
 
-Requiere JDK 17 o superior.
+Ver [CONTRIBUTING.md](../../CONTRIBUTING.md) para las directrices.
 
 ## Licencia
 

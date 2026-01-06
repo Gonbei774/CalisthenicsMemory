@@ -32,28 +32,18 @@
 
 ## Informazioni
 
-Un tracker per allenamenti a corpo libero. Crea esercizi personalizzati, organizza per gruppi e livelli, traccia i tuoi progressi – completamente offline.
+Un tracker per allenamenti a corpo libero incentrato sulla privacy. Personalizza tutto a tuo piacimento.
 
 ## Funzionalità
 
-- **Dashboard Home** - Visualizza i record di allenamento di oggi a colpo d'occhio, tieni premuto per copiare
-- **Completamente personalizzabile** - Crea esercizi liberamente, organizza per gruppi, gestisci con 10 livelli, traccia distanza e peso per esercizio
-- **Preferiti** - Accesso rapido agli esercizi usati frequentemente
-- **To Do** - Pianifica il tuo allenamento aggiungendo esercizi a un elenco attività giornaliero, tocca per passare direttamente alle schermate Registrazione o Allenamento
-- **Due modalità di registrazione**
-  - Modalità registrazione: Inserimento manuale rapido con pulsante "Applica impostazioni esercizio"
-  - Modalità allenamento: Allenamento guidato automatico con impostazioni timer per esercizio (intervallo di riposo, durata ripetizione), notifica flash LED al completamento della serie
-- **Programma** - Crea routine con più esercizi con modalità Timer ON (conto alla rovescia) o Timer OFF (al tuo ritmo), intervalli di riposo configurabili tra le serie
-  - Navigazione Jump/Redo/Finish per un controllo flessibile del progresso
-  - Salva ed Esci per mettere in pausa e riprendere dopo
-  - Valori precedenti mostrati sulle schede esercizio come riferimento
-  - Regola serie e obiettivi durante l'esecuzione
-- **Monitoraggio progressi** - Visualizza i record come liste, grafici o barre di progresso delle sfide
-- **Supporto unilaterale/bilaterale** - Traccia i lati sinistro e destro separatamente per esercizi unilaterali
-- **Obiettivi sfida** - Imposta serie × ripetizioni target e traccia lo stato di raggiungimento
-- **Gestione dati** - Esporta/importa in formato JSON o CSV (supporto backup completo)
-- **Multilingua** - Inglese, giapponese, spagnolo, tedesco, cinese (semplificato), francese, italiano
-- **Privacy first** - Completamente offline, nessun permesso pericoloso, nessun accesso a Internet
+- **To Do** - Pianifica il tuo allenamento, tocca per passare direttamente
+- **Modalità Registrazione** - Inserimento manuale rapido
+- **Modalità Allenamento** - Guidato automatico con timer, notifica al completamento serie
+  - Singolo - Concentrati su un esercizio
+  - Programma - Crea ed esegui routine multi-esercizio, navigazione flessibile
+- **Creazione Esercizi** - Configura dinamico/isometrico, unilaterale/bilaterale, intervalli e altro
+- **Monitoraggio Progressi** - Liste, grafici, stato sfide
+- **Gestione Dati** - Esporta/importa in JSON/CSV
 
 ## Screenshot
 
@@ -68,26 +58,16 @@ Un tracker per allenamenti a corpo libero. Crea esercizi personalizzati, organiz
   <img src="../../screenshots/6.png" width="250">
 </p>
 
-## Requisiti
-
-- **Android** 8.0 (API 26) o superiore
-- **Spazio** ~10MB
-- **Internet** Non richiesto
-
 ## Permessi
 
 - `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`, `WAKE_LOCK` - Eseguire il timer in background
 - `FLASHLIGHT` - Notifica flash per intervalli di riposo
 
-## Compilazione
+Vedi [IzzyOnDroid Permissions](https://android.izzysoft.de/applists/perms) per dettagli.
 
-```bash
-git clone https://codeberg.org/Gonbei774/CalisthenicsMemory.git
-cd CalisthenicsMemory
-./gradlew assembleDebug
-```
+## Contribuire
 
-Richiede JDK 17 o superiore.
+Vedi [CONTRIBUTING.md](../../CONTRIBUTING.md) per le linee guida.
 
 ## Licenza
 

@@ -32,28 +32,18 @@
 
 ## À propos
 
-Un tracker d'entraînement au poids du corps. Créez des exercices personnalisés, organisez par groupes et niveaux, suivez vos progrès – entièrement hors ligne.
+Un tracker d'entraînement au poids du corps axé sur la confidentialité. Personnalisez tout selon vos préférences.
 
 ## Fonctionnalités
 
-- **Tableau de bord** - Visualisez les enregistrements d'entraînement du jour en un coup d'œil, appui long pour copier
-- **Entièrement personnalisable** - Créez des exercices librement, organisez par groupes, gérez avec 10 niveaux, suivez la distance et le poids par exercice
-- **Favoris** - Accès rapide aux exercices fréquemment utilisés
-- **To Do** - Planifiez votre entraînement en ajoutant des exercices à une liste de tâches quotidienne, appuyez pour accéder directement aux écrans Enregistrement ou Entraînement
-- **Deux modes d'enregistrement**
-  - Mode enregistrement : Saisie manuelle rapide avec le bouton "Appliquer les paramètres de l'exercice"
-  - Mode entraînement : Entraînement guidé automatique avec paramètres de minuterie par exercice (intervalle de repos, durée de répétition), notification flash LED à la fin de la série
-- **Programme** - Créez des routines multi-exercices avec les modes Minuteur ON (compte à rebours) ou Minuteur OFF (à votre rythme), intervalles de repos configurables entre les séries
-  - Navigation Jump/Redo/Finish pour un contrôle flexible de la progression
-  - Sauvegarder et Quitter pour mettre en pause et reprendre plus tard
-  - Valeurs précédentes affichées sur les cartes d'exercice comme référence
-  - Ajuster les séries et objectifs pendant l'exécution
-- **Suivi des progrès** - Visualisez les enregistrements sous forme de listes, graphiques ou barres de progression des défis
-- **Support unilatéral/bilatéral** - Suivez les côtés gauche et droit séparément pour les exercices unilatéraux
-- **Objectifs de défi** - Définissez des séries × répétitions cibles et suivez l'état d'accomplissement
-- **Gestion des données** - Export/import au format JSON ou CSV (support de sauvegarde complet)
-- **Multilingue** - Anglais, japonais, espagnol, allemand, chinois (simplifié), français, italien
-- **Confidentialité d'abord** - Entièrement hors ligne, aucune permission dangereuse, pas d'accès Internet
+- **To Do** - Planifiez votre entraînement, appuyez pour accéder directement
+- **Mode Enregistrement** - Saisie manuelle rapide
+- **Mode Entraînement** - Guidage automatique avec minuterie, notification à la fin de série
+  - Simple - Concentrez-vous sur un exercice
+  - Programme - Créez et exécutez des routines multi-exercices, navigation flexible
+- **Création d'Exercices** - Configurez dynamique/isométrique, unilatéral/bilatéral, intervalles et plus
+- **Suivi des Progrès** - Listes, graphiques, état des défis
+- **Gestion des Données** - Export/import en JSON/CSV
 
 ## Captures d'écran
 
@@ -68,26 +58,16 @@ Un tracker d'entraînement au poids du corps. Créez des exercices personnalisé
   <img src="../../screenshots/6.png" width="250">
 </p>
 
-## Configuration requise
-
-- **Android** 8.0 (API 26) ou supérieur
-- **Stockage** ~10 Mo
-- **Internet** Non requis
-
 ## Permissions
 
 - `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`, `WAKE_LOCK` - Exécuter la minuterie en arrière-plan
 - `FLASHLIGHT` - Notification flash pour les intervalles de repos
 
-## Compilation
+Voir [IzzyOnDroid Permissions](https://android.izzysoft.de/applists/perms) pour les détails.
 
-```bash
-git clone https://codeberg.org/Gonbei774/CalisthenicsMemory.git
-cd CalisthenicsMemory
-./gradlew assembleDebug
-```
+## Contribuer
 
-JDK 17 ou supérieur requis.
+Voir [CONTRIBUTING.md](../../CONTRIBUTING.md) pour les directives.
 
 ## Licence
 
