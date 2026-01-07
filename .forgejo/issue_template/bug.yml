@@ -8,7 +8,7 @@ body:
     attributes:
       value: |
         (Trial) You may write this issue in your native language.
-        Responses will be primarily in Japanese.
+        For issues in languages other than English, I will respond primarily in Japanese.
   - type: textarea
     id: description
     attributes:

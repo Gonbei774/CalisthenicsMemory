@@ -8,7 +8,7 @@ body:
     attributes:
       value: |
         (Trial) You may write this issue in your native language.
-        Responses will be primarily in Japanese.
+        For issues in languages other than English, I will respond primarily in Japanese.
 
         If you can provide a full native-speaker translation, you can add it directly on Weblate (no issue needed):
         https://translate.codeberg.org/projects/calisthenics-memory/
