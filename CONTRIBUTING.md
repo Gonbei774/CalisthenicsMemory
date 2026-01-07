@@ -2,10 +2,14 @@
 
 Issues and suggestions are welcome!
 
-- **Codeberg** (main): Issues and Pull Requests
-- **GitHub** (mirror): Issues only
+## Issues
 
-https://codeberg.org/Gonbei774/CalisthenicsMemory
+- [Codeberg](https://codeberg.org/Gonbei774/CalisthenicsMemory/issues/) (main): Issues and Pull Requests
+- [GitHub](https://github.com/Gonbei774/CalisthenicsMemory/issues) (mirror): Issues only
+
+### Language policy
+(Trial) You may open issues in your native language.
+For issues in languages other than English, I will respond primarily in Japanese.
 
 ## How to Build
 
