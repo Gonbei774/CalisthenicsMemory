@@ -1,0 +1,31 @@
+name: New Language Request
+description: Request a new language (I can provide an initial machine-translated draft)
+title: "[New Language] "
+labels:
+  - translation
+body:
+  - type: markdown
+    attributes:
+      value: |
+        (Trial) You may write this issue in your native language.
+        Responses will be primarily in Japanese.
+
+        If you can provide a full native-speaker translation, you can add it directly on Weblate (no issue needed):
+        https://translate.codeberg.org/projects/calisthenics-memory/
+
+        If you request a new language here, I can provide an initial machine-translated draft to get things started.
+        Please do not post machine-translated content on Weblate.
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      placeholder: e.g. Korean, Portuguese
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: Why do you want this language?
+      placeholder: |
+        e.g. I would like to use this app in my native language.
+        (Optional) Are you willing to help review translations?
