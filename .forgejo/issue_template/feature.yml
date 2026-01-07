@@ -4,6 +4,11 @@ title: '[Feature] '
 labels:
   - enhancement
 body:
+  - type: markdown
+    attributes:
+      value: |
+        (Trial) You may write this issue in your native language.
+        Responses will be primarily in Japanese.
   - type: textarea
     id: description
     attributes:
