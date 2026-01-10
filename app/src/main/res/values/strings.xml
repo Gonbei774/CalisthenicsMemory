@@ -269,6 +269,7 @@
     <string name="tab_challenge">Challenge</string>
     <string name="search_placeholder">Search</string>
     <string name="clear">Clear</string>
+    <string name="no_results">No results found</string>
     <string name="value_label">Value</string>
     <string name="right_with_unit">Right (%s)</string>
     <string name="left_with_unit">Left (%s)</string>

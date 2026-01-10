@@ -16,11 +16,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -494,8 +498,19 @@ fun ExerciseSelectionStep(
     viewModel: TrainingViewModel,
     onExerciseSelected: (Exercise) -> Unit
 ) {
+    val exercises by viewModel.exercises.collectAsState()
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
     val expandedGroups by viewModel.expandedGroups.collectAsState()
+
+    // Search state
+    var searchQuery by remember { mutableStateOf("") }
+    val searchResults = remember(exercises, searchQuery) {
+        if (searchQuery.isBlank()) {
+            emptyList()
+        } else {
+            exercises.filter { it.name.contains(searchQuery, ignoreCase = true) }
+        }
+    }
 
     if (hierarchicalData.isEmpty()) {
         Box(
@@ -509,30 +524,103 @@ fun ExerciseSelectionStep(
             )
         }
     } else {
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(16.dp)
         ) {
-            items(
-                count = hierarchicalData.size,
-                key = { index -> hierarchicalData[index].groupName ?: "ungrouped" }
-            ) { index ->
-                val group = hierarchicalData[index]
-                WorkoutHierarchicalGroup(
-                    group = group,
-                    isExpanded = if (group.groupName != null) {
-                        group.groupName in expandedGroups
+            // Search field
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = {
+                    Text(
+                        text = stringResource(R.string.search_placeholder),
+                        color = Slate400
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.Search,
+                        contentDescription = null,
+                        tint = Slate400
+                    )
+                },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(
+                                Icons.Default.Clear,
+                                contentDescription = stringResource(R.string.clear),
+                                tint = Slate400
+                            )
+                        }
+                    }
+                },
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedContainerColor = Slate800,
+                    unfocusedContainerColor = Slate800,
+                    focusedBorderColor = Orange600,
+                    unfocusedBorderColor = Slate600,
+                    cursorColor = Orange600
+                ),
+                shape = RoundedCornerShape(8.dp)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                if (searchQuery.isNotBlank()) {
+                    // Flat search results
+                    if (searchResults.isEmpty()) {
+                        item {
+                            Text(
+                                text = stringResource(R.string.no_results),
+                                color = Slate400,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
                     } else {
-                        "ungrouped" in expandedGroups
-                    },
-                    onExpandToggle = {
-                        val key = group.groupName ?: "ungrouped"
-                        viewModel.toggleGroupExpansion(key)
-                    },
-                    onExerciseSelected = onExerciseSelected
-                )
+                        items(
+                            count = searchResults.size,
+                            key = { index -> searchResults[index].id }
+                        ) { index ->
+                            val exercise = searchResults[index]
+                            WorkoutSearchResultItem(
+                                exercise = exercise,
+                                onSelected = { onExerciseSelected(exercise) }
+                            )
+                        }
+                    }
+                } else {
+                    // Hierarchical group view
+                    items(
+                        count = hierarchicalData.size,
+                        key = { index -> hierarchicalData[index].groupName ?: "ungrouped" }
+                    ) { index ->
+                        val group = hierarchicalData[index]
+                        WorkoutHierarchicalGroup(
+                            group = group,
+                            isExpanded = if (group.groupName != null) {
+                                group.groupName in expandedGroups
+                            } else {
+                                "ungrouped" in expandedGroups
+                            },
+                            onExpandToggle = {
+                                val key = group.groupName ?: "ungrouped"
+                                viewModel.toggleGroupExpansion(key)
+                            },
+                            onExerciseSelected = onExerciseSelected
+                        )
+                    }
+                }
             }
         }
     }
@@ -2367,6 +2455,130 @@ fun ModeSelectionStep(
                     modifier = Modifier.size(28.dp)
                 )
             }
+        }
+    }
+}
+
+// 検索結果用種目アイテム（フラットリスト表示）
+@Composable
+fun WorkoutSearchResultItem(
+    exercise: Exercise,
+    onSelected: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Slate800),
+        shape = RoundedCornerShape(12.dp),
+        onClick = onSelected
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                // 種目名とグループ名
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = exercise.name,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    // グループ名バッジ
+                    exercise.group?.let { groupName ->
+                        Text(
+                            text = groupName,
+                            fontSize = 10.sp,
+                            color = Orange600,
+                            modifier = Modifier
+                                .background(
+                                    color = Orange600.copy(alpha = 0.2f),
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+
+                // バッジ行
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 4.dp)
+                ) {
+                    // お気に入り
+                    if (exercise.isFavorite) {
+                        Text(
+                            text = "★",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFFD700)
+                        )
+                    }
+
+                    // レベル
+                    if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
+                        Text(
+                            text = "Lv.${exercise.sortOrder}",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Blue600
+                        )
+                    }
+
+                    // タイプ
+                    Text(
+                        text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Slate400
+                    )
+
+                    // Unilateral
+                    if (exercise.laterality == "Unilateral") {
+                        Text(
+                            text = stringResource(R.string.one_sided_workout),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Purple600
+                        )
+                    }
+                }
+
+                // 課題情報
+                if (exercise.targetSets != null && exercise.targetValue != null) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.padding(top = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val unit = if (exercise.type == "Dynamic") stringResource(R.string.unit_reps) else stringResource(R.string.unit_seconds)
+                        Text(
+                            text = stringResource(
+                                if (exercise.laterality == "Unilateral") R.string.target_format_unilateral else R.string.target_format,
+                                exercise.targetSets ?: 0,
+                                exercise.targetValue ?: 0,
+                                unit
+                            ),
+                            fontSize = 12.sp,
+                            color = Green400,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = Orange600,
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }

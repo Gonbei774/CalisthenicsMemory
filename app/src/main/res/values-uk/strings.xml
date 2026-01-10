@@ -10,6 +10,8 @@
     <string name="back">Назад</string>
     <string name="close">Закрити</string>
     <string name="search">Пошук</string>
+    <string name="search_exercise">Шукати вправу...</string>
+    <string name="search_placeholder">Пошук</string>
     <string name="select">Вибрати</string>
     <string name="settings">Налаштування</string>
     <string name="comment">Коментар</string>

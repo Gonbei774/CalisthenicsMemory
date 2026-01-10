@@ -15,9 +15,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -344,9 +346,21 @@ fun AddExercisesDialog(
     // Track selected exercises
     var selectedExercises by remember { mutableStateOf(setOf<Long>()) }
 
+    // Search query state
+    var searchQuery by remember { mutableStateOf("") }
+
     // Filter out already added exercises
     val availableExercises = remember(exercises, existingTaskExerciseIds) {
         exercises.filter { it.id !in existingTaskExerciseIds }
+    }
+
+    // Filter exercises by search query
+    val searchResults = remember(availableExercises, searchQuery) {
+        if (searchQuery.isBlank()) {
+            emptyList()
+        } else {
+            availableExercises.filter { it.name.contains(searchQuery, ignoreCase = true) }
+        }
     }
 
     AlertDialog(
@@ -366,36 +380,117 @@ fun AddExercisesDialog(
                     color = Slate400
                 )
             } else {
-                LazyColumn(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.7f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .fillMaxHeight(0.7f)
                 ) {
-                    items(
-                        count = hierarchicalData.size,
-                        key = { index -> hierarchicalData[index].groupName ?: "ungrouped" }
-                    ) { index ->
-                        val group = hierarchicalData[index]
-                        // Filter exercises in this group
-                        val availableInGroup = group.exercises.filter { it.id !in existingTaskExerciseIds }
-                        if (availableInGroup.isNotEmpty()) {
-                            AddExerciseGroup(
-                                groupName = group.groupName,
-                                exercises = availableInGroup,
-                                selectedExercises = selectedExercises,
-                                isExpanded = (group.groupName ?: "ungrouped") in expandedGroups,
-                                onExpandToggle = {
-                                    viewModel.toggleGroupExpansion(group.groupName ?: "ungrouped")
-                                },
-                                onExerciseToggle = { exerciseId ->
-                                    selectedExercises = if (exerciseId in selectedExercises) {
-                                        selectedExercises - exerciseId
-                                    } else {
-                                        selectedExercises + exerciseId
-                                    }
-                                }
+                    // Search field
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        placeholder = {
+                            Text(
+                                text = stringResource(R.string.search_placeholder),
+                                color = Slate400
                             )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Search,
+                                contentDescription = null,
+                                tint = Slate400
+                            )
+                        },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { searchQuery = "" }) {
+                                    Icon(
+                                        Icons.Default.Clear,
+                                        contentDescription = stringResource(R.string.clear),
+                                        tint = Slate400
+                                    )
+                                }
+                            }
+                        },
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedContainerColor = Slate700,
+                            unfocusedContainerColor = Slate700,
+                            focusedBorderColor = Amber500,
+                            unfocusedBorderColor = Slate600,
+                            cursorColor = Amber500
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+
+                    // Exercise list
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        if (searchQuery.isNotBlank()) {
+                            // Flat search results
+                            if (searchResults.isEmpty()) {
+                                item {
+                                    Text(
+                                        text = stringResource(R.string.no_results),
+                                        color = Slate400,
+                                        modifier = Modifier.padding(16.dp)
+                                    )
+                                }
+                            } else {
+                                items(
+                                    count = searchResults.size,
+                                    key = { index -> searchResults[index].id }
+                                ) { index ->
+                                    val exercise = searchResults[index]
+                                    SearchResultExerciseItem(
+                                        exercise = exercise,
+                                        isSelected = exercise.id in selectedExercises,
+                                        onToggle = { exerciseId ->
+                                            selectedExercises = if (exerciseId in selectedExercises) {
+                                                selectedExercises - exerciseId
+                                            } else {
+                                                selectedExercises + exerciseId
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        } else {
+                            // Hierarchical group view
+                            items(
+                                count = hierarchicalData.size,
+                                key = { index -> hierarchicalData[index].groupName ?: "ungrouped" }
+                            ) { index ->
+                                val group = hierarchicalData[index]
+                                // Filter exercises in this group
+                                val availableInGroup = group.exercises.filter { it.id !in existingTaskExerciseIds }
+                                if (availableInGroup.isNotEmpty()) {
+                                    AddExerciseGroup(
+                                        groupName = group.groupName,
+                                        exercises = availableInGroup,
+                                        selectedExercises = selectedExercises,
+                                        isExpanded = (group.groupName ?: "ungrouped") in expandedGroups,
+                                        onExpandToggle = {
+                                            viewModel.toggleGroupExpansion(group.groupName ?: "ungrouped")
+                                        },
+                                        onExerciseToggle = { exerciseId ->
+                                            selectedExercises = if (exerciseId in selectedExercises) {
+                                                selectedExercises - exerciseId
+                                            } else {
+                                                selectedExercises + exerciseId
+                                            }
+                                        }
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -572,6 +667,102 @@ fun AddExerciseGroup(
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SearchResultExerciseItem(
+    exercise: Exercise,
+    isSelected: Boolean,
+    onToggle: (Long) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Slate700),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            Checkbox(
+                checked = isSelected,
+                onCheckedChange = { onToggle(exercise.id) },
+                colors = CheckboxDefaults.colors(
+                    checkedColor = Amber500,
+                    uncheckedColor = Slate400
+                )
+            )
+            Column(modifier = Modifier.padding(start = 4.dp, top = 10.dp)) {
+                Text(
+                    text = exercise.name,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                // Badges row
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 2.dp)
+                ) {
+                    // Favorite
+                    if (exercise.isFavorite) {
+                        Text(
+                            text = "★",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFFD700)
+                        )
+                    }
+
+                    // Level
+                    if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
+                        Text(
+                            text = "Lv.${exercise.sortOrder}",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Blue600
+                        )
+                    }
+
+                    // Type
+                    Text(
+                        text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Slate400
+                    )
+
+                    // Unilateral
+                    if (exercise.laterality == "Unilateral") {
+                        Text(
+                            text = stringResource(R.string.one_sided),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Purple600
+                        )
+                    }
+                }
+                // Target
+                if (exercise.targetSets != null && exercise.targetValue != null) {
+                    Text(
+                        text = stringResource(
+                            if (exercise.laterality == "Unilateral") R.string.target_format_unilateral else R.string.target_format,
+                            exercise.targetSets!!,
+                            exercise.targetValue!!,
+                            stringResource(if (exercise.type == "Dynamic") R.string.unit_reps else R.string.unit_seconds)
+                        ),
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Green400,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
                 }
             }
         }
