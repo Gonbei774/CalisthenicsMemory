@@ -1,7 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App Name -->
     <string name="app_name">Calisthenics Memory</string>
-
     <!-- Common -->
     <string name="ok">Aceptar</string>
     <string name="cancel">Cancelar</string>
@@ -23,7 +23,6 @@
     <string name="type">Tipo</string>
     <string name="menu">Menú</string>
     <string name="loading">Cargando...</string>
-
     <!-- Home Screen -->
     <string name="bodyweight_training">Entrenamiento con Peso Corporal</string>
     <string name="home_create">Crear Ejercicio</string>
@@ -35,14 +34,14 @@
     <string name="view_details">Ver detalles →</string>
     <string name="view_all_records">Ver todos los registros →</string>
     <string name="copied_to_clipboard">Copiado al portapapeles</string>
-
     <!-- Create Screen -->
     <string name="exercise_creation">Creación de Ejercicios</string>
     <string name="no_exercises">No hay ejercicios aún\nAñade uno usando el botón + de abajo</string>
     <string name="exercise_name">Nombre del Ejercicio</string>
     <string name="set_challenge">Establecer Desafío</string>
     <string name="sets_count">Series</string>
-    <string name="reps_or_seconds">%s</string> <!-- Will be replaced with "Reps" or "Seconds" -->
+    <string name="reps_or_seconds">%s</string>
+    <!-- Will be replaced with "Reps" or "Seconds" -->
     <string name="reps">Repeticiones</string>
     <string name="seconds">Segundos</string>
     <string name="per_side">(Por Lado)</string>
@@ -72,7 +71,6 @@
     <string name="delete_confirmation">Confirmación de Eliminación</string>
     <string name="exercises_count">%d ejercicio(s)</string>
     <string name="character_count">%1$d/%2$d</string>
-
     <!-- Record Screen -->
     <string name="training_record">Registro de Entrenamiento</string>
     <string name="no_exercises_registered">No hay ejercicios registrados</string>
@@ -99,7 +97,6 @@
     <string name="time_label">Tiempo</string>
     <string name="dynamic_type">Repeticiones</string>
     <string name="isometric_type">Tiempo</string>
-
     <!-- View Screen -->
     <string name="view_records">Ver Registros</string>
     <string name="list">Lista</string>
@@ -123,7 +120,6 @@
     <string name="search_exercise">Buscar Ejercicio...</string>
     <string name="filter_bottom_sheet_title">Seleccionar Ejercicio</string>
     <string name="clear_filter">Limpiar Filtro</string>
-
     <!-- Period filters -->
     <string name="period_1week">1 Semana</string>
     <string name="period_1month">1 Mes</string>
@@ -131,7 +127,6 @@
     <string name="period_one_week">1 Semana</string>
     <string name="period_one_month">1 Mes</string>
     <string name="period_three_months">3 Meses</string>
-
     <!-- Graph Screen -->
     <string name="display_data">Mostrar Datos</string>
     <string name="graph_average">Promedio</string>
@@ -151,7 +146,6 @@
     <string name="change_format">%+d series</string>
     <string name="unit_reps">reps</string>
     <string name="unit_seconds">seg</string>
-
     <!-- Challenge Screen -->
     <string name="no_challenge_set">Sin Desafío Establecido</string>
     <string name="last_workout">Último Entrenamiento</string>
@@ -160,7 +154,6 @@
     <string name="no_exercises_available">No hay ejercicios disponibles</string>
     <string name="no_exercises_in_period">No hay ejercicios realizados en %s</string>
     <string name="achievement_rate">%1$d%% (%2$d/%3$d%4$s)</string>
-
     <!-- Settings Screen -->
     <string name="data_management">📦 Gestión de Datos</string>
     <string name="export_data">Exportar Datos</string>
@@ -183,7 +176,6 @@
     <string name="existing_data_will_be_deleted">Todos los datos existentes serán eliminados.</string>
     <string name="cannot_undo">Esta acción no se puede deshacer.</string>
     <string name="import_confirm">Importar</string>
-
     <!-- ViewModel Messages -->
     <string name="already_registered_format">\"%1$s (%2$s)\" ya está registrado</string>
     <string name="dynamic_label">Repeticiones</string>
@@ -205,7 +197,6 @@
     <string name="export_error">Error de exportación: %s</string>
     <string name="import_complete">Importación completa: %1$d grupos, %2$d ejercicios, %3$d registros</string>
     <string name="import_error">Error de importación: %s</string>
-
     <!-- Workout Screen (if exists) -->
     <string name="workout_title">Entrenamiento</string>
     <string name="no_exercises_yet_workout">No hay ejercicios aún</string>
@@ -251,13 +242,11 @@
     <string name="left_colon">Izquierdo:</string>
     <string name="reps_input">Repeticiones</string>
     <string name="seconds_input">Segundos</string>
-
     <!-- Level display -->
     <string name="level_format">Nv.%d</string>
     <!-- Additional missing strings -->
     <string name="bilateral_label">Bilateral</string>
     <string name="unilateral_label">Unilateral</string>
-
     <!-- Common Labels -->
     <string name="tab_list">Lista</string>
     <string name="tab_graph">Gráfica</string>
@@ -271,7 +260,6 @@
     <string name="graph_type_average">Promedio</string>
     <string name="graph_type_max">Máximo</string>
     <string name="graph_type_total">Total</string>
-
     <!-- Additional hardcoded strings that need to be moved -->
     <string name="no_exercises_add_with_plus">No hay ejercicios aún\nAñade uno usando el botón + de abajo</string>
     <string name="delete_group_confirm_message">¿Eliminar \"%s\"?\nLos ejercicios de este grupo se moverán a \"Sin Grupo\".</string>
@@ -301,7 +289,6 @@
     <string name="edit_exercise_title">Editar Ejercicio</string>
     <string name="create_group_title">Crear Nuevo Grupo</string>
     <string name="add_exercise_title">Añadir Nuevo Ejercicio</string>
-
     <!-- GraphView specific strings -->
     <string name="graph_tooltip_unilateral">%1$s: Derecho %2$d%3$s / Izquierdo %4$d%5$s</string>
     <string name="statistics_average_label">Promedio</string>
@@ -310,17 +297,14 @@
     <string name="statistics_total_sets_label">Total de Series</string>
     <string name="statistics_value_format">%1$d%2$s</string>
     <string name="statistics_sets_count_format">%d series</string>
-
     <!-- Additional format strings for remaining hardcoded Japanese -->
     <string name="multiplication_sign">×</string>
     <string name="per_side_short">(por lado)</string>
     <string name="unknown_short">Desconocido</string>
     <string name="colon_separator">: </string>
-
     <!-- Remaining hardcoded strings migration -->
     <string name="set_ordinal_suffix">Serie %d</string>
     <string name="target_prefix">Meta: </string>
-
     <!-- ViewScreen & GraphView remaining strings -->
     <string name="right_short">Derecho</string>
     <string name="left_short">Izquierdo</string>
@@ -329,7 +313,6 @@
     <string name="worst_record">Más Bajo</string>
     <string name="graph_tooltip_bilateral">%1$s: %2$d%3$s</string>
     <string name="graph_tooltip_unilateral_detail">%1$s: D%2$d%4$s / I%3$d%4$s</string>
-
     <!-- CSV Import/Export -->
     <string name="csv_export_success">%1$s exportado: %2$d elementos</string>
     <string name="csv_template_exported">Plantilla CSV exportada: %d ejercicios</string>
@@ -340,7 +323,6 @@
     <string name="csv_import">Importar CSV</string>
     <string name="csv_template_description">Descargar plantilla para registro</string>
     <string name="csv_import_description">Importar grupos, ejercicios o registros (detección automática)</string>
-
     <!-- CSV Export Dialog -->
     <string name="csv_export">Exportar CSV</string>
     <string name="csv_export_description">Exportar grupos, ejercicios, registros o plantilla de registros</string>
@@ -352,7 +334,6 @@
     <string name="csv_export_records_description">Exportar todos los registros de entrenamiento</string>
     <string name="csv_export_record_template">Plantilla de Registro</string>
     <string name="csv_export_record_template_description">Exportar plantilla para añadir registros</string>
-
     <!-- CSV Import Preview Dialog -->
     <string name="csv_import_preview">Vista Previa de Importación CSV</string>
     <string name="csv_file">Archivo</string>
@@ -365,7 +346,6 @@
     <string name="csv_import_mode_replace">Reemplazar</string>
     <string name="csv_import_mode_replace_description">Eliminar todos los datos existentes y reemplazar</string>
     <string name="csv_import_button">Importar</string>
-
     <!-- CSV Import Result Dialog -->
     <string name="csv_import_completed">Importación Completada</string>
     <string name="csv_import_success_label">✅ Éxito</string>
@@ -374,7 +354,6 @@
     <string name="csv_import_skipped_items">Elementos Omitidos (%d)</string>
     <string name="csv_import_errors">Errores (%d)</string>
     <string name="csv_import_more_items">... y %d más</string>
-
     <!-- Settings Screen Sections -->
     <string name="section_full_backup">Copia de Seguridad Completa (JSON)</string>
     <string name="section_full_backup_description">Guardar y restaurar todos los datos (ejercicios, registros, grupos).\nUsa esto cuando cambies de dispositivo.</string>
@@ -383,12 +362,10 @@
     <!-- Legacy key for compatibility -->
     <string name="section_add_records">Añadir Registros (CSV)</string>
     <string name="section_add_records_description">Añadir registros a los datos existentes.\nUsa esto para importar registros analógicos o datos de otras aplicaciones.</string>
-
     <!-- Favorites -->
     <string name="favorite">Favorito</string>
     <string name="add_to_favorites">Añadir a favoritos</string>
     <string name="remove_from_favorites">Eliminar de favoritos</string>
-
     <!-- Language Settings -->
     <string name="section_language">Configuración de Idioma</string>
     <string name="section_language_description">Cambiar el idioma de visualización de la aplicación.\nLos cambios tendrán efecto después de reiniciar la aplicación.</string>
@@ -396,15 +373,12 @@
     <string name="current_language">Actual: %s</string>
     <string name="restart_required">Reinicio requerido para aplicar cambios</string>
     <string name="language_changed">Idioma cambiado. Por favor reinicia la aplicación.</string>
-
     <!-- Open Source Licenses -->
     <string name="open_source_licenses">Licencias de Código Abierto</string>
     <string name="licenses_description">Ver licencias de las bibliotecas usadas en esta app</string>
-
     <!-- Training Days Display -->
     <string name="training_days_format">Entrenamiento %s</string>
     <string name="last_record_short">Último: %s</string>
-
     <!-- Backup Before Import -->
     <string name="backup_before_import_title">Confirmación antes de importar</string>
     <string name="backup_before_import_message">¿Hacer una copia de seguridad de los datos actuales?</string>
@@ -412,13 +386,11 @@
     <string name="skip_and_continue">Omitir y continuar</string>
     <string name="backup_saved_successfully">Copia de seguridad guardada en la carpeta Descargas</string>
     <string name="backup_failed">Error al guardar la copia de seguridad</string>
-
     <!-- Auto-fill Settings -->
     <string name="settings_autofill_section">Autocompletar</string>
     <string name="settings_autofill_section_description">Configurar la asistencia de entrada automática.</string>
     <string name="settings_prefill_previous">Pre-llenar registro anterior</string>
     <string name="settings_prefill_previous_description">Auto-llenar valores de la última sesión en las pantallas de Registro y Entrenamiento</string>
-
     <!-- Workout Settings -->
     <string name="section_workout_settings">Configuración de Entrenamiento</string>
     <string name="section_workout_settings_description">Configurar los valores predeterminados del temporizador de entrenamiento.</string>
@@ -434,7 +406,6 @@
     <string name="seconds_format">%d segundos</string>
     <string name="set_interval_note">Nota: La configuración específica del ejercicio tiene prioridad si está configurada.</string>
     <string name="enter_seconds_max">Ingresar segundos (máx %d)</string>
-
     <!-- Timer Settings (Per-Exercise) -->
     <string name="timer_settings_optional">Configuración del Temporizador (Opcional)</string>
     <string name="timer_settings_description">Configurar temporizadores para este ejercicio. Dejar en blanco para usar la configuración predeterminada.</string>
@@ -442,7 +413,6 @@
     <string name="rest_interval_seconds">Intervalo de Descanso (segundos)</string>
     <string name="example_5_seconds">ej. 5</string>
     <string name="example_240_seconds">ej. 240</string>
-
     <!-- Distance/Weight Tracking Settings -->
     <string name="tracking_settings_optional">Configuración de Seguimiento (Opcional)</string>
     <string name="track_distance">Registrar Distancia</string>
@@ -453,24 +423,20 @@
     <string name="weight_input_label">Peso (kg)</string>
     <string name="distance_display_format">%d cm</string>
     <string name="weight_display_format">%.1f kg</string>
-
     <!-- Distance Graph -->
     <string name="invert">Invertir</string>
     <string name="legend_reps">Reps</string>
     <string name="legend_distance">Distancia</string>
     <string name="legend_distance_inverted">Distancia (invertida)</string>
-
     <!-- Volume/Weight Statistics -->
     <string name="legend_volume">Volumen</string>
     <string name="max_daily_volume">Volumen diario máx.</string>
     <string name="avg_daily_volume">Volumen diario prom.</string>
     <string name="max_weight">Peso máximo</string>
     <string name="avg_weight">Peso promedio</string>
-
     <!-- Apply Exercise Settings Button -->
     <string name="apply_exercise_settings">Aplicar Configuración del Ejercicio</string>
     <string name="apply_target_values">Aplicar Valores Meta</string>
-
     <!-- App Info Section -->
     <string name="section_app_info">Información de la App</string>
     <string name="section_app_info_description">Ver información de la aplicación y licencias.</string>
@@ -486,13 +452,11 @@
     <string name="github_description">Repositorio espejo</string>
     <string name="report_issue_codeberg">Reportar problema en Codeberg</string>
     <string name="report_issue_github">Reportar problema en GitHub</string>
-
     <!-- Flash Notification -->
     <string name="flash_notification_setting">Notificación con Flash LED</string>
     <string name="flash_notification_description">Hacer parpadear el LED sincronizado con los sonidos durante el entrenamiento</string>
     <string name="keep_screen_on_setting">Mantener pantalla encendida</string>
     <string name="keep_screen_on_description">Mantener la pantalla encendida durante el entrenamiento para ver la cuenta regresiva</string>
-
     <!-- To Do Screen -->
     <string name="todo_title">Pendientes</string>
     <string name="todo_empty">Toca + para añadir ejercicios</string>
@@ -501,13 +465,11 @@
     <string name="todo_drag_to_reorder">Arrastra para reordenar</string>
     <string name="todo_rec_button">Reg</string>
     <string name="todo_wo_button">WO</string>
-
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">Temporizador de entrenamiento</string>
     <string name="notification_channel_workout_description">Muestra notificación mientras el temporizador de entrenamiento está activo</string>
     <string name="notification_workout_title">Entrenamiento en progreso</string>
     <string name="notification_workout_text">El temporizador está activo</string>
-
     <!-- Program Feature -->
     <string name="program_mode">Programa</string>
     <string name="program_mode_description">Ejecutar múltiples ejercicios en secuencia</string>
@@ -550,17 +512,14 @@
     <string name="program_previous_value">Usando valor anterior</string>
     <string name="next_exercise_label">Siguiente: %s</string>
     <string name="program_set_label">Serie %d:</string>
-
     <!-- Exit Workout Confirmation -->
     <string name="exit_workout_title">¿Salir del entrenamiento?</string>
     <string name="exit_workout_message">El progreso no se guardará.</string>
     <string name="exit_workout_confirm">Salir</string>
-
     <!-- Discard Result Confirmation -->
     <string name="discard_result_title">¿Descartar resultados?</string>
     <string name="discard_result_message">Los resultados del entrenamiento no se guardarán.</string>
     <string name="discard_result_confirm">Descartar</string>
-
     <!-- Missing keys -->
     <string name="interval_short">Descanso:</string>
     <string name="sets_label_short">Series:</string>
@@ -583,7 +542,6 @@
     <string name="previous_value_format">Anterior: %d</string>
     <string name="reps_unit">reps</string>
     <string name="program_result_zero_warning">Hay series con valor 0. Las series con valor cero para ejercicios bilaterales, y las series donde ambos lados son 0 para ejercicios unilaterales, no se guardarán.</string>
-
     <!-- Sound Settings (Program Confirm) -->
     <string name="sound_settings_section">Ajustes de sonido</string>
     <string name="dynamic_count_sound_label">Sonido de conteo</string>
@@ -591,19 +549,16 @@
     <string name="isometric_interval_sound_label">Notificación de intervalo</string>
     <string name="isometric_interval_sound_description">Ejercicios isométricos</string>
     <string name="interval_seconds_short">%d seg</string>
-
     <!-- Auto Mode -->
     <string name="auto_mode_label">Modo automático</string>
     <string name="auto_mode">Modo automático</string>
     <string name="auto_mode_description">Botón de finalización manual</string>
     <string name="auto_mode_disabled_hint">Requiere sonido de conteo activado</string>
-
     <!-- Program Settings -->
     <string name="all_exercises_label">Todos los ejercicios</string>
     <string name="all_sets_label">Todas las series</string>
     <string name="auto_fill_target_label">Autocompletar valores objetivo</string>
     <string name="program_estimated_time">~%d min</string>
-
     <!-- Navigation Sheet (Program Execution) -->
     <string name="nav_program_overview">Resumen del programa</string>
     <string name="nav_overall_progress">Progreso general</string>
