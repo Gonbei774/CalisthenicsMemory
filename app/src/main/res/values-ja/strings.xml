@@ -531,12 +531,10 @@
     <string name="exit_workout_title">トレーニングを中断しますか？</string>
     <string name="exit_workout_message">進捗は保存されません。</string>
     <string name="exit_workout_confirm">中断する</string>
-
     <!-- Discard Result Confirmation -->
     <string name="discard_result_title">記録を破棄しますか？</string>
     <string name="discard_result_message">トレーニング結果は保存されません。</string>
     <string name="discard_result_confirm">破棄する</string>
-
     <!-- Short labels -->
     <string name="interval_short">休憩:</string>
     <string name="sets_label_short">セット:</string>
