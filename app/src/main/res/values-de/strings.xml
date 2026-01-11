@@ -1,7 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App Name -->
     <string name="app_name">Calisthenics Memory</string>
-
     <!-- Common -->
     <string name="ok">OK</string>
     <string name="cancel">Abbrechen</string>
@@ -23,7 +23,6 @@
     <string name="type">Typ</string>
     <string name="menu">Menü</string>
     <string name="loading">Lädt...</string>
-
     <!-- Home Screen -->
     <string name="bodyweight_training">Eigengewichtstraining</string>
     <string name="home_create">Übung Erstellen</string>
@@ -35,14 +34,14 @@
     <string name="view_details">Details anzeigen →</string>
     <string name="view_all_records">Alle Aufzeichnungen anzeigen →</string>
     <string name="copied_to_clipboard">In Zwischenablage kopiert</string>
-
     <!-- Create Screen -->
     <string name="exercise_creation">Übung erstellen</string>
     <string name="no_exercises">Noch keine Übungen vorhanden\nFüge eine mit dem + Button unten hinzu</string>
     <string name="exercise_name">Übungsname</string>
     <string name="set_challenge">Ziel festlegen</string>
     <string name="sets_count">Sätze</string>
-    <string name="reps_or_seconds">%s</string> <!-- Will be replaced with "Reps" or "Seconds" -->
+    <string name="reps_or_seconds">%s</string>
+    <!-- Will be replaced with "Reps" or "Seconds" -->
     <string name="reps">Wiederholungen</string>
     <string name="seconds">Sekunden</string>
     <string name="per_side">(Pro Seite)</string>
@@ -72,7 +71,6 @@
     <string name="delete_confirmation">Löschbestätigung</string>
     <string name="exercises_count">%d Übung(en)</string>
     <string name="character_count">%1$d/%2$d</string>
-
     <!-- Record Screen -->
     <string name="training_record">Trainingsaufzeichnung</string>
     <string name="no_exercises_registered">Keine Übungen registriert</string>
@@ -99,7 +97,6 @@
     <string name="time_label">Zeit</string>
     <string name="dynamic_type">Wiederholungen</string>
     <string name="isometric_type">Zeit</string>
-
     <!-- View Screen -->
     <string name="view_records">Aufzeichnungen ansehen</string>
     <string name="list">Liste</string>
@@ -123,7 +120,6 @@
     <string name="search_exercise">Übung suchen...</string>
     <string name="filter_bottom_sheet_title">Übung auswählen</string>
     <string name="clear_filter">Filter löschen</string>
-
     <!-- Period filters -->
     <string name="period_1week">1 Woche</string>
     <string name="period_1month">1 Monat</string>
@@ -131,7 +127,6 @@
     <string name="period_one_week">1 Woche</string>
     <string name="period_one_month">1 Monat</string>
     <string name="period_three_months">3 Monate</string>
-
     <!-- Graph Screen -->
     <string name="display_data">Daten anzeigen</string>
     <string name="graph_average">Durchschnitt</string>
@@ -151,7 +146,6 @@
     <string name="change_format">%+d Sätze</string>
     <string name="unit_reps">Wdh.</string>
     <string name="unit_seconds">Sek.</string>
-
     <!-- Challenge Screen -->
     <string name="no_challenge_set">Keine Herausforderung festgelegt</string>
     <string name="last_workout">Letztes Training</string>
@@ -160,7 +154,6 @@
     <string name="no_exercises_available">Keine Übungen verfügbar</string>
     <string name="no_exercises_in_period">Keine Übungen in %s durchgeführt</string>
     <string name="achievement_rate">%1$d%% (%2$d/%3$d%4$s)</string>
-
     <!-- Settings Screen -->
     <string name="data_management">📦 Datenverwaltung</string>
     <string name="export_data">Daten exportieren</string>
@@ -183,7 +176,6 @@
     <string name="existing_data_will_be_deleted">Alle vorhandenen Daten werden gelöscht.</string>
     <string name="cannot_undo">Diese Aktion kann nicht rückgängig gemacht werden.</string>
     <string name="import_confirm">Importieren</string>
-
     <!-- ViewModel Messages -->
     <string name="already_registered_format">\"%1$s (%2$s)\" ist bereits registriert</string>
     <string name="dynamic_label">Wiederholungen</string>
@@ -205,7 +197,6 @@
     <string name="export_error">Exportfehler: %s</string>
     <string name="import_complete">Import abgeschlossen: %1$d Gruppen, %2$d Übungen, %3$d Aufzeichnungen</string>
     <string name="import_error">Importfehler: %s</string>
-
     <!-- Workout Screen (if exists) -->
     <string name="workout_title">Training</string>
     <string name="no_exercises_yet_workout">Noch keine Übungen</string>
@@ -251,13 +242,11 @@
     <string name="left_colon">Links:</string>
     <string name="reps_input">Wiederholungen</string>
     <string name="seconds_input">Sekunden</string>
-
     <!-- Level display -->
     <string name="level_format">Lv.%d</string>
     <!-- Additional missing strings -->
     <string name="bilateral_label">Beidseitig</string>
     <string name="unilateral_label">Einseitig</string>
-
     <!-- Common Labels -->
     <string name="tab_list">Liste</string>
     <string name="tab_graph">Diagramm</string>
@@ -271,7 +260,6 @@
     <string name="graph_type_average">Durchschnitt</string>
     <string name="graph_type_max">Maximum</string>
     <string name="graph_type_total">Gesamt</string>
-
     <!-- Additional hardcoded strings that need to be moved -->
     <string name="no_exercises_add_with_plus">Noch keine Übungen vorhanden\nFüge eine mit dem + Button unten hinzu</string>
     <string name="delete_group_confirm_message">\"%s\" löschen?\nÜbungen in dieser Gruppe werden zu \"Keine Gruppe\" verschoben.</string>
@@ -301,7 +289,6 @@
     <string name="edit_exercise_title">Übung bearbeiten</string>
     <string name="create_group_title">Neue Gruppe erstellen</string>
     <string name="add_exercise_title">Neue Übung hinzufügen</string>
-
     <!-- GraphView specific strings -->
     <string name="graph_tooltip_unilateral">%1$s: Rechts %2$d%3$s / Links %4$d%5$s</string>
     <string name="statistics_average_label">Durchschnitt</string>
@@ -310,17 +297,14 @@
     <string name="statistics_total_sets_label">Gesamte Sätze</string>
     <string name="statistics_value_format">%1$d%2$s</string>
     <string name="statistics_sets_count_format">%d Sätze</string>
-
     <!-- Additional format strings for remaining hardcoded Japanese -->
     <string name="multiplication_sign">×</string>
     <string name="per_side_short">(pro Seite)</string>
     <string name="unknown_short">Unbekannt</string>
     <string name="colon_separator">: </string>
-
     <!-- Remaining hardcoded strings migration -->
     <string name="set_ordinal_suffix">Satz %d</string>
     <string name="target_prefix">Ziel: </string>
-
     <!-- ViewScreen & GraphView remaining strings -->
     <string name="right_short">Rechts</string>
     <string name="left_short">Links</string>
@@ -329,7 +313,6 @@
     <string name="worst_record">Niedrigste</string>
     <string name="graph_tooltip_bilateral">%1$s: %2$d%3$s</string>
     <string name="graph_tooltip_unilateral_detail">%1$s: R%2$d%4$s / L%3$d%4$s</string>
-
     <!-- CSV Import/Export -->
     <string name="csv_export_success">%1$s exportiert: %2$d Elemente</string>
     <string name="csv_template_exported">CSV-Vorlage exportiert: %d Übungen</string>
@@ -340,7 +323,6 @@
     <string name="csv_import">CSV-Import</string>
     <string name="csv_template_description">Vorlage für Aufzeichnung herunterladen</string>
     <string name="csv_import_description">Gruppen, Übungen oder Aufzeichnungen importieren (automatische Erkennung)</string>
-
     <!-- CSV Export Dialog -->
     <string name="csv_export">CSV-Export</string>
     <string name="csv_export_description">Gruppen, Übungen, Aufzeichnungen oder Aufzeichnungsvorlage exportieren</string>
@@ -352,7 +334,6 @@
     <string name="csv_export_records_description">Alle Trainingsaufzeichnungen exportieren</string>
     <string name="csv_export_record_template">Aufzeichnungsvorlage</string>
     <string name="csv_export_record_template_description">Vorlage zum Hinzufügen von Aufzeichnungen exportieren</string>
-
     <!-- CSV Import Preview Dialog -->
     <string name="csv_import_preview">CSV-Importvorschau</string>
     <string name="csv_file">Datei</string>
@@ -365,7 +346,6 @@
     <string name="csv_import_mode_replace">Ersetzen</string>
     <string name="csv_import_mode_replace_description">Alle vorhandenen Daten löschen und ersetzen</string>
     <string name="csv_import_button">Importieren</string>
-
     <!-- CSV Import Result Dialog -->
     <string name="csv_import_completed">Import abgeschlossen</string>
     <string name="csv_import_success_label">✅ Erfolg</string>
@@ -374,7 +354,6 @@
     <string name="csv_import_skipped_items">Übersprungene Elemente (%d)</string>
     <string name="csv_import_errors">Fehler (%d)</string>
     <string name="csv_import_more_items">... und %d weitere</string>
-
     <!-- Settings Screen Sections -->
     <string name="section_full_backup">Vollständige Sicherung (JSON)</string>
     <string name="section_full_backup_description">Alle Daten speichern und wiederherstellen (Übungen, Aufzeichnungen, Gruppen).\nVerwende dies beim Gerätewechsel.</string>
@@ -383,12 +362,10 @@
     <!-- Legacy key for compatibility -->
     <string name="section_add_records">Aufzeichnungen hinzufügen (CSV)</string>
     <string name="section_add_records_description">Aufzeichnungen zu vorhandenen Daten hinzufügen.\nVerwende dies zum Importieren analoger Aufzeichnungen oder Daten aus anderen Apps.</string>
-
     <!-- Favorites -->
     <string name="favorite">Favorit</string>
     <string name="add_to_favorites">Zu Favoriten hinzufügen</string>
     <string name="remove_from_favorites">Aus Favoriten entfernen</string>
-
     <!-- Language Settings -->
     <string name="section_language">Spracheinstellungen</string>
     <string name="section_language_description">Anzeigesprache der App ändern.\nÄnderungen werden nach Neustart der App wirksam.</string>
@@ -396,15 +373,12 @@
     <string name="current_language">Aktuell: %s</string>
     <string name="restart_required">Neustart erforderlich um Änderungen anzuwenden</string>
     <string name="language_changed">Sprache geändert. Bitte starte die App neu.</string>
-
     <!-- Open Source Licenses -->
     <string name="open_source_licenses">Open Source Lizenzen</string>
     <string name="licenses_description">Lizenzen der in dieser App verwendeten Bibliotheken anzeigen</string>
-
     <!-- Training Days Display -->
     <string name="training_days_format">Training %s</string>
     <string name="last_record_short">Letztes: %s</string>
-
     <!-- Backup Before Import -->
     <string name="backup_before_import_title">Bestätigung vor Import</string>
     <string name="backup_before_import_message">Aktuelle Daten sichern?</string>
@@ -412,13 +386,11 @@
     <string name="skip_and_continue">Überspringen &amp; Fortfahren</string>
     <string name="backup_saved_successfully">Backup im Downloads-Ordner gespeichert</string>
     <string name="backup_failed">Backup fehlgeschlagen</string>
-
     <!-- Auto-fill Settings -->
     <string name="settings_autofill_section">Automatisches Ausfüllen</string>
     <string name="settings_autofill_section_description">Automatische Eingabeunterstützung konfigurieren.</string>
     <string name="settings_prefill_previous">Vorherigen Eintrag vorausfüllen</string>
     <string name="settings_prefill_previous_description">Werte der letzten Einheit automatisch in Aufnahme- und Workout-Bildschirmen ausfüllen</string>
-
     <!-- Workout Settings -->
     <string name="section_workout_settings">Workout-Einstellungen</string>
     <string name="section_workout_settings_description">Standard-Timer-Einstellungen für Workouts konfigurieren.</string>
@@ -434,7 +406,6 @@
     <string name="seconds_format">%d Sekunden</string>
     <string name="set_interval_note">Hinweis: Übungsspezifische Einstellungen haben Vorrang, falls konfiguriert.</string>
     <string name="enter_seconds_max">Sekunden eingeben (max %d)</string>
-
     <!-- Timer Settings (Per-Exercise) -->
     <string name="timer_settings_optional">Timer-Einstellungen (Optional)</string>
     <string name="timer_settings_description">Timer für diese Übung konfigurieren. Leer lassen für Standardeinstellungen.</string>
@@ -442,7 +413,6 @@
     <string name="rest_interval_seconds">Pausenintervall (Sekunden)</string>
     <string name="example_5_seconds">z.B. 5</string>
     <string name="example_240_seconds">z.B. 240</string>
-
     <!-- Distance/Weight Tracking Settings -->
     <string name="tracking_settings_optional">Tracking-Einstellungen (Optional)</string>
     <string name="track_distance">Distanz erfassen</string>
@@ -453,24 +423,20 @@
     <string name="weight_input_label">Gewicht (kg)</string>
     <string name="distance_display_format">%d cm</string>
     <string name="weight_display_format">%.1f kg</string>
-
     <!-- Distance Graph -->
     <string name="invert">Invertieren</string>
     <string name="legend_reps">Wdh.</string>
     <string name="legend_distance">Distanz</string>
     <string name="legend_distance_inverted">Distanz (invertiert)</string>
-
     <!-- Volume/Weight Statistics -->
     <string name="legend_volume">Volumen</string>
     <string name="max_daily_volume">Max. Tagesvolumen</string>
     <string name="avg_daily_volume">Durchschn. Tagesvolumen</string>
     <string name="max_weight">Max. Gewicht</string>
     <string name="avg_weight">Durchschn. Gewicht</string>
-
     <!-- Apply Exercise Settings Button -->
     <string name="apply_exercise_settings">Übungseinstellungen anwenden</string>
     <string name="apply_target_values">Zielwerte anwenden</string>
-
     <!-- App Info Section -->
     <string name="section_app_info">App-Info</string>
     <string name="section_app_info_description">App-Informationen und Lizenzen anzeigen.</string>
@@ -486,13 +452,11 @@
     <string name="github_description">Mirror-Repository</string>
     <string name="report_issue_codeberg">Problem auf Codeberg melden</string>
     <string name="report_issue_github">Problem auf GitHub melden</string>
-
     <!-- Flash Notification -->
     <string name="flash_notification_setting">LED-Blitz-Benachrichtigung</string>
     <string name="flash_notification_description">LED synchron mit Tönen während des Trainings blinken lassen</string>
     <string name="keep_screen_on_setting">Bildschirm anlassen</string>
     <string name="keep_screen_on_description">Bildschirm während des Trainings anlassen, um den Countdown anzuzeigen</string>
-
     <!-- To Do Screen -->
     <string name="todo_title">To Do</string>
     <string name="todo_empty">Tippe + um Übungen hinzuzufügen</string>
@@ -501,13 +465,11 @@
     <string name="todo_drag_to_reorder">Ziehen zum Sortieren</string>
     <string name="todo_rec_button">Auf</string>
     <string name="todo_wo_button">WO</string>
-
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">Workout-Timer</string>
     <string name="notification_channel_workout_description">Zeigt Benachrichtigung während der Workout-Timer läuft</string>
     <string name="notification_workout_title">Workout läuft</string>
     <string name="notification_workout_text">Timer ist aktiv</string>
-
     <!-- Program Feature -->
     <string name="program_mode">Programm</string>
     <string name="program_mode_description">Mehrere Übungen nacheinander ausführen</string>
@@ -550,17 +512,14 @@
     <string name="program_previous_value">Vorherigen Wert verwenden</string>
     <string name="next_exercise_label">Nächste: %s</string>
     <string name="program_set_label">Satz %d:</string>
-
     <!-- Exit Workout Confirmation -->
     <string name="exit_workout_title">Training abbrechen?</string>
     <string name="exit_workout_message">Der Fortschritt wird nicht gespeichert.</string>
     <string name="exit_workout_confirm">Abbrechen</string>
-
     <!-- Discard Result Confirmation -->
     <string name="discard_result_title">Ergebnisse verwerfen?</string>
     <string name="discard_result_message">Ihre Trainingsergebnisse werden nicht gespeichert.</string>
     <string name="discard_result_confirm">Verwerfen</string>
-
     <!-- Missing keys -->
     <string name="interval_short">Pause:</string>
     <string name="sets_label_short">Sätze:</string>
@@ -583,7 +542,6 @@
     <string name="previous_value_format">Vorherig: %d</string>
     <string name="reps_unit">Wdh.</string>
     <string name="program_result_zero_warning">Es gibt Sätze mit dem Wert 0. Null-Sätze für bilaterale Übungen und Sätze, bei denen beide Seiten 0 sind für unilaterale Übungen, werden nicht gespeichert.</string>
-
     <!-- Sound Settings (Program Confirm) -->
     <string name="sound_settings_section">Toneinstellungen</string>
     <string name="dynamic_count_sound_label">Zählton</string>
@@ -591,19 +549,16 @@
     <string name="isometric_interval_sound_label">Intervallbenachrichtigung</string>
     <string name="isometric_interval_sound_description">Isometrische Übungen</string>
     <string name="interval_seconds_short">%d Sek.</string>
-
     <!-- Auto Mode -->
     <string name="auto_mode_label">Automatik</string>
     <string name="auto_mode">Automatik</string>
     <string name="auto_mode_description">Manueller Abschluss-Button</string>
     <string name="auto_mode_disabled_hint">Nur bei aktiviertem Zählton verfügbar</string>
-
     <!-- Program Settings -->
     <string name="all_exercises_label">Alle Übungen</string>
     <string name="all_sets_label">Alle Sätze</string>
     <string name="auto_fill_target_label">Zielwerte automatisch ausfüllen</string>
     <string name="program_estimated_time">~%d Min.</string>
-
     <!-- Navigation Sheet (Program Execution) -->
     <string name="nav_program_overview">Programmübersicht</string>
     <string name="nav_overall_progress">Gesamtfortschritt</string>
