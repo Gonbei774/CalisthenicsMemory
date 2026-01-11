@@ -556,6 +556,11 @@
     <string name="exit_workout_message">El progreso no se guardará.</string>
     <string name="exit_workout_confirm">Salir</string>
 
+    <!-- Discard Result Confirmation -->
+    <string name="discard_result_title">¿Descartar resultados?</string>
+    <string name="discard_result_message">Los resultados del entrenamiento no se guardarán.</string>
+    <string name="discard_result_confirm">Descartar</string>
+
     <!-- Missing keys -->
     <string name="interval_short">Descanso:</string>
     <string name="sets_label_short">Series:</string>

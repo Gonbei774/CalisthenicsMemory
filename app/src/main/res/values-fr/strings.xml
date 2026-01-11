@@ -556,6 +556,11 @@
     <string name="exit_workout_message">La progression ne sera pas sauvegardée.</string>
     <string name="exit_workout_confirm">Quitter</string>
 
+    <!-- Discard Result Confirmation -->
+    <string name="discard_result_title">Abandonner les résultats ?</string>
+    <string name="discard_result_message">Les résultats de l\'entraînement ne seront pas sauvegardés.</string>
+    <string name="discard_result_confirm">Abandonner</string>
+
     <!-- Missing keys -->
     <string name="interval_short">Repos:</string>
     <string name="sets_label_short">Séries:</string>

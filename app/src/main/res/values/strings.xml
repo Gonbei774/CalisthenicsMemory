@@ -584,6 +584,11 @@
     <string name="exit_workout_message">Progress will not be saved.</string>
     <string name="exit_workout_confirm">Exit</string>
 
+    <!-- Discard Result Confirmation -->
+    <string name="discard_result_title">Discard results?</string>
+    <string name="discard_result_message">Your workout results will not be saved.</string>
+    <string name="discard_result_confirm">Discard</string>
+
     <!-- Sound Settings (Program Confirm) -->
     <string name="sound_settings_section">Sound Settings</string>
     <string name="dynamic_count_sound_label">Count Sound</string>

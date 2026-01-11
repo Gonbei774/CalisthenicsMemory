@@ -11,7 +11,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -207,7 +209,24 @@ private fun NavigationSetsList(
     // 種目ごとにグループ化
     val exerciseGroups = session.sets.groupBy { it.exerciseIndex }
 
+    // 現在のセットが属する種目インデックスを取得
+    val currentExerciseIndex = if (currentSetIndex in session.sets.indices) {
+        session.sets[currentSetIndex].exerciseIndex
+    } else {
+        0
+    }
+
+    val lazyListState = rememberLazyListState()
+
+    // シートが開いたときに現在の種目へスクロール
+    LaunchedEffect(currentExerciseIndex) {
+        if (currentExerciseIndex > 0) {
+            lazyListState.animateScrollToItem(currentExerciseIndex)
+        }
+    }
+
     LazyColumn(
+        state = lazyListState,
         modifier = modifier.padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {

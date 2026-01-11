@@ -273,6 +273,9 @@ fun ProgramExecutionScreen(
     // 中断確認ダイアログ
     var showExitConfirmDialog by remember { mutableStateOf(false) }
 
+    // Result画面の破棄確認ダイアログ
+    var showDiscardResultDialog by remember { mutableStateOf(false) }
+
     // Save & Exit上書き確認ダイアログ
     var showSaveOverwriteDialog by remember { mutableStateOf(false) }
     var pendingSaveSession by remember { mutableStateOf<ProgramExecutionSession?>(null) }
@@ -316,6 +319,30 @@ fun ProgramExecutionScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showExitConfirmDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    // Result画面の破棄確認ダイアログ
+    if (showDiscardResultDialog) {
+        AlertDialog(
+            onDismissRequest = { showDiscardResultDialog = false },
+            title = { Text(stringResource(R.string.discard_result_title)) },
+            text = { Text(stringResource(R.string.discard_result_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDiscardResultDialog = false
+                        onNavigateBack()
+                    }
+                ) {
+                    Text(stringResource(R.string.discard_result_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDiscardResultDialog = false }) {
                     Text(stringResource(R.string.cancel))
                 }
             }
@@ -1037,7 +1064,7 @@ fun ProgramExecutionScreen(
                                     onComplete()
                                 }
                             },
-                            onCancel = onNavigateBack
+                            onCancel = { showDiscardResultDialog = true }
                         )
                     }
 

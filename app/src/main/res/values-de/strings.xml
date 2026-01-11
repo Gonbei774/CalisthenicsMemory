@@ -556,6 +556,11 @@
     <string name="exit_workout_message">Der Fortschritt wird nicht gespeichert.</string>
     <string name="exit_workout_confirm">Abbrechen</string>
 
+    <!-- Discard Result Confirmation -->
+    <string name="discard_result_title">Ergebnisse verwerfen?</string>
+    <string name="discard_result_message">Ihre Trainingsergebnisse werden nicht gespeichert.</string>
+    <string name="discard_result_confirm">Verwerfen</string>
+
     <!-- Missing keys -->
     <string name="interval_short">Pause:</string>
     <string name="sets_label_short">Sätze:</string>

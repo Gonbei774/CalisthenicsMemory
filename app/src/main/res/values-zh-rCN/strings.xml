@@ -556,6 +556,11 @@
     <string name="exit_workout_message">进度将不会保存。</string>
     <string name="exit_workout_confirm">退出</string>
 
+    <!-- Discard Result Confirmation -->
+    <string name="discard_result_title">放弃结果？</string>
+    <string name="discard_result_message">您的训练结果将不会保存。</string>
+    <string name="discard_result_confirm">放弃</string>
+
     <!-- Missing keys -->
     <string name="interval_short">休息:</string>
     <string name="sets_label_short">组数:</string>

@@ -167,4 +167,9 @@
     <string name="comment_label">Коментар</string>
     <string name="exercise_already_exists">Вправа вже існує</string>
     <string name="group_already_exists">Група з такою назвою вже існує</string>
+
+    <!-- Discard Result Confirmation -->
+    <string name="discard_result_title">Відхилити результати?</string>
+    <string name="discard_result_message">Результати тренування не будуть збережені.</string>
+    <string name="discard_result_confirm">Відхилити</string>
 </resources>
