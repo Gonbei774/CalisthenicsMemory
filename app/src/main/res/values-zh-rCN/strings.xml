@@ -1,7 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App Name -->
     <string name="app_name">Calisthenics Memory</string>
-
     <!-- Common -->
     <string name="ok">确定</string>
     <string name="cancel">取消</string>
@@ -23,7 +23,6 @@
     <string name="type">类型</string>
     <string name="menu">菜单</string>
     <string name="loading">加载中...</string>
-
     <!-- Home Screen -->
     <string name="bodyweight_training">自重训练</string>
     <string name="home_create">创建动作</string>
@@ -35,14 +34,14 @@
     <string name="view_details">查看详情 →</string>
     <string name="view_all_records">查看所有记录 →</string>
     <string name="copied_to_clipboard">已复制到剪贴板</string>
-
     <!-- Create Screen -->
     <string name="exercise_creation">创建动作</string>
     <string name="no_exercises">还没有动作\n点击下方 + 按钮添加</string>
     <string name="exercise_name">动作名称</string>
     <string name="set_challenge">设定目标</string>
     <string name="sets_count">组数</string>
-    <string name="reps_or_seconds">%s</string> <!-- Will be replaced with "Reps" or "Seconds" -->
+    <string name="reps_or_seconds">%s</string>
+    <!-- Will be replaced with "Reps" or "Seconds" -->
     <string name="reps">次数</string>
     <string name="seconds">秒</string>
     <string name="per_side">（每侧）</string>
@@ -72,7 +71,6 @@
     <string name="delete_confirmation">删除确认</string>
     <string name="exercises_count">%d个动作</string>
     <string name="character_count">%1$d/%2$d</string>
-
     <!-- Record Screen -->
     <string name="training_record">训练记录</string>
     <string name="no_exercises_registered">还没有注册动作</string>
@@ -99,7 +97,6 @@
     <string name="time_label">时间</string>
     <string name="dynamic_type">次数</string>
     <string name="isometric_type">时间</string>
-
     <!-- View Screen -->
     <string name="view_records">查看记录</string>
     <string name="list">列表</string>
@@ -123,7 +120,6 @@
     <string name="search_exercise">搜索动作...</string>
     <string name="filter_bottom_sheet_title">选择动作</string>
     <string name="clear_filter">清除筛选</string>
-
     <!-- Period filters -->
     <string name="period_1week">1周</string>
     <string name="period_1month">1个月</string>
@@ -131,7 +127,6 @@
     <string name="period_one_week">1周</string>
     <string name="period_one_month">1个月</string>
     <string name="period_three_months">3个月</string>
-
     <!-- Graph Screen -->
     <string name="display_data">显示数据</string>
     <string name="graph_average">平均</string>
@@ -151,7 +146,6 @@
     <string name="change_format">%+d组</string>
     <string name="unit_reps">次</string>
     <string name="unit_seconds">秒</string>
-
     <!-- Challenge Screen -->
     <string name="no_challenge_set">未设定挑战</string>
     <string name="last_workout">上次训练</string>
@@ -160,7 +154,6 @@
     <string name="no_exercises_available">没有可用动作</string>
     <string name="no_exercises_in_period">%s内未进行训练</string>
     <string name="achievement_rate">%1$d%%（%2$d/%3$d%4$s）</string>
-
     <!-- Settings Screen -->
     <string name="data_management">📦 数据管理</string>
     <string name="export_data">导出数据</string>
@@ -183,7 +176,6 @@
     <string name="existing_data_will_be_deleted">所有现有数据将被删除。</string>
     <string name="cannot_undo">此操作无法撤销。</string>
     <string name="import_confirm">导入</string>
-
     <!-- ViewModel Messages -->
     <string name="already_registered_format">「%1$s（%2$s）」已注册</string>
     <string name="dynamic_label">次数</string>
@@ -205,7 +197,6 @@
     <string name="export_error">导出错误：%s</string>
     <string name="import_complete">导入完成：%1$d个分组，%2$d个动作，%3$d条记录</string>
     <string name="import_error">导入错误：%s</string>
-
     <!-- Workout Screen (if exists) -->
     <string name="workout_title">训练</string>
     <string name="no_exercises_yet_workout">还没有动作</string>
@@ -251,13 +242,11 @@
     <string name="left_colon">左侧：</string>
     <string name="reps_input">次数</string>
     <string name="seconds_input">秒</string>
-
     <!-- Level display -->
     <string name="level_format">等级%d</string>
     <!-- Additional missing strings -->
     <string name="bilateral_label">双侧</string>
     <string name="unilateral_label">单侧</string>
-
     <!-- Common Labels -->
     <string name="tab_list">列表</string>
     <string name="tab_graph">图表</string>
@@ -271,7 +260,6 @@
     <string name="graph_type_average">平均</string>
     <string name="graph_type_max">最大</string>
     <string name="graph_type_total">总计</string>
-
     <!-- Additional hardcoded strings that need to be moved -->
     <string name="no_exercises_add_with_plus">还没有动作\n点击下方 + 按钮添加</string>
     <string name="delete_group_confirm_message">删除「%s」？\n该分组中的动作将移至「无分组」。</string>
@@ -301,7 +289,6 @@
     <string name="edit_exercise_title">编辑动作</string>
     <string name="create_group_title">创建新分组</string>
     <string name="add_exercise_title">添加新动作</string>
-
     <!-- GraphView specific strings -->
     <string name="graph_tooltip_unilateral">%1$s：右侧%2$d%3$s / 左侧%4$d%5$s</string>
     <string name="statistics_average_label">平均</string>
@@ -310,17 +297,14 @@
     <string name="statistics_total_sets_label">总组数</string>
     <string name="statistics_value_format">%1$d%2$s</string>
     <string name="statistics_sets_count_format">%d组</string>
-
     <!-- Additional format strings for remaining hardcoded Japanese -->
     <string name="multiplication_sign">×</string>
     <string name="per_side_short">（每侧）</string>
     <string name="unknown_short">未知</string>
     <string name="colon_separator">：</string>
-
     <!-- Remaining hardcoded strings migration -->
     <string name="set_ordinal_suffix">第%d组</string>
     <string name="target_prefix">目标：</string>
-
     <!-- ViewScreen & GraphView remaining strings -->
     <string name="right_short">右侧</string>
     <string name="left_short">左侧</string>
@@ -329,7 +313,6 @@
     <string name="worst_record">最低</string>
     <string name="graph_tooltip_bilateral">%1$s：%2$d%3$s</string>
     <string name="graph_tooltip_unilateral_detail">%1$s：右%2$d%4$s / 左%3$d%4$s</string>
-
     <!-- CSV Import/Export -->
     <string name="csv_export_success">已导出%1$s：%2$d项</string>
     <string name="csv_template_exported">已导出CSV模板：%d个动作</string>
@@ -340,7 +323,6 @@
     <string name="csv_import">CSV 导入</string>
     <string name="csv_template_description">下载记录模板</string>
     <string name="csv_import_description">导入分组、动作或记录（自动检测）</string>
-
     <!-- CSV Export Dialog -->
     <string name="csv_export">CSV 导出</string>
     <string name="csv_export_description">导出分组、动作、记录或记录模板</string>
@@ -352,7 +334,6 @@
     <string name="csv_export_records_description">导出所有训练记录</string>
     <string name="csv_export_record_template">记录模板</string>
     <string name="csv_export_record_template_description">导出添加记录用的模板</string>
-
     <!-- CSV Import Preview Dialog -->
     <string name="csv_import_preview">CSV 导入预览</string>
     <string name="csv_file">文件</string>
@@ -365,7 +346,6 @@
     <string name="csv_import_mode_replace">替换</string>
     <string name="csv_import_mode_replace_description">删除所有现有数据并替换</string>
     <string name="csv_import_button">导入</string>
-
     <!-- CSV Import Result Dialog -->
     <string name="csv_import_completed">导入完成</string>
     <string name="csv_import_success_label">✅ 成功</string>
@@ -374,7 +354,6 @@
     <string name="csv_import_skipped_items">已跳过项目（%d）</string>
     <string name="csv_import_errors">错误（%d）</string>
     <string name="csv_import_more_items">... 以及其他 %d 项</string>
-
     <!-- Settings Screen Sections -->
     <string name="section_full_backup">完整备份（JSON）</string>
     <string name="section_full_backup_description">保存和恢复所有数据（动作、记录、分组）。\n更换设备时使用。</string>
@@ -383,12 +362,10 @@
     <!-- Legacy key for compatibility -->
     <string name="section_add_records">添加记录（CSV）</string>
     <string name="section_add_records_description">向现有数据添加记录。\n用于导入纸质记录或其他应用的数据。</string>
-
     <!-- Favorites -->
     <string name="favorite">收藏</string>
     <string name="add_to_favorites">添加到收藏</string>
     <string name="remove_from_favorites">从收藏移除</string>
-
     <!-- Language Settings -->
     <string name="section_language">语言设置</string>
     <string name="section_language_description">更改应用显示语言。\n重启应用后生效。</string>
@@ -396,15 +373,12 @@
     <string name="current_language">当前：%s</string>
     <string name="restart_required">需要重启以应用更改</string>
     <string name="language_changed">已更改语言。请重启应用。</string>
-
     <!-- Open Source Licenses -->
     <string name="open_source_licenses">开源许可证</string>
     <string name="licenses_description">查看此应用使用的库的许可证</string>
-
     <!-- Training Days Display -->
     <string name="training_days_format">训练%s</string>
     <string name="last_record_short">上次：%s</string>
-
     <!-- Backup Before Import -->
     <string name="backup_before_import_title">导入前确认</string>
     <string name="backup_before_import_message">是否备份当前数据？</string>
@@ -412,13 +386,11 @@
     <string name="skip_and_continue">跳过并继续</string>
     <string name="backup_saved_successfully">备份已保存到下载文件夹</string>
     <string name="backup_failed">备份失败</string>
-
     <!-- Auto-fill Settings -->
     <string name="settings_autofill_section">自动填充</string>
     <string name="settings_autofill_section_description">配置自动输入辅助。</string>
     <string name="settings_prefill_previous">预填上次记录</string>
     <string name="settings_prefill_previous_description">在记录和训练画面自动填充上次的值</string>
-
     <!-- Workout Settings -->
     <string name="section_workout_settings">训练设置</string>
     <string name="section_workout_settings_description">配置训练计时器的默认值。</string>
@@ -434,7 +406,6 @@
     <string name="seconds_format">%d秒</string>
     <string name="set_interval_note">注意：如果已配置，动作的特定设置优先。</string>
     <string name="enter_seconds_max">输入秒数（最大 %d）</string>
-
     <!-- Timer Settings (Per-Exercise) -->
     <string name="timer_settings_optional">计时器设置（可选）</string>
     <string name="timer_settings_description">为此动作配置计时器。留空则使用默认设置。</string>
@@ -442,7 +413,6 @@
     <string name="rest_interval_seconds">组间间歇（秒）</string>
     <string name="example_5_seconds">例如：5</string>
     <string name="example_240_seconds">例如：240</string>
-
     <!-- Distance/Weight Tracking Settings -->
     <string name="tracking_settings_optional">追踪设置（可选）</string>
     <string name="track_distance">追踪距离</string>
@@ -453,24 +423,20 @@
     <string name="weight_input_label">重量（公斤）</string>
     <string name="distance_display_format">%d厘米</string>
     <string name="weight_display_format">%.1f公斤</string>
-
     <!-- Distance Graph -->
     <string name="invert">反转</string>
     <string name="legend_reps">次数</string>
     <string name="legend_distance">距离</string>
     <string name="legend_distance_inverted">距离（反转）</string>
-
     <!-- Volume/Weight Statistics -->
     <string name="legend_volume">容量</string>
     <string name="max_daily_volume">最大日容量</string>
     <string name="avg_daily_volume">平均日容量</string>
     <string name="max_weight">最大重量</string>
     <string name="avg_weight">平均重量</string>
-
     <!-- Apply Exercise Settings Button -->
     <string name="apply_exercise_settings">应用动作设置</string>
     <string name="apply_target_values">应用目标值</string>
-
     <!-- App Info Section -->
     <string name="section_app_info">应用信息</string>
     <string name="section_app_info_description">查看应用信息和许可证。</string>
@@ -486,13 +452,11 @@
     <string name="github_description">镜像仓库</string>
     <string name="report_issue_codeberg">在Codeberg上报告问题</string>
     <string name="report_issue_github">在GitHub上报告问题</string>
-
     <!-- Flash Notification -->
     <string name="flash_notification_setting">LED闪光通知</string>
     <string name="flash_notification_description">训练时LED与声音同步闪烁</string>
     <string name="keep_screen_on_setting">保持屏幕常亮</string>
     <string name="keep_screen_on_description">训练时保持屏幕常亮以显示倒计时</string>
-
     <!-- To Do Screen -->
     <string name="todo_title">待办事项</string>
     <string name="todo_empty">点击 + 添加动作</string>
@@ -501,13 +465,11 @@
     <string name="todo_drag_to_reorder">拖动以重新排序</string>
     <string name="todo_rec_button">记录</string>
     <string name="todo_wo_button">训练</string>
-
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">训练计时器</string>
     <string name="notification_channel_workout_description">训练计时器运行时显示通知</string>
     <string name="notification_workout_title">训练进行中</string>
     <string name="notification_workout_text">计时器正在运行</string>
-
     <!-- Program Feature -->
     <string name="program_mode">训练计划</string>
     <string name="program_mode_description">连续执行多个动作</string>
@@ -550,17 +512,14 @@
     <string name="program_previous_value">使用上次的值</string>
     <string name="next_exercise_label">下一个：%s</string>
     <string name="program_set_label">第%d组：</string>
-
     <!-- Exit Workout Confirmation -->
     <string name="exit_workout_title">退出训练？</string>
     <string name="exit_workout_message">进度将不会保存。</string>
     <string name="exit_workout_confirm">退出</string>
-
     <!-- Discard Result Confirmation -->
     <string name="discard_result_title">放弃结果？</string>
     <string name="discard_result_message">您的训练结果将不会保存。</string>
     <string name="discard_result_confirm">放弃</string>
-
     <!-- Missing keys -->
     <string name="interval_short">休息:</string>
     <string name="sets_label_short">组数:</string>
@@ -583,7 +542,6 @@
     <string name="previous_value_format">上次：%d</string>
     <string name="reps_unit">次</string>
     <string name="program_result_zero_warning">存在值为0的组数。双侧动作的0值组数，以及单侧动作中两侧都为0的组数，将不会被保存。</string>
-
     <!-- Sound Settings (Program Confirm) -->
     <string name="sound_settings_section">声音设置</string>
     <string name="dynamic_count_sound_label">计数音效</string>
@@ -591,19 +549,16 @@
     <string name="isometric_interval_sound_label">间隔提醒</string>
     <string name="isometric_interval_sound_description">静态类动作</string>
     <string name="interval_seconds_short">%d秒</string>
-
     <!-- Auto Mode -->
     <string name="auto_mode_label">自动模式</string>
     <string name="auto_mode">自动模式</string>
     <string name="auto_mode_description">手动完成按钮</string>
     <string name="auto_mode_disabled_hint">需要开启计数音效</string>
-
     <!-- Program Settings -->
     <string name="all_exercises_label">所有动作</string>
     <string name="all_sets_label">所有组数</string>
     <string name="auto_fill_target_label">自动填入目标值</string>
     <string name="program_estimated_time">约%d分钟</string>
-
     <!-- Navigation Sheet (Program Execution) -->
     <string name="nav_program_overview">计划概览</string>
     <string name="nav_overall_progress">整体进度</string>
