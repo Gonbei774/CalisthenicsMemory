@@ -8,6 +8,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -41,6 +42,7 @@ import io.github.gonbei774.calisthenicsmemory.data.Program
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
 import io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.util.SearchUtils
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
@@ -646,10 +648,16 @@ private fun AddExerciseToProgramDialog(
     // Search state
     var searchQuery by remember { mutableStateOf("") }
     val searchResults = remember(exercises, searchQuery) {
-        if (searchQuery.isBlank()) {
-            emptyList()
-        } else {
-            exercises.filter { it.name.contains(searchQuery, ignoreCase = true) }
+        SearchUtils.searchExercises(exercises, searchQuery)
+    }
+
+    // List state for controlling scroll position
+    val listState = rememberLazyListState()
+
+    // Scroll to top when search results change
+    LaunchedEffect(searchQuery, searchResults) {
+        if (searchQuery.isNotBlank() && searchResults.isNotEmpty()) {
+            listState.scrollToItem(0)
         }
     }
 
@@ -721,6 +729,7 @@ private fun AddExerciseToProgramDialog(
                         )
 
                         LazyColumn(
+                            state = listState,
                             modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {

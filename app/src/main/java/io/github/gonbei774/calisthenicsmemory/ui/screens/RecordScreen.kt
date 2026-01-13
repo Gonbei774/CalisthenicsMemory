@@ -2,6 +2,7 @@ package io.github.gonbei774.calisthenicsmemory.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -28,6 +29,7 @@ import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
 import io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.util.SearchUtils
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -239,10 +241,16 @@ fun ExerciseSelectionScreen(
     // Search state
     var searchQuery by remember { mutableStateOf("") }
     val searchResults = remember(exercises, searchQuery) {
-        if (searchQuery.isBlank()) {
-            emptyList()
-        } else {
-            exercises.filter { it.name.contains(searchQuery, ignoreCase = true) }
+        SearchUtils.searchExercises(exercises, searchQuery)
+    }
+
+    // List state for controlling scroll position
+    val listState = rememberLazyListState()
+
+    // Scroll to top when search results change
+    LaunchedEffect(searchQuery, searchResults) {
+        if (searchQuery.isNotBlank() && searchResults.isNotEmpty()) {
+            listState.scrollToItem(0)
         }
     }
 
@@ -363,6 +371,7 @@ fun ExerciseSelectionScreen(
                 )
 
                 LazyColumn(
+                    state = listState,
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     if (searchQuery.isNotBlank()) {

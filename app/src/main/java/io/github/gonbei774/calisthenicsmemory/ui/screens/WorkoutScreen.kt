@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
@@ -50,6 +51,7 @@ import androidx.compose.ui.platform.LocalView
 import android.view.WindowManager
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
+import io.github.gonbei774.calisthenicsmemory.util.SearchUtils
 import io.github.gonbei774.calisthenicsmemory.service.WorkoutTimerService
 import io.github.gonbei774.calisthenicsmemory.ui.components.single.*
 import kotlinx.coroutines.delay
@@ -505,10 +507,16 @@ fun ExerciseSelectionStep(
     // Search state
     var searchQuery by remember { mutableStateOf("") }
     val searchResults = remember(exercises, searchQuery) {
-        if (searchQuery.isBlank()) {
-            emptyList()
-        } else {
-            exercises.filter { it.name.contains(searchQuery, ignoreCase = true) }
+        SearchUtils.searchExercises(exercises, searchQuery)
+    }
+
+    // List state for controlling scroll position
+    val listState = rememberLazyListState()
+
+    // Scroll to top when search results change
+    LaunchedEffect(searchQuery, searchResults) {
+        if (searchQuery.isNotBlank() && searchResults.isNotEmpty()) {
+            listState.scrollToItem(0)
         }
     }
 
@@ -574,6 +582,7 @@ fun ExerciseSelectionStep(
             Spacer(modifier = Modifier.height(12.dp))
 
             LazyColumn(
+                state = listState,
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
