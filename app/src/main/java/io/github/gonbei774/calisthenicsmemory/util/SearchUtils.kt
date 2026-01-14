@@ -86,8 +86,8 @@ object SearchUtils {
 
         // Word boundary match - medium priority
         // Check if query matches at word boundaries (after space, dash, underscore, etc.)
-        val wordBoundaryPattern = "(?<=^|[\\s\\-_])".toRegex()
-        if (wordBoundaryPattern.replace(exerciseName, "").contains(query)) {
+        val wordBoundaryRegex = Regex("\\b${Regex.escape(query)}\\b", RegexOption.IGNORE_CASE)
+        if (wordBoundaryRegex.containsMatchIn(exerciseName)) {
             return 600
         }
 
