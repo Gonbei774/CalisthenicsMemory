@@ -33,20 +33,19 @@ class SearchUtilsTest {
     @Test
     fun `exact match appears first`() {
         val result = SearchUtils.searchExercises(exercises, "Push-up")
-        assertEquals(4, result.size)
+        assertEquals(3, result.size)
         assertEquals("Push-up", result[0].name) // Exact match first
         assertEquals("Push-up Variation", result[1].name) // Starts with query
         assertEquals("Diamond Push-up", result[2].name) // Contains query
-        assertEquals("Push Press", result[3].name) // Contains query
     }
 
     @Test
     fun `starts with query ranks higher than contains`() {
         val result = SearchUtils.searchExercises(exercises, "Push")
         assertEquals(4, result.size)
-        assertEquals("Push-up", result[0].name) // Starts with
-        assertEquals("Push-up Variation", result[1].name) // Starts with
-        assertEquals("Push Press", result[2].name) // Starts with
+        assertEquals("Push Press", result[0].name) // Starts with, alphabetical
+        assertEquals("Push-up", result[1].name) // Starts with
+        assertEquals("Push-up Variation", result[2].name) // Starts with
         assertEquals("Diamond Push-up", result[3].name) // Contains
     }
 
