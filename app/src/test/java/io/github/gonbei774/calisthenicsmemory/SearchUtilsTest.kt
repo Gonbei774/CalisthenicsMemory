@@ -53,7 +53,7 @@ class SearchUtilsTest {
     fun `case insensitive search works`() {
         val result = SearchUtils.searchExercises(exercises, "push")
         assertEquals(4, result.size)
-        assertEquals("Push-up", result[0].name)
+        assertEquals("Push Press", result[0].name)
     }
 
     @Test
