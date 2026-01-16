@@ -475,4 +475,16 @@
     <string name="nav_program_overview">Огляд програми</string>
     <string name="nav_done">Виконано</string>
     <string name="nav_finish">Завершити</string>
+    <string name="graph_max">Максимум</string>
+    <string name="graph_type_max">Максимум</string>
+    <string name="max_daily_volume">Макс. обсяг на день</string>
+    <string name="max_weight">Макс. вага</string>
+    <string name="legend_volume">Обсяг</string>
+    <string name="avg_daily_volume">Середній обсяг на день</string>
+    <string name="avg_weight">Середня вага</string>
+    <string name="csv_import_preview">Перегляд імпорту CSV</string>
+    <string name="graph_average">Середнє</string>
+    <string name="graph_type_average">Середнє</string>
+    <string name="statistics_average_label">У середньому</string>
+    <string name="average">У середньому</string>
 </resources>
