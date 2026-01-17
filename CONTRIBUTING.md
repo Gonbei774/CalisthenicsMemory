@@ -7,9 +7,47 @@ Issues and suggestions are welcome!
 - [Codeberg](https://codeberg.org/Gonbei774/CalisthenicsMemory/issues/) (main): Issues and Pull Requests
 - [GitHub](https://github.com/Gonbei774/CalisthenicsMemory/issues) (mirror): Issues only
 
-### Language policy
+### Language Policy
+
 (Trial) You may open issues in your native language.
 For issues in languages other than English, I will respond primarily in Japanese.
+
+## Pull Requests
+
+Code contributions are welcome, but please follow these rules.
+
+### Prior Discussion Required
+
+The following changes require **discussion via Issue before submitting a PR**:
+
+- Database schema changes (tables, columns, foreign keys, indices)
+- Adding permissions
+- Adding new dependencies
+- Large new features (new screens, major workflow changes)
+
+I want to accept PRs as much as possible, so please discuss beforehand to ensure smooth merging.
+
+### One PR, One Feature
+
+Each pull request should focus on a single feature or fix.
+Mixing unrelated changes makes review difficult and increases risk.
+
+### AI Tool Users
+
+If you use AI coding assistants, please mention it in your PR description.
+
+### Prohibited (F-Droid Standards)
+
+This app is published on F-Droid. The following are prohibited:
+
+- Google Play Services
+- Firebase / Crashlytics
+- Proprietary advertising libraries
+- Tracking / analytics tools
+
+### Offline Principle
+
+CalisthenicsMemory is a fully offline app. Features requiring network communication will not be accepted.
 
 ## How to Build
 
