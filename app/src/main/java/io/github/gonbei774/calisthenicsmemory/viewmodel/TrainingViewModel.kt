@@ -1441,17 +1441,20 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         exerciseId: Long,
         sets: Int = 1,
         targetValue: Int,
-        intervalSeconds: Int = 60
+        intervalSeconds: Int = 60,
+        loopId: Long? = null,
+        sortOrder: Int? = null
     ): Long? {
         return try {
-            val sortOrder = programExerciseDao.getNextSortOrder(programId)
+            val finalSortOrder = sortOrder ?: programExerciseDao.getNextSortOrder(programId)
             val programExercise = ProgramExercise(
                 programId = programId,
                 exerciseId = exerciseId,
-                sortOrder = sortOrder,
+                sortOrder = finalSortOrder,
                 sets = sets,
                 targetValue = targetValue,
-                intervalSeconds = intervalSeconds
+                intervalSeconds = intervalSeconds,
+                loopId = loopId
             )
             programExerciseDao.insert(programExercise)
         } catch (e: Exception) {
