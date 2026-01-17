@@ -9,8 +9,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [Exercise::class, TrainingRecord::class, ExerciseGroup::class, TodoTask::class, Program::class, ProgramExercise::class],
-    version = 14,  // ← 変更: 13 → 14（timerMode/startIntervalをSharedPreferencesへ移行）
+    entities = [Exercise::class, TrainingRecord::class, ExerciseGroup::class, TodoTask::class, Program::class, ProgramExercise::class, ProgramLoop::class],
+    version = 15,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -21,6 +21,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun todoTaskDao(): TodoTaskDao
     abstract fun programDao(): ProgramDao
     abstract fun programExerciseDao(): ProgramExerciseDao
+    abstract fun programLoopDao(): ProgramLoopDao
 
     companion object {
         @Volatile
@@ -33,7 +34,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "bodyweight_trainer_database"
                 )
-                    .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14)
+                    .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
@@ -185,6 +186,60 @@ abstract class AppDatabase : RoomDatabase() {
 
                 // 4. 新テーブルをリネーム
                 database.execSQL("ALTER TABLE programs_new RENAME TO programs")
+            }
+        }
+
+        // マイグレーション 14 → 15: ループ機能追加
+        val MIGRATION_14_15 = object : Migration(14, 15) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // 1. ProgramLoop テーブル作成
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS program_loops (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        programId INTEGER NOT NULL,
+                        sortOrder INTEGER NOT NULL,
+                        rounds INTEGER NOT NULL,
+                        restBetweenRounds INTEGER NOT NULL,
+                        FOREIGN KEY (programId) REFERENCES programs(id) ON DELETE CASCADE
+                    )
+                """)
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_program_loops_programId ON program_loops(programId)")
+
+                // 2. ProgramExercise テーブル再作成（ForeignKey追加のため）
+                // SQLiteではALTER TABLEでForeignKeyを追加できないため、テーブル再作成が必要
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS program_exercises_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        programId INTEGER NOT NULL,
+                        exerciseId INTEGER NOT NULL,
+                        sortOrder INTEGER NOT NULL,
+                        sets INTEGER NOT NULL,
+                        targetValue INTEGER NOT NULL,
+                        intervalSeconds INTEGER NOT NULL,
+                        loopId INTEGER DEFAULT NULL,
+                        FOREIGN KEY (programId) REFERENCES programs(id) ON DELETE CASCADE,
+                        FOREIGN KEY (exerciseId) REFERENCES exercises(id) ON DELETE CASCADE,
+                        FOREIGN KEY (loopId) REFERENCES program_loops(id) ON DELETE CASCADE
+                    )
+                """)
+
+                // データコピー
+                database.execSQL("""
+                    INSERT INTO program_exercises_new (id, programId, exerciseId, sortOrder, sets, targetValue, intervalSeconds, loopId)
+                    SELECT id, programId, exerciseId, sortOrder, sets, targetValue, intervalSeconds, NULL
+                    FROM program_exercises
+                """)
+
+                // 旧テーブル削除
+                database.execSQL("DROP TABLE program_exercises")
+
+                // 新テーブルをリネーム
+                database.execSQL("ALTER TABLE program_exercises_new RENAME TO program_exercises")
+
+                // インデックス作成
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_program_exercises_programId ON program_exercises(programId)")
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_program_exercises_exerciseId ON program_exercises(exerciseId)")
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_program_exercises_loopId ON program_exercises(loopId)")
             }
         }
     }

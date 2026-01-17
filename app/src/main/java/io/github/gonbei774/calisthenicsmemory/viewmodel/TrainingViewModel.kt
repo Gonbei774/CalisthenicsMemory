@@ -8,6 +8,7 @@ import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.ExerciseGroup
 import io.github.gonbei774.calisthenicsmemory.data.Program
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
+import io.github.gonbei774.calisthenicsmemory.data.ProgramLoop
 import io.github.gonbei774.calisthenicsmemory.data.TodoTask
 import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
 import io.github.gonbei774.calisthenicsmemory.ui.UiMessage
@@ -106,6 +107,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     private val todoTaskDao = database.todoTaskDao()
     private val programDao = database.programDao()
     private val programExerciseDao = database.programExerciseDao()
+    private val programLoopDao = database.programLoopDao()
 
     companion object {
         // お気に入りグループの固定キー（UI側で翻訳される）
@@ -1495,6 +1497,90 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
             val reorderedIds = currentExercises.map { it.id }
             programExerciseDao.reorderExercises(reorderedIds)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
+    // ========================================
+    // ProgramLoop 操作
+    // ========================================
+
+    fun getProgramLoopsFlow(programId: Long) = programLoopDao.getLoopsForProgram(programId)
+
+    suspend fun getProgramLoopsSync(programId: Long): List<ProgramLoop> {
+        return programLoopDao.getLoopsForProgramSync(programId)
+    }
+
+    suspend fun getProgramLoopById(loopId: Long): ProgramLoop? {
+        return programLoopDao.getLoopById(loopId)
+    }
+
+    suspend fun addProgramLoop(
+        programId: Long,
+        rounds: Int = 3,
+        restBetweenRounds: Int = 60
+    ): Long? {
+        return try {
+            val sortOrder = programLoopDao.getNextSortOrder(programId)
+            val loop = ProgramLoop(
+                programId = programId,
+                sortOrder = sortOrder,
+                rounds = rounds,
+                restBetweenRounds = restBetweenRounds
+            )
+            programLoopDao.insert(loop)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+            null
+        }
+    }
+
+    suspend fun updateProgramLoop(loop: ProgramLoop) {
+        try {
+            programLoopDao.update(loop)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
+    suspend fun deleteProgramLoop(loop: ProgramLoop) {
+        try {
+            programLoopDao.delete(loop)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
+    suspend fun addProgramExerciseToLoop(
+        programId: Long,
+        exerciseId: Long,
+        loopId: Long,
+        sets: Int = 1,
+        targetValue: Int,
+        intervalSeconds: Int = 60
+    ): Long? {
+        return try {
+            val sortOrder = programExerciseDao.getNextSortOrder(programId)
+            val programExercise = ProgramExercise(
+                programId = programId,
+                exerciseId = exerciseId,
+                sortOrder = sortOrder,
+                sets = sets,
+                targetValue = targetValue,
+                intervalSeconds = intervalSeconds,
+                loopId = loopId
+            )
+            programExerciseDao.insert(programExercise)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+            null
+        }
+    }
+
+    suspend fun moveExerciseToLoop(programExercise: ProgramExercise, loopId: Long?) {
+        try {
+            programExerciseDao.update(programExercise.copy(loopId = loopId))
         } catch (e: Exception) {
             _snackbarMessage.value = UiMessage.ErrorOccurred
         }
