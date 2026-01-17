@@ -86,25 +86,41 @@ internal fun ProgramConfirmStep(
     // 推定時間を計算
     val estimatedMinutes = calculateEstimatedMinutes(session)
 
-    Column(
+    // ループの展開状態を管理
+    var expandedLoopIds by remember { mutableStateOf(session.loops.map { it.id }.toSet()) }
+
+    // ループとスタンドアロン種目をグループ化
+    val confirmListItems = remember(session.exercises, session.loops, refreshKey) {
+        val standaloneExercises = session.exercises.mapIndexedNotNull { index, (pe, exercise) ->
+            if (pe.loopId == null) {
+                ConfirmListItem.StandaloneExercise(index, pe, exercise)
+            } else null
+        }
+        val loops = session.loops.map { loop ->
+            val loopExercises = session.exercises.mapIndexedNotNull { index, (pe, exercise) ->
+                if (pe.loopId == loop.id) Triple(index, pe, exercise) else null
+            }
+            ConfirmListItem.Loop(loop, loopExercises)
+        }
+        (standaloneExercises + loops).sortedBy { it.sortOrder }
+    }
+
+    // 一括適用タブの選択状態
+    var selectedBulkTab by remember { mutableIntStateOf(0) } // 0=Program, 1=Challenge, 2=Previous
+
+    // 全てスクロール可能なリストとして表示
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // ヘッダー: プログラム名 + 種目数 + 推定時間
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp)
-        ) {
-            Text(
-                text = session.program.name,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.height(4.dp))
+        // ヘッダー: 種目数 + 推定時間
+        item {
             Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -122,97 +138,68 @@ internal fun ProgramConfirmStep(
         }
 
         // 設定セクション
-        SettingsSection(
-            isAutoMode = isAutoMode,
-            startCountdownSeconds = startCountdownSeconds,
-            isDynamicCountSoundEnabled = isDynamicCountSoundEnabled,
-            isIsometricIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
-            isometricIntervalSeconds = isometricIntervalSeconds,
-            onAutoModeChange = onAutoModeChange,
-            onStartCountdownChange = onStartCountdownChange,
-            onDynamicCountSoundChange = onDynamicCountSoundChange,
-            onIsometricIntervalSoundChange = onIsometricIntervalSoundChange,
-            onIsometricIntervalSecondsChange = onIsometricIntervalSecondsChange
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // 一括適用タブ（タブ切替UI）
-        var selectedBulkTab by remember { mutableIntStateOf(0) } // 0=Program, 1=Challenge, 2=Previous
-        Column(modifier = Modifier.fillMaxWidth()) {
-            // ラベル
-            Text(
-                text = stringResource(R.string.auto_fill_target_label),
-                fontSize = 12.sp,
-                color = Slate500,
-                modifier = Modifier.padding(bottom = 8.dp)
+        item {
+            SettingsSection(
+                isAutoMode = isAutoMode,
+                startCountdownSeconds = startCountdownSeconds,
+                isDynamicCountSoundEnabled = isDynamicCountSoundEnabled,
+                isIsometricIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
+                isometricIntervalSeconds = isometricIntervalSeconds,
+                onAutoModeChange = onAutoModeChange,
+                onStartCountdownChange = onStartCountdownChange,
+                onDynamicCountSoundChange = onDynamicCountSoundChange,
+                onIsometricIntervalSoundChange = onIsometricIntervalSoundChange,
+                onIsometricIntervalSecondsChange = onIsometricIntervalSecondsChange
             )
-            // タブ行
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Program tab
-                BulkSettingTab(
-                    text = stringResource(R.string.program_use_program),
-                    isSelected = selectedBulkTab == 0,
-                    onClick = {
-                        selectedBulkTab = 0
-                        onUseAllProgramValues()
-                        refreshKey++
-                    }
+        }
+
+        // 一括適用タブ
+        item {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(R.string.auto_fill_target_label),
+                    fontSize = 12.sp,
+                    color = Slate500,
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
-                // Challenge tab (conditional)
-                if (hasChallengeExercise) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     BulkSettingTab(
-                        text = stringResource(R.string.program_use_challenge),
-                        isSelected = selectedBulkTab == 1,
+                        text = stringResource(R.string.program_use_program),
+                        isSelected = selectedBulkTab == 0,
                         onClick = {
-                            selectedBulkTab = 1
-                            onUseAllChallengeValues()
+                            selectedBulkTab = 0
+                            onUseAllProgramValues()
+                            refreshKey++
+                        }
+                    )
+                    if (hasChallengeExercise) {
+                        BulkSettingTab(
+                            text = stringResource(R.string.program_use_challenge),
+                            isSelected = selectedBulkTab == 1,
+                            onClick = {
+                                selectedBulkTab = 1
+                                onUseAllChallengeValues()
+                                refreshKey++
+                            }
+                        )
+                    }
+                    BulkSettingTab(
+                        text = stringResource(R.string.program_use_previous),
+                        isSelected = selectedBulkTab == if (hasChallengeExercise) 2 else 1,
+                        onClick = {
+                            selectedBulkTab = if (hasChallengeExercise) 2 else 1
+                            onUseAllPreviousRecordValues()
                             refreshKey++
                         }
                     )
                 }
-                // Previous tab
-                BulkSettingTab(
-                    text = stringResource(R.string.program_use_previous),
-                    isSelected = selectedBulkTab == if (hasChallengeExercise) 2 else 1,
-                    onClick = {
-                        selectedBulkTab = if (hasChallengeExercise) 2 else 1
-                        onUseAllPreviousRecordValues()
-                        refreshKey++
-                    }
-                )
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // ループの展開状態を管理
-        var expandedLoopIds by remember { mutableStateOf(session.loops.map { it.id }.toSet()) }
-
-        // ループとスタンドアロン種目をグループ化
-        val confirmListItems = remember(session.exercises, session.loops, refreshKey) {
-            val standaloneExercises = session.exercises.mapIndexedNotNull { index, (pe, exercise) ->
-                if (pe.loopId == null) {
-                    ConfirmListItem.StandaloneExercise(index, pe, exercise)
-                } else null
-            }
-            val loops = session.loops.map { loop ->
-                val loopExercises = session.exercises.mapIndexedNotNull { index, (pe, exercise) ->
-                    if (pe.loopId == loop.id) Triple(index, pe, exercise) else null
-                }
-                ConfirmListItem.Loop(loop, loopExercises)
-            }
-            (standaloneExercises + loops).sortedBy { it.sortOrder }
-        }
-
-        // 種目リスト + 開始ボタン（スクロール対応）
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(
+        // 種目リスト
+        items(
                 items = confirmListItems,
                 key = { item ->
                     when (item) {
@@ -322,7 +309,6 @@ internal fun ProgramConfirmStep(
                         fontWeight = FontWeight.Bold
                     )
                 }
-            }
         }
     }
 }

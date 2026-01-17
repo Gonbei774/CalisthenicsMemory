@@ -625,56 +625,84 @@ fun ProgramExecutionScreen(
                                 // セット数を変更: セットリストを再構築
                                 val (pe, exercise) = step.session.exercises[exerciseIndex]
                                 val currentSets = step.session.sets.filter { it.exerciseIndex == exerciseIndex }
+
+                                // ループ内種目の場合、1ラウンド分のセット数を計算
+                                val firstRoundSets = currentSets.filter { it.roundNumber == 1 }
                                 val currentSetCount = if (exercise.laterality == "Unilateral") {
-                                    currentSets.filter { it.side == "Right" }.size
+                                    firstRoundSets.filter { it.side == "Right" }.size
                                 } else {
-                                    currentSets.size
+                                    firstRoundSets.size
                                 }
 
                                 if (newSetCount == currentSetCount || newSetCount < 1) return@ProgramConfirmStep
 
-                                // 現在のインターバルと目標値を取得（最後のセットから）
-                                val lastSet = currentSets.lastOrNull()
-                                val interval = lastSet?.intervalSeconds ?: pe.intervalSeconds
-                                val targetValue = lastSet?.targetValue ?: pe.targetValue
+                                // ループ情報を取得（最初のセットから）
+                                val firstSet = currentSets.firstOrNull()
+                                val loopId = firstSet?.loopId
+                                val totalRounds = firstSet?.totalRounds ?: 1
+
+                                // 現在のインターバルと目標値を取得（1ラウンド目の最後のセットから）
+                                val lastSetOfFirstRound = firstRoundSets.lastOrNull()
+                                val interval = lastSetOfFirstRound?.intervalSeconds ?: pe.intervalSeconds
+                                val targetValue = lastSetOfFirstRound?.targetValue ?: pe.targetValue
 
                                 // 他の種目のセットはそのまま、この種目のセットのみ再構築
                                 val newSets = mutableListOf<ProgramWorkoutSet>()
                                 step.session.exercises.forEachIndexed { idx, (pex, ex) ->
                                     if (idx == exerciseIndex) {
-                                        // この種目のセットを再構築
-                                        for (setNum in 1..newSetCount) {
-                                            // 既存セットから値を取得（あれば）
-                                            val existingRight = currentSets.find { it.setNumber == setNum && it.side == "Right" }
-                                            val existingLeft = currentSets.find { it.setNumber == setNum && it.side == "Left" }
-                                            val existingBilateral = currentSets.find { it.setNumber == setNum && it.side == null }
+                                        // この種目のセットを再構築（各ラウンドごと）
+                                        for (round in 1..totalRounds) {
+                                            val isLastRound = round == totalRounds
+                                            // このラウンドの既存セットからloopRestAfterSecondsを取得
+                                            val existingRoundSets = currentSets.filter { it.roundNumber == round }
+                                            val loopRestAfter = existingRoundSets.lastOrNull()?.loopRestAfterSeconds ?: 0
 
-                                            if (ex.laterality == "Unilateral") {
-                                                newSets.add(ProgramWorkoutSet(
-                                                    exerciseIndex = idx,
-                                                    setNumber = setNum,
-                                                    side = "Right",
-                                                    targetValue = existingRight?.targetValue ?: targetValue,
-                                                    intervalSeconds = interval,
-                                                    previousValue = existingRight?.previousValue
-                                                ))
-                                                newSets.add(ProgramWorkoutSet(
-                                                    exerciseIndex = idx,
-                                                    setNumber = setNum,
-                                                    side = "Left",
-                                                    targetValue = existingLeft?.targetValue ?: targetValue,
-                                                    intervalSeconds = interval,
-                                                    previousValue = existingLeft?.previousValue
-                                                ))
-                                            } else {
-                                                newSets.add(ProgramWorkoutSet(
-                                                    exerciseIndex = idx,
-                                                    setNumber = setNum,
-                                                    side = null,
-                                                    targetValue = existingBilateral?.targetValue ?: targetValue,
-                                                    intervalSeconds = interval,
-                                                    previousValue = existingBilateral?.previousValue
-                                                ))
+                                            for (setNum in 1..newSetCount) {
+                                                val isLastSetOfRound = setNum == newSetCount
+                                                // 既存セットから値を取得（あれば、同じラウンドのもの）
+                                                val existingRight = existingRoundSets.find { it.setNumber == setNum && it.side == "Right" }
+                                                val existingLeft = existingRoundSets.find { it.setNumber == setNum && it.side == "Left" }
+                                                val existingBilateral = existingRoundSets.find { it.setNumber == setNum && it.side == null }
+
+                                                if (ex.laterality == "Unilateral") {
+                                                    newSets.add(ProgramWorkoutSet(
+                                                        exerciseIndex = idx,
+                                                        setNumber = setNum,
+                                                        side = "Right",
+                                                        targetValue = existingRight?.targetValue ?: targetValue,
+                                                        intervalSeconds = interval,
+                                                        previousValue = existingRight?.previousValue,
+                                                        loopId = loopId,
+                                                        roundNumber = round,
+                                                        totalRounds = totalRounds,
+                                                        loopRestAfterSeconds = 0  // Rightの後はLeftが来る
+                                                    ))
+                                                    newSets.add(ProgramWorkoutSet(
+                                                        exerciseIndex = idx,
+                                                        setNumber = setNum,
+                                                        side = "Left",
+                                                        targetValue = existingLeft?.targetValue ?: targetValue,
+                                                        intervalSeconds = interval,
+                                                        previousValue = existingLeft?.previousValue,
+                                                        loopId = loopId,
+                                                        roundNumber = round,
+                                                        totalRounds = totalRounds,
+                                                        loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0
+                                                    ))
+                                                } else {
+                                                    newSets.add(ProgramWorkoutSet(
+                                                        exerciseIndex = idx,
+                                                        setNumber = setNum,
+                                                        side = null,
+                                                        targetValue = existingBilateral?.targetValue ?: targetValue,
+                                                        intervalSeconds = interval,
+                                                        previousValue = existingBilateral?.previousValue,
+                                                        loopId = loopId,
+                                                        roundNumber = round,
+                                                        totalRounds = totalRounds,
+                                                        loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0
+                                                    ))
+                                                }
                                             }
                                         }
                                     } else {
