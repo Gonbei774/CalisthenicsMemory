@@ -813,12 +813,13 @@ internal fun ProgramConfirmExerciseCard(
                             modifier = Modifier.width(80.dp),
                             textAlign = TextAlign.Center
                         )
+                        Spacer(modifier = Modifier.width(16.dp))
                         // 前回
                         Text(
                             text = stringResource(R.string.program_use_previous),
                             fontSize = 12.sp,
                             color = Slate500,
-                            modifier = Modifier.width(50.dp),
+                            modifier = Modifier.width(70.dp),
                             textAlign = TextAlign.Center
                         )
                     }
@@ -916,13 +917,15 @@ internal fun ProgramConfirmExerciseCard(
                         }
                     }
 
-                    // 前回値（50dp）
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    // 前回値（70dp）
                     Text(
                         text = set.previousValue?.toString() ?: "-",
                         fontSize = 13.sp,
                         color = Slate500,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.width(50.dp)
+                        modifier = Modifier.width(70.dp)
                     )
                 }
             }
