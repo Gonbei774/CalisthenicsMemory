@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -358,11 +359,31 @@ fun ProgramEditScreen(
             val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
                 val fromIndex = from.index - headerItemCount
                 val toIndex = to.index - headerItemCount
-                if (fromIndex >= 0 && toIndex >= 0 && fromIndex < programExercises.size && toIndex < programExercises.size) {
-                    val reordered = programExercises.toMutableList()
-                    val item = reordered.removeAt(fromIndex)
-                    reordered.add(toIndex, item)
-                    programExercises = reordered
+                if (fromIndex >= 0 && toIndex >= 0 && fromIndex < programListItems.size && toIndex < programListItems.size) {
+                    // Reorder the combined list
+                    val reorderedItems = programListItems.toMutableList()
+                    val item = reorderedItems.removeAt(fromIndex)
+                    reorderedItems.add(toIndex, item)
+
+                    // Update sortOrder for all items based on new positions
+                    val updatedExercises = mutableListOf<ProgramExercise>()
+                    val updatedLoops = mutableListOf<ProgramLoop>()
+
+                    reorderedItems.forEachIndexed { index, listItem ->
+                        when (listItem) {
+                            is ProgramListItem.ExerciseItem -> {
+                                updatedExercises.add(listItem.programExercise.copy(sortOrder = index))
+                            }
+                            is ProgramListItem.LoopItem -> {
+                                updatedLoops.add(listItem.loop.copy(sortOrder = index))
+                            }
+                        }
+                    }
+
+                    // Keep loop exercises unchanged, update standalone exercises
+                    val loopExercises = programExercises.filter { it.loopId != null }
+                    programExercises = updatedExercises + loopExercises
+                    programLoops = updatedLoops
                 }
             }
 
@@ -465,29 +486,43 @@ fun ProgramEditScreen(
                                         exerciseMap[pe.exerciseId]?.let { ex -> pe to ex }
                                     }
 
-                                LoopBlock(
-                                    loop = loop,
-                                    exercises = loopExercises,
-                                    isExpanded = loop.id in expandedLoopIds,
-                                    onExpandToggle = {
-                                        expandedLoopIds = if (loop.id in expandedLoopIds) {
-                                            expandedLoopIds - loop.id
-                                        } else {
-                                            expandedLoopIds + loop.id
-                                        }
-                                    },
-                                    onEdit = { showLoopSettingsDialog = loop },
-                                    onDelete = {
-                                        // Delete loop and its exercises
-                                        programExercises = programExercises.filter { it.loopId != loop.id }
-                                        programLoops = programLoops.filter { it.id != loop.id }
-                                    },
-                                    onAddExercise = { showAddExerciseToLoopDialog = loop },
-                                    onExerciseEdit = { pe -> showExerciseSettingsDialog = pe },
-                                    onExerciseDelete = { pe ->
-                                        programExercises = programExercises.filter { it != pe }
-                                    }
-                                )
+                                ReorderableItem(reorderableLazyListState, key = "loop_${loop.id}") { isDragging ->
+                                    val elevation by animateDpAsState(
+                                        targetValue = if (isDragging) 4.dp else 0.dp,
+                                        label = "elevation"
+                                    )
+                                    LoopBlock(
+                                        loop = loop,
+                                        exercises = loopExercises,
+                                        isExpanded = loop.id in expandedLoopIds,
+                                        isDragging = isDragging,
+                                        elevation = elevation,
+                                        onExpandToggle = {
+                                            expandedLoopIds = if (loop.id in expandedLoopIds) {
+                                                expandedLoopIds - loop.id
+                                            } else {
+                                                expandedLoopIds + loop.id
+                                            }
+                                        },
+                                        onEdit = { showLoopSettingsDialog = loop },
+                                        onDelete = {
+                                            // Delete loop and its exercises
+                                            programExercises = programExercises.filter { it.loopId != loop.id }
+                                            programLoops = programLoops.filter { it.id != loop.id }
+                                        },
+                                        onAddExercise = { showAddExerciseToLoopDialog = loop },
+                                        onExerciseEdit = { pe -> showExerciseSettingsDialog = pe },
+                                        onExerciseDelete = { pe ->
+                                            programExercises = programExercises.filter { it != pe }
+                                        },
+                                        onLoopExercisesReordered = { reorderedExercises ->
+                                            // Update loop exercises with new order
+                                            val otherExercises = programExercises.filter { it.loopId != loop.id }
+                                            programExercises = otherExercises + reorderedExercises
+                                        },
+                                        dragHandle = { Modifier.longPressDraggableHandle() }
+                                    )
+                                }
                             }
                         }
                     }
@@ -585,10 +620,20 @@ fun ProgramEditScreen(
             ExerciseSettingsDialog(
                 programExercise = pe,
                 exercise = exercise,
+                availableLoops = programLoops,
                 onDismiss = { showExerciseSettingsDialog = null },
                 onSave = { updatedPe ->
+                    // If moving to a loop, update sortOrder within that loop
+                    val finalPe = if (updatedPe.loopId != null && updatedPe.loopId != pe.loopId) {
+                        val loopExerciseCount = programExercises.count {
+                            it.loopId == updatedPe.loopId && it.id != updatedPe.id
+                        }
+                        updatedPe.copy(sortOrder = loopExerciseCount)
+                    } else {
+                        updatedPe
+                    }
                     programExercises = programExercises.map {
-                        if (it.id == updatedPe.id) updatedPe else it
+                        if (it.id == finalPe.id) finalPe else it
                     }
                     showExerciseSettingsDialog = null
                 }
@@ -1397,16 +1442,25 @@ private fun ProgramSearchResultItem(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ExerciseSettingsDialog(
     programExercise: ProgramExercise,
     exercise: Exercise,
+    availableLoops: List<ProgramLoop>,
     onDismiss: () -> Unit,
     onSave: (ProgramExercise) -> Unit
 ) {
     var sets by remember { mutableStateOf(programExercise.sets.toString()) }
     var targetValue by remember { mutableStateOf(programExercise.targetValue.toString()) }
     var intervalSeconds by remember { mutableStateOf(programExercise.intervalSeconds.toString()) }
+
+    // Loop selection state (only for standalone exercises)
+    var selectedLoopId by remember { mutableStateOf<Long?>(programExercise.loopId) }
+    var loopDropdownExpanded by remember { mutableStateOf(false) }
+
+    // Only show loop selection for standalone exercises (not already in a loop)
+    val showLoopSelection = programExercise.loopId == null && availableLoops.isNotEmpty()
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -1488,6 +1542,76 @@ private fun ExerciseSettingsDialog(
                     ),
                     singleLine = true
                 )
+
+                // Loop selection dropdown (only for standalone exercises)
+                if (showLoopSelection) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.move_to_loop),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Slate300
+                    )
+                    ExposedDropdownMenuBox(
+                        expanded = loopDropdownExpanded,
+                        onExpandedChange = { loopDropdownExpanded = it }
+                    ) {
+                        OutlinedTextField(
+                            value = selectedLoopId?.let { id ->
+                                val loopIndex = availableLoops.indexOfFirst { it.id == id }
+                                if (loopIndex >= 0) {
+                                    stringResource(R.string.loop_number_format, loopIndex + 1)
+                                } else {
+                                    stringResource(R.string.none)
+                                }
+                            } ?: stringResource(R.string.none),
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = loopDropdownExpanded)
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Orange600,
+                                focusedLabelColor = Orange600,
+                                unfocusedTextColor = Color.White,
+                                focusedTextColor = Color.White,
+                                unfocusedLabelColor = Slate400,
+                                unfocusedBorderColor = Slate600
+                            )
+                        )
+                        ExposedDropdownMenu(
+                            expanded = loopDropdownExpanded,
+                            onDismissRequest = { loopDropdownExpanded = false }
+                        ) {
+                            // None option
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.none)) },
+                                onClick = {
+                                    selectedLoopId = null
+                                    loopDropdownExpanded = false
+                                }
+                            )
+                            // Loop options
+                            availableLoops.forEachIndexed { index, loop ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            stringResource(R.string.loop_number_format, index + 1) +
+                                                " (${loop.rounds}x)"
+                                        )
+                                    },
+                                    onClick = {
+                                        selectedLoopId = loop.id
+                                        loopDropdownExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
             }
         },
         confirmButton = {
@@ -1500,7 +1624,8 @@ private fun ExerciseSettingsDialog(
                         programExercise.copy(
                             sets = setsValue!!,
                             targetValue = targetValueValue!!,
-                            intervalSeconds = intervalSeconds.toIntOrNull() ?: 0  // 空欄=0秒
+                            intervalSeconds = intervalSeconds.toIntOrNull() ?: 0,
+                            loopId = selectedLoopId
                         )
                     )
                 },
@@ -1522,23 +1647,35 @@ private fun LoopBlock(
     loop: ProgramLoop,
     exercises: List<Pair<ProgramExercise, Exercise>>,
     isExpanded: Boolean,
+    isDragging: Boolean,
+    elevation: androidx.compose.ui.unit.Dp,
     onExpandToggle: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     onAddExercise: () -> Unit,
     onExerciseEdit: (ProgramExercise) -> Unit,
-    onExerciseDelete: (ProgramExercise) -> Unit
+    onExerciseDelete: (ProgramExercise) -> Unit,
+    onLoopExercisesReordered: (List<ProgramExercise>) -> Unit,
+    dragHandle: @Composable () -> Modifier
 ) {
+    // State for loop exercise reordering
+    var loopExerciseList by remember(exercises) {
+        mutableStateOf(exercises.map { it.first })
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .border(
                 width = 2.dp,
-                color = Orange600,
+                color = if (isDragging) Orange600.copy(alpha = 0.7f) else Orange600,
                 shape = RoundedCornerShape(12.dp)
             ),
-        colors = CardDefaults.cardColors(containerColor = Slate800),
-        shape = RoundedCornerShape(12.dp)
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDragging) Slate700.copy(alpha = 0.9f) else Slate800
+        ),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation)
     ) {
         Column {
             // Loop header
@@ -1559,6 +1696,15 @@ private fun LoopBlock(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.weight(1f)
                     ) {
+                        // Drag handle
+                        Icon(
+                            Icons.Default.Menu,
+                            contentDescription = stringResource(R.string.todo_drag_to_reorder),
+                            tint = if (isDragging) Color.White else Slate400,
+                            modifier = Modifier
+                                .size(24.dp)
+                                .then(dragHandle())
+                        )
                         // Loop icon
                         Text(
                             text = "🔁",
@@ -1655,14 +1801,24 @@ private fun LoopBlock(
                             )
                         }
                     } else {
-                        exercises.forEach { (pe, exercise) ->
-                            LoopExerciseItem(
-                                programExercise = pe,
-                                exercise = exercise,
-                                onEdit = { onExerciseEdit(pe) },
-                                onDelete = { onExerciseDelete(pe) }
-                            )
-                        }
+                        // Exercise list with reordering
+                        ReorderableLoopExerciseList(
+                            exercises = exercises,
+                            exerciseList = loopExerciseList,
+                            onReorder = { fromIndex, toIndex ->
+                                val reordered = loopExerciseList.toMutableList()
+                                val item = reordered.removeAt(fromIndex)
+                                reordered.add(toIndex, item)
+                                // Update sortOrder
+                                val updated = reordered.mapIndexed { index, pe ->
+                                    pe.copy(sortOrder = index)
+                                }
+                                loopExerciseList = updated
+                                onLoopExercisesReordered(updated)
+                            },
+                            onExerciseEdit = onExerciseEdit,
+                            onExerciseDelete = onExerciseDelete
+                        )
                     }
 
                     // Add exercise to loop button
@@ -1694,9 +1850,50 @@ private fun LoopBlock(
 }
 
 @Composable
-private fun LoopExerciseItem(
+private fun ReorderableLoopExerciseList(
+    exercises: List<Pair<ProgramExercise, Exercise>>,
+    exerciseList: List<ProgramExercise>,
+    onReorder: (fromIndex: Int, toIndex: Int) -> Unit,
+    onExerciseEdit: (ProgramExercise) -> Unit,
+    onExerciseDelete: (ProgramExercise) -> Unit
+) {
+    val exerciseMap = remember(exercises) {
+        exercises.associate { it.first.id to it.second }
+    }
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        exerciseList.forEachIndexed { index, pe ->
+            val exercise = exerciseMap[pe.id]
+            if (exercise != null) {
+                LoopExerciseItemWithReorder(
+                    programExercise = pe,
+                    exercise = exercise,
+                    index = index,
+                    totalCount = exerciseList.size,
+                    onMoveUp = {
+                        if (index > 0) onReorder(index, index - 1)
+                    },
+                    onMoveDown = {
+                        if (index < exerciseList.size - 1) onReorder(index, index + 1)
+                    },
+                    onEdit = { onExerciseEdit(pe) },
+                    onDelete = { onExerciseDelete(pe) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LoopExerciseItemWithReorder(
     programExercise: ProgramExercise,
     exercise: Exercise,
+    index: Int,
+    totalCount: Int,
+    onMoveUp: () -> Unit,
+    onMoveDown: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -1757,10 +1954,40 @@ private fun LoopExerciseItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp),
+                    .padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
+                // Reorder buttons
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    IconButton(
+                        onClick = onMoveUp,
+                        enabled = index > 0,
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.KeyboardArrowUp,
+                            contentDescription = null,
+                            tint = if (index > 0) Slate400 else Slate600,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    IconButton(
+                        onClick = onMoveDown,
+                        enabled = index < totalCount - 1,
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.KeyboardArrowDown,
+                            contentDescription = null,
+                            tint = if (index < totalCount - 1) Slate400 else Slate600,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+
                 // Exercise info
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
