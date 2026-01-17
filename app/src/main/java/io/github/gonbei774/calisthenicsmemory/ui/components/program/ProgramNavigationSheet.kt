@@ -509,16 +509,36 @@ private fun NavigationBilateralSetRow(
 
         // セット情報
         Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = stringResource(R.string.set_format, set.setNumber, totalSets),
-                fontSize = 14.sp,
-                fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Medium,
-                color = when (setStatus) {
-                    SetStatus.COMPLETED -> Color.White
-                    SetStatus.CURRENT -> Orange600
-                    SetStatus.PENDING, SetStatus.SKIPPED -> Slate500
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.set_format, set.setNumber, totalSets),
+                    fontSize = 14.sp,
+                    fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Medium,
+                    color = when (setStatus) {
+                        SetStatus.COMPLETED -> Color.White
+                        SetStatus.CURRENT -> Orange600
+                        SetStatus.PENDING, SetStatus.SKIPPED -> Slate500
+                    }
+                )
+                // ループ内のセットならラウンドバッジを表示
+                if (set.loopId != null && set.totalRounds > 1) {
+                    Box(
+                        modifier = Modifier
+                            .background(Purple600.copy(alpha = 0.3f), RoundedCornerShape(4.dp))
+                            .padding(horizontal = 5.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = "R${set.roundNumber}",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Purple400
+                        )
+                    }
                 }
-            )
+            }
             Spacer(modifier = Modifier.height(2.dp))
             SetValueText(
                 set = set,
@@ -611,16 +631,37 @@ private fun NavigationUnilateralSetRow(
 
         // セット情報
         Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = stringResource(R.string.set_format, setNumber, totalSets),
-                fontSize = 14.sp,
-                fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Medium,
-                color = when (setStatus) {
-                    SetStatus.COMPLETED -> Color.White
-                    SetStatus.CURRENT -> Orange600
-                    SetStatus.PENDING, SetStatus.SKIPPED -> Slate500
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.set_format, setNumber, totalSets),
+                    fontSize = 14.sp,
+                    fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Medium,
+                    color = when (setStatus) {
+                        SetStatus.COMPLETED -> Color.White
+                        SetStatus.CURRENT -> Orange600
+                        SetStatus.PENDING, SetStatus.SKIPPED -> Slate500
+                    }
+                )
+                // ループ内のセットならラウンドバッジを表示（rightSetから取得）
+                val loopSet = rightSet ?: leftSet
+                if (loopSet != null && loopSet.loopId != null && loopSet.totalRounds > 1) {
+                    Box(
+                        modifier = Modifier
+                            .background(Purple600.copy(alpha = 0.3f), RoundedCornerShape(4.dp))
+                            .padding(horizontal = 5.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = "R${loopSet.roundNumber}",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Purple400
+                        )
+                    }
                 }
-            )
+            }
             Spacer(modifier = Modifier.height(2.dp))
             UnilateralValueText(
                 rightSet = rightSet,

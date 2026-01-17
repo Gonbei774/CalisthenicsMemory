@@ -15,7 +15,12 @@ data class ProgramWorkoutSet(
     var isCompleted: Boolean = false,
     var isSkipped: Boolean = false,
     var intervalSeconds: Int,     // このセット後のインターバル
-    val previousValue: Int? = null // 前回値（表示用）
+    val previousValue: Int? = null, // 前回値（表示用）
+    // ループ関連
+    val loopId: Long? = null,     // 所属ループID（nullはループ外）
+    val roundNumber: Int = 1,     // ラウンド番号（1始まり）
+    val totalRounds: Int = 1,     // 総ラウンド数
+    val loopRestAfterSeconds: Int = 0  // ラウンド間休憩（このセット後に追加、最終ラウンドは0）
 )
 
 /**
@@ -25,7 +30,8 @@ data class ProgramExecutionSession(
     val program: Program,
     val exercises: List<Pair<ProgramExercise, Exercise>>, // ProgramExercise + Exercise情報
     val sets: MutableList<ProgramWorkoutSet>,             // 実行順の全セット
-    var comment: String = ""
+    var comment: String = "",
+    val loops: List<ProgramLoop> = emptyList()            // ループ情報
 )
 
 /**

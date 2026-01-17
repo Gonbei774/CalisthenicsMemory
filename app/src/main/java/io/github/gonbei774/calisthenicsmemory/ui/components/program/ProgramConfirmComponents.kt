@@ -178,11 +178,17 @@ internal fun ProgramConfirmStep(
             ) { (exerciseIndex, pair) ->
                 val (pe, exercise) = pair
                 val setsForExercise = session.sets.filter { it.exerciseIndex == exerciseIndex }
+                // ループ内の種目は1ラウンド目のセットのみ表示（重複を避ける）
+                val firstRoundSets = setsForExercise.filter { it.roundNumber == 1 }
                 val displaySets = if (exercise.laterality == "Unilateral") {
                     // 片側種目: 右側のセットのみ表示（代表値として）
-                    setsForExercise.filter { it.side == "Right" }
+                    firstRoundSets.filter { it.side == "Right" }
                 } else {
-                    setsForExercise
+                    firstRoundSets
+                }
+                // ループ情報を取得
+                val loopInfo = setsForExercise.firstOrNull()?.let {
+                    if (it.loopId != null && it.totalRounds > 1) it.totalRounds else null
                 }
 
                 ProgramConfirmExerciseCard(
@@ -192,6 +198,7 @@ internal fun ProgramConfirmStep(
                     sets = displaySets,
                     allSets = session.sets,
                     isExpanded = exerciseIndex in expandedExercises,
+                    loopRounds = loopInfo,
                     onToggleExpanded = {
                         expandedExercises = if (exerciseIndex in expandedExercises) {
                             expandedExercises - exerciseIndex
@@ -527,6 +534,7 @@ internal fun ProgramConfirmExerciseCard(
     sets: List<ProgramWorkoutSet>,
     allSets: List<ProgramWorkoutSet>,
     isExpanded: Boolean,
+    loopRounds: Int? = null,  // ループ内種目の場合はラウンド数
     onToggleExpanded: () -> Unit,
     onUpdateValue: (Int, Int) -> Unit,
     onUpdateInterval: (Int) -> Unit,
@@ -598,6 +606,22 @@ internal fun ProgramConfirmExerciseCard(
                         fontSize = 12.sp,
                         color = Slate300
                     )
+                }
+
+                // ループ内種目の場合はラウンド数バッジを表示
+                if (loopRounds != null) {
+                    Box(
+                        modifier = Modifier
+                            .background(Purple600.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.loop_round_format, loopRounds),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Purple400
+                        )
+                    }
                 }
 
                 // シェブロン
@@ -745,10 +769,12 @@ internal fun ProgramConfirmExerciseCard(
                     // セットごとの値
                     sets.forEach { set ->
                 // オブジェクト参照ではなくセマンティックに検索（copy()で参照が変わるため）
+                // roundNumberも含めて正確にマッチング（ループ内種目の重複防止）
                 val setIndex = allSets.indexOfFirst {
                     it.exerciseIndex == set.exerciseIndex &&
                     it.setNumber == set.setNumber &&
-                    it.side == set.side
+                    it.side == set.side &&
+                    it.roundNumber == set.roundNumber
                 }
                 if (setIndex < 0) return@forEach
 

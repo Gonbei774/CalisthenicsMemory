@@ -228,6 +228,8 @@
     <string name="stop_button">Stop</string>
     <string name="retry_set_button">Retry Set</string>
     <string name="interval_label">Interval</string>
+    <string name="loop_round_rest">Round Rest</string>
+    <string name="loop_round_current">Round %1$d/%2$d</string>
     <string name="next_set_format">Next: Set %1$d/%2$d</string>
     <string name="next_set_format_with_side">Next: Set %1$d/%2$d - %3$s</string>
     <string name="minus_10sec">-10 sec</string>

@@ -63,6 +63,22 @@ import io.github.gonbei774.calisthenicsmemory.util.buildProgramValueSets
 import io.github.gonbei774.calisthenicsmemory.util.saveProgramResults
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import kotlinx.coroutines.launch
+import io.github.gonbei774.calisthenicsmemory.data.ProgramLoop
+
+// ループ実行時に使用するsealed class
+private sealed class ExecutionItem {
+    data class StandaloneExercise(
+        val exerciseIndex: Int,
+        val pe: ProgramExercise,
+        val exercise: Exercise,
+        val sortOrder: Int
+    ) : ExecutionItem()
+
+    data class Loop(
+        val loop: ProgramLoop,
+        val exercises: List<Triple<Int, ProgramExercise, Exercise>>
+    ) : ExecutionItem()
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,11 +96,13 @@ fun ProgramExecutionScreen(
     // プログラムと種目データをロード
     var program by remember { mutableStateOf<Program?>(null) }
     var programExercises by remember { mutableStateOf<List<ProgramExercise>>(emptyList()) }
+    var programLoops by remember { mutableStateOf<List<io.github.gonbei774.calisthenicsmemory.data.ProgramLoop>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(programId) {
         program = viewModel.getProgramById(programId)
         programExercises = viewModel.getProgramExercisesSync(programId)
+        programLoops = viewModel.getProgramLoopsSync(programId)
         isLoading = false
     }
 
@@ -96,7 +114,7 @@ fun ProgramExecutionScreen(
     val workoutPreferences = remember { WorkoutPreferences(context) }
 
     // プログラムと種目がロードされたらセッションを構築
-    LaunchedEffect(program, programExercises, exercises) {
+    LaunchedEffect(program, programExercises, programLoops, exercises) {
         val prog = program ?: return@LaunchedEffect
         if (programExercises.isEmpty() || exercises.isEmpty()) return@LaunchedEffect
         if (session != null) return@LaunchedEffect // 既に初期化済み
@@ -117,20 +135,65 @@ fun ProgramExecutionScreen(
 
         val isPrefillEnabled = workoutPreferences.isPrefillPreviousRecordEnabled()
 
+        // ループ情報をマップ化
+        val loopMap = programLoops.associateBy { it.id }
+
+        // スタンドアロン種目とループを sortOrder でソートして実行順に並べる
+        val executionItems = mutableListOf<ExecutionItem>()
+
+        // スタンドアロン種目を追加
+        exercisePairs.forEachIndexed { index, (pe, exercise) ->
+            if (pe.loopId == null) {
+                executionItems.add(ExecutionItem.StandaloneExercise(index, pe, exercise, pe.sortOrder))
+            }
+        }
+
+        // ループを追加（ループ内の種目も含む）
+        programLoops.forEach { loop ->
+            val loopExercises = exercisePairs
+                .mapIndexedNotNull { index, (pe, exercise) ->
+                    if (pe.loopId == loop.id) Triple(index, pe, exercise) else null
+                }
+                .sortedBy { it.second.sortOrder }
+            if (loopExercises.isNotEmpty()) {
+                executionItems.add(ExecutionItem.Loop(loop, loopExercises))
+            }
+        }
+
+        // sortOrder でソート（スタンドアロンはpe.sortOrder、ループはloop.sortOrder）
+        val sortedItems = executionItems.sortedBy { item ->
+            when (item) {
+                is ExecutionItem.StandaloneExercise -> item.sortOrder
+                is ExecutionItem.Loop -> item.loop.sortOrder
+            }
+        }
+
         // 実行順のセットリストを構築（前回値を含む）
         val allSets = mutableListOf<ProgramWorkoutSet>()
-        exercisePairs.forEachIndexed { index, (pe, exercise) ->
+
+        // ヘルパー関数: 種目のセットを追加
+        fun addExerciseSets(
+            exerciseIndex: Int,
+            pe: ProgramExercise,
+            exercise: Exercise,
+            loopId: Long? = null,
+            roundNumber: Int = 1,
+            totalRounds: Int = 1,
+            loopRestAfterSeconds: Int = 0,
+            isLastExerciseInRound: Boolean = false
+        ) {
             val latestRecords = previousRecordsMap[exercise.id] ?: emptyList()
 
             for (setNum in 1..pe.sets) {
                 val matchingRecord = latestRecords.find { it.setNumber == setNum }
+                val isLastSetOfExercise = setNum == pe.sets
+
+                // ラウンド間休憩は最後のラウンド以外で、ループの最後の種目の最後のセットに追加
+                val actualLoopRestAfter = if (isLastExerciseInRound && isLastSetOfExercise) loopRestAfterSeconds else 0
 
                 if (exercise.laterality == "Unilateral") {
-                    // 片側種目: 右→左
                     val prevRight = matchingRecord?.valueRight
                     val prevLeft = matchingRecord?.valueLeft ?: matchingRecord?.valueRight
-
-                    // 前回値は左右の平均値を使用
                     val prevAverage = when {
                         prevRight != null && prevLeft != null -> (prevRight + prevLeft) / 2
                         prevRight != null -> prevRight
@@ -140,22 +203,30 @@ fun ProgramExecutionScreen(
 
                     allSets.add(
                         ProgramWorkoutSet(
-                            exerciseIndex = index,
+                            exerciseIndex = exerciseIndex,
                             setNumber = setNum,
                             side = "Right",
                             targetValue = if (isPrefillEnabled && prevRight != null) prevRight else pe.targetValue,
                             intervalSeconds = pe.intervalSeconds,
-                            previousValue = prevAverage
+                            previousValue = prevAverage,
+                            loopId = loopId,
+                            roundNumber = roundNumber,
+                            totalRounds = totalRounds,
+                            loopRestAfterSeconds = 0  // Rightの後はLeftが来るので0
                         )
                     )
                     allSets.add(
                         ProgramWorkoutSet(
-                            exerciseIndex = index,
+                            exerciseIndex = exerciseIndex,
                             setNumber = setNum,
                             side = "Left",
                             targetValue = if (isPrefillEnabled && prevLeft != null) prevLeft else pe.targetValue,
                             intervalSeconds = pe.intervalSeconds,
-                            previousValue = prevAverage
+                            previousValue = prevAverage,
+                            loopId = loopId,
+                            roundNumber = roundNumber,
+                            totalRounds = totalRounds,
+                            loopRestAfterSeconds = actualLoopRestAfter
                         )
                     )
                 } else {
@@ -163,14 +234,51 @@ fun ProgramExecutionScreen(
 
                     allSets.add(
                         ProgramWorkoutSet(
-                            exerciseIndex = index,
+                            exerciseIndex = exerciseIndex,
                             setNumber = setNum,
                             side = null,
                             targetValue = if (isPrefillEnabled && prevValue != null) prevValue else pe.targetValue,
                             intervalSeconds = pe.intervalSeconds,
-                            previousValue = prevValue
+                            previousValue = prevValue,
+                            loopId = loopId,
+                            roundNumber = roundNumber,
+                            totalRounds = totalRounds,
+                            loopRestAfterSeconds = actualLoopRestAfter
                         )
                     )
+                }
+            }
+        }
+
+        // 実行アイテムを順に処理
+        sortedItems.forEach { item ->
+            when (item) {
+                is ExecutionItem.StandaloneExercise -> {
+                    addExerciseSets(item.exerciseIndex, item.pe, item.exercise)
+                }
+                is ExecutionItem.Loop -> {
+                    val loop = item.loop
+                    val loopExercises = item.exercises
+
+                    // 各ラウンドを処理
+                    for (round in 1..loop.rounds) {
+                        val isLastRound = round == loop.rounds
+                        val loopRestAfter = if (isLastRound) 0 else loop.restBetweenRounds
+
+                        loopExercises.forEachIndexed { loopExIdx, (exerciseIndex, pe, exercise) ->
+                            val isLastExerciseInRound = loopExIdx == loopExercises.size - 1
+                            addExerciseSets(
+                                exerciseIndex = exerciseIndex,
+                                pe = pe,
+                                exercise = exercise,
+                                loopId = loop.id,
+                                roundNumber = round,
+                                totalRounds = loop.rounds,
+                                loopRestAfterSeconds = loopRestAfter,
+                                isLastExerciseInRound = isLastExerciseInRound
+                            )
+                        }
+                    }
                 }
             }
         }

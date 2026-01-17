@@ -156,10 +156,14 @@ internal fun ProgramIntervalStep(
     val nextSetIndex = nextSetIndexOverride ?: (currentSetIndex + 1)
     val nextSet = session.sets.getOrNull(nextSetIndex)
 
-    var remainingTime by remember { mutableIntStateOf(currentSet.intervalSeconds) }
+    // ループ間休憩がある場合は追加
+    val totalInterval = currentSet.intervalSeconds + currentSet.loopRestAfterSeconds
+    val hasLoopRest = currentSet.loopRestAfterSeconds > 0
+
+    var remainingTime by remember { mutableIntStateOf(totalInterval) }
     var isRunning by remember { mutableStateOf(true) }
-    val progress = if (currentSet.intervalSeconds > 0) {
-        remainingTime.toFloat() / currentSet.intervalSeconds
+    val progress = if (totalInterval > 0) {
+        remainingTime.toFloat() / totalInterval
     } else 0f
 
     // ナビゲーション表示中は強制的に一時停止
@@ -211,13 +215,39 @@ internal fun ProgramIntervalStep(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // 休憩表示
-            Text(
-                text = stringResource(R.string.interval_label),
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Cyan600
-            )
+            // 休憩表示（ラウンド間休憩がある場合は強調表示）
+            if (hasLoopRest) {
+                // ラウンド間休憩表示
+                Text(
+                    text = stringResource(R.string.loop_round_rest),
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Purple600
+                )
+                Text(
+                    text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
+                    fontSize = 20.sp,
+                    color = Slate300,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            } else {
+                // 通常の休憩表示
+                Text(
+                    text = stringResource(R.string.interval_label),
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Cyan600
+                )
+                // ループ内セットならラウンド情報を表示
+                if (currentSet.loopId != null && currentSet.totalRounds > 1) {
+                    Text(
+                        text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
+                        fontSize = 16.sp,
+                        color = Slate400,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
 
             // 次のセット/種目表示
             nextSet?.let { next ->
