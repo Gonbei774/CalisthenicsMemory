@@ -578,6 +578,7 @@
     <string name="nav_type_isometric_short">Iso</string>
     <!-- Loop Feature -->
     <string name="add_loop">Add Loop</string>
+    <string name="loop_label">Loop</string>
     <string name="loop_settings">Loop Settings</string>
     <string name="loop_rounds">Rounds</string>
     <string name="loop_rest_between_rounds">Rest between rounds (sec)</string>

@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,9 +30,30 @@ import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
+import io.github.gonbei774.calisthenicsmemory.data.ProgramLoop
 import io.github.gonbei774.calisthenicsmemory.data.ProgramWorkoutSet
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import kotlin.math.roundToInt
+
+// Sealed class to represent items in the confirm list (for grouping loops)
+private sealed class ConfirmListItem {
+    abstract val sortOrder: Int
+
+    data class StandaloneExercise(
+        val exerciseIndex: Int,
+        val pe: ProgramExercise,
+        val exercise: Exercise
+    ) : ConfirmListItem() {
+        override val sortOrder: Int get() = pe.sortOrder
+    }
+
+    data class Loop(
+        val loop: ProgramLoop,
+        val exercises: List<Triple<Int, ProgramExercise, Exercise>>  // exerciseIndex, pe, exercise
+    ) : ConfirmListItem() {
+        override val sortOrder: Int get() = loop.sortOrder
+    }
+}
 
 @Composable
 internal fun ProgramConfirmStep(
@@ -166,72 +188,121 @@ internal fun ProgramConfirmStep(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // ループの展開状態を管理
+        var expandedLoopIds by remember { mutableStateOf(session.loops.map { it.id }.toSet()) }
+
+        // ループとスタンドアロン種目をグループ化
+        val confirmListItems = remember(session.exercises, session.loops, refreshKey) {
+            val standaloneExercises = session.exercises.mapIndexedNotNull { index, (pe, exercise) ->
+                if (pe.loopId == null) {
+                    ConfirmListItem.StandaloneExercise(index, pe, exercise)
+                } else null
+            }
+            val loops = session.loops.map { loop ->
+                val loopExercises = session.exercises.mapIndexedNotNull { index, (pe, exercise) ->
+                    if (pe.loopId == loop.id) Triple(index, pe, exercise) else null
+                }
+                ConfirmListItem.Loop(loop, loopExercises)
+            }
+            (standaloneExercises + loops).sortedBy { it.sortOrder }
+        }
+
         // 種目リスト + 開始ボタン（スクロール対応）
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // key = refreshKey ensures recomposition
             items(
-                items = session.exercises.mapIndexed { index, pair -> index to pair },
-                key = { (index, _) -> "$index-$refreshKey" }
-            ) { (exerciseIndex, pair) ->
-                val (pe, exercise) = pair
-                val setsForExercise = session.sets.filter { it.exerciseIndex == exerciseIndex }
-                // ループ内の種目は1ラウンド目のセットのみ表示（重複を避ける）
-                val firstRoundSets = setsForExercise.filter { it.roundNumber == 1 }
-                val displaySets = if (exercise.laterality == "Unilateral") {
-                    // 片側種目: 右側のセットのみ表示（代表値として）
-                    firstRoundSets.filter { it.side == "Right" }
-                } else {
-                    firstRoundSets
-                }
-                // ループ情報を取得
-                val loopInfo = setsForExercise.firstOrNull()?.let {
-                    if (it.loopId != null && it.totalRounds > 1) it.totalRounds else null
-                }
-
-                ProgramConfirmExerciseCard(
-                    exerciseIndex = exerciseIndex,
-                    exercise = exercise,
-                    programExercise = pe,
-                    sets = displaySets,
-                    allSets = session.sets,
-                    isExpanded = exerciseIndex in expandedExercises,
-                    loopRounds = loopInfo,
-                    onToggleExpanded = {
-                        expandedExercises = if (exerciseIndex in expandedExercises) {
-                            expandedExercises - exerciseIndex
-                        } else {
-                            expandedExercises + exerciseIndex
-                        }
-                    },
-                    onUpdateValue = { setIndex, newValue ->
-                        onUpdateTargetValue(setIndex, newValue)
-                        // 片側種目の場合、左側も同じ値に更新
-                        if (exercise.laterality == "Unilateral") {
-                            val rightSet = session.sets[setIndex]
-                            val leftSetIndex = session.sets.indexOfFirst {
-                                it.exerciseIndex == exerciseIndex &&
-                                it.setNumber == rightSet.setNumber &&
-                                it.side == "Left"
-                            }
-                            if (leftSetIndex >= 0) {
-                                onUpdateTargetValue(leftSetIndex, newValue)
-                            }
-                        }
-                    },
-                    onUpdateInterval = { newInterval ->
-                        onUpdateInterval(exerciseIndex, newInterval)
-                    },
-                    onUpdateSetCount = { newSetCount ->
-                        onUpdateSetCount(exerciseIndex, newSetCount)
-                    },
-                    onUpdateAllSetsValue = { delta ->
-                        // この種目の全セットの値を一括更新
-                        onUpdateExerciseSetsValue(exerciseIndex, delta)
+                items = confirmListItems,
+                key = { item ->
+                    when (item) {
+                        is ConfirmListItem.StandaloneExercise -> "exercise-${item.exerciseIndex}-$refreshKey"
+                        is ConfirmListItem.Loop -> "loop-${item.loop.id}-$refreshKey"
                     }
-                )
+                }
+            ) { item ->
+                when (item) {
+                    is ConfirmListItem.StandaloneExercise -> {
+                        val (exerciseIndex, pe, exercise) = Triple(item.exerciseIndex, item.pe, item.exercise)
+                        val setsForExercise = session.sets.filter { it.exerciseIndex == exerciseIndex }
+                        val firstRoundSets = setsForExercise.filter { it.roundNumber == 1 }
+                        val displaySets = if (exercise.laterality == "Unilateral") {
+                            firstRoundSets.filter { it.side == "Right" }
+                        } else {
+                            firstRoundSets
+                        }
+
+                        ProgramConfirmExerciseCard(
+                            exerciseIndex = exerciseIndex,
+                            exercise = exercise,
+                            programExercise = pe,
+                            sets = displaySets,
+                            allSets = session.sets,
+                            isExpanded = exerciseIndex in expandedExercises,
+                            loopRounds = null,
+                            onToggleExpanded = {
+                                expandedExercises = if (exerciseIndex in expandedExercises) {
+                                    expandedExercises - exerciseIndex
+                                } else {
+                                    expandedExercises + exerciseIndex
+                                }
+                            },
+                            onUpdateValue = { setIndex, newValue ->
+                                onUpdateTargetValue(setIndex, newValue)
+                                if (exercise.laterality == "Unilateral") {
+                                    val rightSet = session.sets[setIndex]
+                                    val leftSetIndex = session.sets.indexOfFirst {
+                                        it.exerciseIndex == exerciseIndex &&
+                                        it.setNumber == rightSet.setNumber &&
+                                        it.side == "Left"
+                                    }
+                                    if (leftSetIndex >= 0) {
+                                        onUpdateTargetValue(leftSetIndex, newValue)
+                                    }
+                                }
+                            },
+                            onUpdateInterval = { newInterval ->
+                                onUpdateInterval(exerciseIndex, newInterval)
+                            },
+                            onUpdateSetCount = { newSetCount ->
+                                onUpdateSetCount(exerciseIndex, newSetCount)
+                            },
+                            onUpdateAllSetsValue = { delta ->
+                                onUpdateExerciseSetsValue(exerciseIndex, delta)
+                            }
+                        )
+                    }
+                    is ConfirmListItem.Loop -> {
+                        val loop = item.loop
+                        val isLoopExpanded = loop.id in expandedLoopIds
+
+                        ProgramConfirmLoopBlock(
+                            loop = loop,
+                            exercises = item.exercises,
+                            session = session,
+                            isExpanded = isLoopExpanded,
+                            expandedExercises = expandedExercises,
+                            onToggleLoopExpanded = {
+                                expandedLoopIds = if (loop.id in expandedLoopIds) {
+                                    expandedLoopIds - loop.id
+                                } else {
+                                    expandedLoopIds + loop.id
+                                }
+                            },
+                            onToggleExerciseExpanded = { exerciseIndex ->
+                                expandedExercises = if (exerciseIndex in expandedExercises) {
+                                    expandedExercises - exerciseIndex
+                                } else {
+                                    expandedExercises + exerciseIndex
+                                }
+                            },
+                            onUpdateTargetValue = onUpdateTargetValue,
+                            onUpdateInterval = onUpdateInterval,
+                            onUpdateSetCount = onUpdateSetCount,
+                            onUpdateExerciseSetsValue = onUpdateExerciseSetsValue
+                        )
+                    }
+                }
             }
 
             // 開始ボタン（リストの最後、スクロール対応）
@@ -980,4 +1051,171 @@ internal fun calculateEstimatedMinutes(session: ProgramExecutionSession): Int {
         totalSeconds += repSeconds + set.intervalSeconds
     }
     return (totalSeconds / 60.0).roundToInt().coerceAtLeast(1)
+}
+
+/**
+ * ループブロック（オレンジ枠で囲まれたグループ）
+ */
+@Composable
+private fun ProgramConfirmLoopBlock(
+    loop: ProgramLoop,
+    exercises: List<Triple<Int, ProgramExercise, Exercise>>,  // exerciseIndex, pe, exercise
+    session: ProgramExecutionSession,
+    isExpanded: Boolean,
+    expandedExercises: Set<Int>,
+    onToggleLoopExpanded: () -> Unit,
+    onToggleExerciseExpanded: (Int) -> Unit,
+    onUpdateTargetValue: (Int, Int) -> Unit,
+    onUpdateInterval: (Int, Int) -> Unit,
+    onUpdateSetCount: (Int, Int) -> Unit,
+    onUpdateExerciseSetsValue: (Int, Int) -> Unit
+) {
+    val chevronRotation by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        label = "loopChevron"
+    )
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(2.dp, Orange600, RoundedCornerShape(12.dp)),
+        colors = CardDefaults.cardColors(containerColor = Slate800),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column {
+            // ループヘッダー
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onToggleLoopExpanded() }
+                    .padding(14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // ループアイコン
+                Text(
+                    text = "🔁",
+                    fontSize = 16.sp
+                )
+
+                // ループ情報
+                Text(
+                    text = stringResource(R.string.loop_label),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Orange600
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                // ラウンド数バッジ
+                Box(
+                    modifier = Modifier
+                        .background(Purple600.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.loop_round_format, loop.rounds),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Purple400
+                    )
+                }
+
+                // ラウンド間休憩バッジ
+                if (loop.restBetweenRounds > 0) {
+                    Box(
+                        modifier = Modifier
+                            .background(Slate700, RoundedCornerShape(12.dp))
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.loop_rest_format, loop.restBetweenRounds),
+                            fontSize = 12.sp,
+                            color = Slate300
+                        )
+                    }
+                }
+
+                // シェブロン
+                Text(
+                    text = "▼",
+                    fontSize = 12.sp,
+                    color = Slate400,
+                    modifier = Modifier.rotate(chevronRotation)
+                )
+            }
+
+            // ループ内種目（折りたたみ可能）
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    exercises.forEach { (exerciseIndex, pe, exercise) ->
+                        val setsForExercise = session.sets.filter { it.exerciseIndex == exerciseIndex }
+                        val firstRoundSets = setsForExercise.filter { it.roundNumber == 1 }
+                        val displaySets = if (exercise.laterality == "Unilateral") {
+                            firstRoundSets.filter { it.side == "Right" }
+                        } else {
+                            firstRoundSets
+                        }
+
+                        // ループ内種目カード（左ボーダー付き）
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            // 左のオレンジボーダー
+                            Box(
+                                modifier = Modifier
+                                    .width(3.dp)
+                                    .fillMaxHeight()
+                                    .background(Amber500)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            // 種目カード
+                            ProgramConfirmExerciseCard(
+                                exerciseIndex = exerciseIndex,
+                                exercise = exercise,
+                                programExercise = pe,
+                                sets = displaySets,
+                                allSets = session.sets,
+                                isExpanded = exerciseIndex in expandedExercises,
+                                loopRounds = null,  // ループヘッダーで表示するのでここでは不要
+                                onToggleExpanded = { onToggleExerciseExpanded(exerciseIndex) },
+                                onUpdateValue = { setIndex, newValue ->
+                                    onUpdateTargetValue(setIndex, newValue)
+                                    if (exercise.laterality == "Unilateral") {
+                                        val rightSet = session.sets[setIndex]
+                                        val leftSetIndex = session.sets.indexOfFirst {
+                                            it.exerciseIndex == exerciseIndex &&
+                                            it.setNumber == rightSet.setNumber &&
+                                            it.side == "Left"
+                                        }
+                                        if (leftSetIndex >= 0) {
+                                            onUpdateTargetValue(leftSetIndex, newValue)
+                                        }
+                                    }
+                                },
+                                onUpdateInterval = { newInterval ->
+                                    onUpdateInterval(exerciseIndex, newInterval)
+                                },
+                                onUpdateSetCount = { newSetCount ->
+                                    onUpdateSetCount(exerciseIndex, newSetCount)
+                                },
+                                onUpdateAllSetsValue = { delta ->
+                                    onUpdateExerciseSetsValue(exerciseIndex, delta)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

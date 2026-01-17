@@ -297,7 +297,8 @@ fun ProgramExecutionScreen(
                     program = prog,
                     exercises = exercisePairs,
                     sets = savedSets.toMutableList(),
-                    comment = savedComment
+                    comment = savedComment,
+                    loops = programLoops
                 )
                 session = newSession
 
@@ -319,7 +320,8 @@ fun ProgramExecutionScreen(
             program = prog,
             exercises = exercisePairs,
             sets = allSets,
-            comment = "【Program】${prog.name}"
+            comment = "【Program】${prog.name}",
+            loops = programLoops
         )
         session = newSession
         currentStep = ProgramExecutionStep.Confirm(newSession)
