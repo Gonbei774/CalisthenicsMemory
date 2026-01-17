@@ -1358,7 +1358,7 @@ fun ExecutingStep(
         (elapsedTime % repDur).toFloat() / repDur
     }
 
-    LaunchedEffect(currentSetIndex) {
+    LaunchedEffect(currentSetIndex, isRunning) {
         while (true) {
             if (isRunning) {
                 delay(1000L)
@@ -1554,7 +1554,7 @@ fun IntervalStep(
     var remainingTime by remember { mutableIntStateOf(session.intervalDuration) }
     val progress = if (session.intervalDuration > 0) remainingTime.toFloat() / session.intervalDuration else 0f
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(isRunning) {
         while (remainingTime > 0 && isRunning) {
             delay(1000L)
             remainingTime--

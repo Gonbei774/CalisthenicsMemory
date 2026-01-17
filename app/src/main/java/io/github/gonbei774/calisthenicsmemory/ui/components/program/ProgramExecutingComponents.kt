@@ -76,7 +76,7 @@ internal fun ProgramExecutingStepDynamicManual(
     val scope = rememberCoroutineScope()
 
     // タイマー処理（自動遷移なし、目標達成時に停止）
-    LaunchedEffect(currentSetIndex, isNavigationOpen) {
+    LaunchedEffect(currentSetIndex, isNavigationOpen, isPaused) {
         while (true) {
             if (!effectivelyPaused && currentCount < currentSet.targetValue) {
                 delay(1000L)
@@ -398,7 +398,7 @@ internal fun ProgramExecutingStepIsometricManual(
     var hasPlayedCompletionBeep by remember(currentSetIndex) { mutableStateOf(false) }
 
     // タイマー処理
-    LaunchedEffect(currentSetIndex, isNavigationOpen) {
+    LaunchedEffect(currentSetIndex, isNavigationOpen, isPaused) {
         while (true) {
             if (!effectivelyPaused && elapsedTime < currentSet.targetValue) {
                 delay(1000L)
@@ -704,7 +704,7 @@ internal fun ProgramExecutingStepIsometricAuto(
     }
 
     // タイマー処理
-    LaunchedEffect(currentSetIndex, isNavigationOpen) {
+    LaunchedEffect(currentSetIndex, isNavigationOpen, isPaused) {
         while (true) {
             if (!effectivelyPaused && elapsedTime < currentSet.targetValue) {
                 delay(1000L)
@@ -1004,7 +1004,7 @@ internal fun ProgramExecutingStepDynamicAuto(
     val statusColor = if (effectivelyPaused) Slate400 else Orange600
 
     // タイマー処理
-    LaunchedEffect(currentSetIndex, isNavigationOpen) {
+    LaunchedEffect(currentSetIndex, isNavigationOpen, isPaused) {
         while (true) {
             if (!effectivelyPaused) {
                 delay(1000L)
