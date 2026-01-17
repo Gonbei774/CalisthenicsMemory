@@ -487,4 +487,16 @@
     <string name="graph_type_average">Середнє</string>
     <string name="statistics_average_label">У середньому</string>
     <string name="average">У середньому</string>
+    <string name="add_exercise_to_loop">Додати вправу</string>
+    <string name="add_loop">Додати цикл</string>
+    <string name="loop_settings">Налаштування циклу</string>
+    <string name="move_to_loop">Перемістити до циклу</string>
+    <string name="loop_number_format">Цикл %d</string>
+    <string name="loop_delete_confirm">Видалити цей цикл? Вправи, що в ньому, також будуть видалені.</string>
+    <string name="loop_rounds">Повторення</string>
+    <string name="loop_rest_between_rounds">Відпочинок між повтореннями (с)</string>
+    <string name="loop_round_format">%d разів</string>
+    <string name="loop_current_round">Повторення %1$d/%2$d</string>
+    <string name="loop_rest_format">Відпочинок між повтореннями: %d с</string>
+    <string name="interval_short">Відпочинок:</string>
 </resources>
