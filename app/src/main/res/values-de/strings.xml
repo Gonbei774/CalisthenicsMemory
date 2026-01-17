@@ -344,7 +344,7 @@
     <string name="csv_import_mode_merge">Zusammenführen (Hinzufügen)</string>
     <string name="csv_import_mode_merge_description">Vorhandene Daten behalten, neue Elemente hinzufügen</string>
     <string name="csv_import_mode_replace">Ersetzen</string>
-    <string name="csv_import_mode_replace_description">Alle vorhandenen Daten löschen und ersetzen</string>
+    <string name="csv_import_mode_replace_description">Alle vorhandenen Daten löschen und durch die importierten Daten ersetzen</string>
     <string name="csv_import_button">Importieren</string>
     <!-- CSV Import Result Dialog -->
     <string name="csv_import_completed">Import abgeschlossen</string>
@@ -577,4 +577,5 @@
     <string name="nav_skipped">Übersprungen</string>
     <string name="nav_type_dynamic_short">Dyn</string>
     <string name="nav_type_isometric_short">Iso</string>
+    <string name="no_results">Keine Ergebnisse gefunden</string>
 </resources>
