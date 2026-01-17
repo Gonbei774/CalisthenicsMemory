@@ -738,82 +738,50 @@ internal fun ProgramConfirmExerciseCard(
                         }
                     }
 
-                    // 全セット± ボタン行
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Slate700, RoundedCornerShape(8.dp))
-                            .padding(vertical = 10.dp, horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(
-                            onClick = { onUpdateAllSetsValue(-1) },
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = Color.Transparent,
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
-                            ) {
-                                Box(
-                                    modifier = Modifier.size(32.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text("−", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                                }
-                            }
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = stringResource(R.string.all_sets_label),
-                            fontSize = 13.sp,
-                            color = Slate400
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        IconButton(
-                            onClick = { onUpdateAllSetsValue(1) },
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = Color.Transparent,
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
-                            ) {
-                                Box(
-                                    modifier = Modifier.size(32.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // カラムヘッダー（目標 / 前回）
+                    // カラムヘッダー（目標±ボタン付き / 前回）
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // 空（セットラベル用スペース）
-                        Text(
-                            text = "",
-                            modifier = Modifier.weight(1f)
-                        )
-                        // 目標
-                        Text(
-                            text = stringResource(R.string.target_value_label),
-                            fontSize = 12.sp,
-                            color = Slate500,
-                            modifier = Modifier.width(80.dp),
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
+                        // 空（セットラベル用スペース）- 固定幅でコンパクトに
+                        Spacer(modifier = Modifier.width(72.dp))
+
+                        // 目標（±ボタン付き）
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // −ボタン
+                            Box(
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clickable { onUpdateAllSetsValue(-1) },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("−", fontSize = 14.sp, color = Slate400)
+                            }
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = stringResource(R.string.target_value_label),
+                                fontSize = 12.sp,
+                                color = Slate500,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            // +ボタン
+                            Box(
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clickable { onUpdateAllSetsValue(1) },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("+", fontSize = 14.sp, color = Slate400)
+                            }
+                        }
+
                         // 前回
                         Text(
                             text = stringResource(R.string.program_use_previous),
@@ -850,17 +818,17 @@ internal fun ProgramConfirmExerciseCard(
                         .padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // セットラベル
+                    // セットラベル（固定幅）
                     Text(
                         text = stringResource(R.string.set_format, set.setNumber, actualTotalSets),
                         fontSize = 14.sp,
                         color = Slate300,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.width(72.dp)
                     )
 
-                    // 目標値入力（80dp）
+                    // 目標値入力（中央配置）
                     Row(
-                        modifier = Modifier.width(80.dp),
+                        modifier = Modifier.weight(1f),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -916,8 +884,6 @@ internal fun ProgramConfirmExerciseCard(
                             )
                         }
                     }
-
-                    Spacer(modifier = Modifier.width(16.dp))
 
                     // 前回値（70dp）
                     Text(
