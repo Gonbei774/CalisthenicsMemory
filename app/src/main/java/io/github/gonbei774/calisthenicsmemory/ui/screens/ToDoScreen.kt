@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -38,6 +39,7 @@ import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.TodoTask
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.util.SearchUtils
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import sh.calvin.reorderable.ReorderableColumn
 
@@ -356,10 +358,16 @@ fun AddExercisesDialog(
 
     // Filter exercises by search query
     val searchResults = remember(availableExercises, searchQuery) {
-        if (searchQuery.isBlank()) {
-            emptyList()
-        } else {
-            availableExercises.filter { it.name.contains(searchQuery, ignoreCase = true) }
+        SearchUtils.searchExercises(availableExercises, searchQuery)
+    }
+
+    // List state for controlling scroll position
+    val listState = rememberLazyListState()
+
+    // Scroll to top when search results change
+    LaunchedEffect(searchQuery, searchResults) {
+        if (searchQuery.isNotBlank() && searchResults.isNotEmpty()) {
+            listState.scrollToItem(0)
         }
     }
 
@@ -431,6 +439,7 @@ fun AddExercisesDialog(
 
                     // Exercise list
                     LazyColumn(
+                        state = listState,
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
