@@ -105,6 +105,27 @@ internal fun ProgramConfirmStep(
         (standaloneExercises + loops).sortedBy { it.sortOrder }
     }
 
+    // exerciseIndex → 表示番号のマップを作成（ソート順に基づく）
+    val exerciseDisplayNumbers = remember(confirmListItems) {
+        var displayNum = 0
+        val map = mutableMapOf<Int, Int>()
+        confirmListItems.forEach { item ->
+            when (item) {
+                is ConfirmListItem.StandaloneExercise -> {
+                    displayNum++
+                    map[item.exerciseIndex] = displayNum
+                }
+                is ConfirmListItem.Loop -> {
+                    item.exercises.forEach { (exerciseIndex, _, _) ->
+                        displayNum++
+                        map[exerciseIndex] = displayNum
+                    }
+                }
+            }
+        }
+        map
+    }
+
     // 一括適用タブの選択状態
     var selectedBulkTab by remember { mutableIntStateOf(0) } // 0=Program, 1=Challenge, 2=Previous
 
@@ -221,6 +242,7 @@ internal fun ProgramConfirmStep(
 
                         ProgramConfirmExerciseCard(
                             exerciseIndex = exerciseIndex,
+                            displayNumber = exerciseDisplayNumbers[exerciseIndex] ?: (exerciseIndex + 1),
                             exercise = exercise,
                             programExercise = pe,
                             sets = displaySets,
@@ -267,6 +289,7 @@ internal fun ProgramConfirmStep(
                             loop = loop,
                             exercises = item.exercises,
                             session = session,
+                            exerciseDisplayNumbers = exerciseDisplayNumbers,
                             isExpanded = isLoopExpanded,
                             expandedExercises = expandedExercises,
                             onToggleLoopExpanded = {
@@ -586,6 +609,7 @@ internal fun SettingsSection(
 @Composable
 internal fun ProgramConfirmExerciseCard(
     exerciseIndex: Int,
+    displayNumber: Int,  // 表示用番号（ソート順）
     exercise: Exercise,
     programExercise: ProgramExercise,
     sets: List<ProgramWorkoutSet>,
@@ -636,7 +660,7 @@ internal fun ProgramConfirmExerciseCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = (exerciseIndex + 1).toString(),
+                        text = displayNumber.toString(),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -1016,6 +1040,7 @@ private fun ProgramConfirmLoopBlock(
     loop: ProgramLoop,
     exercises: List<Triple<Int, ProgramExercise, Exercise>>,  // exerciseIndex, pe, exercise
     session: ProgramExecutionSession,
+    exerciseDisplayNumbers: Map<Int, Int>,
     isExpanded: Boolean,
     expandedExercises: Set<Int>,
     onToggleLoopExpanded: () -> Unit,
@@ -1136,6 +1161,7 @@ private fun ProgramConfirmLoopBlock(
                             // 種目カード
                             ProgramConfirmExerciseCard(
                                 exerciseIndex = exerciseIndex,
+                                displayNumber = exerciseDisplayNumbers[exerciseIndex] ?: (exerciseIndex + 1),
                                 exercise = exercise,
                                 programExercise = pe,
                                 sets = displaySets,

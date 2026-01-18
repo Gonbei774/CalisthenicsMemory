@@ -215,14 +215,22 @@ private sealed class NavigationDisplayItem {
 }
 
 /**
- * 表示アイテムを構築
+ * 表示アイテムを構築（表示番号マップも返す）
  */
-private fun buildNavigationItems(session: ProgramExecutionSession): List<NavigationDisplayItem> {
+private fun buildNavigationItems(session: ProgramExecutionSession): Pair<List<NavigationDisplayItem>, Map<Int, Int>> {
     val items = mutableListOf<NavigationDisplayItem>()
     val processedLoopRounds = mutableSetOf<Pair<Long, Int>>() // (loopId, roundNumber)
+    val exerciseDisplayNumbers = mutableMapOf<Int, Int>()  // exerciseIndex → 表示番号
+    var nextDisplayNumber = 1
 
     // セットを実行順にイテレート
     for (set in session.sets) {
+        // 表示番号を割り当て（まだ割り当てられていない場合）
+        if (set.exerciseIndex !in exerciseDisplayNumbers) {
+            exerciseDisplayNumbers[set.exerciseIndex] = nextDisplayNumber
+            nextDisplayNumber++
+        }
+
         if (set.loopId == null) {
             // ループ外の種目 - 種目ごとにまとめる
             val existingItem = items.filterIsInstance<NavigationDisplayItem.StandaloneExercise>()
@@ -262,7 +270,7 @@ private fun buildNavigationItems(session: ProgramExecutionSession): List<Navigat
         }
     }
 
-    return items
+    return Pair(items, exerciseDisplayNumbers)
 }
 
 /**
@@ -277,7 +285,7 @@ private fun NavigationSetsList(
     modifier: Modifier = Modifier
 ) {
     val lazyListState = rememberLazyListState()
-    val displayItems = buildNavigationItems(session)
+    val (displayItems, exerciseDisplayNumbers) = buildNavigationItems(session)
 
     // 現在のセットが属するアイテムのインデックスを取得
     val currentItemIndex = if (currentSetIndex in session.sets.indices) {
@@ -309,9 +317,10 @@ private fun NavigationSetsList(
                 is NavigationDisplayItem.StandaloneExercise -> {
                     val exerciseStatus = getExerciseStatus(item.sets, session.sets, currentSetIndex)
                     val actualTotalSets = item.sets.maxOfOrNull { it.setNumber } ?: item.programExercise.sets
+                    val displayNumber = exerciseDisplayNumbers[item.exerciseIndex] ?: (item.exerciseIndex + 1)
 
                     NavigationExerciseCard(
-                        exerciseIndex = item.exerciseIndex,
+                        displayNumber = displayNumber,
                         exerciseName = item.exercise.name,
                         exerciseType = item.exercise.type,
                         exerciseStatus = exerciseStatus,
@@ -561,7 +570,7 @@ private fun NavigationRoundSetRow(
  */
 @Composable
 private fun NavigationExerciseCard(
-    exerciseIndex: Int,
+    displayNumber: Int,  // 表示用番号（ソート順）
     exerciseName: String,
     exerciseType: String,
     exerciseStatus: ExerciseStatus,
@@ -580,7 +589,7 @@ private fun NavigationExerciseCard(
         Column {
             // 種目ヘッダー
             NavigationExerciseHeader(
-                exerciseIndex = exerciseIndex,
+                displayNumber = displayNumber,
                 exerciseName = exerciseName,
                 exerciseType = exerciseType,
                 exerciseStatus = exerciseStatus
@@ -641,7 +650,7 @@ private fun NavigationExerciseCard(
  */
 @Composable
 private fun NavigationExerciseHeader(
-    exerciseIndex: Int,
+    displayNumber: Int,  // 表示用番号（ソート順）
     exerciseName: String,
     exerciseType: String,
     exerciseStatus: ExerciseStatus
@@ -669,7 +678,7 @@ private fun NavigationExerciseHeader(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = (exerciseIndex + 1).toString(),
+                text = displayNumber.toString(),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
