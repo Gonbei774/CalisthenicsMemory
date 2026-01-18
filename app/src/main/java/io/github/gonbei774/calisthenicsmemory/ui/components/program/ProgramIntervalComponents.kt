@@ -120,15 +120,6 @@ internal fun ProgramStartIntervalStep(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // 次の種目/セット情報
-        NextExerciseInfo(
-            session = session,
-            currentSetIndex = currentSetIndex,
-            nextSetIndexOverride = nextSetIndexOverride
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         // スキップボタン
         TextButton(onClick = onSkip) {
             Text(
@@ -197,18 +188,6 @@ internal fun ProgramIntervalStep(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 現在の種目名
-        val (_, currentExercise) = session.exercises[currentSet.exerciseIndex]
-        Text(
-            text = currentExercise.name,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.padding(top = 8.dp)
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
         // 中央エリア
         Column(
             modifier = Modifier.weight(1f),

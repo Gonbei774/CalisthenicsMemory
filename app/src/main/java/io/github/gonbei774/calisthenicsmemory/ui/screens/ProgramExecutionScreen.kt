@@ -262,8 +262,8 @@ fun ProgramExecutionScreen(
 
                     // 各ラウンドを処理
                     for (round in 1..loop.rounds) {
-                        val isLastRound = round == loop.rounds
-                        val loopRestAfter = if (isLastRound) 0 else loop.restBetweenRounds
+                        // 全ラウンド終了後も休憩を入れる（次の種目/ループへの準備時間として）
+                        val loopRestAfter = loop.restBetweenRounds
 
                         loopExercises.forEachIndexed { loopExIdx, (exerciseIndex, pe, exercise) ->
                             val isLastExerciseInRound = loopExIdx == loopExercises.size - 1
@@ -902,7 +902,7 @@ fun ProgramExecutionScreen(
                                             val nextIndex = step.currentSetIndex + 1
 
                                             if (nextIndex < sets.size) {
-                                                if (completedSet.intervalSeconds > 0) {
+                                                if (completedSet.intervalSeconds > 0 || completedSet.loopRestAfterSeconds > 0) {
                                                     currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
                                                 } else if (startCountdownSeconds > 0) {
                                                     currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
@@ -934,7 +934,7 @@ fun ProgramExecutionScreen(
 
                                         val nextIndex = step.currentSetIndex + 1
                                         if (nextIndex < sets.size) {
-                                            if (completedSet.intervalSeconds > 0) {
+                                            if (completedSet.intervalSeconds > 0 || completedSet.loopRestAfterSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
                                             } else if (startCountdownSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
@@ -970,7 +970,7 @@ fun ProgramExecutionScreen(
 
                                         val nextIndex = step.currentSetIndex + 1
                                         if (nextIndex < sets.size) {
-                                            if (completedSet.intervalSeconds > 0) {
+                                            if (completedSet.intervalSeconds > 0 || completedSet.loopRestAfterSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
                                             } else if (startCountdownSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
@@ -1012,7 +1012,7 @@ fun ProgramExecutionScreen(
 
                                             // 次のセットへ
                                             if (nextIndex < sets.size) {
-                                                if (completedSet.intervalSeconds > 0) {
+                                                if (completedSet.intervalSeconds > 0 || completedSet.loopRestAfterSeconds > 0) {
                                                     currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
                                                 } else if (startCountdownSeconds > 0) {
                                                     currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
@@ -1045,7 +1045,7 @@ fun ProgramExecutionScreen(
 
                                             // 次のセットへ
                                             if (nextIndex < sets.size) {
-                                                if (completedSet.intervalSeconds > 0) {
+                                                if (completedSet.intervalSeconds > 0 || completedSet.loopRestAfterSeconds > 0) {
                                                     currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
                                                 } else if (startCountdownSeconds > 0) {
                                                     currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
@@ -1082,7 +1082,7 @@ fun ProgramExecutionScreen(
 
                                             // 次のセットへ
                                             if (nextIndex < sets.size) {
-                                                if (completedSet.intervalSeconds > 0) {
+                                                if (completedSet.intervalSeconds > 0 || completedSet.loopRestAfterSeconds > 0) {
                                                     currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
                                                 } else if (startCountdownSeconds > 0) {
                                                     currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
