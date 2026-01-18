@@ -244,6 +244,8 @@ fun ProgramEditScreen(
                 }
 
                 // Update modified exercises (existing ones that changed)
+                // Note: sortOrder is already set correctly in programExercises, so we just
+                // need to update exercises that have changed (including sortOrder changes)
                 val existingExercises = programExercises.filter { it.id in originalIds }
                 existingExercises.forEach { pe ->
                     val original = originalProgramExercises.find { it.id == pe.id }
@@ -253,11 +255,6 @@ fun ProgramEditScreen(
                         viewModel.updateProgramExercise(updatedPe)
                     }
                 }
-
-                // Update sort order for all existing exercises
-                viewModel.reorderProgramExercises(
-                    programExercises.filter { it.id in originalIds }.map { it.id }
-                )
             } else {
                 // Create new program
                 val newProgramId = viewModel.createProgramAndGetId(name)
