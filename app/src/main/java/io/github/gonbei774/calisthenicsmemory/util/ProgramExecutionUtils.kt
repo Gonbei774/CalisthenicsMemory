@@ -85,7 +85,7 @@ fun saveProgramResults(
 /**
  * セットリストを構築するファクトリ関数
  * プログラム設定の値を使用
- * @param originalSets 元のセットリスト（previousValueを引き継ぐため）
+ * @param originalSets 元のセットリスト（previousValueとループ情報を引き継ぐため）
  */
 fun buildProgramValueSets(
     exercises: List<Pair<ProgramExercise, Exercise>>,
@@ -93,36 +93,62 @@ fun buildProgramValueSets(
 ): MutableList<ProgramWorkoutSet> {
     val sets = mutableListOf<ProgramWorkoutSet>()
     exercises.forEachIndexed { index, (pe, exercise) ->
-        for (setNum in 1..pe.sets) {
-            if (exercise.laterality == "Unilateral") {
-                val prevRight = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Right" }?.previousValue
-                val prevLeft = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Left" }?.previousValue
-                sets.add(ProgramWorkoutSet(
-                    exerciseIndex = index,
-                    setNumber = setNum,
-                    side = "Right",
-                    targetValue = pe.targetValue,
-                    intervalSeconds = pe.intervalSeconds,
-                    previousValue = prevRight
-                ))
-                sets.add(ProgramWorkoutSet(
-                    exerciseIndex = index,
-                    setNumber = setNum,
-                    side = "Left",
-                    targetValue = pe.targetValue,
-                    intervalSeconds = pe.intervalSeconds,
-                    previousValue = prevLeft
-                ))
-            } else {
-                val prevValue = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == null }?.previousValue
-                sets.add(ProgramWorkoutSet(
-                    exerciseIndex = index,
-                    setNumber = setNum,
-                    side = null,
-                    targetValue = pe.targetValue,
-                    intervalSeconds = pe.intervalSeconds,
-                    previousValue = prevValue
-                ))
+        // ループ情報を元のセットから取得
+        val exerciseSets = originalSets.filter { it.exerciseIndex == index }
+        val firstSet = exerciseSets.firstOrNull()
+        val loopId = firstSet?.loopId
+        val totalRounds = firstSet?.totalRounds ?: 1
+
+        // 各ラウンドのセットを生成
+        for (round in 1..totalRounds) {
+            // このラウンドの既存セットからloopRestAfterSecondsを取得
+            val existingRoundSets = exerciseSets.filter { it.roundNumber == round }
+            val loopRestAfter = existingRoundSets.lastOrNull()?.loopRestAfterSeconds ?: 0
+
+            for (setNum in 1..pe.sets) {
+                val isLastSetOfRound = setNum == pe.sets
+                if (exercise.laterality == "Unilateral") {
+                    val prevRight = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Right" && it.roundNumber == round }?.previousValue
+                    val prevLeft = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Left" && it.roundNumber == round }?.previousValue
+                    sets.add(ProgramWorkoutSet(
+                        exerciseIndex = index,
+                        setNumber = setNum,
+                        side = "Right",
+                        targetValue = pe.targetValue,
+                        intervalSeconds = pe.intervalSeconds,
+                        previousValue = prevRight,
+                        loopId = loopId,
+                        roundNumber = round,
+                        totalRounds = totalRounds,
+                        loopRestAfterSeconds = 0  // Rightの後はLeftが来る
+                    ))
+                    sets.add(ProgramWorkoutSet(
+                        exerciseIndex = index,
+                        setNumber = setNum,
+                        side = "Left",
+                        targetValue = pe.targetValue,
+                        intervalSeconds = pe.intervalSeconds,
+                        previousValue = prevLeft,
+                        loopId = loopId,
+                        roundNumber = round,
+                        totalRounds = totalRounds,
+                        loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0
+                    ))
+                } else {
+                    val prevValue = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == null && it.roundNumber == round }?.previousValue
+                    sets.add(ProgramWorkoutSet(
+                        exerciseIndex = index,
+                        setNumber = setNum,
+                        side = null,
+                        targetValue = pe.targetValue,
+                        intervalSeconds = pe.intervalSeconds,
+                        previousValue = prevValue,
+                        loopId = loopId,
+                        roundNumber = round,
+                        totalRounds = totalRounds,
+                        loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0
+                    ))
+                }
             }
         }
     }
@@ -132,7 +158,7 @@ fun buildProgramValueSets(
 /**
  * セットリストを構築するファクトリ関数
  * チャレンジ設定（種目のデフォルト値）を使用、なければプログラム設定
- * @param originalSets 元のセットリスト（previousValueを引き継ぐため）
+ * @param originalSets 元のセットリスト（previousValueとループ情報を引き継ぐため）
  */
 fun buildChallengeValueSets(
     exercises: List<Pair<ProgramExercise, Exercise>>,
@@ -143,36 +169,63 @@ fun buildChallengeValueSets(
         val setCount = exercise.targetSets ?: pe.sets
         val targetValue = exercise.targetValue ?: pe.targetValue
         val interval = exercise.restInterval ?: pe.intervalSeconds
-        for (setNum in 1..setCount) {
-            if (exercise.laterality == "Unilateral") {
-                val prevRight = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Right" }?.previousValue
-                val prevLeft = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Left" }?.previousValue
-                sets.add(ProgramWorkoutSet(
-                    exerciseIndex = index,
-                    setNumber = setNum,
-                    side = "Right",
-                    targetValue = targetValue,
-                    intervalSeconds = interval,
-                    previousValue = prevRight
-                ))
-                sets.add(ProgramWorkoutSet(
-                    exerciseIndex = index,
-                    setNumber = setNum,
-                    side = "Left",
-                    targetValue = targetValue,
-                    intervalSeconds = interval,
-                    previousValue = prevLeft
-                ))
-            } else {
-                val prevValue = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == null }?.previousValue
-                sets.add(ProgramWorkoutSet(
-                    exerciseIndex = index,
-                    setNumber = setNum,
-                    side = null,
-                    targetValue = targetValue,
-                    intervalSeconds = interval,
-                    previousValue = prevValue
-                ))
+
+        // ループ情報を元のセットから取得
+        val exerciseSets = originalSets.filter { it.exerciseIndex == index }
+        val firstSet = exerciseSets.firstOrNull()
+        val loopId = firstSet?.loopId
+        val totalRounds = firstSet?.totalRounds ?: 1
+
+        // 各ラウンドのセットを生成
+        for (round in 1..totalRounds) {
+            // このラウンドの既存セットからloopRestAfterSecondsを取得
+            val existingRoundSets = exerciseSets.filter { it.roundNumber == round }
+            val loopRestAfter = existingRoundSets.lastOrNull()?.loopRestAfterSeconds ?: 0
+
+            for (setNum in 1..setCount) {
+                val isLastSetOfRound = setNum == setCount
+                if (exercise.laterality == "Unilateral") {
+                    val prevRight = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Right" && it.roundNumber == round }?.previousValue
+                    val prevLeft = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Left" && it.roundNumber == round }?.previousValue
+                    sets.add(ProgramWorkoutSet(
+                        exerciseIndex = index,
+                        setNumber = setNum,
+                        side = "Right",
+                        targetValue = targetValue,
+                        intervalSeconds = interval,
+                        previousValue = prevRight,
+                        loopId = loopId,
+                        roundNumber = round,
+                        totalRounds = totalRounds,
+                        loopRestAfterSeconds = 0  // Rightの後はLeftが来る
+                    ))
+                    sets.add(ProgramWorkoutSet(
+                        exerciseIndex = index,
+                        setNumber = setNum,
+                        side = "Left",
+                        targetValue = targetValue,
+                        intervalSeconds = interval,
+                        previousValue = prevLeft,
+                        loopId = loopId,
+                        roundNumber = round,
+                        totalRounds = totalRounds,
+                        loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0
+                    ))
+                } else {
+                    val prevValue = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == null && it.roundNumber == round }?.previousValue
+                    sets.add(ProgramWorkoutSet(
+                        exerciseIndex = index,
+                        setNumber = setNum,
+                        side = null,
+                        targetValue = targetValue,
+                        intervalSeconds = interval,
+                        previousValue = prevValue,
+                        loopId = loopId,
+                        roundNumber = round,
+                        totalRounds = totalRounds,
+                        loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0
+                    ))
+                }
             }
         }
     }

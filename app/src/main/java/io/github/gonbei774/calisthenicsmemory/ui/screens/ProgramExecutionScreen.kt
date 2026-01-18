@@ -732,74 +732,115 @@ fun ProgramExecutionScreen(
                                     val originalSets = step.session.sets
                                     val newSets = mutableListOf<ProgramWorkoutSet>()
                                     step.session.exercises.forEachIndexed { index, (pe, exercise) ->
+                                        // ループ情報を元のセットから取得
+                                        val exerciseSets = originalSets.filter { it.exerciseIndex == index }
+                                        val firstSet = exerciseSets.firstOrNull()
+                                        val loopId = firstSet?.loopId
+                                        val totalRounds = firstSet?.totalRounds ?: 1
+
                                         val latestRecords = viewModel.getLatestSession(exercise.id)
-                                        if (latestRecords.isNotEmpty()) {
-                                            // 前回記録のセット数を使用
-                                            latestRecords.forEach { record ->
-                                                if (exercise.laterality == "Unilateral") {
-                                                    val valueRight = record.valueRight
-                                                    val valueLeft = record.valueLeft ?: record.valueRight
-                                                    // 前回値は左右の平均値を使用（目標値も平均値に設定）
-                                                    val prevAverage = (valueRight + valueLeft) / 2
-                                                    newSets.add(ProgramWorkoutSet(
-                                                        exerciseIndex = index,
-                                                        setNumber = record.setNumber,
-                                                        side = "Right",
-                                                        targetValue = prevAverage,
-                                                        intervalSeconds = pe.intervalSeconds,
-                                                        previousValue = prevAverage
-                                                    ))
-                                                    newSets.add(ProgramWorkoutSet(
-                                                        exerciseIndex = index,
-                                                        setNumber = record.setNumber,
-                                                        side = "Left",
-                                                        targetValue = prevAverage,
-                                                        intervalSeconds = pe.intervalSeconds,
-                                                        previousValue = prevAverage
-                                                    ))
-                                                } else {
-                                                    newSets.add(ProgramWorkoutSet(
-                                                        exerciseIndex = index,
-                                                        setNumber = record.setNumber,
-                                                        side = null,
-                                                        targetValue = record.valueRight,
-                                                        intervalSeconds = pe.intervalSeconds,
-                                                        previousValue = record.valueRight
-                                                    ))
+                                        val setCount = if (latestRecords.isNotEmpty()) latestRecords.size else pe.sets
+
+                                        // 各ラウンドのセットを生成
+                                        for (round in 1..totalRounds) {
+                                            // このラウンドの既存セットからloopRestAfterSecondsを取得
+                                            val existingRoundSets = exerciseSets.filter { it.roundNumber == round }
+                                            val loopRestAfter = existingRoundSets.lastOrNull()?.loopRestAfterSeconds ?: 0
+
+                                            if (latestRecords.isNotEmpty()) {
+                                                // 前回記録のセット数を使用
+                                                latestRecords.forEachIndexed { recordIdx, record ->
+                                                    val isLastSetOfRound = recordIdx == latestRecords.size - 1
+                                                    if (exercise.laterality == "Unilateral") {
+                                                        val valueRight = record.valueRight
+                                                        val valueLeft = record.valueLeft ?: record.valueRight
+                                                        // 前回値は左右の平均値を使用（目標値も平均値に設定）
+                                                        val prevAverage = (valueRight + valueLeft) / 2
+                                                        newSets.add(ProgramWorkoutSet(
+                                                            exerciseIndex = index,
+                                                            setNumber = record.setNumber,
+                                                            side = "Right",
+                                                            targetValue = prevAverage,
+                                                            intervalSeconds = pe.intervalSeconds,
+                                                            previousValue = prevAverage,
+                                                            loopId = loopId,
+                                                            roundNumber = round,
+                                                            totalRounds = totalRounds,
+                                                            loopRestAfterSeconds = 0  // Rightの後はLeftが来る
+                                                        ))
+                                                        newSets.add(ProgramWorkoutSet(
+                                                            exerciseIndex = index,
+                                                            setNumber = record.setNumber,
+                                                            side = "Left",
+                                                            targetValue = prevAverage,
+                                                            intervalSeconds = pe.intervalSeconds,
+                                                            previousValue = prevAverage,
+                                                            loopId = loopId,
+                                                            roundNumber = round,
+                                                            totalRounds = totalRounds,
+                                                            loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0
+                                                        ))
+                                                    } else {
+                                                        newSets.add(ProgramWorkoutSet(
+                                                            exerciseIndex = index,
+                                                            setNumber = record.setNumber,
+                                                            side = null,
+                                                            targetValue = record.valueRight,
+                                                            intervalSeconds = pe.intervalSeconds,
+                                                            previousValue = record.valueRight,
+                                                            loopId = loopId,
+                                                            roundNumber = round,
+                                                            totalRounds = totalRounds,
+                                                            loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0
+                                                        ))
+                                                    }
                                                 }
-                                            }
-                                        } else {
-                                            // 前回記録がない場合はプログラム設定を使用（元のpreviousValueを引き継ぐ）
-                                            for (setNum in 1..pe.sets) {
-                                                if (exercise.laterality == "Unilateral") {
-                                                    val prevRight = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Right" }?.previousValue
-                                                    val prevLeft = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Left" }?.previousValue
-                                                    newSets.add(ProgramWorkoutSet(
-                                                        exerciseIndex = index,
-                                                        setNumber = setNum,
-                                                        side = "Right",
-                                                        targetValue = pe.targetValue,
-                                                        intervalSeconds = pe.intervalSeconds,
-                                                        previousValue = prevRight
-                                                    ))
-                                                    newSets.add(ProgramWorkoutSet(
-                                                        exerciseIndex = index,
-                                                        setNumber = setNum,
-                                                        side = "Left",
-                                                        targetValue = pe.targetValue,
-                                                        intervalSeconds = pe.intervalSeconds,
-                                                        previousValue = prevLeft
-                                                    ))
-                                                } else {
-                                                    val prevValue = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == null }?.previousValue
-                                                    newSets.add(ProgramWorkoutSet(
-                                                        exerciseIndex = index,
-                                                        setNumber = setNum,
-                                                        side = null,
-                                                        targetValue = pe.targetValue,
-                                                        intervalSeconds = pe.intervalSeconds,
-                                                        previousValue = prevValue
-                                                    ))
+                                            } else {
+                                                // 前回記録がない場合はプログラム設定を使用（元のpreviousValueを引き継ぐ）
+                                                for (setNum in 1..pe.sets) {
+                                                    val isLastSetOfRound = setNum == pe.sets
+                                                    if (exercise.laterality == "Unilateral") {
+                                                        val prevRight = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Right" && it.roundNumber == round }?.previousValue
+                                                        val prevLeft = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Left" && it.roundNumber == round }?.previousValue
+                                                        newSets.add(ProgramWorkoutSet(
+                                                            exerciseIndex = index,
+                                                            setNumber = setNum,
+                                                            side = "Right",
+                                                            targetValue = pe.targetValue,
+                                                            intervalSeconds = pe.intervalSeconds,
+                                                            previousValue = prevRight,
+                                                            loopId = loopId,
+                                                            roundNumber = round,
+                                                            totalRounds = totalRounds,
+                                                            loopRestAfterSeconds = 0  // Rightの後はLeftが来る
+                                                        ))
+                                                        newSets.add(ProgramWorkoutSet(
+                                                            exerciseIndex = index,
+                                                            setNumber = setNum,
+                                                            side = "Left",
+                                                            targetValue = pe.targetValue,
+                                                            intervalSeconds = pe.intervalSeconds,
+                                                            previousValue = prevLeft,
+                                                            loopId = loopId,
+                                                            roundNumber = round,
+                                                            totalRounds = totalRounds,
+                                                            loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0
+                                                        ))
+                                                    } else {
+                                                        val prevValue = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == null && it.roundNumber == round }?.previousValue
+                                                        newSets.add(ProgramWorkoutSet(
+                                                            exerciseIndex = index,
+                                                            setNumber = setNum,
+                                                            side = null,
+                                                            targetValue = pe.targetValue,
+                                                            intervalSeconds = pe.intervalSeconds,
+                                                            previousValue = prevValue,
+                                                            loopId = loopId,
+                                                            roundNumber = round,
+                                                            totalRounds = totalRounds,
+                                                            loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0
+                                                        ))
+                                                    }
                                                 }
                                             }
                                         }
