@@ -1372,12 +1372,26 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             try {
                 val sourceProgram = programDao.getProgramById(programId) ?: return@launch
                 val sourceExercises = programExerciseDao.getExercisesForProgramSync(programId)
+                val sourceLoops = programLoopDao.getLoopsForProgramSync(programId)
 
                 // Create new program with copy suffix
                 val newProgram = Program(name = "${sourceProgram.name} $copySuffix")
                 val newProgramId = programDao.insert(newProgram)
 
-                // Copy all exercises
+                // Copy all loops and create ID mapping
+                val loopIdMapping = mutableMapOf<Long, Long>()
+                sourceLoops.forEach { loop ->
+                    val newLoop = ProgramLoop(
+                        programId = newProgramId,
+                        sortOrder = loop.sortOrder,
+                        rounds = loop.rounds,
+                        restBetweenRounds = loop.restBetweenRounds
+                    )
+                    val newLoopId = programLoopDao.insert(newLoop)
+                    loopIdMapping[loop.id] = newLoopId
+                }
+
+                // Copy all exercises with updated loopId
                 sourceExercises.forEach { pe ->
                     val newPe = ProgramExercise(
                         programId = newProgramId,
@@ -1385,7 +1399,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         sortOrder = pe.sortOrder,
                         sets = pe.sets,
                         targetValue = pe.targetValue,
-                        intervalSeconds = pe.intervalSeconds
+                        intervalSeconds = pe.intervalSeconds,
+                        loopId = pe.loopId?.let { loopIdMapping[it] }
                     )
                     programExerciseDao.insert(newPe)
                 }
