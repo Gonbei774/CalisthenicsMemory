@@ -23,16 +23,15 @@ fun NextExerciseInfo(
     val nextSetIndex = nextSetIndexOverride ?: (currentSetIndex + 1)
     val nextSet = session.sets.getOrNull(nextSetIndex) ?: return
 
-    val (nextPe, nextExercise) = session.exercises[nextSet.exerciseIndex]
+    val (_, nextExercise) = session.exercises[nextSet.exerciseIndex]
     val nextSideText = when (nextSet.side) {
         "Right" -> stringResource(R.string.side_right)
         "Left" -> stringResource(R.string.side_left)
         else -> null
     }
-    // 次の種目の実際のセット数を計算
-    val nextActualTotalSets = session.sets
-        .filter { it.exerciseIndex == nextSet.exerciseIndex }
-        .maxOfOrNull { it.setNumber } ?: nextPe.sets
+    // 次のセットの全体位置
+    val nextGlobalIndex = nextSetIndex + 1
+    val totalSets = session.sets.size
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -44,12 +43,12 @@ fun NextExerciseInfo(
             fontSize = 16.sp,
             color = Slate400
         )
-        // 次のセット情報
+        // 次のセット情報（全体進捗）
         Text(
             text = if (nextSideText != null) {
-                stringResource(R.string.set_format_with_side, nextSet.setNumber, nextActualTotalSets, nextSideText)
+                stringResource(R.string.set_progress_with_side, nextGlobalIndex, totalSets, nextSideText)
             } else {
-                stringResource(R.string.set_format, nextSet.setNumber, nextActualTotalSets)
+                stringResource(R.string.set_progress, nextGlobalIndex, totalSets)
             },
             fontSize = 14.sp,
             color = Slate400

@@ -219,6 +219,8 @@
     <string name="workout_in_progress">Workout In Progress</string>
     <string name="set_format">Set %1$d/%2$d</string>
     <string name="set_format_with_side">Set %1$d/%2$d - %3$s</string>
+    <string name="set_progress">%1$d/%2$d</string>
+    <string name="set_progress_with_side">%1$d/%2$d - %3$s</string>
     <string name="side_right">Right</string>
     <string name="side_left">Left</string>
     <string name="reps_count">%d reps</string>

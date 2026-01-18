@@ -77,22 +77,19 @@ internal fun ProgramStartIntervalStep(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        // セット情報
+        // 全体の進捗表示
+        val globalSetIndex = currentSetIndex + 1
+        val totalSets = session.sets.size
         val sideText = when (currentSet.side) {
             "Right" -> stringResource(R.string.side_right)
             "Left" -> stringResource(R.string.side_left)
             else -> null
         }
-        val (pe, _) = session.exercises[currentSet.exerciseIndex]
-        // 実際のセット数を計算（動的に変更される可能性があるため）
-        val actualTotalSets = session.sets
-            .filter { it.exerciseIndex == currentSet.exerciseIndex }
-            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
+                stringResource(R.string.set_progress_with_side, globalSetIndex, totalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
+                stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
             color = Slate300,
@@ -230,16 +227,15 @@ internal fun ProgramIntervalStep(
 
             // 次のセット/種目表示
             nextSet?.let { next ->
-                val (nextPe, nextExercise) = session.exercises[next.exerciseIndex]
+                val (_, nextExercise) = session.exercises[next.exerciseIndex]
                 val nextSideText = when (next.side) {
                     "Right" -> stringResource(R.string.side_right)
                     "Left" -> stringResource(R.string.side_left)
                     else -> null
                 }
-                // 次の種目の実際のセット数を計算
-                val nextActualTotalSets = session.sets
-                    .filter { it.exerciseIndex == next.exerciseIndex }
-                    .maxOfOrNull { it.setNumber } ?: nextPe.sets
+                // 次のセットの全体位置
+                val nextGlobalIndex = nextSetIndex + 1
+                val totalSets = session.sets.size
 
                 // 次の種目名（常に表示）
                 Text(
@@ -249,12 +245,12 @@ internal fun ProgramIntervalStep(
                     modifier = Modifier.padding(top = 8.dp)
                 )
 
-                // 次のセット情報
+                // 次のセット情報（全体進捗）
                 Text(
                     text = if (nextSideText != null) {
-                        stringResource(R.string.set_format_with_side, next.setNumber, nextActualTotalSets, nextSideText)
+                        stringResource(R.string.set_progress_with_side, nextGlobalIndex, totalSets, nextSideText)
                     } else {
-                        stringResource(R.string.set_format, next.setNumber, nextActualTotalSets)
+                        stringResource(R.string.set_progress, nextGlobalIndex, totalSets)
                     },
                     fontSize = 18.sp,
                     color = Slate300,

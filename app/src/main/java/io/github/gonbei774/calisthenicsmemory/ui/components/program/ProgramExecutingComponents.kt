@@ -124,21 +124,19 @@ internal fun ProgramExecutingStepDynamicManual(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        // セット情報
+        // 全体の進捗表示
+        val globalSetIndex = currentSetIndex + 1
+        val totalSets = session.sets.size
         val sideText = when (currentSet.side) {
             "Right" -> stringResource(R.string.side_right)
             "Left" -> stringResource(R.string.side_left)
             else -> null
         }
-        // 実際のセット数を計算（動的に変更される可能性があるため）
-        val actualTotalSets = session.sets
-            .filter { it.exerciseIndex == currentSet.exerciseIndex }
-            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
+                stringResource(R.string.set_progress_with_side, globalSetIndex, totalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
+                stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
             color = Slate300,
@@ -452,21 +450,19 @@ internal fun ProgramExecutingStepIsometricManual(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        // セット情報
+        // 全体の進捗表示
+        val globalSetIndex = currentSetIndex + 1
+        val totalSets = session.sets.size
         val sideText = when (currentSet.side) {
             "Right" -> stringResource(R.string.side_right)
             "Left" -> stringResource(R.string.side_left)
             else -> null
         }
-        // 実際のセット数を計算（動的に変更される可能性があるため）
-        val actualTotalSets = session.sets
-            .filter { it.exerciseIndex == currentSet.exerciseIndex }
-            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
+                stringResource(R.string.set_progress_with_side, globalSetIndex, totalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
+                stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
             color = Slate300,
@@ -768,21 +764,19 @@ internal fun ProgramExecutingStepIsometricAuto(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        // セット情報
+        // 全体の進捗表示
+        val globalSetIndex = currentSetIndex + 1
+        val totalSets = session.sets.size
         val sideText = when (currentSet.side) {
             "Right" -> stringResource(R.string.side_right)
             "Left" -> stringResource(R.string.side_left)
             else -> null
         }
-        // 実際のセット数を計算（動的に変更される可能性があるため）
-        val actualTotalSets = session.sets
-            .filter { it.exerciseIndex == currentSet.exerciseIndex }
-            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
+                stringResource(R.string.set_progress_with_side, globalSetIndex, totalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
+                stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
             color = Slate300,
@@ -1083,21 +1077,19 @@ internal fun ProgramExecutingStepDynamicAuto(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        // セット情報
+        // 全体の進捗表示
+        val globalSetIndex = currentSetIndex + 1
+        val totalSets = session.sets.size
         val sideText = when (currentSet.side) {
             "Right" -> stringResource(R.string.side_right)
             "Left" -> stringResource(R.string.side_left)
             else -> null
         }
-        // 実際のセット数を計算（動的に変更される可能性があるため）
-        val actualTotalSets = session.sets
-            .filter { it.exerciseIndex == currentSet.exerciseIndex }
-            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
+                stringResource(R.string.set_progress_with_side, globalSetIndex, totalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
+                stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
             color = Slate300,
@@ -1345,21 +1337,19 @@ internal fun ProgramExecutingStepDynamicSimple(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        // セット情報
+        // 全体の進捗表示
+        val globalSetIndex = currentSetIndex + 1
+        val totalSets = session.sets.size
         val sideText = when (currentSet.side) {
             "Right" -> stringResource(R.string.side_right)
             "Left" -> stringResource(R.string.side_left)
             else -> null
         }
-        // 実際のセット数を計算（動的に変更される可能性があるため）
-        val actualTotalSets = session.sets
-            .filter { it.exerciseIndex == currentSet.exerciseIndex }
-            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
+                stringResource(R.string.set_progress_with_side, globalSetIndex, totalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
+                stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
             color = Slate300,
