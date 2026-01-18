@@ -12,7 +12,6 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -30,6 +29,12 @@ import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
 import io.github.gonbei774.calisthenicsmemory.data.ProgramLoop
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.animation.core.animateDpAsState
 
 @Composable
 fun LoopBlock(
@@ -253,41 +258,57 @@ private fun ReorderableLoopExerciseList(
         exercises.associate { it.first.id to it.second }
     }
 
-    Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+    val lazyListState = rememberLazyListState()
+    val reorderableState = rememberReorderableLazyListState(lazyListState) { from, to ->
+        onReorder(from.index, to.index)
+    }
+
+    // Calculate height based on item count (each item ~72dp + 8dp spacing)
+    val itemHeight = 72.dp
+    val spacing = 8.dp
+    val totalHeight = (exerciseList.size * (itemHeight.value + spacing.value) - spacing.value).dp
+
+    LazyColumn(
+        state = lazyListState,
+        modifier = Modifier.height(totalHeight.coerceAtLeast(itemHeight)),
+        verticalArrangement = Arrangement.spacedBy(spacing),
+        userScrollEnabled = false
     ) {
-        exerciseList.forEachIndexed { index, pe ->
+        items(
+            items = exerciseList,
+            key = { it.id }
+        ) { pe ->
             val exercise = exerciseMap[pe.id]
             if (exercise != null) {
-                LoopExerciseItemWithReorder(
-                    programExercise = pe,
-                    exercise = exercise,
-                    index = index,
-                    totalCount = exerciseList.size,
-                    onMoveUp = {
-                        if (index > 0) onReorder(index, index - 1)
-                    },
-                    onMoveDown = {
-                        if (index < exerciseList.size - 1) onReorder(index, index + 1)
-                    },
-                    onEdit = { onExerciseEdit(pe) },
-                    onDelete = { onExerciseDelete(pe) }
-                )
+                ReorderableItem(reorderableState, key = pe.id) { isDragging ->
+                    val elevation by animateDpAsState(
+                        targetValue = if (isDragging) 4.dp else 0.dp,
+                        label = "elevation"
+                    )
+                    LoopExerciseItemWithDrag(
+                        programExercise = pe,
+                        exercise = exercise,
+                        isDragging = isDragging,
+                        elevation = elevation,
+                        onEdit = { onExerciseEdit(pe) },
+                        onDelete = { onExerciseDelete(pe) },
+                        dragHandle = { Modifier.longPressDraggableHandle() }
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun LoopExerciseItemWithReorder(
+private fun LoopExerciseItemWithDrag(
     programExercise: ProgramExercise,
     exercise: Exercise,
-    index: Int,
-    totalCount: Int,
-    onMoveUp: () -> Unit,
-    onMoveDown: () -> Unit,
+    isDragging: Boolean,
+    elevation: Dp,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    dragHandle: @Composable () -> Modifier
 ) {
     var pendingDelete by remember { mutableStateOf(false) }
     val dismissState = rememberSwipeToDismissBoxState(
@@ -340,45 +361,28 @@ private fun LoopExerciseItemWithReorder(
                     color = Amber500,
                     shape = RoundedCornerShape(8.dp)
                 ),
-            colors = CardDefaults.cardColors(containerColor = Slate700),
-            shape = RoundedCornerShape(8.dp)
+            colors = CardDefaults.cardColors(
+                containerColor = if (isDragging) Slate600.copy(alpha = 0.9f) else Slate700
+            ),
+            shape = RoundedCornerShape(8.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = elevation)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Reorder buttons
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    IconButton(
-                        onClick = onMoveUp,
-                        enabled = index > 0,
-                        modifier = Modifier.size(24.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.KeyboardArrowUp,
-                            contentDescription = null,
-                            tint = if (index > 0) Slate400 else Slate600,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    IconButton(
-                        onClick = onMoveDown,
-                        enabled = index < totalCount - 1,
-                        modifier = Modifier.size(24.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.KeyboardArrowDown,
-                            contentDescription = null,
-                            tint = if (index < totalCount - 1) Slate400 else Slate600,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                }
+                // Drag handle
+                Icon(
+                    Icons.Default.Menu,
+                    contentDescription = stringResource(R.string.todo_drag_to_reorder),
+                    tint = if (isDragging) Color.White else Slate400,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .then(dragHandle())
+                )
 
                 // Exercise info
                 Column(modifier = Modifier.weight(1f)) {
