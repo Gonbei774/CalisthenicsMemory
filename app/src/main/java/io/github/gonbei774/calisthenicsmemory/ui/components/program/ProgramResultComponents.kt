@@ -32,8 +32,8 @@ internal fun ProgramResultStep(
         session.exercises.mapIndexed { exerciseIndex, (_, exercise) ->
             val setsForExercise = session.sets.filter { it.exerciseIndex == exerciseIndex && (it.isCompleted || it.isSkipped) }
             if (exercise.laterality == "Unilateral") {
-                // 片側種目: 両方0のセットがあるか
-                setsForExercise.groupBy { it.setNumber }.any { (_, sets) ->
+                // 片側種目: 両方0のセットがあるか（ラウンドとセット番号でグループ化）
+                setsForExercise.groupBy { it.roundNumber to it.setNumber }.any { (_, sets) ->
                     val rightValue = sets.firstOrNull { it.side == "Right" }?.actualValue ?: 0
                     val leftValue = sets.firstOrNull { it.side == "Left" }?.actualValue ?: 0
                     rightValue == 0 && leftValue == 0
@@ -84,6 +84,7 @@ internal fun ProgramResultStep(
         ) {
             session.exercises.forEachIndexed { exerciseIndex, (_, exercise) ->
                 val setsForExercise = session.sets.filter { it.exerciseIndex == exerciseIndex }
+                val totalRounds = setsForExercise.firstOrNull()?.totalRounds ?: 1
 
                 // 種目名ヘッダー
                 item(key = "header-$exerciseIndex") {
@@ -96,30 +97,46 @@ internal fun ProgramResultStep(
                     )
                 }
 
-                if (exercise.laterality == "Unilateral") {
-                    // 片側種目: セット番号でグループ化
-                    val groupedSets = setsForExercise.groupBy { it.setNumber }
-                    groupedSets.forEach { (setNumber, sets) ->
-                        val rightSet = sets.firstOrNull { it.side == "Right" }
-                        val leftSet = sets.firstOrNull { it.side == "Left" }
-
-                        item(key = "exercise-$exerciseIndex-set-$setNumber") {
-                            ProgramUnilateralSetItem(
-                                setNumber = setNumber,
-                                rightSet = rightSet,
-                                leftSet = leftSet,
-                                exerciseType = exercise.type
+                // ラウンドごとにグループ化
+                val groupedByRound = setsForExercise.groupBy { it.roundNumber }
+                groupedByRound.toSortedMap().forEach { (roundNumber, setsInRound) ->
+                    // ラウンドヘッダー（複数ラウンドの場合のみ表示）
+                    if (totalRounds > 1) {
+                        item(key = "exercise-$exerciseIndex-round-$roundNumber-header") {
+                            Text(
+                                text = stringResource(R.string.loop_round_current, roundNumber, totalRounds),
+                                fontSize = 14.sp,
+                                color = Purple400,
+                                modifier = Modifier.padding(top = 4.dp, start = 8.dp)
                             )
                         }
                     }
-                } else {
-                    // 両側種目
-                    setsForExercise.forEach { set ->
-                        item(key = "exercise-$exerciseIndex-set-${set.setNumber}") {
-                            ProgramBilateralSetItem(
-                                set = set,
-                                exerciseType = exercise.type
-                            )
+
+                    if (exercise.laterality == "Unilateral") {
+                        // 片側種目: セット番号でグループ化
+                        val groupedSets = setsInRound.groupBy { it.setNumber }
+                        groupedSets.toSortedMap().forEach { (setNumber, sets) ->
+                            val rightSet = sets.firstOrNull { it.side == "Right" }
+                            val leftSet = sets.firstOrNull { it.side == "Left" }
+
+                            item(key = "exercise-$exerciseIndex-round-$roundNumber-set-$setNumber") {
+                                ProgramUnilateralSetItem(
+                                    setNumber = setNumber,
+                                    rightSet = rightSet,
+                                    leftSet = leftSet,
+                                    exerciseType = exercise.type
+                                )
+                            }
+                        }
+                    } else {
+                        // 両側種目
+                        setsInRound.sortedBy { it.setNumber }.forEach { set ->
+                            item(key = "exercise-$exerciseIndex-round-$roundNumber-set-${set.setNumber}") {
+                                ProgramBilateralSetItem(
+                                    set = set,
+                                    exerciseType = exercise.type
+                                )
+                            }
                         }
                     }
                 }
