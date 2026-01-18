@@ -497,6 +497,8 @@
     <string name="loop_rest_between_rounds">Відпочинок між повтореннями (с)</string>
     <string name="loop_round_format">%d разів</string>
     <string name="loop_current_round">Повторення %1$d/%2$d</string>
-    <string name="loop_rest_format">Відпочинок між повтореннями: %d с</string>
+    <string name="loop_rest_format">Відпочинок: %d с</string>
     <string name="interval_short">Відпочинок:</string>
+    <string name="loop_label">Цикл</string>
+    <string name="loop_round_current">Повторення %1$d/%2$d</string>
 </resources>
