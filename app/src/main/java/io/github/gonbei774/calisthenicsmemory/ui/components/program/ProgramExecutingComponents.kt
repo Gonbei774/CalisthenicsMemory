@@ -145,6 +145,16 @@ internal fun ProgramExecutingStepDynamicManual(
             modifier = Modifier.padding(top = 4.dp)
         )
 
+        // ループ内セットならラウンド情報を表示
+        if (currentSet.loopId != null && currentSet.totalRounds > 1) {
+            Text(
+                text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
+                fontSize = 16.sp,
+                color = Purple400,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+
         // 次の種目/セット情報（上部に配置）
         NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
 
@@ -463,6 +473,16 @@ internal fun ProgramExecutingStepIsometricManual(
             modifier = Modifier.padding(top = 4.dp)
         )
 
+        // ループ内セットならラウンド情報を表示
+        if (currentSet.loopId != null && currentSet.totalRounds > 1) {
+            Text(
+                text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
+                fontSize = 16.sp,
+                color = Purple400,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+
         // 次の種目/セット情報（上部に配置）
         NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
 
@@ -769,6 +789,16 @@ internal fun ProgramExecutingStepIsometricAuto(
             modifier = Modifier.padding(top = 4.dp)
         )
 
+        // ループ内セットならラウンド情報を表示
+        if (currentSet.loopId != null && currentSet.totalRounds > 1) {
+            Text(
+                text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
+                fontSize = 16.sp,
+                color = Purple400,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+
         // 次の種目/セット情報（上部に配置）
         NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
 
@@ -1074,6 +1104,16 @@ internal fun ProgramExecutingStepDynamicAuto(
             modifier = Modifier.padding(top = 4.dp)
         )
 
+        // ループ内セットならラウンド情報を表示
+        if (currentSet.loopId != null && currentSet.totalRounds > 1) {
+            Text(
+                text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
+                fontSize = 16.sp,
+                color = Purple400,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+
         // 次の種目/セット情報（上部に配置）
         NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
 
@@ -1325,6 +1365,16 @@ internal fun ProgramExecutingStepDynamicSimple(
             color = Slate300,
             modifier = Modifier.padding(top = 4.dp)
         )
+
+        // ループ内セットならラウンド情報を表示
+        if (currentSet.loopId != null && currentSet.totalRounds > 1) {
+            Text(
+                text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
+                fontSize = 16.sp,
+                color = Purple400,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
 
         // 次の種目/セット情報
         NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
