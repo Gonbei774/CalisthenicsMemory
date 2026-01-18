@@ -1728,7 +1728,10 @@ private fun LoopBlock(
                             Text(
                                 text = stringResource(R.string.loop_rest_format, loop.restBetweenRounds),
                                 fontSize = 12.sp,
-                                color = Slate400
+                                color = Slate300,
+                                modifier = Modifier
+                                    .background(Slate700, RoundedCornerShape(4.dp))
+                                    .padding(horizontal = 8.dp, vertical = 2.dp)
                             )
                         }
                         // Exercise count

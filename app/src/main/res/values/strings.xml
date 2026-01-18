@@ -583,7 +583,7 @@
     <string name="loop_rounds">Rounds</string>
     <string name="loop_rest_between_rounds">Rest between rounds (sec)</string>
     <string name="loop_round_format">%d Rounds</string>
-    <string name="loop_rest_format">Rest between rounds: %ds</string>
+    <string name="loop_rest_format">Rest: %ds</string>
     <string name="loop_current_round">Round %1$d/%2$d</string>
     <string name="loop_delete_confirm">Delete this loop? Exercises inside will also be deleted.</string>
     <string name="loop_empty">Drag exercises here or tap to add</string>

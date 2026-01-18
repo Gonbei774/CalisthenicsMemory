@@ -196,7 +196,77 @@ private fun NavigationProgressSection(
 }
 
 /**
- * セットリスト（種目カード）
+ * 表示用アイテム（ループ外種目 or ラウンド）
+ */
+private sealed class NavigationDisplayItem {
+    data class StandaloneExercise(
+        val exerciseIndex: Int,
+        val exercise: io.github.gonbei774.calisthenicsmemory.data.Exercise,
+        val programExercise: io.github.gonbei774.calisthenicsmemory.data.ProgramExercise,
+        val sets: List<ProgramWorkoutSet>
+    ) : NavigationDisplayItem()
+
+    data class LoopRound(
+        val loopId: Long,
+        val roundNumber: Int,
+        val totalRounds: Int,
+        val sets: List<ProgramWorkoutSet>
+    ) : NavigationDisplayItem()
+}
+
+/**
+ * 表示アイテムを構築
+ */
+private fun buildNavigationItems(session: ProgramExecutionSession): List<NavigationDisplayItem> {
+    val items = mutableListOf<NavigationDisplayItem>()
+    val processedLoopRounds = mutableSetOf<Pair<Long, Int>>() // (loopId, roundNumber)
+
+    // セットを実行順にイテレート
+    for (set in session.sets) {
+        if (set.loopId == null) {
+            // ループ外の種目 - 種目ごとにまとめる
+            val existingItem = items.filterIsInstance<NavigationDisplayItem.StandaloneExercise>()
+                .find { it.exerciseIndex == set.exerciseIndex }
+
+            if (existingItem == null) {
+                val (pe, exercise) = session.exercises[set.exerciseIndex]
+                val allSetsForExercise = session.sets.filter {
+                    it.exerciseIndex == set.exerciseIndex && it.loopId == null
+                }
+                items.add(
+                    NavigationDisplayItem.StandaloneExercise(
+                        exerciseIndex = set.exerciseIndex,
+                        exercise = exercise,
+                        programExercise = pe,
+                        sets = allSetsForExercise
+                    )
+                )
+            }
+        } else {
+            // ループ内の種目 - ラウンドごとにまとめる
+            val key = Pair(set.loopId, set.roundNumber)
+            if (key !in processedLoopRounds) {
+                processedLoopRounds.add(key)
+                val setsForRound = session.sets.filter {
+                    it.loopId == set.loopId && it.roundNumber == set.roundNumber
+                }
+                items.add(
+                    NavigationDisplayItem.LoopRound(
+                        loopId = set.loopId,
+                        roundNumber = set.roundNumber,
+                        totalRounds = set.totalRounds,
+                        sets = setsForRound
+                    )
+                )
+            }
+        }
+    }
+
+    return items
+}
+
+/**
+ * セットリスト（ラウンドカード形式）
  */
 @Composable
 private fun NavigationSetsList(
@@ -206,22 +276,26 @@ private fun NavigationSetsList(
     onRedoSet: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // 種目ごとにグループ化
-    val exerciseGroups = session.sets.groupBy { it.exerciseIndex }
-
-    // 現在のセットが属する種目インデックスを取得
-    val currentExerciseIndex = if (currentSetIndex in session.sets.indices) {
-        session.sets[currentSetIndex].exerciseIndex
-    } else {
-        0
-    }
-
     val lazyListState = rememberLazyListState()
+    val displayItems = buildNavigationItems(session)
 
-    // シートが開いたときに現在の種目へスクロール
-    LaunchedEffect(currentExerciseIndex) {
-        if (currentExerciseIndex > 0) {
-            lazyListState.animateScrollToItem(currentExerciseIndex)
+    // 現在のセットが属するアイテムのインデックスを取得
+    val currentItemIndex = if (currentSetIndex in session.sets.indices) {
+        val currentSet = session.sets[currentSetIndex]
+        displayItems.indexOfFirst { item ->
+            when (item) {
+                is NavigationDisplayItem.StandaloneExercise ->
+                    item.exerciseIndex == currentSet.exerciseIndex && currentSet.loopId == null
+                is NavigationDisplayItem.LoopRound ->
+                    item.loopId == currentSet.loopId && item.roundNumber == currentSet.roundNumber
+            }
+        }
+    } else 0
+
+    // シートが開いたときに現在のアイテムへスクロール
+    LaunchedEffect(currentItemIndex) {
+        if (currentItemIndex > 0) {
+            lazyListState.animateScrollToItem(currentItemIndex)
         }
     }
 
@@ -230,32 +304,255 @@ private fun NavigationSetsList(
         modifier = modifier.padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(session.exercises.indices.toList()) { exerciseIndex ->
-            val (pe, exercise) = session.exercises[exerciseIndex]
-            val setsForExercise = exerciseGroups[exerciseIndex] ?: emptyList()
+        items(displayItems.size) { index ->
+            when (val item = displayItems[index]) {
+                is NavigationDisplayItem.StandaloneExercise -> {
+                    val exerciseStatus = getExerciseStatus(item.sets, session.sets, currentSetIndex)
+                    val actualTotalSets = item.sets.maxOfOrNull { it.setNumber } ?: item.programExercise.sets
 
-            // 種目のステータスを判定
-            val exerciseStatus = getExerciseStatus(setsForExercise, session.sets, currentSetIndex)
+                    NavigationExerciseCard(
+                        exerciseIndex = item.exerciseIndex,
+                        exerciseName = item.exercise.name,
+                        exerciseType = item.exercise.type,
+                        exerciseStatus = exerciseStatus,
+                        sets = item.sets,
+                        allSets = session.sets,
+                        currentSetIndex = currentSetIndex,
+                        totalSets = actualTotalSets,
+                        isUnilateral = item.exercise.laterality == "Unilateral",
+                        onJumpToSet = onJumpToSet,
+                        onRedoSet = onRedoSet
+                    )
+                }
+                is NavigationDisplayItem.LoopRound -> {
+                    NavigationRoundCard(
+                        roundNumber = item.roundNumber,
+                        totalRounds = item.totalRounds,
+                        sets = item.sets,
+                        allSets = session.sets,
+                        exercises = session.exercises,
+                        currentSetIndex = currentSetIndex,
+                        onJumpToSet = onJumpToSet,
+                        onRedoSet = onRedoSet
+                    )
+                }
+            }
+        }
+    }
+}
 
-            // 実際のセット数を計算（動的に変更される可能性があるため）
-            val actualTotalSets = session.sets
-                .filter { it.exerciseIndex == exerciseIndex }
-                .maxOfOrNull { it.setNumber } ?: pe.sets
+/**
+ * ラウンドカード（ループ内の1ラウンド分）
+ */
+@Composable
+private fun NavigationRoundCard(
+    roundNumber: Int,
+    totalRounds: Int,
+    sets: List<ProgramWorkoutSet>,
+    allSets: List<ProgramWorkoutSet>,
+    exercises: List<Pair<io.github.gonbei774.calisthenicsmemory.data.ProgramExercise, io.github.gonbei774.calisthenicsmemory.data.Exercise>>,
+    currentSetIndex: Int,
+    onJumpToSet: (Int) -> Unit,
+    onRedoSet: (Int) -> Unit
+) {
+    val roundStatus = when {
+        sets.all { it.isCompleted } -> ExerciseStatus.DONE
+        sets.any { allSets.indexOf(it) == currentSetIndex } -> ExerciseStatus.CURRENT
+        else -> ExerciseStatus.PENDING
+    }
 
-            NavigationExerciseCard(
-                exerciseIndex = exerciseIndex,
-                exerciseName = exercise.name,
-                exerciseType = exercise.type,
-                exerciseStatus = exerciseStatus,
-                sets = setsForExercise,
-                allSets = session.sets,
-                currentSetIndex = currentSetIndex,
-                totalSets = actualTotalSets,
-                isUnilateral = exercise.laterality == "Unilateral",
-                onJumpToSet = onJumpToSet,
-                onRedoSet = onRedoSet
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Slate800),
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.border(
+            width = 2.dp,
+            color = Purple600.copy(alpha = 0.5f),
+            shape = RoundedCornerShape(12.dp)
+        )
+    ) {
+        Column {
+            // ラウンドヘッダー
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .drawBehind {
+                        drawLine(
+                            color = Slate700,
+                            start = Offset(0f, size.height),
+                            end = Offset(size.width, size.height),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+                    .padding(14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                // ラウンドバッジ
+                Box(
+                    modifier = Modifier
+                        .background(Purple600, RoundedCornerShape(8.dp))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.loop_current_round, roundNumber, totalRounds),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                // ステータスバッジ
+                when (roundStatus) {
+                    ExerciseStatus.DONE -> {
+                        Box(
+                            modifier = Modifier
+                                .background(Green600.copy(alpha = 0.2f), RoundedCornerShape(10.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.nav_done),
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Green400
+                            )
+                        }
+                    }
+                    ExerciseStatus.CURRENT -> {
+                        Box(
+                            modifier = Modifier
+                                .background(Orange600.copy(alpha = 0.2f), RoundedCornerShape(10.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.nav_current),
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Orange600
+                            )
+                        }
+                    }
+                    ExerciseStatus.PENDING -> { /* バッジなし */ }
+                }
+            }
+
+            // ラウンド内の種目を実行順に表示
+            sets.forEachIndexed { index, set ->
+                val setIndex = allSets.indexOf(set)
+                val isCurrent = setIndex == currentSetIndex
+                val exercise = exercises.getOrNull(set.exerciseIndex)?.second
+                val isIsometric = exercise?.type == "Isometric"
+
+                NavigationRoundSetRow(
+                    set = set,
+                    setIndex = setIndex,
+                    exerciseName = exercise?.name ?: "",
+                    isCurrent = isCurrent,
+                    isIsometric = isIsometric,
+                    onJumpToSet = onJumpToSet,
+                    onRedoSet = onRedoSet,
+                    isLast = index == sets.lastIndex
+                )
+            }
+        }
+    }
+}
+
+/**
+ * ラウンド内のセット行
+ */
+@Composable
+private fun NavigationRoundSetRow(
+    set: ProgramWorkoutSet,
+    setIndex: Int,
+    exerciseName: String,
+    isCurrent: Boolean,
+    isIsometric: Boolean,
+    onJumpToSet: (Int) -> Unit,
+    onRedoSet: (Int) -> Unit,
+    isLast: Boolean
+) {
+    val setStatus = when {
+        set.isCompleted -> SetStatus.COMPLETED
+        set.isSkipped -> SetStatus.SKIPPED
+        isCurrent -> SetStatus.CURRENT
+        else -> SetStatus.PENDING
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(
+                if (isCurrent) {
+                    Modifier
+                        .background(Orange600.copy(alpha = 0.1f))
+                        .drawBehind {
+                            drawLine(
+                                color = Orange600,
+                                start = Offset(0f, 0f),
+                                end = Offset(0f, size.height),
+                                strokeWidth = 3.dp.toPx()
+                            )
+                        }
+                } else if (set.isSkipped) {
+                    Modifier.background(Slate750)
+                } else {
+                    Modifier
+                }
+            )
+            .then(
+                if (!isLast) {
+                    Modifier.drawBehind {
+                        drawLine(
+                            color = Slate700,
+                            start = Offset(0f, size.height),
+                            end = Offset(size.width, size.height),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+                } else Modifier
+            )
+            .padding(
+                start = if (isCurrent) 13.dp else 16.dp,
+                end = 16.dp,
+                top = 10.dp,
+                bottom = 10.dp
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // ステータスアイコン
+        SetStatusIcon(status = setStatus)
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        // 種目名 + セット情報
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = exerciseName,
+                fontSize = 14.sp,
+                fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Medium,
+                color = when (setStatus) {
+                    SetStatus.COMPLETED -> Color.White
+                    SetStatus.CURRENT -> Orange600
+                    SetStatus.PENDING, SetStatus.SKIPPED -> Slate400
+                }
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            SetValueText(
+                set = set,
+                status = setStatus,
+                isIsometric = isIsometric
             )
         }
+
+        // アクションボタン
+        SetActionButton(
+            setStatus = setStatus,
+            setIndex = setIndex,
+            onJumpToSet = onJumpToSet,
+            onRedoSet = onRedoSet
+        )
     }
 }
 
