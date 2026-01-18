@@ -501,4 +501,6 @@
     <string name="interval_short">Відпочинок:</string>
     <string name="loop_label">Цикл</string>
     <string name="loop_round_current">Повторення %1$d/%2$d</string>
+    <string name="loop_empty">Перетягніть вправи сюди або натисніть + щоб додати</string>
+    <string name="loop_round_rest">Відпочинок раунду</string>
 </resources>

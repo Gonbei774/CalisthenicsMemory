@@ -578,4 +578,20 @@
     <string name="nav_type_dynamic_short">Dyn</string>
     <string name="nav_type_isometric_short">Iso</string>
     <string name="no_results">Keine Ergebnisse gefunden</string>
+    <!-- Loop Feature -->
+    <string name="loop_round_rest">Rundenpause</string>
+    <string name="loop_round_current">Runde %1$d/%2$d</string>
+    <string name="add_loop">Schleife hinzufügen</string>
+    <string name="loop_label">Schleife</string>
+    <string name="loop_settings">Schleifeneinstellungen</string>
+    <string name="loop_rounds">Runden</string>
+    <string name="loop_rest_between_rounds">Pause zwischen Runden (Sek.)</string>
+    <string name="loop_round_format">%d Runden</string>
+    <string name="loop_rest_format">Pause: %ds</string>
+    <string name="loop_current_round">Runde %1$d/%2$d</string>
+    <string name="loop_delete_confirm">Diese Schleife löschen? Übungen darin werden ebenfalls gelöscht.</string>
+    <string name="loop_empty">Übungen hierher ziehen oder + tippen zum Hinzufügen</string>
+    <string name="add_exercise_to_loop">Übung hinzufügen</string>
+    <string name="move_to_loop">In Schleife verschieben</string>
+    <string name="loop_number_format">Schleife %d</string>
 </resources>

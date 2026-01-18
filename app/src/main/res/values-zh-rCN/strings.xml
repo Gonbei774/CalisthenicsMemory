@@ -577,4 +577,20 @@
     <string name="nav_skipped">已跳过</string>
     <string name="nav_type_dynamic_short">次数</string>
     <string name="nav_type_isometric_short">静态</string>
+    <!-- Loop Feature -->
+    <string name="loop_round_rest">回合休息</string>
+    <string name="loop_round_current">回合 %1$d/%2$d</string>
+    <string name="add_loop">添加循环</string>
+    <string name="loop_label">循环</string>
+    <string name="loop_settings">循环设置</string>
+    <string name="loop_rounds">回合数</string>
+    <string name="loop_rest_between_rounds">回合间休息（秒）</string>
+    <string name="loop_round_format">%d 回合</string>
+    <string name="loop_rest_format">休息：%d秒</string>
+    <string name="loop_current_round">回合 %1$d/%2$d</string>
+    <string name="loop_delete_confirm">删除此循环？内部的动作也将被删除。</string>
+    <string name="loop_empty">将动作拖到这里或点击+添加</string>
+    <string name="add_exercise_to_loop">添加动作</string>
+    <string name="move_to_loop">移动到循环</string>
+    <string name="loop_number_format">循环 %d</string>
 </resources>

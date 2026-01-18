@@ -577,4 +577,20 @@
     <string name="nav_skipped">Sauté</string>
     <string name="nav_type_dynamic_short">Dyn</string>
     <string name="nav_type_isometric_short">Iso</string>
+    <!-- Loop Feature -->
+    <string name="loop_round_rest">Repos de tour</string>
+    <string name="loop_round_current">Tour %1$d/%2$d</string>
+    <string name="add_loop">Ajouter une boucle</string>
+    <string name="loop_label">Boucle</string>
+    <string name="loop_settings">Paramètres de la boucle</string>
+    <string name="loop_rounds">Tours</string>
+    <string name="loop_rest_between_rounds">Repos entre les tours (sec)</string>
+    <string name="loop_round_format">%d Tours</string>
+    <string name="loop_rest_format">Repos: %ds</string>
+    <string name="loop_current_round">Tour %1$d/%2$d</string>
+    <string name="loop_delete_confirm">Supprimer cette boucle ? Les exercices à l\'intérieur seront également supprimés.</string>
+    <string name="loop_empty">Faites glisser les exercices ici ou appuyez sur + pour ajouter</string>
+    <string name="add_exercise_to_loop">Ajouter un exercice</string>
+    <string name="move_to_loop">Déplacer vers la boucle</string>
+    <string name="loop_number_format">Boucle %d</string>
 </resources>

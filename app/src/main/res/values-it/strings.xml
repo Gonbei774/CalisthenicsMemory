@@ -577,4 +577,20 @@
     <string name="nav_skipped">Saltato</string>
     <string name="nav_type_dynamic_short">Din</string>
     <string name="nav_type_isometric_short">Iso</string>
+    <!-- Loop Feature -->
+    <string name="loop_round_rest">Riposo del round</string>
+    <string name="loop_round_current">Round %1$d/%2$d</string>
+    <string name="add_loop">Aggiungi ciclo</string>
+    <string name="loop_label">Ciclo</string>
+    <string name="loop_settings">Impostazioni ciclo</string>
+    <string name="loop_rounds">Round</string>
+    <string name="loop_rest_between_rounds">Riposo tra i round (sec)</string>
+    <string name="loop_round_format">%d Round</string>
+    <string name="loop_rest_format">Riposo: %ds</string>
+    <string name="loop_current_round">Round %1$d/%2$d</string>
+    <string name="loop_delete_confirm">Eliminare questo ciclo? Anche gli esercizi al suo interno verranno eliminati.</string>
+    <string name="loop_empty">Trascina gli esercizi qui o tocca + per aggiungere</string>
+    <string name="add_exercise_to_loop">Aggiungi esercizio</string>
+    <string name="move_to_loop">Sposta nel ciclo</string>
+    <string name="loop_number_format">Ciclo %d</string>
 </resources>

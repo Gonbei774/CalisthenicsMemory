@@ -577,4 +577,20 @@
     <string name="nav_skipped">Omitido</string>
     <string name="nav_type_dynamic_short">Din</string>
     <string name="nav_type_isometric_short">Iso</string>
+    <!-- Loop Feature -->
+    <string name="loop_round_rest">Descanso de ronda</string>
+    <string name="loop_round_current">Ronda %1$d/%2$d</string>
+    <string name="add_loop">Añadir bucle</string>
+    <string name="loop_label">Bucle</string>
+    <string name="loop_settings">Configuración del bucle</string>
+    <string name="loop_rounds">Rondas</string>
+    <string name="loop_rest_between_rounds">Descanso entre rondas (seg)</string>
+    <string name="loop_round_format">%d Rondas</string>
+    <string name="loop_rest_format">Descanso: %ds</string>
+    <string name="loop_current_round">Ronda %1$d/%2$d</string>
+    <string name="loop_delete_confirm">¿Eliminar este bucle? Los ejercicios dentro también se eliminarán.</string>
+    <string name="loop_empty">Arrastra ejercicios aquí o toca + para añadir</string>
+    <string name="add_exercise_to_loop">Añadir ejercicio</string>
+    <string name="move_to_loop">Mover al bucle</string>
+    <string name="loop_number_format">Bucle %d</string>
 </resources>
