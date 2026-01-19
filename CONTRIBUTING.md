@@ -2,10 +2,52 @@
 
 Issues and suggestions are welcome!
 
-- **Codeberg** (main): Issues and Pull Requests
-- **GitHub** (mirror): Issues only
+## Issues
 
-https://codeberg.org/Gonbei774/CalisthenicsMemory
+- [Codeberg](https://codeberg.org/Gonbei774/CalisthenicsMemory/issues/) (main): Issues and Pull Requests
+- [GitHub](https://github.com/Gonbei774/CalisthenicsMemory/issues) (mirror): Issues only
+
+### Language Policy
+
+(Trial) You may open issues in your native language.
+For issues in languages other than English, I will respond primarily in Japanese.
+
+## Pull Requests
+
+Code contributions are welcome, but please follow these rules.
+
+### Prior Discussion Required
+
+The following changes require **discussion via Issue before submitting a PR**:
+
+- Database schema changes (tables, columns, foreign keys, indices)
+- Adding permissions
+- Adding new dependencies
+- Large new features (new screens, major workflow changes)
+
+I want to accept PRs as much as possible, so please discuss beforehand to ensure smooth merging.
+
+### One PR, One Feature
+
+Each pull request should focus on a single feature or fix.
+Mixing unrelated changes makes review difficult and increases risk.
+
+### AI Tool Users
+
+If you use AI coding assistants, please mention it in your PR description.
+
+### Prohibited (F-Droid Standards)
+
+This app is published on F-Droid. The following are prohibited:
+
+- Google Play Services
+- Firebase / Crashlytics
+- Proprietary advertising libraries
+- Tracking / analytics tools
+
+### Offline Principle
+
+CalisthenicsMemory is a fully offline app. Features requiring network communication will not be accepted.
 
 ## How to Build
 
@@ -55,15 +97,33 @@ Help translate Calisthenics Memory via [Weblate](https://translate.codeberg.org/
 <img src="https://translate.codeberg.org/widget/calisthenics-memory/multi-auto.svg" alt="Translation status" />
 </a>
 
-Weblate is intended for natural, native-speaker translations.
-Some existing translations may still sound unnatural, and corrections are always welcome.
+### Guidelines
 
-We kindly ask that machine translation not be used on Weblate.
+- Weblate is intended for natural, native-speaker translations
+- Some existing translations may still sound unnatural—corrections are welcome
+- Please do not use machine translation on Weblate
 
-If you'd like to add a new language (machine translation is fine as a starting point),
-please open an [issue](https://codeberg.org/Gonbei774/CalisthenicsMemory/issues) and I'll handle it.
+If you'd like to add a new language, please open an [issue](https://codeberg.org/Gonbei774/CalisthenicsMemory/issues) before using machine translation. If you can provide a natural, native-speaker translation, you can proceed without opening an issue.
 
-Translation files: [app/src/main/res/](https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/app/src/main/res)
+### Source Strings
+
+Source strings (English) are managed in the repository, not Weblate.
+Translators cannot add, delete, or edit source strings.
+
+| Component | Source location |
+|-----------|-----------------|
+| App | [`app/src/main/res/values/strings.xml`](https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/app/src/main/res/values/strings.xml) |
+| Fastlane | [`fastlane/metadata/android/en-US/`](https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/fastlane/metadata/android/en-US) |
+
+### Fastlane Limits
+
+| Field | Limit | Note |
+|-------|-------|------|
+| title | 30 chars | Read-only |
+| short_description | 80 chars | |
+| full_description | 4000 chars | |
+
+Changelogs are excluded from translation on Weblate.
 
 ## License
 

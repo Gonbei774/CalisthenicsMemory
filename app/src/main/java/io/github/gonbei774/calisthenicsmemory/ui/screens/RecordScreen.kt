@@ -2,13 +2,16 @@ package io.github.gonbei774.calisthenicsmemory.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,6 +29,7 @@ import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
 import io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.util.SearchUtils
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -234,6 +238,22 @@ fun ExerciseSelectionScreen(
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
     val expandedGroups by viewModel.expandedGroups.collectAsState()
 
+    // Search state
+    var searchQuery by remember { mutableStateOf("") }
+    val searchResults = remember(exercises, searchQuery) {
+        SearchUtils.searchExercises(exercises, searchQuery)
+    }
+
+    // List state for controlling scroll position
+    val listState = rememberLazyListState()
+
+    // Scroll to top when search results change
+    LaunchedEffect(searchQuery, searchResults) {
+        if (searchQuery.isNotBlank() && searchResults.isNotEmpty()) {
+            listState.scrollToItem(0)
+        }
+    }
+
     Scaffold(
         topBar = {
             Surface(
@@ -306,27 +326,97 @@ fun ExerciseSelectionScreen(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
+                // Search field
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    placeholder = {
+                        Text(
+                            text = stringResource(R.string.search_placeholder),
+                            color = Slate400
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Search,
+                            contentDescription = null,
+                            tint = Slate400
+                        )
+                    },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(
+                                    Icons.Default.Clear,
+                                    contentDescription = stringResource(R.string.clear),
+                                    tint = Slate400
+                                )
+                            }
+                        }
+                    },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedContainerColor = Slate800,
+                        unfocusedContainerColor = Slate800,
+                        focusedBorderColor = Green600,
+                        unfocusedBorderColor = Slate600,
+                        cursorColor = Green600
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                )
+
                 LazyColumn(
+                    state = listState,
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(
-                        count = hierarchicalData.size,
-                        key = { index -> hierarchicalData[index].groupName ?: "ungrouped" }
-                    ) { index ->
-                        val group = hierarchicalData[index]
-                        HierarchicalExerciseGroup(
-                            group = group,
-                            isExpanded = if (group.groupName != null) {
-                                group.groupName in expandedGroups
-                            } else {
-                                "ungrouped" in expandedGroups
-                            },
-                            onExpandToggle = {
-                                val key = group.groupName ?: "ungrouped"
-                                viewModel.toggleGroupExpansion(key)
-                            },
-                            onExerciseSelected = onExerciseSelected
-                        )
+                    if (searchQuery.isNotBlank()) {
+                        // Flat search results
+                        if (searchResults.isEmpty()) {
+                            item {
+                                Text(
+                                    text = stringResource(R.string.no_results),
+                                    color = Slate400,
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            }
+                        } else {
+                            items(
+                                count = searchResults.size,
+                                key = { index -> searchResults[index].id }
+                            ) { index ->
+                                val exercise = searchResults[index]
+                                ExerciseSelectionItem(
+                                    exercise = exercise,
+                                    onClick = { onExerciseSelected(exercise) }
+                                )
+                            }
+                        }
+                    } else {
+                        // Hierarchical group view
+                        items(
+                            count = hierarchicalData.size,
+                            key = { index -> hierarchicalData[index].groupName ?: "ungrouped" }
+                        ) { index ->
+                            val group = hierarchicalData[index]
+                            HierarchicalExerciseGroup(
+                                group = group,
+                                isExpanded = if (group.groupName != null) {
+                                    group.groupName in expandedGroups
+                                } else {
+                                    "ungrouped" in expandedGroups
+                                },
+                                onExpandToggle = {
+                                    val key = group.groupName ?: "ungrouped"
+                                    viewModel.toggleGroupExpansion(key)
+                                },
+                                onExerciseSelected = onExerciseSelected
+                            )
+                        }
                     }
                 }
             }

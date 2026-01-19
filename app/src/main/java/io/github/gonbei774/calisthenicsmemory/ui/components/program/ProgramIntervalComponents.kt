@@ -77,22 +77,19 @@ internal fun ProgramStartIntervalStep(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        // セット情報
+        // 全体の進捗表示
+        val globalSetIndex = currentSetIndex + 1
+        val totalSets = session.sets.size
         val sideText = when (currentSet.side) {
             "Right" -> stringResource(R.string.side_right)
             "Left" -> stringResource(R.string.side_left)
             else -> null
         }
-        val (pe, _) = session.exercises[currentSet.exerciseIndex]
-        // 実際のセット数を計算（動的に変更される可能性があるため）
-        val actualTotalSets = session.sets
-            .filter { it.exerciseIndex == currentSet.exerciseIndex }
-            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
+                stringResource(R.string.set_progress_with_side, globalSetIndex, totalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
+                stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
             color = Slate300,
@@ -119,15 +116,6 @@ internal fun ProgramStartIntervalStep(
         )
 
         Spacer(modifier = Modifier.weight(1f))
-
-        // 次の種目/セット情報
-        NextExerciseInfo(
-            session = session,
-            currentSetIndex = currentSetIndex,
-            nextSetIndexOverride = nextSetIndexOverride
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         // スキップボタン
         TextButton(onClick = onSkip) {
@@ -156,10 +144,14 @@ internal fun ProgramIntervalStep(
     val nextSetIndex = nextSetIndexOverride ?: (currentSetIndex + 1)
     val nextSet = session.sets.getOrNull(nextSetIndex)
 
-    var remainingTime by remember { mutableIntStateOf(currentSet.intervalSeconds) }
+    // ループ間休憩がある場合は追加
+    val totalInterval = currentSet.intervalSeconds + currentSet.loopRestAfterSeconds
+    val hasLoopRest = currentSet.loopRestAfterSeconds > 0
+
+    var remainingTime by remember { mutableIntStateOf(totalInterval) }
     var isRunning by remember { mutableStateOf(true) }
-    val progress = if (currentSet.intervalSeconds > 0) {
-        remainingTime.toFloat() / currentSet.intervalSeconds
+    val progress = if (totalInterval > 0) {
+        remainingTime.toFloat() / totalInterval
     } else 0f
 
     // ナビゲーション表示中は強制的に一時停止
@@ -193,44 +185,57 @@ internal fun ProgramIntervalStep(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 現在の種目名
-        val (_, currentExercise) = session.exercises[currentSet.exerciseIndex]
-        Text(
-            text = currentExercise.name,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.padding(top = 8.dp)
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
         // 中央エリア
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // 休憩表示
-            Text(
-                text = stringResource(R.string.interval_label),
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Cyan600
-            )
+            // 休憩表示（ラウンド間休憩がある場合は強調表示）
+            if (hasLoopRest) {
+                // ラウンド間休憩表示
+                Text(
+                    text = stringResource(R.string.loop_round_rest),
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Purple600
+                )
+                Text(
+                    text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
+                    fontSize = 20.sp,
+                    color = Slate300,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            } else {
+                // 通常の休憩表示
+                Text(
+                    text = stringResource(R.string.interval_label),
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Cyan600
+                )
+                // ループ内セットならラウンド情報を表示
+                if (currentSet.loopId != null && currentSet.totalRounds > 1) {
+                    Text(
+                        text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
+                        fontSize = 16.sp,
+                        color = Slate400,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
 
             // 次のセット/種目表示
             nextSet?.let { next ->
-                val (nextPe, nextExercise) = session.exercises[next.exerciseIndex]
+                val (_, nextExercise) = session.exercises[next.exerciseIndex]
                 val nextSideText = when (next.side) {
                     "Right" -> stringResource(R.string.side_right)
                     "Left" -> stringResource(R.string.side_left)
                     else -> null
                 }
-                // 次の種目の実際のセット数を計算
-                val nextActualTotalSets = session.sets
-                    .filter { it.exerciseIndex == next.exerciseIndex }
-                    .maxOfOrNull { it.setNumber } ?: nextPe.sets
+                // 次のセットの全体位置
+                val nextGlobalIndex = nextSetIndex + 1
+                val totalSets = session.sets.size
 
                 // 次の種目名（常に表示）
                 Text(
@@ -240,12 +245,12 @@ internal fun ProgramIntervalStep(
                     modifier = Modifier.padding(top = 8.dp)
                 )
 
-                // 次のセット情報
+                // 次のセット情報（全体進捗）
                 Text(
                     text = if (nextSideText != null) {
-                        stringResource(R.string.set_format_with_side, next.setNumber, nextActualTotalSets, nextSideText)
+                        stringResource(R.string.set_progress_with_side, nextGlobalIndex, totalSets, nextSideText)
                     } else {
-                        stringResource(R.string.set_format, next.setNumber, nextActualTotalSets)
+                        stringResource(R.string.set_progress, nextGlobalIndex, totalSets)
                     },
                     fontSize = 18.sp,
                     color = Slate300,

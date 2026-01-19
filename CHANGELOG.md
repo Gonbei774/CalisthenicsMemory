@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.0] - 2026-01-19
+
+### Added
+- **Loop feature for Program mode** (Issue #21)
+  - Group exercises to repeat multiple rounds
+  - Drag-and-drop reordering for loops and exercises within loops
+  - Round information displayed during execution
+  - Loop support in JSON import/export
+- **Ukrainian language support**
+- **Exercise search on all screens**
+  - Relevance-based ranking for better results
+
+### Improved
+- Navigation UX with discard confirmation dialog
+- Overall workout progress display (replaces per-exercise set numbers)
+- Loop display in navigation sheet and edit screen
+
+### Fixed
+- Crash when saving loop workouts in result screen
+- Loops now copied when duplicating programs
+- Exercise display numbers after reordering
+- Loop info preserved when using autofill in preview screen
+- Pause function now correctly stops timers in training exercises
+
+This release includes contributions from @unsealed211, @SomeTr, and @balaraz.
+
 ## [1.15.0] - 2025-12-31
 
 ### Added
@@ -310,6 +336,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.16.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.16.0
 [1.15.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.15.0
 [1.14.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.14.1
 [1.14.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.14.0

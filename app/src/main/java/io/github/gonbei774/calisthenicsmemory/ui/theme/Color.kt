@@ -14,6 +14,7 @@ val Slate300 = Color(0xFFCBD5E1)
 
 // Accent Colors
 val Purple600 = Color(0xFF9333EA)
+val Purple400 = Color(0xFFC084FC)
 val Indigo600 = Color(0xFF4F46E5)
 val Blue600 = Color(0xFF2563EB)
 val Cyan600 = Color(0xFF0891B2)

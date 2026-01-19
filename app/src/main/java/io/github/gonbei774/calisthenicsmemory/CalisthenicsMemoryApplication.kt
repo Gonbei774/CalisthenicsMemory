@@ -39,6 +39,7 @@ class CalisthenicsMemoryApplication : Application() {
             AppLanguage.CHINESE -> Locale("zh", "CN")
             AppLanguage.FRENCH -> Locale("fr")
             AppLanguage.ITALIAN -> Locale("it")
+            AppLanguage.UKRAINIAN -> Locale("uk")
             AppLanguage.SYSTEM -> return context
         }
 

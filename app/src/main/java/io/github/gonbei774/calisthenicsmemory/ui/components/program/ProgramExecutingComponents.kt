@@ -76,7 +76,7 @@ internal fun ProgramExecutingStepDynamicManual(
     val scope = rememberCoroutineScope()
 
     // タイマー処理（自動遷移なし、目標達成時に停止）
-    LaunchedEffect(currentSetIndex, isNavigationOpen) {
+    LaunchedEffect(currentSetIndex, isNavigationOpen, isPaused) {
         while (true) {
             if (!effectivelyPaused && currentCount < currentSet.targetValue) {
                 delay(1000L)
@@ -124,26 +124,34 @@ internal fun ProgramExecutingStepDynamicManual(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        // セット情報
+        // 全体の進捗表示
+        val globalSetIndex = currentSetIndex + 1
+        val totalSets = session.sets.size
         val sideText = when (currentSet.side) {
             "Right" -> stringResource(R.string.side_right)
             "Left" -> stringResource(R.string.side_left)
             else -> null
         }
-        // 実際のセット数を計算（動的に変更される可能性があるため）
-        val actualTotalSets = session.sets
-            .filter { it.exerciseIndex == currentSet.exerciseIndex }
-            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
+                stringResource(R.string.set_progress_with_side, globalSetIndex, totalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
+                stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
             color = Slate300,
             modifier = Modifier.padding(top = 4.dp)
         )
+
+        // ループ内セットならラウンド情報を表示
+        if (currentSet.loopId != null && currentSet.totalRounds > 1) {
+            Text(
+                text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
+                fontSize = 16.sp,
+                color = Purple400,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
 
         // 次の種目/セット情報（上部に配置）
         NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
@@ -398,7 +406,7 @@ internal fun ProgramExecutingStepIsometricManual(
     var hasPlayedCompletionBeep by remember(currentSetIndex) { mutableStateOf(false) }
 
     // タイマー処理
-    LaunchedEffect(currentSetIndex, isNavigationOpen) {
+    LaunchedEffect(currentSetIndex, isNavigationOpen, isPaused) {
         while (true) {
             if (!effectivelyPaused && elapsedTime < currentSet.targetValue) {
                 delay(1000L)
@@ -442,26 +450,34 @@ internal fun ProgramExecutingStepIsometricManual(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        // セット情報
+        // 全体の進捗表示
+        val globalSetIndex = currentSetIndex + 1
+        val totalSets = session.sets.size
         val sideText = when (currentSet.side) {
             "Right" -> stringResource(R.string.side_right)
             "Left" -> stringResource(R.string.side_left)
             else -> null
         }
-        // 実際のセット数を計算（動的に変更される可能性があるため）
-        val actualTotalSets = session.sets
-            .filter { it.exerciseIndex == currentSet.exerciseIndex }
-            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
+                stringResource(R.string.set_progress_with_side, globalSetIndex, totalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
+                stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
             color = Slate300,
             modifier = Modifier.padding(top = 4.dp)
         )
+
+        // ループ内セットならラウンド情報を表示
+        if (currentSet.loopId != null && currentSet.totalRounds > 1) {
+            Text(
+                text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
+                fontSize = 16.sp,
+                color = Purple400,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
 
         // 次の種目/セット情報（上部に配置）
         NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
@@ -704,7 +720,7 @@ internal fun ProgramExecutingStepIsometricAuto(
     }
 
     // タイマー処理
-    LaunchedEffect(currentSetIndex, isNavigationOpen) {
+    LaunchedEffect(currentSetIndex, isNavigationOpen, isPaused) {
         while (true) {
             if (!effectivelyPaused && elapsedTime < currentSet.targetValue) {
                 delay(1000L)
@@ -748,26 +764,34 @@ internal fun ProgramExecutingStepIsometricAuto(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        // セット情報
+        // 全体の進捗表示
+        val globalSetIndex = currentSetIndex + 1
+        val totalSets = session.sets.size
         val sideText = when (currentSet.side) {
             "Right" -> stringResource(R.string.side_right)
             "Left" -> stringResource(R.string.side_left)
             else -> null
         }
-        // 実際のセット数を計算（動的に変更される可能性があるため）
-        val actualTotalSets = session.sets
-            .filter { it.exerciseIndex == currentSet.exerciseIndex }
-            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
+                stringResource(R.string.set_progress_with_side, globalSetIndex, totalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
+                stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
             color = Slate300,
             modifier = Modifier.padding(top = 4.dp)
         )
+
+        // ループ内セットならラウンド情報を表示
+        if (currentSet.loopId != null && currentSet.totalRounds > 1) {
+            Text(
+                text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
+                fontSize = 16.sp,
+                color = Purple400,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
 
         // 次の種目/セット情報（上部に配置）
         NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
@@ -1004,7 +1028,7 @@ internal fun ProgramExecutingStepDynamicAuto(
     val statusColor = if (effectivelyPaused) Slate400 else Orange600
 
     // タイマー処理
-    LaunchedEffect(currentSetIndex, isNavigationOpen) {
+    LaunchedEffect(currentSetIndex, isNavigationOpen, isPaused) {
         while (true) {
             if (!effectivelyPaused) {
                 delay(1000L)
@@ -1053,26 +1077,34 @@ internal fun ProgramExecutingStepDynamicAuto(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        // セット情報
+        // 全体の進捗表示
+        val globalSetIndex = currentSetIndex + 1
+        val totalSets = session.sets.size
         val sideText = when (currentSet.side) {
             "Right" -> stringResource(R.string.side_right)
             "Left" -> stringResource(R.string.side_left)
             else -> null
         }
-        // 実際のセット数を計算（動的に変更される可能性があるため）
-        val actualTotalSets = session.sets
-            .filter { it.exerciseIndex == currentSet.exerciseIndex }
-            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
+                stringResource(R.string.set_progress_with_side, globalSetIndex, totalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
+                stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
             color = Slate300,
             modifier = Modifier.padding(top = 4.dp)
         )
+
+        // ループ内セットならラウンド情報を表示
+        if (currentSet.loopId != null && currentSet.totalRounds > 1) {
+            Text(
+                text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
+                fontSize = 16.sp,
+                color = Purple400,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
 
         // 次の種目/セット情報（上部に配置）
         NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
@@ -1305,26 +1337,34 @@ internal fun ProgramExecutingStepDynamicSimple(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        // セット情報
+        // 全体の進捗表示
+        val globalSetIndex = currentSetIndex + 1
+        val totalSets = session.sets.size
         val sideText = when (currentSet.side) {
             "Right" -> stringResource(R.string.side_right)
             "Left" -> stringResource(R.string.side_left)
             else -> null
         }
-        // 実際のセット数を計算（動的に変更される可能性があるため）
-        val actualTotalSets = session.sets
-            .filter { it.exerciseIndex == currentSet.exerciseIndex }
-            .maxOfOrNull { it.setNumber } ?: pe.sets
         Text(
             text = if (sideText != null) {
-                stringResource(R.string.set_format_with_side, currentSet.setNumber, actualTotalSets, sideText)
+                stringResource(R.string.set_progress_with_side, globalSetIndex, totalSets, sideText)
             } else {
-                stringResource(R.string.set_format, currentSet.setNumber, actualTotalSets)
+                stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
             color = Slate300,
             modifier = Modifier.padding(top = 4.dp)
         )
+
+        // ループ内セットならラウンド情報を表示
+        if (currentSet.loopId != null && currentSet.totalRounds > 1) {
+            Text(
+                text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
+                fontSize = 16.sp,
+                color = Purple400,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
 
         // 次の種目/セット情報
         NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)

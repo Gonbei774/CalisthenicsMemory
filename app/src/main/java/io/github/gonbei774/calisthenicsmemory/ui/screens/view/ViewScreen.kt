@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.util.SearchUtils
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 
 // ViewMode enum
@@ -574,18 +575,7 @@ fun FilterBottomSheetContent(
 
     // 検索フィルター
     val filteredHierarchicalData = remember(hierarchicalData, searchQuery) {
-        if (searchQuery.isEmpty()) {
-            hierarchicalData
-        } else {
-            hierarchicalData.map { group ->
-                TrainingViewModel.GroupWithExercises(
-                    groupName = group.groupName,
-                    exercises = group.exercises.filter {
-                        it.name.contains(searchQuery, ignoreCase = true)
-                    }
-                )
-            }.filter { it.exercises.isNotEmpty() }
-        }
+        SearchUtils.searchHierarchicalExercises(hierarchicalData, searchQuery)
     }
 
     Column(

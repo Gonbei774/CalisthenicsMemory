@@ -60,7 +60,7 @@ fun SingleExecutingStepDynamicManual(
         else -> Orange600
     }
 
-    LaunchedEffect(currentSetIndex) {
+    LaunchedEffect(currentSetIndex, isPaused) {
         while (true) {
             if (!isPaused && currentCount < currentSet.targetValue) {
                 delay(1000L)
@@ -802,9 +802,9 @@ fun SingleExecutingStepIsometricManual(
         else -> Orange600
     }
 
-    LaunchedEffect(currentSetIndex) {
+    LaunchedEffect(currentSetIndex, isPaused) {
         while (true) {
-            if (!isPaused && elapsedTime < currentSet.targetValue) {
+            if (!isPaused) {
                 delay(1000L)
                 elapsedTime++
 
@@ -1057,7 +1057,7 @@ fun SingleExecutingStepIsometricAuto(
 
     val statusColor = if (isPaused) Slate400 else Orange600
 
-    LaunchedEffect(currentSetIndex) {
+    LaunchedEffect(currentSetIndex, isPaused) {
         while (true) {
             if (!isPaused) {
                 delay(1000L)

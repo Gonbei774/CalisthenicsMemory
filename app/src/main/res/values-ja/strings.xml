@@ -531,6 +531,10 @@
     <string name="exit_workout_title">トレーニングを中断しますか？</string>
     <string name="exit_workout_message">進捗は保存されません。</string>
     <string name="exit_workout_confirm">中断する</string>
+    <!-- Discard Result Confirmation -->
+    <string name="discard_result_title">記録を破棄しますか？</string>
+    <string name="discard_result_message">トレーニング結果は保存されません。</string>
+    <string name="discard_result_confirm">破棄する</string>
     <!-- Short labels -->
     <string name="interval_short">休憩:</string>
     <string name="sets_label_short">セット:</string>
@@ -574,4 +578,20 @@
     <string name="nav_skipped">スキップ</string>
     <string name="nav_type_dynamic_short">回数</string>
     <string name="nav_type_isometric_short">静止</string>
+    <!-- Loop Feature -->
+    <string name="loop_round_rest">ラウンド休憩</string>
+    <string name="loop_round_current">ラウンド %1$d/%2$d</string>
+    <string name="add_loop">ループを追加</string>
+    <string name="loop_label">ループ</string>
+    <string name="loop_settings">ループ設定</string>
+    <string name="loop_rounds">ラウンド数</string>
+    <string name="loop_rest_between_rounds">ラウンド間の休憩 (秒)</string>
+    <string name="loop_round_format">%d ラウンド</string>
+    <string name="loop_rest_format">休憩: %d秒</string>
+    <string name="loop_current_round">ラウンド %1$d/%2$d</string>
+    <string name="loop_delete_confirm">このループを削除しますか？内部の種目も削除されます。</string>
+    <string name="loop_empty">種目をここにドラッグするか、+をタップして追加</string>
+    <string name="add_exercise_to_loop">種目を追加</string>
+    <string name="move_to_loop">ループに移動</string>
+    <string name="loop_number_format">ループ %d</string>
 </resources>

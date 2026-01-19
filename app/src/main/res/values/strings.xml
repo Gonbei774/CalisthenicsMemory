@@ -1,7 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App Name -->
     <string name="app_name">Calisthenics Memory</string>
-
     <!-- Common -->
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
@@ -23,7 +23,6 @@
     <string name="type">Type</string>
     <string name="menu">Menu</string>
     <string name="loading">Loading...</string>
-
     <!-- Home Screen -->
     <string name="bodyweight_training">Bodyweight Training</string>
     <string name="home_create">Create Exercise</string>
@@ -35,14 +34,14 @@
     <string name="view_details">View details →</string>
     <string name="view_all_records">View all records →</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
-
     <!-- Create Screen -->
     <string name="exercise_creation">Exercise Creation</string>
     <string name="no_exercises">No exercises yet\nAdd one using the + button below</string>
     <string name="exercise_name">Exercise Name</string>
     <string name="set_challenge">Set Challenge</string>
     <string name="sets_count">Sets</string>
-    <string name="reps_or_seconds">%s</string> <!-- Will be replaced with "Reps" or "Seconds" -->
+    <string name="reps_or_seconds">%s</string>
+    <!-- Will be replaced with "Reps" or "Seconds" -->
     <string name="reps">Reps</string>
     <string name="seconds">Seconds</string>
     <string name="per_side">(Per Side)</string>
@@ -72,7 +71,6 @@
     <string name="delete_confirmation">Delete Confirmation</string>
     <string name="exercises_count">%d exercise(s)</string>
     <string name="character_count">%1$d/%2$d</string>
-
     <!-- Record Screen -->
     <string name="training_record">Training Record</string>
     <string name="no_exercises_registered">No exercises registered</string>
@@ -99,7 +97,6 @@
     <string name="time_label">Time</string>
     <string name="dynamic_type">Reps</string>
     <string name="isometric_type">Time</string>
-
     <!-- View Screen -->
     <string name="view_records">View Records</string>
     <string name="list">List</string>
@@ -123,7 +120,6 @@
     <string name="search_exercise">Search Exercise...</string>
     <string name="filter_bottom_sheet_title">Select Exercise</string>
     <string name="clear_filter">Clear Filter</string>
-
     <!-- Period filters -->
     <string name="period_1week">1 Week</string>
     <string name="period_1month">1 Month</string>
@@ -131,7 +127,6 @@
     <string name="period_one_week">1 Week</string>
     <string name="period_one_month">1 Month</string>
     <string name="period_three_months">3 Months</string>
-
     <!-- Graph Screen -->
     <string name="display_data">Display Data</string>
     <string name="graph_average">Average</string>
@@ -154,7 +149,6 @@
     <string name="unit_seconds_short">s</string>
     <string name="sets_label_short">Sets:</string>
     <string name="interval_short">Rest:</string>
-
     <!-- Challenge Screen -->
     <string name="no_challenge_set">No Challenge Set</string>
     <string name="last_workout">Last Workout</string>
@@ -163,7 +157,6 @@
     <string name="no_exercises_available">No exercises available</string>
     <string name="no_exercises_in_period">No exercises worked on in %s</string>
     <string name="achievement_rate">%1$d%% (%2$d/%3$d%4$s)</string>
-
     <!-- Settings Screen -->
     <string name="data_management">📦 Data Management</string>
     <string name="export_data">Export Data</string>
@@ -186,7 +179,6 @@
     <string name="existing_data_will_be_deleted">All existing data will be deleted.</string>
     <string name="cannot_undo">This action cannot be undone.</string>
     <string name="import_confirm">Import</string>
-
     <!-- ViewModel Messages -->
     <string name="already_registered_format">\"%1$s (%2$s)\" is already registered</string>
     <string name="dynamic_label">Reps</string>
@@ -208,7 +200,6 @@
     <string name="export_error">Export error: %s</string>
     <string name="import_complete">Import complete: %1$d groups, %2$d exercises, %3$d records</string>
     <string name="import_error">Import error: %s</string>
-
     <!-- Workout Screen (if exists) -->
     <string name="workout_title">Workout</string>
     <string name="no_exercises_yet_workout">No exercises yet</string>
@@ -228,6 +219,8 @@
     <string name="workout_in_progress">Workout In Progress</string>
     <string name="set_format">Set %1$d/%2$d</string>
     <string name="set_format_with_side">Set %1$d/%2$d - %3$s</string>
+    <string name="set_progress">%1$d/%2$d</string>
+    <string name="set_progress_with_side">%1$d/%2$d - %3$s</string>
     <string name="side_right">Right</string>
     <string name="side_left">Left</string>
     <string name="reps_count">%d reps</string>
@@ -237,6 +230,8 @@
     <string name="stop_button">Stop</string>
     <string name="retry_set_button">Retry Set</string>
     <string name="interval_label">Interval</string>
+    <string name="loop_round_rest">Round Rest</string>
+    <string name="loop_round_current">Round %1$d/%2$d</string>
     <string name="next_set_format">Next: Set %1$d/%2$d</string>
     <string name="next_set_format_with_side">Next: Set %1$d/%2$d - %3$s</string>
     <string name="minus_10sec">-10 sec</string>
@@ -256,19 +251,18 @@
     <string name="left_colon">Left:</string>
     <string name="reps_input">Reps</string>
     <string name="seconds_input">Seconds</string>
-
     <!-- Level display -->
     <string name="level_format">Lv.%d</string>
     <!-- Additional missing strings -->
     <string name="bilateral_label">Bilateral</string>
     <string name="unilateral_label">Unilateral</string>
-
     <!-- Common Labels -->
     <string name="tab_list">List</string>
     <string name="tab_graph">Graph</string>
     <string name="tab_challenge">Challenge</string>
     <string name="search_placeholder">Search</string>
     <string name="clear">Clear</string>
+    <string name="no_results">No results found</string>
     <string name="value_label">Value</string>
     <string name="right_with_unit">Right (%s)</string>
     <string name="left_with_unit">Left (%s)</string>
@@ -286,7 +280,6 @@
     <string name="avg_daily_volume">Avg daily volume</string>
     <string name="max_weight">Max weight</string>
     <string name="avg_weight">Avg weight</string>
-
     <!-- Additional hardcoded strings that need to be moved -->
     <string name="no_exercises_add_with_plus">No exercises yet\nAdd one using the + button below</string>
     <string name="delete_group_confirm_message">Delete \"%s\"?\nExercises in this group will be moved to \"No Group\".</string>
@@ -316,7 +309,6 @@
     <string name="edit_exercise_title">Edit Exercise</string>
     <string name="create_group_title">Create New Group</string>
     <string name="add_exercise_title">Add New Exercise</string>
-
     <!-- GraphView specific strings -->
     <string name="graph_tooltip_unilateral">%1$s: Right %2$d%3$s / Left %4$d%5$s</string>
     <string name="statistics_average_label">Average</string>
@@ -325,17 +317,14 @@
     <string name="statistics_total_sets_label">Total Sets</string>
     <string name="statistics_value_format">%1$d%2$s</string>
     <string name="statistics_sets_count_format">%d sets</string>
-
     <!-- Additional format strings for remaining hardcoded Japanese -->
     <string name="multiplication_sign">×</string>
     <string name="per_side_short">(per side)</string>
     <string name="unknown_short">Unknown</string>
     <string name="colon_separator">: </string>
-
     <!-- Remaining hardcoded strings migration -->
     <string name="set_ordinal_suffix">Set %d</string>
     <string name="target_prefix">Target: </string>
-
     <!-- ViewScreen & GraphView remaining strings -->
     <string name="right_short">Right</string>
     <string name="left_short">Left</string>
@@ -344,7 +333,6 @@
     <string name="worst_record">Lowest</string>
     <string name="graph_tooltip_bilateral">%1$s: %2$d%3$s</string>
     <string name="graph_tooltip_unilateral_detail">%1$s: R%2$d%4$s / L%3$d%4$s</string>
-
     <!-- CSV Import/Export -->
     <string name="csv_export_success">%1$s exported: %2$d items</string>
     <string name="csv_template_exported">CSV template exported: %d exercises</string>
@@ -355,7 +343,6 @@
     <string name="csv_import">CSV Import</string>
     <string name="csv_template_description">Download template for recording</string>
     <string name="csv_import_description">Import groups, exercises, or records (auto-detected)</string>
-
     <!-- CSV Export Dialog -->
     <string name="csv_export">CSV Export</string>
     <string name="csv_export_description">Export groups, exercises, records, or record template</string>
@@ -367,7 +354,6 @@
     <string name="csv_export_records_description">Export all training records</string>
     <string name="csv_export_record_template">Record Template</string>
     <string name="csv_export_record_template_description">Export template for adding records</string>
-
     <!-- CSV Import Preview Dialog -->
     <string name="csv_import_preview">CSV Import Preview</string>
     <string name="csv_file">File</string>
@@ -378,9 +364,8 @@
     <string name="csv_import_mode_merge">Merge (Add)</string>
     <string name="csv_import_mode_merge_description">Keep existing data, add new items</string>
     <string name="csv_import_mode_replace">Replace</string>
-    <string name="csv_import_mode_replace_description">Delete all existing data and replace</string>
+    <string name="csv_import_mode_replace_description">Delete all existing data and replace it with the imported data</string>
     <string name="csv_import_button">Import</string>
-
     <!-- CSV Import Result Dialog -->
     <string name="csv_import_completed">Import Completed</string>
     <string name="csv_import_success_label">✅ Success</string>
@@ -389,7 +374,6 @@
     <string name="csv_import_skipped_items">Skipped Items (%d)</string>
     <string name="csv_import_errors">Errors (%d)</string>
     <string name="csv_import_more_items">... and %d more</string>
-
     <!-- Settings Screen Sections -->
     <string name="section_full_backup">Complete Backup (JSON)</string>
     <string name="section_full_backup_description">Save and restore all data (exercises, records, groups).\nUse when changing devices.</string>
@@ -398,12 +382,10 @@
     <!-- Legacy key for compatibility -->
     <string name="section_add_records">Add Records (CSV)</string>
     <string name="section_add_records_description">Add records to existing data.\nUse for importing analog records or data from other apps.</string>
-
     <!-- Favorites -->
     <string name="favorite">Favorite</string>
     <string name="add_to_favorites">Add to favorites</string>
     <string name="remove_from_favorites">Remove from favorites</string>
-
     <!-- Language Settings -->
     <string name="section_language">Language Settings</string>
     <string name="section_language_description">Change the app display language.\nChanges will take effect after restarting the app.</string>
@@ -411,15 +393,12 @@
     <string name="current_language">Current: %s</string>
     <string name="restart_required">Restart required to apply changes</string>
     <string name="language_changed">Language changed. Please restart the app.</string>
-
     <!-- Open Source Licenses -->
     <string name="open_source_licenses">Open Source Licenses</string>
     <string name="licenses_description">View licenses of libraries used in this app</string>
-
     <!-- Training Days Display -->
     <string name="training_days_format">Training %s</string>
     <string name="last_record_short">Last: %s</string>
-
     <!-- Backup Before Import -->
     <string name="backup_before_import_title">Backup Before Import</string>
     <string name="backup_before_import_message">Backup current data?</string>
@@ -427,13 +406,11 @@
     <string name="skip_and_continue">Skip &amp; Continue</string>
     <string name="backup_saved_successfully">Backup saved to Downloads folder</string>
     <string name="backup_failed">Backup failed</string>
-
     <!-- Auto-fill Settings -->
     <string name="settings_autofill_section">Auto-fill</string>
     <string name="settings_autofill_section_description">Configure automatic input assistance.</string>
     <string name="settings_prefill_previous">Pre-fill previous record</string>
     <string name="settings_prefill_previous_description">Auto-fill values from the last session in Record and Workout screens</string>
-
     <!-- Workout Settings -->
     <string name="section_workout_settings">Workout Settings</string>
     <string name="section_workout_settings_description">Configure default workout timer settings.</string>
@@ -453,7 +430,6 @@
     <string name="flash_notification_description">Flash LED in sync with sounds during workout</string>
     <string name="keep_screen_on_setting">Keep Screen On</string>
     <string name="keep_screen_on_description">Keep screen on during workout to view countdown</string>
-
     <!-- Timer Settings (Per-Exercise) -->
     <string name="timer_settings_optional">Timer Settings (Optional)</string>
     <string name="timer_settings_description">Configure timers for this exercise. Leave blank to use default settings.</string>
@@ -461,7 +437,6 @@
     <string name="rest_interval_seconds">Rest Interval (seconds)</string>
     <string name="example_5_seconds">e.g., 5</string>
     <string name="example_240_seconds">e.g., 240</string>
-
     <!-- Tracking Settings (v1.9) -->
     <string name="tracking_settings_optional">Tracking Settings (Optional)</string>
     <string name="track_distance">Track Distance</string>
@@ -472,11 +447,9 @@
     <string name="weight_input_label">Weight (kg)</string>
     <string name="distance_display_format">%d cm</string>
     <string name="weight_display_format">%.1f kg</string>
-
     <!-- Apply Exercise Settings Button -->
     <string name="apply_exercise_settings">Apply Exercise Settings</string>
     <string name="apply_target_values">Apply Target Values</string>
-
     <!-- App Info Section -->
     <string name="section_app_info">App Info</string>
     <string name="section_app_info_description">View app information and licenses.</string>
@@ -492,7 +465,6 @@
     <string name="github_description">Mirror repository</string>
     <string name="report_issue_codeberg">Report issue on Codeberg</string>
     <string name="report_issue_github">Report issue on GitHub</string>
-
     <!-- To Do Screen -->
     <string name="todo_title">To Do</string>
     <string name="todo_empty">Tap + to add exercises</string>
@@ -501,13 +473,11 @@
     <string name="todo_drag_to_reorder">Drag to reorder</string>
     <string name="todo_rec_button">Rec</string>
     <string name="todo_wo_button">WO</string>
-
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">Workout Timer</string>
     <string name="notification_channel_workout_description">Shows notification while workout timer is running</string>
     <string name="notification_workout_title">Workout in progress</string>
     <string name="notification_workout_text">Timer is running</string>
-
     <!-- Program Mode -->
     <string name="workout_mode_selection">Select Mode</string>
     <string name="single_mode">Single</string>
@@ -551,7 +521,6 @@
     <string name="target_value_label">Target</string>
     <string name="interval_seconds_label">Interval Duration (sec)</string>
     <string name="program_start">Start</string>
-
     <!-- Program Execution -->
     <string name="get_ready">Get Ready</string>
     <string name="executing_label">In Progress</string>
@@ -569,7 +538,6 @@
     <string name="next_exercise_label">Next: %s</string>
     <string name="program_set_label">Set %d:</string>
     <string name="program_estimated_time">~%d min</string>
-
     <!-- Isometric Manual Mode -->
     <string name="paused_label">Paused</string>
     <string name="elapsed_target_format">Elapsed: %1$ds / Target: %2$ds</string>
@@ -577,12 +545,14 @@
     <string name="complete_with_reps">✓ Complete (%d reps)</string>
     <string name="target_reps_format">Target: %d reps</string>
     <string name="previous_value_format">Previous: %d</string>
-
     <!-- Exit Workout Confirmation -->
     <string name="exit_workout_title">Exit workout?</string>
     <string name="exit_workout_message">Progress will not be saved.</string>
     <string name="exit_workout_confirm">Exit</string>
-
+    <!-- Discard Result Confirmation -->
+    <string name="discard_result_title">Discard results?</string>
+    <string name="discard_result_message">Your workout results will not be saved.</string>
+    <string name="discard_result_confirm">Discard</string>
     <!-- Sound Settings (Program Confirm) -->
     <string name="sound_settings_section">Sound Settings</string>
     <string name="dynamic_count_sound_label">Count Sound</string>
@@ -590,7 +560,6 @@
     <string name="isometric_interval_sound_label">Interval Notification</string>
     <string name="isometric_interval_sound_description">Isometric exercises</string>
     <string name="interval_seconds_short">%d sec</string>
-
     <!-- Navigation Sheet (Program Execution) -->
     <string name="nav_program_overview">Program Overview</string>
     <string name="nav_overall_progress">Overall Progress</string>
@@ -609,4 +578,18 @@
     <string name="nav_skipped">Skipped</string>
     <string name="nav_type_dynamic_short">Dyn</string>
     <string name="nav_type_isometric_short">Iso</string>
+    <!-- Loop Feature -->
+    <string name="add_loop">Add Loop</string>
+    <string name="loop_label">Loop</string>
+    <string name="loop_settings">Loop Settings</string>
+    <string name="loop_rounds">Rounds</string>
+    <string name="loop_rest_between_rounds">Rest between rounds (sec)</string>
+    <string name="loop_round_format">%d Rounds</string>
+    <string name="loop_rest_format">Rest: %ds</string>
+    <string name="loop_current_round">Round %1$d/%2$d</string>
+    <string name="loop_delete_confirm">Delete this loop? Exercises inside it will also be deleted.</string>
+    <string name="loop_empty">Drag exercises here or tap + to add</string>
+    <string name="add_exercise_to_loop">Add Exercise</string>
+    <string name="move_to_loop">Move to loop</string>
+    <string name="loop_number_format">Loop %d</string>
 </resources>

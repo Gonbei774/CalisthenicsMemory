@@ -19,11 +19,18 @@ import androidx.room.PrimaryKey
             parentColumns = ["id"],
             childColumns = ["exerciseId"],
             onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = ProgramLoop::class,
+            parentColumns = ["id"],
+            childColumns = ["loopId"],
+            onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [
         Index("programId"),
-        Index("exerciseId")
+        Index("exerciseId"),
+        Index("loopId")
     ]
 )
 data class ProgramExercise(
@@ -34,5 +41,6 @@ data class ProgramExercise(
     val sortOrder: Int,
     val sets: Int = 1,
     val targetValue: Int,
-    val intervalSeconds: Int = 60
+    val intervalSeconds: Int = 60,
+    val loopId: Long? = null
 )

@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,9 +30,30 @@ import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
+import io.github.gonbei774.calisthenicsmemory.data.ProgramLoop
 import io.github.gonbei774.calisthenicsmemory.data.ProgramWorkoutSet
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import kotlin.math.roundToInt
+
+// Sealed class to represent items in the confirm list (for grouping loops)
+private sealed class ConfirmListItem {
+    abstract val sortOrder: Int
+
+    data class StandaloneExercise(
+        val exerciseIndex: Int,
+        val pe: ProgramExercise,
+        val exercise: Exercise
+    ) : ConfirmListItem() {
+        override val sortOrder: Int get() = pe.sortOrder
+    }
+
+    data class Loop(
+        val loop: ProgramLoop,
+        val exercises: List<Triple<Int, ProgramExercise, Exercise>>  // exerciseIndex, pe, exercise
+    ) : ConfirmListItem() {
+        override val sortOrder: Int get() = loop.sortOrder
+    }
+}
 
 @Composable
 internal fun ProgramConfirmStep(
@@ -64,25 +86,62 @@ internal fun ProgramConfirmStep(
     // 推定時間を計算
     val estimatedMinutes = calculateEstimatedMinutes(session)
 
-    Column(
+    // ループの展開状態を管理
+    var expandedLoopIds by remember { mutableStateOf(session.loops.map { it.id }.toSet()) }
+
+    // ループとスタンドアロン種目をグループ化
+    val confirmListItems = remember(session.exercises, session.loops, refreshKey) {
+        val standaloneExercises = session.exercises.mapIndexedNotNull { index, (pe, exercise) ->
+            if (pe.loopId == null) {
+                ConfirmListItem.StandaloneExercise(index, pe, exercise)
+            } else null
+        }
+        val loops = session.loops.map { loop ->
+            val loopExercises = session.exercises.mapIndexedNotNull { index, (pe, exercise) ->
+                if (pe.loopId == loop.id) Triple(index, pe, exercise) else null
+            }
+            ConfirmListItem.Loop(loop, loopExercises)
+        }
+        (standaloneExercises + loops).sortedBy { it.sortOrder }
+    }
+
+    // exerciseIndex → 表示番号のマップを作成（ソート順に基づく）
+    val exerciseDisplayNumbers = remember(confirmListItems) {
+        var displayNum = 0
+        val map = mutableMapOf<Int, Int>()
+        confirmListItems.forEach { item ->
+            when (item) {
+                is ConfirmListItem.StandaloneExercise -> {
+                    displayNum++
+                    map[item.exerciseIndex] = displayNum
+                }
+                is ConfirmListItem.Loop -> {
+                    item.exercises.forEach { (exerciseIndex, _, _) ->
+                        displayNum++
+                        map[exerciseIndex] = displayNum
+                    }
+                }
+            }
+        }
+        map
+    }
+
+    // 一括適用タブの選択状態
+    var selectedBulkTab by remember { mutableIntStateOf(0) } // 0=Program, 1=Challenge, 2=Previous
+
+    // 全てスクロール可能なリストとして表示
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // ヘッダー: プログラム名 + 種目数 + 推定時間
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp)
-        ) {
-            Text(
-                text = session.program.name,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.height(4.dp))
+        // ヘッダー: 種目数 + 推定時間
+        item {
             Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -100,131 +159,160 @@ internal fun ProgramConfirmStep(
         }
 
         // 設定セクション
-        SettingsSection(
-            isAutoMode = isAutoMode,
-            startCountdownSeconds = startCountdownSeconds,
-            isDynamicCountSoundEnabled = isDynamicCountSoundEnabled,
-            isIsometricIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
-            isometricIntervalSeconds = isometricIntervalSeconds,
-            onAutoModeChange = onAutoModeChange,
-            onStartCountdownChange = onStartCountdownChange,
-            onDynamicCountSoundChange = onDynamicCountSoundChange,
-            onIsometricIntervalSoundChange = onIsometricIntervalSoundChange,
-            onIsometricIntervalSecondsChange = onIsometricIntervalSecondsChange
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // 一括適用タブ（タブ切替UI）
-        var selectedBulkTab by remember { mutableIntStateOf(0) } // 0=Program, 1=Challenge, 2=Previous
-        Column(modifier = Modifier.fillMaxWidth()) {
-            // ラベル
-            Text(
-                text = stringResource(R.string.auto_fill_target_label),
-                fontSize = 12.sp,
-                color = Slate500,
-                modifier = Modifier.padding(bottom = 8.dp)
+        item {
+            SettingsSection(
+                isAutoMode = isAutoMode,
+                startCountdownSeconds = startCountdownSeconds,
+                isDynamicCountSoundEnabled = isDynamicCountSoundEnabled,
+                isIsometricIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
+                isometricIntervalSeconds = isometricIntervalSeconds,
+                onAutoModeChange = onAutoModeChange,
+                onStartCountdownChange = onStartCountdownChange,
+                onDynamicCountSoundChange = onDynamicCountSoundChange,
+                onIsometricIntervalSoundChange = onIsometricIntervalSoundChange,
+                onIsometricIntervalSecondsChange = onIsometricIntervalSecondsChange
             )
-            // タブ行
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Program tab
-                BulkSettingTab(
-                    text = stringResource(R.string.program_use_program),
-                    isSelected = selectedBulkTab == 0,
-                    onClick = {
-                        selectedBulkTab = 0
-                        onUseAllProgramValues()
-                        refreshKey++
-                    }
+        }
+
+        // 一括適用タブ
+        item {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(R.string.auto_fill_target_label),
+                    fontSize = 12.sp,
+                    color = Slate500,
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
-                // Challenge tab (conditional)
-                if (hasChallengeExercise) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     BulkSettingTab(
-                        text = stringResource(R.string.program_use_challenge),
-                        isSelected = selectedBulkTab == 1,
+                        text = stringResource(R.string.program_use_program),
+                        isSelected = selectedBulkTab == 0,
                         onClick = {
-                            selectedBulkTab = 1
-                            onUseAllChallengeValues()
+                            selectedBulkTab = 0
+                            onUseAllProgramValues()
+                            refreshKey++
+                        }
+                    )
+                    if (hasChallengeExercise) {
+                        BulkSettingTab(
+                            text = stringResource(R.string.program_use_challenge),
+                            isSelected = selectedBulkTab == 1,
+                            onClick = {
+                                selectedBulkTab = 1
+                                onUseAllChallengeValues()
+                                refreshKey++
+                            }
+                        )
+                    }
+                    BulkSettingTab(
+                        text = stringResource(R.string.program_use_previous),
+                        isSelected = selectedBulkTab == if (hasChallengeExercise) 2 else 1,
+                        onClick = {
+                            selectedBulkTab = if (hasChallengeExercise) 2 else 1
+                            onUseAllPreviousRecordValues()
                             refreshKey++
                         }
                     )
                 }
-                // Previous tab
-                BulkSettingTab(
-                    text = stringResource(R.string.program_use_previous),
-                    isSelected = selectedBulkTab == if (hasChallengeExercise) 2 else 1,
-                    onClick = {
-                        selectedBulkTab = if (hasChallengeExercise) 2 else 1
-                        onUseAllPreviousRecordValues()
-                        refreshKey++
-                    }
-                )
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // 種目リスト + 開始ボタン（スクロール対応）
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // key = refreshKey ensures recomposition
-            items(
-                items = session.exercises.mapIndexed { index, pair -> index to pair },
-                key = { (index, _) -> "$index-$refreshKey" }
-            ) { (exerciseIndex, pair) ->
-                val (pe, exercise) = pair
-                val setsForExercise = session.sets.filter { it.exerciseIndex == exerciseIndex }
-                val displaySets = if (exercise.laterality == "Unilateral") {
-                    // 片側種目: 右側のセットのみ表示（代表値として）
-                    setsForExercise.filter { it.side == "Right" }
-                } else {
-                    setsForExercise
-                }
-
-                ProgramConfirmExerciseCard(
-                    exerciseIndex = exerciseIndex,
-                    exercise = exercise,
-                    programExercise = pe,
-                    sets = displaySets,
-                    allSets = session.sets,
-                    isExpanded = exerciseIndex in expandedExercises,
-                    onToggleExpanded = {
-                        expandedExercises = if (exerciseIndex in expandedExercises) {
-                            expandedExercises - exerciseIndex
-                        } else {
-                            expandedExercises + exerciseIndex
-                        }
-                    },
-                    onUpdateValue = { setIndex, newValue ->
-                        onUpdateTargetValue(setIndex, newValue)
-                        // 片側種目の場合、左側も同じ値に更新
-                        if (exercise.laterality == "Unilateral") {
-                            val rightSet = session.sets[setIndex]
-                            val leftSetIndex = session.sets.indexOfFirst {
-                                it.exerciseIndex == exerciseIndex &&
-                                it.setNumber == rightSet.setNumber &&
-                                it.side == "Left"
-                            }
-                            if (leftSetIndex >= 0) {
-                                onUpdateTargetValue(leftSetIndex, newValue)
-                            }
-                        }
-                    },
-                    onUpdateInterval = { newInterval ->
-                        onUpdateInterval(exerciseIndex, newInterval)
-                    },
-                    onUpdateSetCount = { newSetCount ->
-                        onUpdateSetCount(exerciseIndex, newSetCount)
-                    },
-                    onUpdateAllSetsValue = { delta ->
-                        // この種目の全セットの値を一括更新
-                        onUpdateExerciseSetsValue(exerciseIndex, delta)
+        // 種目リスト
+        items(
+                items = confirmListItems,
+                key = { item ->
+                    when (item) {
+                        is ConfirmListItem.StandaloneExercise -> "exercise-${item.exerciseIndex}-$refreshKey"
+                        is ConfirmListItem.Loop -> "loop-${item.loop.id}-$refreshKey"
                     }
-                )
+                }
+            ) { item ->
+                when (item) {
+                    is ConfirmListItem.StandaloneExercise -> {
+                        val (exerciseIndex, pe, exercise) = Triple(item.exerciseIndex, item.pe, item.exercise)
+                        val setsForExercise = session.sets.filter { it.exerciseIndex == exerciseIndex }
+                        val firstRoundSets = setsForExercise.filter { it.roundNumber == 1 }
+                        val displaySets = if (exercise.laterality == "Unilateral") {
+                            firstRoundSets.filter { it.side == "Right" }
+                        } else {
+                            firstRoundSets
+                        }
+
+                        ProgramConfirmExerciseCard(
+                            exerciseIndex = exerciseIndex,
+                            displayNumber = exerciseDisplayNumbers[exerciseIndex] ?: (exerciseIndex + 1),
+                            exercise = exercise,
+                            programExercise = pe,
+                            sets = displaySets,
+                            allSets = session.sets,
+                            isExpanded = exerciseIndex in expandedExercises,
+                            loopRounds = null,
+                            onToggleExpanded = {
+                                expandedExercises = if (exerciseIndex in expandedExercises) {
+                                    expandedExercises - exerciseIndex
+                                } else {
+                                    expandedExercises + exerciseIndex
+                                }
+                            },
+                            onUpdateValue = { setIndex, newValue ->
+                                onUpdateTargetValue(setIndex, newValue)
+                                if (exercise.laterality == "Unilateral") {
+                                    val rightSet = session.sets[setIndex]
+                                    val leftSetIndex = session.sets.indexOfFirst {
+                                        it.exerciseIndex == exerciseIndex &&
+                                        it.setNumber == rightSet.setNumber &&
+                                        it.side == "Left"
+                                    }
+                                    if (leftSetIndex >= 0) {
+                                        onUpdateTargetValue(leftSetIndex, newValue)
+                                    }
+                                }
+                            },
+                            onUpdateInterval = { newInterval ->
+                                onUpdateInterval(exerciseIndex, newInterval)
+                            },
+                            onUpdateSetCount = { newSetCount ->
+                                onUpdateSetCount(exerciseIndex, newSetCount)
+                            },
+                            onUpdateAllSetsValue = { delta ->
+                                onUpdateExerciseSetsValue(exerciseIndex, delta)
+                            }
+                        )
+                    }
+                    is ConfirmListItem.Loop -> {
+                        val loop = item.loop
+                        val isLoopExpanded = loop.id in expandedLoopIds
+
+                        ProgramConfirmLoopBlock(
+                            loop = loop,
+                            exercises = item.exercises,
+                            session = session,
+                            exerciseDisplayNumbers = exerciseDisplayNumbers,
+                            isExpanded = isLoopExpanded,
+                            expandedExercises = expandedExercises,
+                            onToggleLoopExpanded = {
+                                expandedLoopIds = if (loop.id in expandedLoopIds) {
+                                    expandedLoopIds - loop.id
+                                } else {
+                                    expandedLoopIds + loop.id
+                                }
+                            },
+                            onToggleExerciseExpanded = { exerciseIndex ->
+                                expandedExercises = if (exerciseIndex in expandedExercises) {
+                                    expandedExercises - exerciseIndex
+                                } else {
+                                    expandedExercises + exerciseIndex
+                                }
+                            },
+                            onUpdateTargetValue = onUpdateTargetValue,
+                            onUpdateInterval = onUpdateInterval,
+                            onUpdateSetCount = onUpdateSetCount,
+                            onUpdateExerciseSetsValue = onUpdateExerciseSetsValue
+                        )
+                    }
+                }
             }
 
             // 開始ボタン（リストの最後、スクロール対応）
@@ -244,7 +332,6 @@ internal fun ProgramConfirmStep(
                         fontWeight = FontWeight.Bold
                     )
                 }
-            }
         }
     }
 }
@@ -522,11 +609,13 @@ internal fun SettingsSection(
 @Composable
 internal fun ProgramConfirmExerciseCard(
     exerciseIndex: Int,
+    displayNumber: Int,  // 表示用番号（ソート順）
     exercise: Exercise,
     programExercise: ProgramExercise,
     sets: List<ProgramWorkoutSet>,
     allSets: List<ProgramWorkoutSet>,
     isExpanded: Boolean,
+    loopRounds: Int? = null,  // ループ内種目の場合はラウンド数
     onToggleExpanded: () -> Unit,
     onUpdateValue: (Int, Int) -> Unit,
     onUpdateInterval: (Int) -> Unit,
@@ -571,7 +660,7 @@ internal fun ProgramConfirmExerciseCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = (exerciseIndex + 1).toString(),
+                        text = displayNumber.toString(),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -598,6 +687,22 @@ internal fun ProgramConfirmExerciseCard(
                         fontSize = 12.sp,
                         color = Slate300
                     )
+                }
+
+                // ループ内種目の場合はラウンド数バッジを表示
+                if (loopRounds != null) {
+                    Box(
+                        modifier = Modifier
+                            .background(Purple600.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.loop_round_format, loopRounds),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Purple400
+                        )
+                    }
                 }
 
                 // シェブロン
@@ -657,87 +762,56 @@ internal fun ProgramConfirmExerciseCard(
                         }
                     }
 
-                    // 全セット± ボタン行
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Slate700, RoundedCornerShape(8.dp))
-                            .padding(vertical = 10.dp, horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(
-                            onClick = { onUpdateAllSetsValue(-1) },
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = Color.Transparent,
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
-                            ) {
-                                Box(
-                                    modifier = Modifier.size(32.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text("−", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                                }
-                            }
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = stringResource(R.string.all_sets_label),
-                            fontSize = 13.sp,
-                            color = Slate400
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        IconButton(
-                            onClick = { onUpdateAllSetsValue(1) },
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = Color.Transparent,
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
-                            ) {
-                                Box(
-                                    modifier = Modifier.size(32.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // カラムヘッダー（目標 / 前回）
+                    // カラムヘッダー（目標±ボタン付き / 前回）
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // 空（セットラベル用スペース）
-                        Text(
-                            text = "",
-                            modifier = Modifier.weight(1f)
-                        )
-                        // 目標
-                        Text(
-                            text = stringResource(R.string.target_value_label),
-                            fontSize = 12.sp,
-                            color = Slate500,
-                            modifier = Modifier.width(80.dp),
-                            textAlign = TextAlign.Center
-                        )
+                        // 空（セットラベル用スペース）- 固定幅でコンパクトに
+                        Spacer(modifier = Modifier.width(72.dp))
+
+                        // 目標（±ボタン付き）
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // −ボタン
+                            Box(
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clickable { onUpdateAllSetsValue(-1) },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("−", fontSize = 14.sp, color = Slate400)
+                            }
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = stringResource(R.string.target_value_label),
+                                fontSize = 12.sp,
+                                color = Slate500,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            // +ボタン
+                            Box(
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clickable { onUpdateAllSetsValue(1) },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("+", fontSize = 14.sp, color = Slate400)
+                            }
+                        }
+
                         // 前回
                         Text(
                             text = stringResource(R.string.program_use_previous),
                             fontSize = 12.sp,
                             color = Slate500,
-                            modifier = Modifier.width(50.dp),
+                            modifier = Modifier.width(70.dp),
                             textAlign = TextAlign.Center
                         )
                     }
@@ -745,10 +819,12 @@ internal fun ProgramConfirmExerciseCard(
                     // セットごとの値
                     sets.forEach { set ->
                 // オブジェクト参照ではなくセマンティックに検索（copy()で参照が変わるため）
+                // roundNumberも含めて正確にマッチング（ループ内種目の重複防止）
                 val setIndex = allSets.indexOfFirst {
                     it.exerciseIndex == set.exerciseIndex &&
                     it.setNumber == set.setNumber &&
-                    it.side == set.side
+                    it.side == set.side &&
+                    it.roundNumber == set.roundNumber
                 }
                 if (setIndex < 0) return@forEach
 
@@ -766,17 +842,17 @@ internal fun ProgramConfirmExerciseCard(
                         .padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // セットラベル
+                    // セットラベル（固定幅）
                     Text(
                         text = stringResource(R.string.set_format, set.setNumber, actualTotalSets),
                         fontSize = 14.sp,
                         color = Slate300,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.width(72.dp)
                     )
 
-                    // 目標値入力（80dp）
+                    // 目標値入力（中央配置）
                     Row(
-                        modifier = Modifier.width(80.dp),
+                        modifier = Modifier.weight(1f),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -833,13 +909,13 @@ internal fun ProgramConfirmExerciseCard(
                         }
                     }
 
-                    // 前回値（50dp）
+                    // 前回値（70dp）
                     Text(
                         text = set.previousValue?.toString() ?: "-",
                         fontSize = 13.sp,
                         color = Slate500,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.width(50.dp)
+                        modifier = Modifier.width(70.dp)
                     )
                 }
             }
@@ -954,4 +1030,173 @@ internal fun calculateEstimatedMinutes(session: ProgramExecutionSession): Int {
         totalSeconds += repSeconds + set.intervalSeconds
     }
     return (totalSeconds / 60.0).roundToInt().coerceAtLeast(1)
+}
+
+/**
+ * ループブロック（オレンジ枠で囲まれたグループ）
+ */
+@Composable
+private fun ProgramConfirmLoopBlock(
+    loop: ProgramLoop,
+    exercises: List<Triple<Int, ProgramExercise, Exercise>>,  // exerciseIndex, pe, exercise
+    session: ProgramExecutionSession,
+    exerciseDisplayNumbers: Map<Int, Int>,
+    isExpanded: Boolean,
+    expandedExercises: Set<Int>,
+    onToggleLoopExpanded: () -> Unit,
+    onToggleExerciseExpanded: (Int) -> Unit,
+    onUpdateTargetValue: (Int, Int) -> Unit,
+    onUpdateInterval: (Int, Int) -> Unit,
+    onUpdateSetCount: (Int, Int) -> Unit,
+    onUpdateExerciseSetsValue: (Int, Int) -> Unit
+) {
+    val chevronRotation by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        label = "loopChevron"
+    )
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(2.dp, Orange600, RoundedCornerShape(12.dp)),
+        colors = CardDefaults.cardColors(containerColor = Slate800),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column {
+            // ループヘッダー
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onToggleLoopExpanded() }
+                    .padding(14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // ループアイコン
+                Text(
+                    text = "🔁",
+                    fontSize = 16.sp
+                )
+
+                // ループ情報
+                Text(
+                    text = stringResource(R.string.loop_label),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Orange600
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                // ラウンド数バッジ
+                Box(
+                    modifier = Modifier
+                        .background(Purple600.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.loop_round_format, loop.rounds),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Purple400
+                    )
+                }
+
+                // ラウンド間休憩バッジ
+                if (loop.restBetweenRounds > 0) {
+                    Box(
+                        modifier = Modifier
+                            .background(Slate700, RoundedCornerShape(12.dp))
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.loop_rest_format, loop.restBetweenRounds),
+                            fontSize = 12.sp,
+                            color = Slate300
+                        )
+                    }
+                }
+
+                // シェブロン
+                Text(
+                    text = "▼",
+                    fontSize = 12.sp,
+                    color = Slate400,
+                    modifier = Modifier.rotate(chevronRotation)
+                )
+            }
+
+            // ループ内種目（折りたたみ可能）
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    exercises.forEach { (exerciseIndex, pe, exercise) ->
+                        val setsForExercise = session.sets.filter { it.exerciseIndex == exerciseIndex }
+                        val firstRoundSets = setsForExercise.filter { it.roundNumber == 1 }
+                        val displaySets = if (exercise.laterality == "Unilateral") {
+                            firstRoundSets.filter { it.side == "Right" }
+                        } else {
+                            firstRoundSets
+                        }
+
+                        // ループ内種目カード（左ボーダー付き）
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            // 左のオレンジボーダー
+                            Box(
+                                modifier = Modifier
+                                    .width(3.dp)
+                                    .fillMaxHeight()
+                                    .background(Amber500)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            // 種目カード
+                            ProgramConfirmExerciseCard(
+                                exerciseIndex = exerciseIndex,
+                                displayNumber = exerciseDisplayNumbers[exerciseIndex] ?: (exerciseIndex + 1),
+                                exercise = exercise,
+                                programExercise = pe,
+                                sets = displaySets,
+                                allSets = session.sets,
+                                isExpanded = exerciseIndex in expandedExercises,
+                                loopRounds = null,  // ループヘッダーで表示するのでここでは不要
+                                onToggleExpanded = { onToggleExerciseExpanded(exerciseIndex) },
+                                onUpdateValue = { setIndex, newValue ->
+                                    onUpdateTargetValue(setIndex, newValue)
+                                    if (exercise.laterality == "Unilateral") {
+                                        val rightSet = session.sets[setIndex]
+                                        val leftSetIndex = session.sets.indexOfFirst {
+                                            it.exerciseIndex == exerciseIndex &&
+                                            it.setNumber == rightSet.setNumber &&
+                                            it.side == "Left"
+                                        }
+                                        if (leftSetIndex >= 0) {
+                                            onUpdateTargetValue(leftSetIndex, newValue)
+                                        }
+                                    }
+                                },
+                                onUpdateInterval = { newInterval ->
+                                    onUpdateInterval(exerciseIndex, newInterval)
+                                },
+                                onUpdateSetCount = { newSetCount ->
+                                    onUpdateSetCount(exerciseIndex, newSetCount)
+                                },
+                                onUpdateAllSetsValue = { delta ->
+                                    onUpdateExerciseSetsValue(exerciseIndex, delta)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

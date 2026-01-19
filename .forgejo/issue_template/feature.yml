@@ -1,0 +1,23 @@
+name: Feature Request
+description: Suggest a new feature or improvement
+title: '[Feature] '
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        (Trial) You may write this issue in your native language.
+        For issues in languages other than English, I will respond primarily in Japanese.
+  - type: textarea
+    id: description
+    attributes:
+      label: What would you like?
+      placeholder: Describe your idea
+    validations:
+      required: true
+  - type: textarea
+    id: usecase
+    attributes:
+      label: Use case
+      placeholder: How would this help your workout?

@@ -8,6 +8,7 @@ import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.ExerciseGroup
 import io.github.gonbei774.calisthenicsmemory.data.Program
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
+import io.github.gonbei774.calisthenicsmemory.data.ProgramLoop
 import io.github.gonbei774.calisthenicsmemory.data.TodoTask
 import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
 import io.github.gonbei774.calisthenicsmemory.ui.UiMessage
@@ -37,7 +38,8 @@ data class BackupData(
     val exercises: List<ExportExercise>,
     val records: List<ExportRecord>,
     val programs: List<ExportProgram> = emptyList(),           // v4で追加
-    val programExercises: List<ExportProgramExercise> = emptyList()  // v4で追加
+    val programExercises: List<ExportProgramExercise> = emptyList(),  // v4で追加
+    val programLoops: List<ExportProgramLoop> = emptyList()    // v5で追加（後方互換性のためデフォルト空）
 )
 
 @Serializable
@@ -94,7 +96,17 @@ data class ExportProgramExercise(
     val sortOrder: Int,
     val sets: Int,
     val targetValue: Int,
-    val intervalSeconds: Int
+    val intervalSeconds: Int,
+    val loopId: Long? = null  // v5で追加（後方互換性のためデフォルトnull）
+)
+
+@Serializable
+data class ExportProgramLoop(
+    val id: Long,
+    val programId: Long,
+    val sortOrder: Int,
+    val rounds: Int,
+    val restBetweenRounds: Int
 )
 
 class TrainingViewModel(application: Application) : AndroidViewModel(application) {
@@ -106,6 +118,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     private val todoTaskDao = database.todoTaskDao()
     private val programDao = database.programDao()
     private val programExerciseDao = database.programExerciseDao()
+    private val programLoopDao = database.programLoopDao()
 
     companion object {
         // お気に入りグループの固定キー（UI側で翻訳される）
@@ -591,7 +604,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 )
             }
 
-            // プログラム内種目をエクスポート（v4で追加）
+            // プログラム内種目をエクスポート（v4で追加、v5でloopId追加）
             val allProgramExercises = mutableListOf<ExportProgramExercise>()
             currentPrograms.forEach { program ->
                 val programExercises = programExerciseDao.getExercisesForProgramSync(program.id)
@@ -604,21 +617,40 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                             sortOrder = pe.sortOrder,
                             sets = pe.sets,
                             targetValue = pe.targetValue,
-                            intervalSeconds = pe.intervalSeconds
+                            intervalSeconds = pe.intervalSeconds,
+                            loopId = pe.loopId  // v5で追加
+                        )
+                    )
+                }
+            }
+
+            // プログラムループをエクスポート（v5で追加）
+            val allProgramLoops = mutableListOf<ExportProgramLoop>()
+            currentPrograms.forEach { program ->
+                val loops = programLoopDao.getLoopsForProgramSync(program.id)
+                loops.forEach { loop ->
+                    allProgramLoops.add(
+                        ExportProgramLoop(
+                            id = loop.id,
+                            programId = loop.programId,
+                            sortOrder = loop.sortOrder,
+                            rounds = loop.rounds,
+                            restBetweenRounds = loop.restBetweenRounds
                         )
                     )
                 }
             }
 
             val backupData = BackupData(
-                version = 4,  // プログラムデータ追加のためバージョンアップ
+                version = 5,  // v5: ループ機能追加
                 exportDate = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 app = "CalisthenicsMemory",
                 groups = exportGroups,
                 exercises = exportExercises,
                 records = exportRecords,
                 programs = exportPrograms,
-                programExercises = allProgramExercises
+                programExercises = allProgramExercises,
+                programLoops = allProgramLoops  // v5で追加
             )
 
             withContext(Dispatchers.Main) {
@@ -703,7 +735,21 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     programDao.insert(program)
                 }
 
-                // 6. プログラム内種目をインポート（v4で追加）
+                // 6. プログラムループをインポート（v5で追加）
+                // ループを先にインポートしてからProgramExerciseをインポートする
+                // （ProgramExerciseがloopIdを参照するため）
+                backupData.programLoops.forEach { exportLoop ->
+                    val loop = ProgramLoop(
+                        id = exportLoop.id,
+                        programId = exportLoop.programId,
+                        sortOrder = exportLoop.sortOrder,
+                        rounds = exportLoop.rounds,
+                        restBetweenRounds = exportLoop.restBetweenRounds
+                    )
+                    programLoopDao.insert(loop)
+                }
+
+                // 7. プログラム内種目をインポート（v4で追加、v5でloopId追加）
                 backupData.programExercises.forEach { exportPe ->
                     val programExercise = ProgramExercise(
                         id = exportPe.id,
@@ -712,7 +758,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         sortOrder = exportPe.sortOrder,
                         sets = exportPe.sets,
                         targetValue = exportPe.targetValue,
-                        intervalSeconds = exportPe.intervalSeconds
+                        intervalSeconds = exportPe.intervalSeconds,
+                        loopId = exportPe.loopId  // v5で追加（v4以前のバックアップではnull）
                     )
                     programExerciseDao.insert(programExercise)
                 }
@@ -1370,12 +1417,26 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             try {
                 val sourceProgram = programDao.getProgramById(programId) ?: return@launch
                 val sourceExercises = programExerciseDao.getExercisesForProgramSync(programId)
+                val sourceLoops = programLoopDao.getLoopsForProgramSync(programId)
 
                 // Create new program with copy suffix
                 val newProgram = Program(name = "${sourceProgram.name} $copySuffix")
                 val newProgramId = programDao.insert(newProgram)
 
-                // Copy all exercises
+                // Copy all loops and create ID mapping
+                val loopIdMapping = mutableMapOf<Long, Long>()
+                sourceLoops.forEach { loop ->
+                    val newLoop = ProgramLoop(
+                        programId = newProgramId,
+                        sortOrder = loop.sortOrder,
+                        rounds = loop.rounds,
+                        restBetweenRounds = loop.restBetweenRounds
+                    )
+                    val newLoopId = programLoopDao.insert(newLoop)
+                    loopIdMapping[loop.id] = newLoopId
+                }
+
+                // Copy all exercises with updated loopId
                 sourceExercises.forEach { pe ->
                     val newPe = ProgramExercise(
                         programId = newProgramId,
@@ -1383,7 +1444,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         sortOrder = pe.sortOrder,
                         sets = pe.sets,
                         targetValue = pe.targetValue,
-                        intervalSeconds = pe.intervalSeconds
+                        intervalSeconds = pe.intervalSeconds,
+                        loopId = pe.loopId?.let { loopIdMapping[it] }
                     )
                     programExerciseDao.insert(newPe)
                 }
@@ -1439,17 +1501,20 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         exerciseId: Long,
         sets: Int = 1,
         targetValue: Int,
-        intervalSeconds: Int = 60
+        intervalSeconds: Int = 60,
+        loopId: Long? = null,
+        sortOrder: Int? = null
     ): Long? {
         return try {
-            val sortOrder = programExerciseDao.getNextSortOrder(programId)
+            val finalSortOrder = sortOrder ?: programExerciseDao.getNextSortOrder(programId)
             val programExercise = ProgramExercise(
                 programId = programId,
                 exerciseId = exerciseId,
-                sortOrder = sortOrder,
+                sortOrder = finalSortOrder,
                 sets = sets,
                 targetValue = targetValue,
-                intervalSeconds = intervalSeconds
+                intervalSeconds = intervalSeconds,
+                loopId = loopId
             )
             programExerciseDao.insert(programExercise)
         } catch (e: Exception) {
@@ -1495,6 +1560,90 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
             val reorderedIds = currentExercises.map { it.id }
             programExerciseDao.reorderExercises(reorderedIds)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
+    // ========================================
+    // ProgramLoop 操作
+    // ========================================
+
+    fun getProgramLoopsFlow(programId: Long) = programLoopDao.getLoopsForProgram(programId)
+
+    suspend fun getProgramLoopsSync(programId: Long): List<ProgramLoop> {
+        return programLoopDao.getLoopsForProgramSync(programId)
+    }
+
+    suspend fun getProgramLoopById(loopId: Long): ProgramLoop? {
+        return programLoopDao.getLoopById(loopId)
+    }
+
+    suspend fun addProgramLoop(
+        programId: Long,
+        rounds: Int = 3,
+        restBetweenRounds: Int = 60
+    ): Long? {
+        return try {
+            val sortOrder = programLoopDao.getNextSortOrder(programId)
+            val loop = ProgramLoop(
+                programId = programId,
+                sortOrder = sortOrder,
+                rounds = rounds,
+                restBetweenRounds = restBetweenRounds
+            )
+            programLoopDao.insert(loop)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+            null
+        }
+    }
+
+    suspend fun updateProgramLoop(loop: ProgramLoop) {
+        try {
+            programLoopDao.update(loop)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
+    suspend fun deleteProgramLoop(loop: ProgramLoop) {
+        try {
+            programLoopDao.delete(loop)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
+    suspend fun addProgramExerciseToLoop(
+        programId: Long,
+        exerciseId: Long,
+        loopId: Long,
+        sets: Int = 1,
+        targetValue: Int,
+        intervalSeconds: Int = 60
+    ): Long? {
+        return try {
+            val sortOrder = programExerciseDao.getNextSortOrder(programId)
+            val programExercise = ProgramExercise(
+                programId = programId,
+                exerciseId = exerciseId,
+                sortOrder = sortOrder,
+                sets = sets,
+                targetValue = targetValue,
+                intervalSeconds = intervalSeconds,
+                loopId = loopId
+            )
+            programExerciseDao.insert(programExercise)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+            null
+        }
+    }
+
+    suspend fun moveExerciseToLoop(programExercise: ProgramExercise, loopId: Long?) {
+        try {
+            programExerciseDao.update(programExercise.copy(loopId = loopId))
         } catch (e: Exception) {
             _snackbarMessage.value = UiMessage.ErrorOccurred
         }

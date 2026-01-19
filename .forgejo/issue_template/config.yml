@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Language Policy
+    url: https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/CONTRIBUTING.md#language-policy
+    about: You may write in your native language. Issues in non-English will be answered in Japanese.
