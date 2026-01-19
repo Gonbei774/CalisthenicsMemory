@@ -505,4 +505,11 @@
     <string name="loop_round_rest">Відпочинок раунду</string>
     <string name="set_progress">%1$d/%2$d</string>
     <string name="set_progress_with_side">%1$d/%2$d – %3$s</string>
+    <string name="warning_title">Попередження</string>
+    <string name="export_csv_template">Експорт шаблону введення</string>
+    <string name="csv_template_description">Завантажити шаблон для запису</string>
+    <string name="csv_import_description">Імпорт груп, вправ або записів (автоматично виявлених)</string>
+    <string name="settings_autofill_section">Автозаповнення</string>
+    <string name="auto_fill_target_label">Автозаповнення цільових значень</string>
+    <string name="import_warning">Імпортування призведе до видалення всіх існуючих даних.</string>
 </resources>
