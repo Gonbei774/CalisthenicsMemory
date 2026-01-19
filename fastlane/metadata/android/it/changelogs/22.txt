@@ -1,0 +1,6 @@
+• Funzione loop: Raggruppa gli esercizi per ripetere più round in modalità Programma
+• Supporto per la lingua ucraina
+• Ricerca esercizi su tutte le schermate con classificazione per rilevanza
+• Miglioramenti alla navigazione con finestra di conferma per annullare
+
+Contributors: unsealed211, SomeTr, balaraz

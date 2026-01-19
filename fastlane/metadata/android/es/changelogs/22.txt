@@ -1,0 +1,6 @@
+• Función de bucle: Agrupa ejercicios para repetir varias rondas en modo Programa
+• Soporte para idioma ucraniano
+• Búsqueda de ejercicios en todas las pantallas con clasificación por relevancia
+• Mejoras en la navegación con diálogo de confirmación al descartar
+
+Contributors: unsealed211, SomeTr, balaraz

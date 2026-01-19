@@ -1,0 +1,6 @@
+• Loop feature: Group exercises to repeat multiple rounds in Program mode
+• Ukrainian language support
+• Exercise search on all screens with relevance-based ranking
+• Navigation UX improvements with discard confirmation dialog
+
+Contributors: unsealed211, SomeTr, balaraz

@@ -1,0 +1,6 @@
+• Fonction boucle : Grouper les exercices pour répéter plusieurs tours en mode Programme
+• Support de la langue ukrainienne
+• Recherche d'exercices sur tous les écrans avec classement par pertinence
+• Améliorations de la navigation avec dialogue de confirmation d'abandon
+
+Contributors: unsealed211, SomeTr, balaraz

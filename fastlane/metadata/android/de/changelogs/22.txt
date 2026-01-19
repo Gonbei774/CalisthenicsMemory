@@ -1,0 +1,6 @@
+• Loop-Funktion: Übungen gruppieren und mehrere Runden im Programmmodus wiederholen
+• Ukrainische Sprachunterstützung
+• Übungssuche auf allen Bildschirmen mit relevanzbasierter Sortierung
+• Verbesserte Navigation mit Bestätigungsdialog beim Verwerfen
+
+Contributors: unsealed211, SomeTr, balaraz
