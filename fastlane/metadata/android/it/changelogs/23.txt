@@ -1,0 +1,3 @@
+Corretto: Lo stato dell'app si ripristinava quando si ruotava il dispositivo
+
+Contributors: SomeTr

@@ -1,0 +1,3 @@
+Corregido: El estado de la aplicación se restablecía al girar el dispositivo
+
+Contributors: SomeTr
