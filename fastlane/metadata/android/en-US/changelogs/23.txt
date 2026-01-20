@@ -1,0 +1,3 @@
+Fixed: App state resetting when rotating the device
+
+Contributors: SomeTr

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.1] - 2026-01-20
+
+### Fixed
+- App state resetting when rotating the device
+
+This release includes contributions from @SomeTr.
+
 ## [1.16.0] - 2026-01-19
 
 ### Added
@@ -336,6 +343,7 @@ This release includes contributions from @unsealed211, @SomeTr, and @balaraz.
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.16.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.16.1
 [1.16.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.16.0
 [1.15.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.15.0
 [1.14.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.14.1

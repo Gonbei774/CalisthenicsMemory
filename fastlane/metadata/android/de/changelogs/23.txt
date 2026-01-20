@@ -1,0 +1,3 @@
+Behoben: App-Zustand wurde beim Drehen des Geräts zurückgesetzt
+
+Contributors: SomeTr

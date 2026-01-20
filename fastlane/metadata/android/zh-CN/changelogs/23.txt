@@ -1,0 +1,3 @@
+修复：旋转设备时应用状态重置的问题
+
+Contributors: SomeTr
