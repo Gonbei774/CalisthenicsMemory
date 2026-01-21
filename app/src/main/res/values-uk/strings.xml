@@ -309,7 +309,7 @@
     <string name="graph_total">Разом</string>
     <string name="graph_type_total">Разом</string>
     <string name="nav_overall_progress">Загальний прогрес</string>
-    <string name="executing_label">Виконується</string>
+    <string name="executing_label">Виконання</string>
     <string name="auto_mode_disabled_hint">Необхідно, щоб «Звук відліку часу» було ввімкнено</string>
     <string name="single_mode_description">Одна вправа за раз</string>
     <string name="program_mode_description">Виконання кількох вправ послідовно</string>
@@ -419,7 +419,7 @@
     <string name="import_confirm">Імпортувати</string>
     <string name="nav_save_overwrite_message">Одночасно можна зберегти лише одне тренування. Попереднє збережене тренування буде перезаписано.</string>
     <string name="nav_save_overwrite_title">Перезаписати збережене тренування?</string>
-    <string name="apply_exercise_settings">Застосувати налаштування вправи</string>
+    <string name="apply_exercise_settings">Застосувати зміни</string>
     <string name="apply_target_values">Застосувати цільові значення</string>
     <string name="section_app_info_description">Інформація про додаток і ліцензії.</string>
     <string name="section_app_info">Про додаток</string>
@@ -493,14 +493,14 @@
     <string name="move_to_loop">Перемістити до циклу</string>
     <string name="loop_number_format">Цикл %d</string>
     <string name="loop_delete_confirm">Видалити цей цикл? Вправи, що в ньому, також будуть видалені.</string>
-    <string name="loop_rounds">Повторення</string>
-    <string name="loop_rest_between_rounds">Відпочинок між повтореннями (с)</string>
-    <string name="loop_round_format">%d разів</string>
-    <string name="loop_current_round">Повторення %1$d/%2$d</string>
+    <string name="loop_rounds">Раундів</string>
+    <string name="loop_rest_between_rounds">Відпочинок між раундами (с)</string>
+    <string name="loop_round_format">%d раундів</string>
+    <string name="loop_current_round">Раунд %1$d/%2$d</string>
     <string name="loop_rest_format">Відпочинок: %d с</string>
     <string name="interval_short">Відпочинок:</string>
     <string name="loop_label">Цикл</string>
-    <string name="loop_round_current">Повторення %1$d/%2$d</string>
+    <string name="loop_round_current">Раунд %1$d/%2$d</string>
     <string name="loop_empty">Перетягніть вправи сюди або натисніть +, щоб додати</string>
     <string name="loop_round_rest">Відпочинок раунду</string>
     <string name="set_progress">%1$d/%2$d</string>
@@ -512,4 +512,14 @@
     <string name="settings_autofill_section">Автозаповнення</string>
     <string name="auto_fill_target_label">Автозаповнення цільових значень</string>
     <string name="import_warning">Імпортування призведе до видалення всіх існуючих даних.</string>
+    <string name="edit_set_value">Змінити кількість підходів</string>
+    <string name="target_sets_label">Мета (підходів)</string>
+    <string name="target_reps_label">Мета (разів)</string>
+    <string name="todo_rec_button">Запис</string>
+    <string name="todo_wo_button">Викон.</string>
+    <string name="get_ready">Приготуйтеся</string>
+    <string name="data_contents">Містить такі дані</string>
+    <string name="preparing">Приготування</string>
+    <string name="right_value_label">Значення для правої</string>
+    <string name="left_value_label">Значення для лівої</string>
 </resources>
