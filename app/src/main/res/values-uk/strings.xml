@@ -419,7 +419,7 @@
     <string name="import_confirm">Імпортувати</string>
     <string name="nav_save_overwrite_message">Одночасно можна зберегти лише одне тренування. Попереднє збережене тренування буде перезаписано.</string>
     <string name="nav_save_overwrite_title">Перезаписати збережене тренування?</string>
-    <string name="apply_exercise_settings">Застосувати зміни</string>
+    <string name="apply_exercise_settings">Застосувати налаштування вправи</string>
     <string name="apply_target_values">Застосувати цільові значення</string>
     <string name="section_app_info_description">Інформація про додаток і ліцензії.</string>
     <string name="section_app_info">Про додаток</string>
@@ -525,7 +525,20 @@
     <string name="tap_to_edit_long_press_for_menu">※ Торкніться, щоб редагувати, утримуйте, щоб відкрити меню</string>
     <string name="tap_to_edit_hint">※ Торкніться, щоб редагувати, утримуйте, щоб відкрити меню</string>
     <string name="display_data">Відобразити дані</string>
-    <string name="target_duration_label">Цільова тривалість (сек)</string>
-    <string name="rep_duration_label">Тривалість повтору (сек)</string>
-    <string name="interval_duration_label">Тривалість інтервалу (сек)</string>
+    <string name="target_duration_label">Цільова тривалість (с)</string>
+    <string name="rep_duration_label">Тривалість повторень (с)</string>
+    <string name="interval_duration_label">Тривалість інтервалу (с)</string>
+    <string name="settings_autofill_section_description">Налаштування допомоги при введенні.</string>
+    <string name="settings_prefill_previous">Заповнювати попередній запис</string>
+    <string name="settings_prefill_previous_description">Автоматично заповнювати значення з останнього заняття на екранах «Записати» і «Тренування»</string>
+    <string name="rep_duration_seconds">Тривалість повторень (секунди)</string>
+    <string name="rest_interval_seconds">Тривалість відпочинку (секунди)</string>
+    <string name="interval_seconds_label">Тривалість інтервалу (с)</string>
+    <string name="auto_mode_label">Автоматичний режим</string>
+    <string name="auto_mode">Автоматичний режим</string>
+    <string name="auto_mode_description">Натискати кнопку «Завершити» вручну</string>
+    <string name="timer_mode_off_description">Натискати кнопку «Завершити» вручну</string>
+    <string name="timer_mode_on_description">Автоматичний відлік часу під час тренування</string>
+    <string name="previous_value_format">Попереднє: %d</string>
+    <string name="last_record_short">Останній: %s</string>
 </resources>
