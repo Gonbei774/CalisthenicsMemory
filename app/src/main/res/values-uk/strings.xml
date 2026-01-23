@@ -522,4 +522,10 @@
     <string name="preparing">Приготування</string>
     <string name="right_value_label">Значення для правої</string>
     <string name="left_value_label">Значення для лівої</string>
+    <string name="tap_to_edit_long_press_for_menu">※ Торкніться, щоб редагувати, утримуйте, щоб відкрити меню</string>
+    <string name="tap_to_edit_hint">※ Торкніться, щоб редагувати, утримуйте, щоб відкрити меню</string>
+    <string name="display_data">Відобразити дані</string>
+    <string name="target_duration_label">Цільова тривалість (сек)</string>
+    <string name="rep_duration_label">Тривалість повтору (сек)</string>
+    <string name="interval_duration_label">Тривалість інтервалу (сек)</string>
 </resources>
