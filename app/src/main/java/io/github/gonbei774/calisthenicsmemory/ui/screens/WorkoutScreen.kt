@@ -2221,7 +2221,11 @@ fun SingleWorkoutSettingsSection(
                     )
                     Text(
                         text = if (isDynamicCountSoundEnabled) {
-                            stringResource(R.string.auto_mode_description)
+                            if (isAutoMode) {
+                                stringResource(R.string.timer_mode_on_description)
+                            } else {
+                                stringResource(R.string.timer_mode_off_description)
+                            }
                         } else {
                             stringResource(R.string.auto_mode_disabled_hint)
                         },
@@ -2259,7 +2263,11 @@ fun SingleWorkoutSettingsSection(
                         color = Color.White
                     )
                     Text(
-                        text = stringResource(R.string.auto_mode_description),
+                        text = if (isAutoMode) {
+                            stringResource(R.string.timer_mode_on_description)
+                        } else {
+                            stringResource(R.string.timer_mode_off_description)
+                        },
                         fontSize = 11.sp,
                         color = Slate400
                     )
