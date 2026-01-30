@@ -48,7 +48,7 @@
     <string name="create_type">Створити тип</string>
     <string name="exercise">Вправа</string>
     <string name="group_name">Назва групи</string>
-    <string name="already_exists">Назва «%s» вже існує</string>
+    <string name="already_exists">Така назва %s вже існує</string>
     <string name="rename_group">Перейменувати групу</string>
     <string name="delete_group">Видалити групу</string>
     <string name="delete_group_warning">Видалити «%s»?\nВправи з цієї групи будуть переміщені до «Без групи».</string>
