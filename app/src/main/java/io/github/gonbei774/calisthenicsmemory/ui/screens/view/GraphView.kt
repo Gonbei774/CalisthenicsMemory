@@ -1562,7 +1562,7 @@ fun SimpleAssistanceChart(
     }
 }
 
-// アシストY軸用のラベル計算
+// アシストY軸用のラベル計算（最下部はスキップしてX軸との干渉を回避）
 fun calculateAssistanceYAxisLabels(min: Float, max: Float): List<Float> {
     val range = max - min
     val interval = when {
@@ -1576,7 +1576,8 @@ fun calculateAssistanceYAxisLabels(min: Float, max: Float): List<Float> {
     val adjustedMin = (min / interval).toInt() * interval
     val adjustedMax = ((max / interval).toInt() + 1) * interval
 
-    return (0..5).map { i ->
+    // 最下部（index 0）をスキップ
+    return (1..5).map { i ->
         adjustedMin + (adjustedMax - adjustedMin) * i / 5f
     }
 }
