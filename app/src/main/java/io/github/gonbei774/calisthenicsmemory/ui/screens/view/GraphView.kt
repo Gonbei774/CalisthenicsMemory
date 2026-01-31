@@ -113,12 +113,12 @@ fun GraphView(
                 Text(
                     text = stringResource(R.string.no_exercises_registered),
                     fontSize = 18.sp,
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
                 Text(
                     text = stringResource(R.string.add_exercises_in_settings),
                     fontSize = 14.sp,
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
             }
         }
@@ -137,12 +137,12 @@ fun GraphView(
                 Text(
                     text = stringResource(R.string.select_exercise_please),
                     fontSize = 18.sp,
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
                 Text(
                     text = stringResource(R.string.select_from_top),
                     fontSize = 14.sp,
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
             }
         }
@@ -181,9 +181,9 @@ fun GraphView(
                                 label = { Text(stringResource(type.displayNameResId)) },
                                 colors = FilterChipDefaults.filterChipColors(
                                     selectedContainerColor = Purple600,
-                                    selectedLabelColor = Color.White,
-                                    containerColor = Slate700,
-                                    labelColor = Slate300
+                                    selectedLabelColor = appColors.textPrimary,
+                                    containerColor = appColors.cardBackgroundSecondary,
+                                    labelColor = appColors.textTertiary
                                 )
                             )
                         }
@@ -203,9 +203,9 @@ fun GraphView(
                             },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Blue600,
-                                selectedLabelColor = Color.White,
-                                containerColor = Slate700,
-                                labelColor = Slate300
+                                selectedLabelColor = appColors.textPrimary,
+                                containerColor = appColors.cardBackgroundSecondary,
+                                labelColor = appColors.textTertiary
                             )
                         )
                     }
@@ -636,12 +636,12 @@ fun LineChart(
                             Text(
                                 text = stringResource(R.string.no_data),
                                 fontSize = 16.sp,
-                                color = Slate400
+                                color = appColors.textSecondary
                             )
                             Text(
                                 text = stringResource(R.string.record_training_for_exercise),
                                 fontSize = 14.sp,
-                                color = Slate400
+                                color = appColors.textSecondary
                             )
                         }
                     }
@@ -674,7 +674,7 @@ fun LineChart(
                     Text(
                         text = " ${stringResource(R.string.legend_reps)}",
                         fontSize = 12.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
 
                     Spacer(modifier = Modifier.width(24.dp))
@@ -688,7 +688,7 @@ fun LineChart(
                     Text(
                         text = " ${stringResource(if (isDistanceInverted) R.string.legend_distance_inverted else R.string.legend_distance)}",
                         fontSize = 12.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
                 }
             }
@@ -704,6 +704,7 @@ fun SimpleLineChart(
     isDistanceInverted: Boolean = false,
     allTimeDistanceRange: Pair<Float, Float>? = null
 ) {
+    val appColors = LocalAppColors.current
     // Unilateral判定
     val isUnilateral = data.any { it.valueLeft != null }
 
@@ -778,7 +779,7 @@ fun SimpleLineChart(
             val y = topPadding + graphHeight - ((labelValue - minValue) / range * graphHeight)
 
             drawLine(
-                color = Slate600.copy(alpha = 0.3f),
+                color = appColors.border.copy(alpha = 0.3f),
                 start = Offset(leftPadding, y),
                 end = Offset(size.width - rightPadding, y),
                 strokeWidth = 1.dp.toPx()
@@ -899,7 +900,7 @@ fun SimpleLineChart(
                 val y = topPadding + graphHeight - ((point.value - minValue) / range * graphHeight)
 
                 drawCircle(
-                    color = Color.White.copy(alpha = 0.4f),
+                    color = appColors.textPrimary.copy(alpha = 0.4f),
                     radius = 6.dp.toPx(),
                     center = Offset(x, y)
                 )
@@ -926,7 +927,7 @@ fun SimpleLineChart(
                         val y = topPadding + graphHeight - ((leftValue - minValue) / range * graphHeight)
 
                         drawCircle(
-                            color = Color.White.copy(alpha = 0.4f),
+                            color = appColors.textPrimary.copy(alpha = 0.4f),
                             radius = 6.dp.toPx(),
                             center = Offset(x, y)
                         )
@@ -998,7 +999,7 @@ fun SimpleLineChart(
                         }
 
                         drawCircle(
-                            color = Color.White.copy(alpha = 0.4f),
+                            color = appColors.textPrimary.copy(alpha = 0.4f),
                             radius = 6.dp.toPx(),
                             center = Offset(x, y)
                         )
@@ -1071,12 +1072,12 @@ fun VolumeChart(
                             Text(
                                 text = stringResource(R.string.no_data),
                                 fontSize = 16.sp,
-                                color = Slate400
+                                color = appColors.textSecondary
                             )
                             Text(
                                 text = stringResource(R.string.record_weight_for_graph),
                                 fontSize = 14.sp,
-                                color = Slate400
+                                color = appColors.textSecondary
                             )
                         }
                     }
@@ -1108,7 +1109,7 @@ fun VolumeChart(
                         Text(
                             text = " ${stringResource(R.string.right_short)}",
                             fontSize = 12.sp,
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                         Box(
@@ -1119,7 +1120,7 @@ fun VolumeChart(
                         Text(
                             text = " ${stringResource(R.string.left_short)}",
                             fontSize = 12.sp,
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
                     } else {
                         // Bilateral: ボリューム
@@ -1131,7 +1132,7 @@ fun VolumeChart(
                         Text(
                             text = " $volumeLabel",
                             fontSize = 12.sp,
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
                     }
                 }
@@ -1146,6 +1147,7 @@ fun SimpleVolumeChart(
     period: Period?,
     allTimeVolumeMax: Float
 ) {
+    val appColors = LocalAppColors.current
     val isUnilateral = data.any { it.volumeLeft != null }
 
     Canvas(
@@ -1194,7 +1196,7 @@ fun SimpleVolumeChart(
             val y = topPadding + graphHeight - (labelValue / range * graphHeight)
 
             drawLine(
-                color = Slate600.copy(alpha = 0.3f),
+                color = appColors.border.copy(alpha = 0.3f),
                 start = Offset(leftPadding, y),
                 end = Offset(size.width - rightPadding, y),
                 strokeWidth = 1.dp.toPx()
@@ -1288,7 +1290,7 @@ fun SimpleVolumeChart(
                 val y = topPadding + graphHeight - (point.volumeRight / range * graphHeight)
 
                 drawCircle(
-                    color = Color.White.copy(alpha = 0.4f),
+                    color = appColors.textPrimary.copy(alpha = 0.4f),
                     radius = 6.dp.toPx(),
                     center = Offset(x, y)
                 )
@@ -1315,7 +1317,7 @@ fun SimpleVolumeChart(
                         val y = topPadding + graphHeight - (leftValue / range * graphHeight)
 
                         drawCircle(
-                            color = Color.White.copy(alpha = 0.4f),
+                            color = appColors.textPrimary.copy(alpha = 0.4f),
                             radius = 6.dp.toPx(),
                             center = Offset(x, y)
                         )
@@ -1388,12 +1390,12 @@ fun AssistanceChart(
                             Text(
                                 text = stringResource(R.string.no_data),
                                 fontSize = 16.sp,
-                                color = Slate400
+                                color = appColors.textSecondary
                             )
                             Text(
                                 text = stringResource(R.string.record_assistance_for_graph),
                                 fontSize = 14.sp,
-                                color = Slate400
+                                color = appColors.textSecondary
                             )
                         }
                     }
@@ -1424,7 +1426,7 @@ fun AssistanceChart(
                     Text(
                         text = " $assistanceLabel",
                         fontSize = 12.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
                 }
             }
@@ -1439,6 +1441,7 @@ fun SimpleAssistanceChart(
     allTimeAssistanceRange: Pair<Float, Float>,
     allRecordsDateRange: Pair<LocalDate, LocalDate>? = null
 ) {
+    val appColors = LocalAppColors.current
     Canvas(
         modifier = Modifier
             .fillMaxSize()
@@ -1490,7 +1493,7 @@ fun SimpleAssistanceChart(
             val y = topPadding + graphHeight - ((labelValue - adjustedMin) / range * graphHeight)
 
             drawLine(
-                color = Slate600.copy(alpha = 0.3f),
+                color = appColors.border.copy(alpha = 0.3f),
                 start = Offset(leftPadding, y),
                 end = Offset(size.width - rightPadding, y),
                 strokeWidth = 1.dp.toPx()
@@ -1547,7 +1550,7 @@ fun SimpleAssistanceChart(
                 val y = topPadding + graphHeight - ((point.assistanceKg - adjustedMin) / range * graphHeight)
 
                 drawCircle(
-                    color = Color.White.copy(alpha = 0.4f),
+                    color = appColors.textPrimary.copy(alpha = 0.4f),
                     radius = 6.dp.toPx(),
                     center = Offset(x, y)
                 )
@@ -1712,7 +1715,7 @@ fun StatisticsSummary(
                 text = stringResource(R.string.statistics_summary),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = appColors.textPrimary,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
@@ -1720,7 +1723,7 @@ fun StatisticsSummary(
                 Text(
                     text = stringResource(R.string.no_data),
                     fontSize = 14.sp,
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
             } else {
                 val unit = stringResource(if (exercise.type == "Dynamic") R.string.unit_reps else R.string.unit_seconds)
@@ -1767,7 +1770,7 @@ fun StatisticsSummary(
                 // 荷重統計（weightTrackingEnabled時のみ）
                 if (exercise.weightTrackingEnabled && (statistics.maxDailyVolume != null || statistics.maxWeight != null)) {
                     Spacer(modifier = Modifier.height(8.dp))
-                    HorizontalDivider(color = Slate600.copy(alpha = 0.5f))
+                    HorizontalDivider(color = appColors.divider)
                     Spacer(modifier = Modifier.height(8.dp))
 
                     // ボリューム統計（左右別表示 or 単一表示）
@@ -1814,8 +1817,9 @@ fun StatisticsSummary(
 fun StatItem(
     label: String,
     value: String,
-    valueColor: Color = Slate300
+    valueColor: Color? = null
 ) {
+    val appColors = LocalAppColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -1825,13 +1829,13 @@ fun StatItem(
         Text(
             text = label,
             fontSize = 14.sp,
-            color = Slate400
+            color = appColors.textSecondary
         )
         Text(
             text = value,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            color = valueColor
+            color = valueColor ?: appColors.textTertiary
         )
     }
 }
@@ -1843,6 +1847,7 @@ fun StatItemDual(
     valueRight: String,
     valueLeft: String
 ) {
+    val appColors = LocalAppColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -1853,7 +1858,7 @@ fun StatItemDual(
         Text(
             text = label,
             fontSize = 14.sp,
-            color = Slate400
+            color = appColors.textSecondary
         )
 
         Row(
@@ -1869,7 +1874,7 @@ fun StatItemDual(
             Text(
                 text = "|",
                 fontSize = 14.sp,
-                color = Slate600
+                color = appColors.border
             )
             Text(
                 text = valueLeft,

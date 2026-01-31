@@ -15,20 +15,21 @@ import androidx.compose.ui.unit.sp
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibraryDefaults
 import io.github.gonbei774.calisthenicsmemory.R
-import io.github.gonbei774.calisthenicsmemory.ui.theme.Slate600
+import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LicensesScreen(
     onNavigateBack: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Scaffold(
         topBar = {
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                color = Slate600
+                color = appColors.border
             ) {
                 Row(
                     modifier = Modifier
@@ -40,14 +41,14 @@ fun LicensesScreen(
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back),
-                            tint = Color.White
+                            tint = appColors.textPrimary
                         )
                     }
                     Text(
                         text = stringResource(R.string.open_source_licenses),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = appColors.textPrimary
                     )
                 }
             }
@@ -58,10 +59,10 @@ fun LicensesScreen(
                 .fillMaxSize()
                 .padding(paddingValues),
             colors = LibraryDefaults.libraryColors(
-                backgroundColor = Color(0xFF0F172A), // Slate900
-                contentColor = Color.White,
+                backgroundColor = appColors.background,
+                contentColor = appColors.textPrimary,
                 badgeBackgroundColor = Color(0xFF9333EA), // Purple600
-                badgeContentColor = Color.White
+                badgeContentColor = appColors.textPrimary
             )
         )
     }
