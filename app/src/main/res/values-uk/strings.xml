@@ -541,4 +541,15 @@
     <string name="timer_mode_on_description">Автоматичний відлік часу під час тренування</string>
     <string name="previous_value_format">Попереднє: %d</string>
     <string name="last_record_short">Останній: %s</string>
+    <string name="exercise_type_isometric">Ізометрична</string>
+    <string name="exercise_type_dynamic">Динамічна</string>
+    <string name="assistance_display_format">-%.1f кг</string>
+    <string name="legend_assistance">Допомога</string>
+    <string name="record_assistance_for_graph">Записувати допомогу для цієї вправи</string>
+    <string name="track_assistance">Відстежувати допомогу</string>
+    <string name="track_assistance_description">Записувати допомогу еспандера/тренажера (кг) для кожного заняття</string>
+    <string name="assistance_input_label">Допомога (кг)</string>
+    <string name="home_view">Перегляд</string>
+    <string name="nav_type_dynamic_short">Дин.</string>
+    <string name="nav_type_isometric_short">Ізом.</string>
 </resources>
