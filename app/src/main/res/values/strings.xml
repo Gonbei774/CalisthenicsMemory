@@ -97,6 +97,8 @@
     <string name="time_label">Time</string>
     <string name="dynamic_type">Reps</string>
     <string name="isometric_type">Time</string>
+    <string name="exercise_type_dynamic">Dynamic</string>
+    <string name="exercise_type_isometric">Isometric</string>
     <!-- View Screen -->
     <string name="view_records">View Records</string>
     <string name="list">List</string>

@@ -816,12 +816,12 @@ fun UnifiedAddDialog(
                                         FilterChip(
                                             selected = selectedType == "Dynamic",
                                             onClick = { selectedType = "Dynamic" },
-                                            label = { Text("Dynamic") }
+                                            label = { Text(stringResource(R.string.exercise_type_dynamic)) }
                                         )
                                         FilterChip(
                                             selected = selectedType == "Isometric",
                                             onClick = { selectedType = "Isometric" },
-                                            label = { Text("Isometric") }
+                                            label = { Text(stringResource(R.string.exercise_type_isometric)) }
                                         )
                                     }
                                 }
