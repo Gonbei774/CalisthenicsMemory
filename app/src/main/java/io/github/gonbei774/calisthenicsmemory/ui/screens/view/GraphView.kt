@@ -303,10 +303,24 @@ fun GraphView(
                     }
                 }
 
+                // 全記録の日付範囲を計算（メインチャートと同じX軸範囲にするため）
+                val allRecordsDateRange = remember(selectedExerciseFilter, records) {
+                    val exerciseRecords = records.filter { it.exerciseId == selectedExerciseFilter.id }
+                    if (exerciseRecords.isNotEmpty()) {
+                        val dates = exerciseRecords.mapNotNull {
+                            try { LocalDate.parse(it.date) } catch (e: Exception) { null }
+                        }
+                        if (dates.isNotEmpty()) {
+                            Pair(dates.minOrNull()!!, dates.maxOrNull()!!)
+                        } else null
+                    } else null
+                }
+
                 AssistanceChart(
                     data = assistanceData,
                     period = selectedPeriod,
-                    allTimeAssistanceRange = allTimeAssistanceRange
+                    allTimeAssistanceRange = allTimeAssistanceRange,
+                    allRecordsDateRange = allRecordsDateRange
                 )
             }
         }
@@ -1342,7 +1356,8 @@ fun SimpleVolumeChart(
 fun AssistanceChart(
     data: List<AssistanceDataPoint>,
     period: Period?,
-    allTimeAssistanceRange: Pair<Float, Float>
+    allTimeAssistanceRange: Pair<Float, Float>,
+    allRecordsDateRange: Pair<LocalDate, LocalDate>? = null
 ) {
     val assistanceLabel = stringResource(R.string.legend_assistance)
 
@@ -1382,7 +1397,8 @@ fun AssistanceChart(
                     SimpleAssistanceChart(
                         data = data,
                         period = period,
-                        allTimeAssistanceRange = allTimeAssistanceRange
+                        allTimeAssistanceRange = allTimeAssistanceRange,
+                        allRecordsDateRange = allRecordsDateRange
                     )
                 }
             }
@@ -1416,7 +1432,8 @@ fun AssistanceChart(
 fun SimpleAssistanceChart(
     data: List<AssistanceDataPoint>,
     period: Period?,
-    allTimeAssistanceRange: Pair<Float, Float>
+    allTimeAssistanceRange: Pair<Float, Float>,
+    allRecordsDateRange: Pair<LocalDate, LocalDate>? = null
 ) {
     Canvas(
         modifier = Modifier
@@ -1449,8 +1466,9 @@ fun SimpleAssistanceChart(
         }
 
         val today = LocalDate.now()
+        // X軸の日付範囲: 全記録の範囲を使用（メインチャートと同じ）
         val startDate = if (period == null) {
-            try {
+            allRecordsDateRange?.first ?: try {
                 LocalDate.parse(data.minOf { it.date })
             } catch (e: Exception) {
                 today.minusDays(30)
