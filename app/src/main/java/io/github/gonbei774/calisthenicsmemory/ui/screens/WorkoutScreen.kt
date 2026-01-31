@@ -108,6 +108,7 @@ fun WorkoutScreen(
     initialExerciseId: Long? = null,
     fromToDo: Boolean = false
 ) {
+    val appColors = LocalAppColors.current
     val exercises by viewModel.exercises.collectAsState()
     val context = LocalContext.current
 
@@ -644,9 +645,10 @@ fun WorkoutHierarchicalGroup(
     onExpandToggle: () -> Unit,
     onExerciseSelected: (Exercise) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Slate800),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column {
@@ -2440,6 +2442,7 @@ fun ModeSelectionStep(
     onSingleModeSelected: () -> Unit,
     onProgramModeSelected: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -2459,7 +2462,7 @@ fun ModeSelectionStep(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 12.dp),
-            colors = CardDefaults.cardColors(containerColor = Slate800),
+            colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
             shape = RoundedCornerShape(12.dp),
             onClick = onSingleModeSelected
         ) {
@@ -2496,7 +2499,7 @@ fun ModeSelectionStep(
         // プログラムモード
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Slate800),
+            colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
             shape = RoundedCornerShape(12.dp),
             onClick = onProgramModeSelected
         ) {
@@ -2538,9 +2541,10 @@ fun WorkoutSearchResultItem(
     exercise: Exercise,
     onSelected: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Slate800),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
         shape = RoundedCornerShape(12.dp),
         onClick = onSelected
     ) {

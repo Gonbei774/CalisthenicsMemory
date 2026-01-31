@@ -53,6 +53,7 @@ fun ViewScreen(
     viewModel: TrainingViewModel,
     onNavigateBack: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val exercises by viewModel.exercises.collectAsState()
     val records by viewModel.records.collectAsState()
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
@@ -165,7 +166,7 @@ fun ViewScreen(
                     ViewMode.Graph -> 1
                     ViewMode.Challenge -> 2
                 },
-                containerColor = Slate800,
+                containerColor = appColors.cardBackground,
                 contentColor = Color.White
             ) {
                 Tab(

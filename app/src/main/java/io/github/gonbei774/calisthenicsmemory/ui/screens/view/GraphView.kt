@@ -97,6 +97,7 @@ fun GraphView(
     selectedExerciseFilter: Exercise?,
     selectedPeriod: Period?
 ) {
+    val appColors = LocalAppColors.current
     var selectedGraphType by remember { mutableStateOf(GraphType.Average) }
     var isDistanceInverted by remember { mutableStateOf(false) }
 
@@ -159,7 +160,7 @@ fun GraphView(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
-                    containerColor = Slate800
+                    containerColor = appColors.cardBackground
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -609,6 +610,7 @@ fun LineChart(
     isDistanceInverted: Boolean = false,
     allTimeDistanceRange: Pair<Float, Float>? = null
 ) {
+    val appColors = LocalAppColors.current
     val hasDistanceData = data.any { it.distanceCm != null }
 
     Card(
@@ -616,7 +618,7 @@ fun LineChart(
             .fillMaxWidth()
             .height(if (hasDistanceData) 340.dp else 300.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Slate800
+            containerColor = appColors.cardBackground
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -1042,6 +1044,7 @@ fun VolumeChart(
     period: Period?,
     allTimeVolumeMax: Float
 ) {
+    val appColors = LocalAppColors.current
     val isUnilateral = data.any { it.volumeLeft != null }
     val volumeLabel = stringResource(R.string.legend_volume)
 
@@ -1050,7 +1053,7 @@ fun VolumeChart(
             .fillMaxWidth()
             .height(300.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Slate800
+            containerColor = appColors.cardBackground
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -1359,6 +1362,7 @@ fun AssistanceChart(
     allTimeAssistanceRange: Pair<Float, Float>,
     allRecordsDateRange: Pair<LocalDate, LocalDate>? = null
 ) {
+    val appColors = LocalAppColors.current
     val assistanceLabel = stringResource(R.string.legend_assistance)
 
     Card(
@@ -1366,7 +1370,7 @@ fun AssistanceChart(
             .fillMaxWidth()
             .height(300.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Slate800
+            containerColor = appColors.cardBackground
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -1695,10 +1699,11 @@ fun StatisticsSummary(
     statistics: Statistics,
     exercise: Exercise
 ) {
+    val appColors = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = Slate800
+            containerColor = appColors.cardBackground
         ),
         shape = RoundedCornerShape(12.dp)
     ) {

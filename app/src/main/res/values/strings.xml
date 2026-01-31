@@ -397,6 +397,14 @@
     <string name="current_language">Current: %s</string>
     <string name="restart_required">Restart required to apply changes</string>
     <string name="language_changed">Language changed. Please restart the app.</string>
+    <!-- Theme Settings -->
+    <string name="section_theme">Theme Settings</string>
+    <string name="section_theme_description">Change the app appearance.</string>
+    <string name="theme_setting">Theme</string>
+    <string name="current_theme">Current: %s</string>
+    <string name="theme_system">Follow system</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
     <!-- Open Source Licenses -->
     <string name="open_source_licenses">Open Source Licenses</string>
     <string name="licenses_description">View licenses of libraries used in this app</string>

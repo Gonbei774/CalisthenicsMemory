@@ -49,6 +49,7 @@ fun ToDoScreen(
     onNavigateToRecord: (Long) -> Unit,
     onNavigateToWorkout: (Long) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val todoTasks by viewModel.todoTasks.collectAsState()
     val exercises by viewModel.exercises.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
@@ -340,6 +341,7 @@ fun AddExercisesDialog(
     onDismiss: () -> Unit,
     onAdd: (List<Exercise>) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val viewModel: TrainingViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
     val expandedGroups by viewModel.expandedGroups.collectAsState()
@@ -372,7 +374,7 @@ fun AddExercisesDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Slate800,
+        containerColor = appColors.cardBackground,
         title = {
             Text(
                 text = stringResource(R.string.todo_add_exercises),

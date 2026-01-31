@@ -43,6 +43,7 @@ fun HomeScreen(
     onNavigate: (Screen) -> Unit,
     viewModel: TrainingViewModel = viewModel()
 ) {
+    val appColors = LocalAppColors.current
     val exercises by viewModel.exercises.collectAsState()
     val records by viewModel.records.collectAsState()
 
@@ -64,7 +65,7 @@ fun HomeScreen(
                 text = "Calisthenics Memory",
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = appColors.textPrimary,
                 textAlign = TextAlign.Center
             )
 
@@ -73,7 +74,7 @@ fun HomeScreen(
             // To Do Button
             MainButton(
                 text = stringResource(R.string.todo_title),
-                color = Slate800,
+                color = appColors.cardBackground,
                 onClick = { onNavigate(Screen.ToDo) }
             )
 
@@ -82,7 +83,7 @@ fun HomeScreen(
             // Record Button (solid color)
             MainButton(
                 text = stringResource(R.string.home_record),
-                color = Slate800,
+                color = appColors.cardBackground,
                 onClick = { onNavigate(Screen.Record()) }
             )
 
@@ -91,7 +92,7 @@ fun HomeScreen(
             // Workout Button (solid color)
             MainButton(
                 text = stringResource(R.string.home_workout),
-                color = Slate800,
+                color = appColors.cardBackground,
                 onClick = { onNavigate(Screen.Workout()) }
             )
 
@@ -100,7 +101,7 @@ fun HomeScreen(
             // Create Button (solid color)
             MainButton(
                 text = stringResource(R.string.home_create),
-                color = Slate800,
+                color = appColors.cardBackground,
                 onClick = { onNavigate(Screen.Create) }
             )
 
@@ -124,7 +125,7 @@ fun HomeScreen(
             Icon(
                 imageVector = Icons.Default.Settings,
                 contentDescription = stringResource(R.string.settings),
-                tint = Slate400,
+                tint = appColors.textSecondary,
                 modifier = Modifier.size(28.dp)
             )
         }
@@ -139,12 +140,13 @@ fun TodayDashboardCard(
     onNavigateToView: () -> Unit,
     viewModel: TrainingViewModel = viewModel()
 ) {
+    val appColors = LocalAppColors.current
     val formattedText = remember(records, exercises) {
         formatRecordsForClipboard(records, exercises)
     }
 
-    val formattedAnnotatedText = remember(records, exercises) {
-        formatRecordsForDisplay(records, exercises)
+    val formattedAnnotatedText = remember(records, exercises, appColors) {
+        formatRecordsForDisplay(records, exercises, appColors.textPrimary)
     }
 
     val clipboardManager = LocalClipboardManager.current
@@ -161,7 +163,7 @@ fun TodayDashboardCard(
                     }
                 }
             ),
-        colors = CardDefaults.cardColors(containerColor = Slate800),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
@@ -173,7 +175,7 @@ fun TodayDashboardCard(
                     text = stringResource(R.string.today),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
             }
 
@@ -190,7 +192,7 @@ fun TodayDashboardCard(
                     Text(
                         text = stringResource(R.string.no_records_today),
                         fontSize = 16.sp,
-                        color = Slate300
+                        color = appColors.textTertiary
                     )
                 } else {
                     Text(
@@ -282,12 +284,13 @@ fun formatRecordsForClipboard(
  * Display format: "Exercise name X sets" (one per line)
  *
  * Colors:
- * - Exercise name: White
+ * - Exercise name: textPrimary (adapts to theme)
  * - Set count: Green400
  */
 fun formatRecordsForDisplay(
     records: List<TrainingRecord>,
-    exercises: List<Exercise>
+    exercises: List<Exercise>,
+    textPrimaryColor: Color = Color.White
 ): AnnotatedString {
     if (records.isEmpty()) return AnnotatedString("")
 
@@ -302,8 +305,8 @@ fun formatRecordsForDisplay(
         recordsByExercise.entries.forEachIndexed { index, (exerciseId, setCount) ->
             val exercise = exerciseMap[exerciseId] ?: return@forEachIndexed
 
-            // Exercise name in White
-            withStyle(SpanStyle(color = Color.White)) {
+            // Exercise name in textPrimary
+            withStyle(SpanStyle(color = textPrimaryColor)) {
                 append(exercise.name)
                 append(" ")
             }
@@ -330,6 +333,7 @@ fun MainButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val appColors = LocalAppColors.current
     Button(
         onClick = onClick,
         modifier = modifier
@@ -357,7 +361,7 @@ fun MainButton(
                 text = text,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = appColors.textPrimary
             )
         }
     }

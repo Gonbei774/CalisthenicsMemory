@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import io.github.gonbei774.calisthenicsmemory.BuildConfig
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.AppLanguage
+import io.github.gonbei774.calisthenicsmemory.data.AppTheme
 import io.github.gonbei774.calisthenicsmemory.data.LanguagePreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
@@ -46,8 +47,11 @@ import java.util.Locale
 fun SettingsScreenNew(
     viewModel: TrainingViewModel,
     onNavigateBack: () -> Unit,
-    onNavigateToLicenses: () -> Unit = {}
+    onNavigateToLicenses: () -> Unit = {},
+    currentTheme: AppTheme = AppTheme.SYSTEM,
+    onThemeChange: (AppTheme) -> Unit = {}
 ) {
+    val appColors = LocalAppColors.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -379,7 +383,7 @@ fun SettingsScreenNew(
                     Text(
                         text = stringResource(R.string.section_full_backup_description),
                         fontSize = 14.sp,
-                        color = Slate400,
+                        color = appColors.textSecondary,
                         lineHeight = 20.sp
                     )
                 }
@@ -390,7 +394,7 @@ fun SettingsScreenNew(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Slate800
+                        containerColor = appColors.cardBackground
                     ),
                     shape = RoundedCornerShape(12.dp),
                     onClick = {
@@ -423,7 +427,7 @@ fun SettingsScreenNew(
                             Text(
                                 text = stringResource(R.string.create_backup),
                                 fontSize = 14.sp,
-                                color = Slate400,
+                                color = appColors.textSecondary,
                                 modifier = Modifier.padding(top = 4.dp)
                             )
                         }
@@ -436,7 +440,7 @@ fun SettingsScreenNew(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Slate800
+                        containerColor = appColors.cardBackground
                     ),
                     shape = RoundedCornerShape(12.dp),
                     onClick = {
@@ -466,7 +470,7 @@ fun SettingsScreenNew(
                             Text(
                                 text = stringResource(R.string.restore_from_backup),
                                 fontSize = 14.sp,
-                                color = Slate400,
+                                color = appColors.textSecondary,
                                 modifier = Modifier.padding(top = 4.dp)
                             )
                         }
@@ -533,7 +537,7 @@ fun SettingsScreenNew(
                     Text(
                         text = stringResource(R.string.section_partial_data_management_description),
                         fontSize = 14.sp,
-                        color = Slate400,
+                        color = appColors.textSecondary,
                         lineHeight = 20.sp
                     )
                 }
@@ -544,7 +548,7 @@ fun SettingsScreenNew(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Slate800
+                        containerColor = appColors.cardBackground
                     ),
                     shape = RoundedCornerShape(12.dp),
                     onClick = {
@@ -574,7 +578,7 @@ fun SettingsScreenNew(
                             Text(
                                 text = stringResource(R.string.csv_export_description),
                                 fontSize = 14.sp,
-                                color = Slate400,
+                                color = appColors.textSecondary,
                                 modifier = Modifier.padding(top = 4.dp)
                             )
                         }
@@ -587,7 +591,7 @@ fun SettingsScreenNew(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Slate800
+                        containerColor = appColors.cardBackground
                     ),
                     shape = RoundedCornerShape(12.dp),
                     onClick = {
@@ -617,7 +621,7 @@ fun SettingsScreenNew(
                             Text(
                                 text = stringResource(R.string.csv_import_description),
                                 fontSize = 14.sp,
-                                color = Slate400,
+                                color = appColors.textSecondary,
                                 modifier = Modifier.padding(top = 4.dp)
                             )
                         }
@@ -646,7 +650,7 @@ fun SettingsScreenNew(
                     Text(
                         text = stringResource(R.string.section_language_description),
                         fontSize = 14.sp,
-                        color = Slate400,
+                        color = appColors.textSecondary,
                         lineHeight = 20.sp
                     )
                 }
@@ -664,7 +668,7 @@ fun SettingsScreenNew(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Slate800
+                        containerColor = appColors.cardBackground
                     ),
                     shape = RoundedCornerShape(12.dp),
                     onClick = { showLanguageDialog = true }
@@ -693,7 +697,7 @@ fun SettingsScreenNew(
                                     selectedLanguage.getDisplayName(currentLocale)
                                 ),
                                 fontSize = 14.sp,
-                                color = Slate400,
+                                color = appColors.textSecondary,
                                 modifier = Modifier.padding(top = 4.dp)
                             )
                         }
@@ -753,7 +757,132 @@ fun SettingsScreenNew(
             }
 
             // ========================================
-            // セクション4: オートフィル
+            // セクション4: テーマ設定
+            // ========================================
+
+            // セクションタイトルと説明
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.section_theme),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.section_theme_description),
+                        fontSize = 14.sp,
+                        color = appColors.textSecondary,
+                        lineHeight = 20.sp
+                    )
+                }
+            }
+
+            // テーマ選択カード
+            item {
+                var showThemeDialog by remember { mutableStateOf(false) }
+
+                val currentLocale = Locale.getDefault().language
+                val themeDisplayName = when (currentTheme) {
+                    AppTheme.SYSTEM -> stringResource(R.string.theme_system)
+                    AppTheme.LIGHT -> stringResource(R.string.theme_light)
+                    AppTheme.DARK -> stringResource(R.string.theme_dark)
+                }
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = appColors.cardBackground
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    onClick = { showThemeDialog = true }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "🎨",
+                            fontSize = 32.sp
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.theme_setting),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = stringResource(R.string.current_theme, themeDisplayName),
+                                fontSize = 14.sp,
+                                color = appColors.textSecondary,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    }
+                }
+
+                // テーマ選択ダイアログ
+                if (showThemeDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showThemeDialog = false },
+                        title = {
+                            Text(
+                                text = stringResource(R.string.theme_setting),
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                AppTheme.entries.forEach { theme ->
+                                    val displayName = when (theme) {
+                                        AppTheme.SYSTEM -> stringResource(R.string.theme_system)
+                                        AppTheme.LIGHT -> stringResource(R.string.theme_light)
+                                        AppTheme.DARK -> stringResource(R.string.theme_dark)
+                                    }
+                                    Card(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = if (currentTheme == theme) {
+                                                Purple600.copy(alpha = 0.3f)
+                                            } else {
+                                                Slate700
+                                            }
+                                        ),
+                                        onClick = {
+                                            onThemeChange(theme)
+                                            showThemeDialog = false
+                                        }
+                                    ) {
+                                        Text(
+                                            text = displayName,
+                                            modifier = Modifier.padding(16.dp),
+                                            color = Color.White,
+                                            fontSize = 16.sp
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(onClick = { showThemeDialog = false }) {
+                                Text(stringResource(R.string.close))
+                            }
+                        }
+                    )
+                }
+            }
+
+            // ========================================
+            // セクション5: オートフィル
             // ========================================
 
             // セクションタイトルと説明
@@ -773,7 +902,7 @@ fun SettingsScreenNew(
                     Text(
                         text = stringResource(R.string.settings_autofill_section_description),
                         fontSize = 14.sp,
-                        color = Slate400,
+                        color = appColors.textSecondary,
                         lineHeight = 20.sp
                     )
                 }
@@ -787,7 +916,7 @@ fun SettingsScreenNew(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Slate800
+                        containerColor = appColors.cardBackground
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -812,7 +941,7 @@ fun SettingsScreenNew(
                             Text(
                                 text = stringResource(R.string.settings_prefill_previous_description),
                                 fontSize = 14.sp,
-                                color = Slate400,
+                                color = appColors.textSecondary,
                                 modifier = Modifier.padding(top = 4.dp)
                             )
                         }
@@ -854,7 +983,7 @@ fun SettingsScreenNew(
                     Text(
                         text = stringResource(R.string.section_workout_settings_description),
                         fontSize = 14.sp,
-                        color = Slate400,
+                        color = appColors.textSecondary,
                         lineHeight = 20.sp
                     )
                 }
@@ -880,7 +1009,7 @@ fun SettingsScreenNew(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = Slate800
+                            containerColor = appColors.cardBackground
                         ),
                         shape = RoundedCornerShape(12.dp),
                         onClick = { if (startCountdownEnabled) showStartCountdownDialog = true }
@@ -930,7 +1059,7 @@ fun SettingsScreenNew(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = Slate800
+                            containerColor = appColors.cardBackground
                         ),
                         shape = RoundedCornerShape(12.dp),
                         onClick = { if (setIntervalEnabled) showSetIntervalDialog = true }
@@ -979,7 +1108,7 @@ fun SettingsScreenNew(
                             Text(
                                 text = stringResource(R.string.set_interval_note),
                                 fontSize = 12.sp,
-                                color = Slate400,
+                                color = appColors.textSecondary,
                                 modifier = Modifier.padding(start = 68.dp, end = 20.dp, bottom = 16.dp)
                             )
                         }
@@ -989,7 +1118,7 @@ fun SettingsScreenNew(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = Slate800
+                            containerColor = appColors.cardBackground
                         ),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -1015,7 +1144,7 @@ fun SettingsScreenNew(
                                     Text(
                                         text = stringResource(R.string.flash_notification_description),
                                         fontSize = 14.sp,
-                                        color = Slate400,
+                                        color = appColors.textSecondary,
                                         modifier = Modifier.padding(top = 4.dp)
                                     )
                                 }
@@ -1040,7 +1169,7 @@ fun SettingsScreenNew(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = Slate800
+                            containerColor = appColors.cardBackground
                         ),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -1066,7 +1195,7 @@ fun SettingsScreenNew(
                                     Text(
                                         text = stringResource(R.string.keep_screen_on_description),
                                         fontSize = 14.sp,
-                                        color = Slate400,
+                                        color = appColors.textSecondary,
                                         modifier = Modifier.padding(top = 4.dp)
                                     )
                                 }
@@ -1218,7 +1347,7 @@ fun SettingsScreenNew(
                     Text(
                         text = stringResource(R.string.section_app_info_description),
                         fontSize = 14.sp,
-                        color = Slate400,
+                        color = appColors.textSecondary,
                         lineHeight = 20.sp
                     )
                 }
@@ -1229,7 +1358,7 @@ fun SettingsScreenNew(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Slate800
+                        containerColor = appColors.cardBackground
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -1253,7 +1382,7 @@ fun SettingsScreenNew(
                             Text(
                                 text = stringResource(R.string.app_description),
                                 fontSize = 14.sp,
-                                color = Slate400,
+                                color = appColors.textSecondary,
                                 modifier = Modifier.padding(top = 4.dp)
                             )
                         }
@@ -1279,7 +1408,7 @@ fun SettingsScreenNew(
                                 Text(
                                     text = BuildConfig.VERSION_NAME,
                                     fontSize = 14.sp,
-                                    color = Slate400
+                                    color = appColors.textSecondary
                                 )
                             }
                         }
@@ -1298,7 +1427,7 @@ fun SettingsScreenNew(
                             Text(
                                 text = "<>",
                                 fontSize = 20.sp,
-                                color = Slate400,
+                                color = appColors.textSecondary,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
@@ -1335,7 +1464,7 @@ fun SettingsScreenNew(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Slate800
+                        containerColor = appColors.cardBackground
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -1349,7 +1478,7 @@ fun SettingsScreenNew(
                         Text(
                             text = stringResource(R.string.app_author),
                             fontSize = 14.sp,
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
 
                         // 開発者
@@ -1379,7 +1508,7 @@ fun SettingsScreenNew(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Slate800
+                        containerColor = appColors.cardBackground
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -1393,7 +1522,7 @@ fun SettingsScreenNew(
                         Text(
                             text = stringResource(R.string.app_feedback),
                             fontSize = 14.sp,
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
 
                         // Codebergで問題を報告
@@ -1498,7 +1627,7 @@ fun SettingsScreenNew(
                             Text(
                                 text = stringResource(R.string.file_name),
                                 fontSize = 14.sp,
-                                color = Slate400,
+                                color = appColors.textSecondary,
                                 modifier = Modifier.padding(bottom = 6.dp)
                             )
                             Text(
@@ -1527,7 +1656,7 @@ fun SettingsScreenNew(
                             Text(
                                 text = stringResource(R.string.data_contents),
                                 fontSize = 14.sp,
-                                color = Slate400,
+                                color = appColors.textSecondary,
                                 modifier = Modifier.padding(bottom = 4.dp)
                             )
                             Row(
@@ -1886,7 +2015,7 @@ fun SettingsScreenNew(
                                 Text(
                                     text = stringResource(R.string.csv_export_groups_description),
                                     fontSize = 14.sp,
-                                    color = Slate400
+                                    color = appColors.textSecondary
                                 )
                             }
                         }
@@ -1924,7 +2053,7 @@ fun SettingsScreenNew(
                                 Text(
                                     text = stringResource(R.string.csv_export_exercises_description),
                                     fontSize = 14.sp,
-                                    color = Slate400
+                                    color = appColors.textSecondary
                                 )
                             }
                         }
@@ -1962,7 +2091,7 @@ fun SettingsScreenNew(
                                 Text(
                                     text = stringResource(R.string.csv_export_records_description),
                                     fontSize = 14.sp,
-                                    color = Slate400
+                                    color = appColors.textSecondary
                                 )
                             }
                         }
@@ -2000,7 +2129,7 @@ fun SettingsScreenNew(
                                 Text(
                                     text = stringResource(R.string.csv_export_record_template_description),
                                     fontSize = 14.sp,
-                                    color = Slate400
+                                    color = appColors.textSecondary
                                 )
                             }
                         }
@@ -2058,7 +2187,7 @@ fun SettingsScreenNew(
                                 Text(
                                     text = stringResource(R.string.csv_file),
                                     fontSize = 14.sp,
-                                    color = Slate400
+                                    color = appColors.textSecondary
                                 )
                                 Text(
                                     text = csvFileName ?: "unknown.csv",
@@ -2076,7 +2205,7 @@ fun SettingsScreenNew(
                                 Text(
                                     text = stringResource(R.string.csv_type),
                                     fontSize = 14.sp,
-                                    color = Slate400
+                                    color = appColors.textSecondary
                                 )
                                 Text(
                                     text = getCsvTypeLocalizedString(csvImportType),
@@ -2094,7 +2223,7 @@ fun SettingsScreenNew(
                                 Text(
                                     text = stringResource(R.string.csv_items),
                                     fontSize = 14.sp,
-                                    color = Slate400
+                                    color = appColors.textSecondary
                                 )
                                 Text(
                                     text = "$csvImportDataCount",
@@ -2193,7 +2322,7 @@ fun SettingsScreenNew(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(text = stringResource(R.string.csv_import_skipped_label), fontSize = 14.sp, color = Slate400)
+                                Text(text = stringResource(R.string.csv_import_skipped_label), fontSize = 14.sp, color = appColors.textSecondary)
                                 Text(
                                     text = "${report.skippedCount}",
                                     fontSize = 14.sp,
@@ -2245,7 +2374,7 @@ fun SettingsScreenNew(
                                     Text(
                                         text = if (showSkippedItems) "▼" else "▶",
                                         fontSize = 12.sp,
-                                        color = Slate400
+                                        color = appColors.textSecondary
                                     )
                                 }
 
@@ -2258,7 +2387,7 @@ fun SettingsScreenNew(
                                             Text(
                                                 text = "• $item",
                                                 fontSize = 12.sp,
-                                                color = Slate400,
+                                                color = appColors.textSecondary,
                                                 lineHeight = 16.sp
                                             )
                                         }
@@ -2266,7 +2395,7 @@ fun SettingsScreenNew(
                                             Text(
                                                 text = "... and ${report.skippedItems.size - 10} more",
                                                 fontSize = 12.sp,
-                                                color = Slate400
+                                                color = appColors.textSecondary
                                             )
                                         }
                                     }
@@ -2304,7 +2433,7 @@ fun SettingsScreenNew(
                                     Text(
                                         text = if (showErrors) "▼" else "▶",
                                         fontSize = 12.sp,
-                                        color = Slate400
+                                        color = appColors.textSecondary
                                     )
                                 }
 

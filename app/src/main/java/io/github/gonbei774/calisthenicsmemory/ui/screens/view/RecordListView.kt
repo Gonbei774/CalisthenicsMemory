@@ -40,6 +40,7 @@ fun RecordListView(
     onSessionLongPress: (SessionInfo) -> Unit,
     onDeleteClick: (SessionInfo) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     if (sessions.isEmpty() && selectedExerciseFilter == null) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -48,7 +49,7 @@ fun RecordListView(
             Text(
                 text = stringResource(R.string.no_records_yet),
                 fontSize = 18.sp,
-                color = Slate400
+                color = appColors.textSecondary
             )
         }
     } else {
@@ -69,7 +70,7 @@ fun RecordListView(
                         Text(
                             text = stringResource(R.string.no_records_for_exercise),
                             fontSize = 16.sp,
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
                     }
                 }
@@ -105,10 +106,11 @@ fun SessionCard(
     onSessionLongPress: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) Slate750 else Slate800
+            containerColor = if (isSelected) appColors.cardBackgroundSelected else appColors.cardBackground
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -137,7 +139,7 @@ fun SessionCard(
                     Text(
                         text = "${session.date} ${session.time}",
                         fontSize = 14.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
                 }
 
@@ -172,7 +174,7 @@ fun SessionCard(
                     Text(
                         text = session.comment,
                         fontSize = 14.sp,
-                        color = Slate300,
+                        color = appColors.textTertiary,
                         fontStyle = FontStyle.Italic
                     )
                 }
@@ -223,7 +225,7 @@ fun SessionCard(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = Slate700
+                            containerColor = appColors.cardBackgroundSecondary
                         ),
                         shape = RoundedCornerShape(8.dp),
                         onClick = { onRecordClick(record) }
@@ -238,7 +240,7 @@ fun SessionCard(
                             Text(
                                 text = stringResource(R.string.set_number, record.setNumber),
                                 fontSize = 14.sp,
-                                color = Slate300
+                                color = appColors.textTertiary
                             )
 
                             // Unilateral/Bilateral 対応
