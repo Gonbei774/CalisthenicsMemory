@@ -51,6 +51,12 @@ data class VolumeDataPoint(
     val volumeLeft: Float? = null  // Unilateral用
 )
 
+// アシストグラフ用データクラス
+data class AssistanceDataPoint(
+    val date: String,
+    val assistanceKg: Float        // アシスト量（kg）
+)
+
 enum class Period(val days: Int, val displayNameResId: Int) {
     OneWeek(7, R.string.period_one_week),
     OneMonth(30, R.string.period_one_month),
@@ -270,6 +276,41 @@ fun GraphView(
             }
         }
 
+        // アシストグラフ（アシストトラッキング有効時のみ）
+        if (selectedExerciseFilter.assistanceTrackingEnabled) {
+            item {
+                val assistanceData = remember(selectedExerciseFilter, records, selectedPeriod) {
+                    prepareAssistanceData(
+                        exercise = selectedExerciseFilter,
+                        records = records,
+                        period = selectedPeriod
+                    )
+                }
+
+                val allTimeAssistanceRange = remember(selectedExerciseFilter, records) {
+                    val allAssistanceData = prepareAssistanceData(
+                        exercise = selectedExerciseFilter,
+                        records = records,
+                        period = null
+                    )
+                    if (allAssistanceData.isNotEmpty()) {
+                        Pair(
+                            allAssistanceData.minOfOrNull { it.assistanceKg } ?: 0f,
+                            allAssistanceData.maxOfOrNull { it.assistanceKg } ?: 0f
+                        )
+                    } else {
+                        Pair(0f, 0f)
+                    }
+                }
+
+                AssistanceChart(
+                    data = assistanceData,
+                    period = selectedPeriod,
+                    allTimeAssistanceRange = allTimeAssistanceRange
+                )
+            }
+        }
+
         // 統計サマリー
         item {
             val stats = remember(selectedExerciseFilter, records, selectedPeriod) {
@@ -476,6 +517,71 @@ fun prepareVolumeData(
             date = date,
             volumeRight = volumeRight,
             volumeLeft = volumeLeft
+        )
+    }.sortedBy { it.date }
+}
+
+// アシストデータ準備関数
+fun prepareAssistanceData(
+    exercise: Exercise,
+    records: List<TrainingRecord>,
+    period: Period?
+): List<AssistanceDataPoint> {
+    // アシストトラッキングが無効な場合は空リスト
+    if (!exercise.assistanceTrackingEnabled) {
+        return emptyList()
+    }
+
+    // 対象種目の記録を抽出
+    val exerciseRecords = records.filter { it.exerciseId == exercise.id }
+
+    if (exerciseRecords.isEmpty()) {
+        return emptyList()
+    }
+
+    // 期間でフィルター（nullの場合は全期間）
+    val today = LocalDate.now()
+    val filteredRecords = if (period == null) {
+        exerciseRecords
+    } else {
+        val cutoffDate = today.minusDays(period.days.toLong() - 1)
+        exerciseRecords.filter { record ->
+            try {
+                val recordDate = LocalDate.parse(record.date)
+                recordDate >= cutoffDate && recordDate <= today
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
+    if (filteredRecords.isEmpty()) {
+        return emptyList()
+    }
+
+    // アシストデータがあるレコードのみ抽出
+    val recordsWithAssistance = filteredRecords.filter { it.assistanceG != null && it.assistanceG > 0 }
+    if (recordsWithAssistance.isEmpty()) {
+        return emptyList()
+    }
+
+    // 日付ごとにグループ化してアシスト量の加重平均を計算（レップ数で重み付け）
+    val assistanceByDate = recordsWithAssistance
+        .groupBy { it.date }
+        .mapValues { (_, sessionRecords) ->
+            val totalReps = sessionRecords.sumOf { it.valueRight }
+            if (totalReps > 0) {
+                sessionRecords.sumOf { (it.assistanceG ?: 0) * it.valueRight } / totalReps.toFloat() / 1000f
+            } else {
+                sessionRecords.mapNotNull { it.assistanceG }.average().toFloat() / 1000f
+            }
+        }
+
+    // データポイントを作成
+    return assistanceByDate.map { (date, assistanceKg) ->
+        AssistanceDataPoint(
+            date = date,
+            assistanceKg = assistanceKg
         )
     }.sortedBy { it.date }
 }
@@ -1228,6 +1334,250 @@ fun SimpleVolumeChart(
                 }
             )
         }
+    }
+}
+
+// アシストグラフコンポーネント
+@Composable
+fun AssistanceChart(
+    data: List<AssistanceDataPoint>,
+    period: Period?,
+    allTimeAssistanceRange: Pair<Float, Float>
+) {
+    val assistanceLabel = stringResource(R.string.legend_assistance)
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Slate800
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.weight(1f)) {
+                if (data.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.no_data),
+                                fontSize = 16.sp,
+                                color = Slate400
+                            )
+                            Text(
+                                text = stringResource(R.string.record_assistance_for_graph),
+                                fontSize = 14.sp,
+                                color = Slate400
+                            )
+                        }
+                    }
+                } else {
+                    SimpleAssistanceChart(
+                        data = data,
+                        period = period,
+                        allTimeAssistanceRange = allTimeAssistanceRange
+                    )
+                }
+            }
+
+            // 凡例
+            if (data.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(Amber500, CircleShape)
+                    )
+                    Text(
+                        text = " $assistanceLabel",
+                        fontSize = 12.sp,
+                        color = Slate400
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SimpleAssistanceChart(
+    data: List<AssistanceDataPoint>,
+    period: Period?,
+    allTimeAssistanceRange: Pair<Float, Float>
+) {
+    Canvas(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        if (data.isEmpty()) return@Canvas
+
+        // Y軸スケール: 全期間のデータを使用してスケールを固定
+        val minValue = allTimeAssistanceRange.first.coerceAtLeast(0f)
+        val maxValue = allTimeAssistanceRange.second.coerceAtLeast(minValue + 1f)
+        // ±10%のマージンを追加
+        val margin = (maxValue - minValue) * 0.1f
+        val adjustedMin = (minValue - margin).coerceAtLeast(0f)
+        val adjustedMax = maxValue + margin
+        val range = (adjustedMax - adjustedMin).coerceAtLeast(1f)
+
+        val leftPadding = 50.dp.toPx()
+        val bottomPadding = 16.dp.toPx()
+        val topPadding = 32.dp.toPx()
+        val rightPadding = 30.dp.toPx()
+
+        val graphWidth = size.width - leftPadding - rightPadding
+        val graphHeight = size.height - topPadding - bottomPadding
+
+        val textPaint = Paint().apply {
+            color = android.graphics.Color.parseColor("#94A3B8")
+            textSize = 11.sp.toPx()
+            isAntiAlias = true
+        }
+
+        val today = LocalDate.now()
+        val startDate = if (period == null) {
+            try {
+                LocalDate.parse(data.minOf { it.date })
+            } catch (e: Exception) {
+                today.minusDays(30)
+            }
+        } else {
+            today.minusDays(period.days.toLong() - 1)
+        }
+        val endDate = today
+
+        val totalDays = ChronoUnit.DAYS.between(startDate, endDate).toInt() + 1
+        val yLabels = calculateAssistanceYAxisLabels(adjustedMin, adjustedMax)
+
+        // Y軸グリッド線とラベル（下がるほど進歩なので、上が大きい値）
+        yLabels.forEach { labelValue ->
+            val y = topPadding + graphHeight - ((labelValue - adjustedMin) / range * graphHeight)
+
+            drawLine(
+                color = Slate600.copy(alpha = 0.3f),
+                start = Offset(leftPadding, y),
+                end = Offset(size.width - rightPadding, y),
+                strokeWidth = 1.dp.toPx()
+            )
+
+            val labelText = String.format("%.1fkg", labelValue)
+
+            drawContext.canvas.nativeCanvas.drawText(
+                labelText,
+                leftPadding - 8.dp.toPx(),
+                y + 4.dp.toPx(),
+                textPaint.apply {
+                    textAlign = Paint.Align.RIGHT
+                }
+            )
+        }
+
+        // 線の描画（Amber500）
+        val path = Path()
+        var isFirstPoint = true
+
+        data.forEach { point ->
+            try {
+                val pointDate = LocalDate.parse(point.date)
+                val daysFromStart = ChronoUnit.DAYS.between(startDate, pointDate).toInt()
+
+                val x = leftPadding + (daysFromStart.toFloat() / (totalDays - 1).coerceAtLeast(1)) * graphWidth
+                val y = topPadding + graphHeight - ((point.assistanceKg - adjustedMin) / range * graphHeight)
+
+                if (isFirstPoint) {
+                    path.moveTo(x, y)
+                    isFirstPoint = false
+                } else {
+                    path.lineTo(x, y)
+                }
+            } catch (e: Exception) {
+                // ignore
+            }
+        }
+
+        drawPath(
+            path = path,
+            color = Amber500,
+            style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+        )
+
+        // ポイント描画
+        data.forEach { point ->
+            try {
+                val pointDate = LocalDate.parse(point.date)
+                val daysFromStart = ChronoUnit.DAYS.between(startDate, pointDate).toInt()
+
+                val x = leftPadding + (daysFromStart.toFloat() / (totalDays - 1).coerceAtLeast(1)) * graphWidth
+                val y = topPadding + graphHeight - ((point.assistanceKg - adjustedMin) / range * graphHeight)
+
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.4f),
+                    radius = 6.dp.toPx(),
+                    center = Offset(x, y)
+                )
+
+                drawCircle(
+                    color = Amber500.copy(alpha = 0.6f),
+                    radius = 4.dp.toPx(),
+                    center = Offset(x, y)
+                )
+            } catch (e: Exception) {
+                // ignore
+            }
+        }
+
+        // X軸ラベル
+        val displayDates = calculateXAxisDisplayDates(startDate, endDate, period)
+
+        displayDates.forEach { date ->
+            val daysFromStart = ChronoUnit.DAYS.between(startDate, date).toInt()
+            val x = leftPadding + (daysFromStart.toFloat() / (totalDays - 1).coerceAtLeast(1)) * graphWidth
+            val y = size.height - bottomPadding + 20.dp.toPx()
+
+            val dateText = "${date.monthValue}/${date.dayOfMonth}"
+
+            drawContext.canvas.nativeCanvas.drawText(
+                dateText,
+                x,
+                y,
+                textPaint.apply {
+                    textAlign = Paint.Align.CENTER
+                }
+            )
+        }
+    }
+}
+
+// アシストY軸用のラベル計算
+fun calculateAssistanceYAxisLabels(min: Float, max: Float): List<Float> {
+    val range = max - min
+    val interval = when {
+        range < 5 -> 1f
+        range < 10 -> 2f
+        range < 25 -> 5f
+        range < 50 -> 10f
+        else -> 25f
+    }
+
+    val adjustedMin = (min / interval).toInt() * interval
+    val adjustedMax = ((max / interval).toInt() + 1) * interval
+
+    return (0..5).map { i ->
+        adjustedMin + (adjustedMax - adjustedMin) * i / 5f
     }
 }
 

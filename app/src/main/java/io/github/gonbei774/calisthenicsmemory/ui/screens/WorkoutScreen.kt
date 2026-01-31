@@ -83,6 +83,7 @@ data class WorkoutSession(
     var comment: String = "",
     val distanceCm: Int? = null, // 距離（cm）
     val weightG: Int? = null, // 追加ウエイト（g）
+    val assistanceG: Int? = null, // アシスト量（g）
     val isAutoMode: Boolean = true, // 自動モード（目標達成時に自動遷移）
     val isDynamicCountSoundEnabled: Boolean = true // レップカウント音有効
 )
@@ -861,6 +862,7 @@ fun SettingsStep(
     }
     var distanceInput by remember { mutableStateOf("") }
     var weightInput by remember { mutableStateOf("") }
+    var assistanceInput by remember { mutableStateOf("") }
 
     // 実行設定（WorkoutPreferencesと連動）
     // Isometricはデフォルトでタイマーオフ（手動完了）、Dynamicはオン（既存ユーザー体験維持）
@@ -896,6 +898,12 @@ fun SettingsStep(
             if (exercise.weightTrackingEnabled) {
                 prevSession.firstOrNull()?.weightG?.let {
                     weightInput = (it / 1000.0).toString()
+                }
+            }
+            // アシストをプリフィル（トラッキング有効時）
+            if (exercise.assistanceTrackingEnabled) {
+                prevSession.firstOrNull()?.assistanceG?.let {
+                    assistanceInput = (it / 1000.0).toString()
                 }
             }
         }
@@ -1069,9 +1077,13 @@ fun SettingsStep(
             OutlinedTextField(
                 value = distanceInput,
                 onValueChange = { value ->
+                    // 全角→半角変換
+                    val normalized = value
+                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                        .replace("．", ".").replace("－", "-")
                     // 空、"-"、または整数（負を含む）を許可
-                    if (value.isEmpty() || value == "-" || value.toIntOrNull() != null) {
-                        distanceInput = value
+                    if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
+                        distanceInput = normalized
                     }
                 },
                 label = { Text(stringResource(R.string.distance_input_label)) },
@@ -1097,12 +1109,16 @@ fun SettingsStep(
             OutlinedTextField(
                 value = weightInput,
                 onValueChange = { value ->
+                    // 全角→半角変換
+                    val normalized = value
+                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                        .replace("．", ".")
                     // 空、または小数（小数点1つまで、小数第1位まで）を許可
-                    val isValidDecimal = value.isEmpty() ||
-                        value == "." ||
-                        value.matches(Regex("^\\d*\\.?\\d?\$"))
+                    val isValidDecimal = normalized.isEmpty() ||
+                        normalized == "." ||
+                        normalized.matches(Regex("^\\d*\\.?\\d?\$"))
                     if (isValidDecimal) {
-                        weightInput = value
+                        weightInput = normalized
                     }
                 },
                 label = { Text(stringResource(R.string.weight_input_label)) },
@@ -1117,6 +1133,41 @@ fun SettingsStep(
                     focusedLabelColor = Orange600,
                     unfocusedLabelColor = Slate400,
                     cursorColor = Orange600,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
+                )
+            )
+        }
+
+        // アシスト入力（有効な場合のみ表示）
+        if (exercise.assistanceTrackingEnabled) {
+            OutlinedTextField(
+                value = assistanceInput,
+                onValueChange = { value ->
+                    // 全角→半角変換
+                    val normalized = value
+                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                        .replace("．", ".")
+                    // 空、または小数（小数点1つまで、小数第1位まで）を許可
+                    val isValidDecimal = normalized.isEmpty() ||
+                        normalized == "." ||
+                        normalized.matches(Regex("^\\d*\\.?\\d?\$"))
+                    if (isValidDecimal) {
+                        assistanceInput = normalized
+                    }
+                },
+                label = { Text(stringResource(R.string.assistance_input_label)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal
+                ),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Amber500,
+                    unfocusedBorderColor = Slate600,
+                    focusedLabelColor = Amber500,
+                    unfocusedLabelColor = Slate400,
+                    cursorColor = Amber500,
                     focusedTextColor = Color.White,
                     unfocusedTextColor = Color.White
                 )
@@ -1152,10 +1203,12 @@ fun SettingsStep(
                     }
                 }
 
-                // 距離・荷重の値を取得（空の場合はnull）
+                // 距離・荷重・アシストの値を取得（空の場合はnull）
                 val distanceCm = distanceInput.ifEmpty { null }?.toIntOrNull()
                 // 荷重はkgで入力、gに変換（例: 1.5kg → 1500g）
                 val weightG = weightInput.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
+                // アシストはkgで入力、gに変換（例: 22.5kg → 22500g）
+                val assistanceG = assistanceInput.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
 
                 val session = WorkoutSession(
                     exercise = exercise,
@@ -1167,6 +1220,7 @@ fun SettingsStep(
                     sets = workoutSets,
                     distanceCm = distanceCm,
                     weightG = weightG,
+                    assistanceG = assistanceG,
                     isAutoMode = isAutoMode,
                     isDynamicCountSoundEnabled = isDynamicCountSoundEnabled
                 )
@@ -2076,7 +2130,8 @@ fun saveWorkoutRecords(
                 time = now,
                 comment = session.comment.ifEmpty { workoutModeComment },
                 distanceCm = session.distanceCm,
-                weightG = session.weightG
+                weightG = session.weightG,
+                assistanceG = session.assistanceG
             )
         }
     } else {
@@ -2092,7 +2147,8 @@ fun saveWorkoutRecords(
                 time = now,
                 comment = session.comment.ifEmpty { workoutModeComment },
                 distanceCm = session.distanceCm,
-                weightG = session.weightG
+                weightG = session.weightG,
+                assistanceG = session.assistanceG
             )
         }
     }

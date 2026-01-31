@@ -420,17 +420,23 @@
     <string name="track_distance_description">各セッションの距離（cm）を記録</string>
     <string name="track_weight">荷重を記録</string>
     <string name="track_weight_description">各セッションの追加荷重（kg）を記録</string>
+    <string name="track_assistance">アシストを記録</string>
+    <string name="track_assistance_description">各セッションのバンド/マシンアシスト量（kg）を記録</string>
     <string name="distance_input_label">距離（cm）</string>
     <string name="weight_input_label">荷重（kg）</string>
+    <string name="assistance_input_label">アシスト（kg）</string>
     <string name="distance_display_format">%d cm</string>
     <string name="weight_display_format">%.1f kg</string>
+    <string name="assistance_display_format">-%.1f kg</string>
     <!-- Distance Graph -->
     <string name="invert">反転</string>
     <string name="legend_reps">回数</string>
     <string name="legend_distance">距離</string>
     <string name="legend_distance_inverted">距離（反転）</string>
-    <!-- Volume/Weight Statistics -->
+    <!-- Volume/Weight/Assistance Statistics -->
     <string name="legend_volume">ボリューム</string>
+    <string name="legend_assistance">アシスト</string>
+    <string name="record_assistance_for_graph">この種目のアシストを記録してください</string>
     <string name="max_daily_volume">最大日ボリューム</string>
     <string name="avg_daily_volume">平均日ボリューム</string>
     <string name="max_weight">最大荷重</string>

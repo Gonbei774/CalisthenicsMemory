@@ -178,11 +178,12 @@ fun SessionCard(
                 }
             }
 
-            // Distance and Weight (from first record, as they're the same for all sets in a session)
+            // Distance, Weight, and Assistance (from first record, as they're the same for all sets in a session)
             val firstRecord = session.records.firstOrNull()
             val hasDistance = firstRecord?.distanceCm != null
             val hasWeight = firstRecord?.weightG != null
-            if (hasDistance || hasWeight) {
+            val hasAssistance = firstRecord?.assistanceG != null
+            if (hasDistance || hasWeight || hasAssistance) {
                 Row(
                     modifier = Modifier.padding(bottom = 12.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -200,6 +201,14 @@ fun SessionCard(
                             text = stringResource(R.string.weight_display_format, firstRecord!!.weightG!! / 1000.0f),
                             fontSize = 14.sp,
                             color = Orange600,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    if (hasAssistance) {
+                        Text(
+                            text = stringResource(R.string.assistance_display_format, firstRecord!!.assistanceG!! / 1000.0f),
+                            fontSize = 14.sp,
+                            color = Amber500,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -274,7 +283,7 @@ fun SessionCard(
 fun SessionEditDialog(
     session: SessionInfo,
     onDismiss: () -> Unit,
-    onConfirm: (String, String, String, Int?, Int?) -> Unit  // date, time, comment, distanceCm, weightG
+    onConfirm: (String, String, String, Int?, Int?, Int?) -> Unit  // date, time, comment, distanceCm, weightG, assistanceG
 ) {
     val firstRecord = session.records.firstOrNull()
 
@@ -285,6 +294,11 @@ fun SessionEditDialog(
     var editWeight by remember {
         mutableStateOf(
             firstRecord?.weightG?.let { "%.1f".format(it / 1000.0f) } ?: ""
+        )
+    }
+    var editAssistance by remember {
+        mutableStateOf(
+            firstRecord?.assistanceG?.let { "%.1f".format(it / 1000.0f) } ?: ""
         )
     }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -326,8 +340,12 @@ fun SessionEditDialog(
                 OutlinedTextField(
                     value = editDistance,
                     onValueChange = { value ->
-                        if (value.isEmpty() || value == "-" || value.toIntOrNull() != null) {
-                            editDistance = value
+                        // 全角→半角変換
+                        val normalized = value
+                            .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                            .replace("．", ".").replace("－", "-")
+                        if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
+                            editDistance = normalized
                         }
                     },
                     label = { Text(stringResource(R.string.distance_input_label)) },
@@ -342,14 +360,41 @@ fun SessionEditDialog(
                 OutlinedTextField(
                     value = editWeight,
                     onValueChange = { value ->
-                        val isValidDecimal = value.isEmpty() ||
-                            value == "." ||
-                            value.matches(Regex("^\\d*\\.?\\d?\$"))
+                        // 全角→半角変換
+                        val normalized = value
+                            .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                            .replace("．", ".")
+                        val isValidDecimal = normalized.isEmpty() ||
+                            normalized == "." ||
+                            normalized.matches(Regex("^\\d*\\.?\\d?\$"))
                         if (isValidDecimal) {
-                            editWeight = value
+                            editWeight = normalized
                         }
                     },
                     label = { Text(stringResource(R.string.weight_input_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Decimal
+                    )
+                )
+
+                // アシスト入力（kg単位）
+                OutlinedTextField(
+                    value = editAssistance,
+                    onValueChange = { value ->
+                        // 全角→半角変換
+                        val normalized = value
+                            .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                            .replace("．", ".")
+                        val isValidDecimal = normalized.isEmpty() ||
+                            normalized == "." ||
+                            normalized.matches(Regex("^\\d*\\.?\\d?\$"))
+                        if (isValidDecimal) {
+                            editAssistance = normalized
+                        }
+                    },
+                    label = { Text(stringResource(R.string.assistance_input_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
@@ -363,7 +408,8 @@ fun SessionEditDialog(
                 onClick = {
                     val distanceCm = editDistance.ifEmpty { null }?.toIntOrNull()
                     val weightG = editWeight.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
-                    onConfirm(editDate, editTime, editComment, distanceCm, weightG)
+                    val assistanceG = editAssistance.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
+                    onConfirm(editDate, editTime, editComment, distanceCm, weightG, assistanceG)
                 }
             ) {
                 Text(stringResource(R.string.save))

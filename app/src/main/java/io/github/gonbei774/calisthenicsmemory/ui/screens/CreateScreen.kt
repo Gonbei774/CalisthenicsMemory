@@ -521,6 +521,7 @@ fun UnifiedAddDialog(
     // トラッキング設定用の状態
     var distanceTrackingEnabled by remember { mutableStateOf(exercise?.distanceTrackingEnabled ?: false) }
     var weightTrackingEnabled by remember { mutableStateOf(exercise?.weightTrackingEnabled ?: false) }
+    var assistanceTrackingEnabled by remember { mutableStateOf(exercise?.assistanceTrackingEnabled ?: false) }
 
     // グループ用の状態
     var groupName by remember { mutableStateOf("") }
@@ -589,7 +590,8 @@ fun UnifiedAddDialog(
                         repDuration = finalRepDuration,
                         restInterval = finalRestInterval,
                         distanceTrackingEnabled = distanceTrackingEnabled,
-                        weightTrackingEnabled = weightTrackingEnabled
+                        weightTrackingEnabled = weightTrackingEnabled,
+                        assistanceTrackingEnabled = assistanceTrackingEnabled
                     )
                 )
                 onDismiss()
@@ -621,7 +623,8 @@ fun UnifiedAddDialog(
                     finalRestInterval,
                     finalRepDuration,
                     distanceTrackingEnabled,
-                    weightTrackingEnabled
+                    weightTrackingEnabled,
+                    assistanceTrackingEnabled
                 )
                 onDismiss()
             }
@@ -1172,6 +1175,30 @@ fun UnifiedAddDialog(
                                     Switch(
                                         checked = weightTrackingEnabled,
                                         onCheckedChange = { weightTrackingEnabled = it }
+                                    )
+                                }
+
+                                // アシストトラッキング
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = stringResource(R.string.track_assistance),
+                                            fontSize = 14.sp,
+                                            color = Color.White
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.track_assistance_description),
+                                            fontSize = 12.sp,
+                                            color = Slate400
+                                        )
+                                    }
+                                    Switch(
+                                        checked = assistanceTrackingEnabled,
+                                        onCheckedChange = { assistanceTrackingEnabled = it }
                                     )
                                 }
                             }

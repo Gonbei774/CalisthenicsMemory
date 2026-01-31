@@ -674,6 +674,16 @@ fun WorkoutInputScreen(
             }
         )
     }
+    var assistanceInput by remember(prefillData) {
+        mutableStateOf(
+            if (prefillData != null && exercise.assistanceTrackingEnabled) {
+                // gからkgに変換（例: 1500g → 1.5）
+                prefillData.firstOrNull()?.assistanceG?.let { (it / 1000.0).toString() } ?: ""
+            } else {
+                ""
+            }
+        )
+    }
 
     // セット数変更時の処理
     LaunchedEffect(numberOfSets) {
@@ -1068,9 +1078,13 @@ fun WorkoutInputScreen(
                     OutlinedTextField(
                         value = distanceInput,
                         onValueChange = { value ->
+                            // 全角→半角変換
+                            val normalized = value
+                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                .replace("．", ".").replace("－", "-")
                             // 空、"-"、または整数（負を含む）を許可
-                            if (value.isEmpty() || value == "-" || value.toIntOrNull() != null) {
-                                distanceInput = value
+                            if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
+                                distanceInput = normalized
                             }
                         },
                         label = { Text(stringResource(R.string.distance_input_label)) },
@@ -1098,12 +1112,16 @@ fun WorkoutInputScreen(
                     OutlinedTextField(
                         value = weightInput,
                         onValueChange = { value ->
+                            // 全角→半角変換
+                            val normalized = value
+                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                .replace("．", ".")
                             // 空、または小数（小数点1つまで、小数第1位まで）を許可
-                            val isValidDecimal = value.isEmpty() ||
-                                value == "." ||
-                                value.matches(Regex("^\\d*\\.?\\d?\$"))
+                            val isValidDecimal = normalized.isEmpty() ||
+                                normalized == "." ||
+                                normalized.matches(Regex("^\\d*\\.?\\d?\$"))
                             if (isValidDecimal) {
-                                weightInput = value
+                                weightInput = normalized
                             }
                         },
                         label = { Text(stringResource(R.string.weight_input_label)) },
@@ -1125,14 +1143,53 @@ fun WorkoutInputScreen(
                 }
             }
 
+            // アシスト入力（有効な場合のみ表示）- kg単位で小数第1位まで
+            if (exercise.assistanceTrackingEnabled) {
+                item {
+                    OutlinedTextField(
+                        value = assistanceInput,
+                        onValueChange = { value ->
+                            // 全角→半角変換
+                            val normalized = value
+                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                .replace("．", ".")
+                            // 空、または小数（小数点1つまで、小数第1位まで）を許可
+                            val isValidDecimal = normalized.isEmpty() ||
+                                normalized == "." ||
+                                normalized.matches(Regex("^\\d*\\.?\\d?\$"))
+                            if (isValidDecimal) {
+                                assistanceInput = normalized
+                            }
+                        },
+                        label = { Text(stringResource(R.string.assistance_input_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal
+                        ),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Amber500,
+                            unfocusedBorderColor = Slate600,
+                            focusedLabelColor = Amber500,
+                            unfocusedLabelColor = Slate400,
+                            cursorColor = Amber500,
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White
+                        )
+                    )
+                }
+            }
+
             // 記録ボタン
             item {
                 Button(
                     onClick = {
-                        // 距離・荷重の値を取得（空の場合はnull）
+                        // 距離・荷重・アシストの値を取得（空の場合はnull）
                         val distanceCm = distanceInput.ifEmpty { null }?.toIntOrNull()
                         // 荷重はkgで入力、gに変換して保存（例: 1.5kg → 1500g）
                         val weightG = weightInput.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
+                        // アシストはkgで入力、gに変換して保存（例: 22.5kg → 22500g）
+                        val assistanceG = assistanceInput.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
 
                         if (isUnilateral) {
                             // Unilateral: 左右の値を処理（0を含む）
@@ -1155,7 +1212,8 @@ fun WorkoutInputScreen(
                                     time = selectedTime.format(timeFormatter),
                                     comment = comment,
                                     distanceCm = distanceCm,
-                                    weightG = weightG
+                                    weightG = weightG,
+                                    assistanceG = assistanceG
                                 )
                                 // Delete todo task if from ToDo
                                 if (fromToDo) {
@@ -1178,7 +1236,8 @@ fun WorkoutInputScreen(
                                     time = selectedTime.format(timeFormatter),
                                     comment = comment,
                                     distanceCm = distanceCm,
-                                    weightG = weightG
+                                    weightG = weightG,
+                                    assistanceG = assistanceG
                                 )
                                 // Delete todo task if from ToDo
                                 if (fromToDo) {

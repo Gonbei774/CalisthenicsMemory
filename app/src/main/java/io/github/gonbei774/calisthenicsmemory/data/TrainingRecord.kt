@@ -28,5 +28,6 @@ data class TrainingRecord(
     val time: String,              // 時刻 (HH:mm)
     val comment: String = "",      // コメント
     val distanceCm: Int? = null,   // 距離（cm、任意）
-    val weightG: Int? = null       // 追加ウエイト（g、任意）
+    val weightG: Int? = null,      // 追加ウエイト（g、任意）
+    val assistanceG: Int? = null   // アシスト量（g、任意）
 )

@@ -419,17 +419,23 @@
     <string name="track_distance_description">记录每次训练的距离（厘米）</string>
     <string name="track_weight">追踪重量</string>
     <string name="track_weight_description">记录每次训练的额外重量（公斤）</string>
+    <string name="track_assistance">追踪辅助</string>
+    <string name="track_assistance_description">记录每次训练的弹力带/器械辅助（公斤）</string>
     <string name="distance_input_label">距离（厘米）</string>
     <string name="weight_input_label">重量（公斤）</string>
+    <string name="assistance_input_label">辅助（公斤）</string>
     <string name="distance_display_format">%d厘米</string>
     <string name="weight_display_format">%.1f公斤</string>
+    <string name="assistance_display_format">-%.1f kg</string>
     <!-- Distance Graph -->
     <string name="invert">反转</string>
     <string name="legend_reps">次数</string>
     <string name="legend_distance">距离</string>
     <string name="legend_distance_inverted">距离（反转）</string>
-    <!-- Volume/Weight Statistics -->
+    <!-- Volume/Weight/Assistance Statistics -->
     <string name="legend_volume">容量</string>
+    <string name="legend_assistance">辅助</string>
+    <string name="record_assistance_for_graph">记录此动作的辅助量</string>
     <string name="max_daily_volume">最大日容量</string>
     <string name="avg_daily_volume">平均日容量</string>
     <string name="max_weight">最大重量</string>

@@ -10,7 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [Exercise::class, TrainingRecord::class, ExerciseGroup::class, TodoTask::class, Program::class, ProgramExercise::class, ProgramLoop::class],
-    version = 15,
+    version = 16,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -34,7 +34,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "bodyweight_trainer_database"
                 )
-                    .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15)
+                    .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
@@ -240,6 +240,21 @@ abstract class AppDatabase : RoomDatabase() {
                 database.execSQL("CREATE INDEX IF NOT EXISTS index_program_exercises_programId ON program_exercises(programId)")
                 database.execSQL("CREATE INDEX IF NOT EXISTS index_program_exercises_exerciseId ON program_exercises(exerciseId)")
                 database.execSQL("CREATE INDEX IF NOT EXISTS index_program_exercises_loopId ON program_exercises(loopId)")
+            }
+        }
+
+        // マイグレーション 15 → 16: アシストトラッキング機能を追加
+        val MIGRATION_15_16 = object : Migration(15, 16) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Exercise テーブルにアシストトラッキングフラグを追加
+                database.execSQL(
+                    "ALTER TABLE exercises ADD COLUMN assistanceTrackingEnabled INTEGER NOT NULL DEFAULT 0"
+                )
+
+                // TrainingRecord テーブルにアシスト値を追加
+                database.execSQL(
+                    "ALTER TABLE training_records ADD COLUMN assistanceG INTEGER"
+                )
             }
         }
     }

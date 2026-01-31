@@ -77,7 +77,8 @@ data class ExportRecord(
     val time: String,
     val comment: String,
     val distanceCm: Int? = null,  // 距離（cm、v3で追加）
-    val weightG: Int? = null      // 追加ウエイト（g、v3で追加）
+    val weightG: Int? = null,     // 追加ウエイト（g、v3で追加）
+    val assistanceG: Int? = null  // アシスト量（g、v6で追加）
 )
 
 @Serializable
@@ -182,7 +183,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         restInterval: Int? = null,       // 種目固有の休憩時間（秒）
         repDuration: Int? = null,        // 種目固有の1レップ時間（秒）
         distanceTrackingEnabled: Boolean = false,  // 距離トラッキング有効
-        weightTrackingEnabled: Boolean = false     // 荷重トラッキング有効
+        weightTrackingEnabled: Boolean = false,    // 荷重トラッキング有効
+        assistanceTrackingEnabled: Boolean = false // アシストトラッキング有効
     ) {
         viewModelScope.launch {
             try {
@@ -208,7 +210,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     restInterval = restInterval,
                     repDuration = repDuration,
                     distanceTrackingEnabled = distanceTrackingEnabled,
-                    weightTrackingEnabled = weightTrackingEnabled
+                    weightTrackingEnabled = weightTrackingEnabled,
+                    assistanceTrackingEnabled = assistanceTrackingEnabled
                 )
                 exerciseDao.insertExercise(exercise)
                 _snackbarMessage.value = UiMessage.ExerciseAdded
@@ -279,7 +282,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         time: String,
         comment: String,
         distanceCm: Int? = null,   // 距離（cm）
-        weightG: Int? = null       // 追加ウエイト（g）
+        weightG: Int? = null,      // 追加ウエイト（g）
+        assistanceG: Int? = null   // アシスト量（g）
     ) {
         viewModelScope.launch {
             try {
@@ -293,7 +297,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         time = time,
                         comment = comment,
                         distanceCm = distanceCm,
-                        weightG = weightG
+                        weightG = weightG,
+                        assistanceG = assistanceG
                     )
                 }
                 recordDao.insertRecords(records)
@@ -313,7 +318,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         time: String,
         comment: String,
         distanceCm: Int? = null,   // 距離（cm）
-        weightG: Int? = null       // 追加ウエイト（g）
+        weightG: Int? = null,      // 追加ウエイト（g）
+        assistanceG: Int? = null   // アシスト量（g）
     ) {
         viewModelScope.launch {
             try {
@@ -328,7 +334,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         time = time,
                         comment = comment,
                         distanceCm = distanceCm,
-                        weightG = weightG
+                        weightG = weightG,
+                        assistanceG = assistanceG
                     )
                 }
                 recordDao.insertRecords(records)
@@ -591,7 +598,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     time = record.time,
                     comment = record.comment,
                     distanceCm = record.distanceCm,
-                    weightG = record.weightG
+                    weightG = record.weightG,
+                    assistanceG = record.assistanceG
                 )
             }
 
@@ -721,7 +729,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         time = exportRecord.time,
                         comment = exportRecord.comment,
                         distanceCm = exportRecord.distanceCm,
-                        weightG = exportRecord.weightG
+                        weightG = exportRecord.weightG,
+                        assistanceG = exportRecord.assistanceG
                     )
                     recordDao.insertRecord(record)
                 }
@@ -849,24 +858,26 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
             val csvBuilder = StringBuilder()
 
-            // ヘッダー (v11: 10列)
-            csvBuilder.appendLine("exerciseName,exerciseType,date,time,setNumber,valueRight,valueLeft,comment,distanceCm,weightG")
+            // ヘッダー (v12: 11列)
+            csvBuilder.appendLine("exerciseName,exerciseType,date,time,setNumber,valueRight,valueLeft,comment,distanceCm,weightG,assistanceG")
 
             // 入力例（コメント - 英語のみ）
             csvBuilder.appendLine("# Example: Multiple sets with same date/time (one session)")
-            csvBuilder.appendLine("# Wall Push-up,Dynamic,2025-11-09,10:00,1,20,,Morning session,,")
-            csvBuilder.appendLine("# Wall Push-up,Dynamic,2025-11-09,10:00,2,19,,Morning session,,")
-            csvBuilder.appendLine("# Wall Push-up,Dynamic,2025-11-09,10:00,3,15,,Morning session,,")
+            csvBuilder.appendLine("# Wall Push-up,Dynamic,2025-11-09,10:00,1,20,,Morning session,,,")
+            csvBuilder.appendLine("# Wall Push-up,Dynamic,2025-11-09,10:00,2,19,,Morning session,,,")
+            csvBuilder.appendLine("# Wall Push-up,Dynamic,2025-11-09,10:00,3,15,,Morning session,,,")
             csvBuilder.appendLine("# Unilateral exercise example (with valueLeft)")
-            csvBuilder.appendLine("# One-leg Squat,Dynamic,2025-11-09,10:30,1,8,7,Right leg stronger,,")
+            csvBuilder.appendLine("# One-leg Squat,Dynamic,2025-11-09,10:30,1,8,7,Right leg stronger,,,")
             csvBuilder.appendLine("# With distance (cm) and weight (g)")
-            csvBuilder.appendLine("# Running,Dynamic,2025-11-09,08:00,1,1,,5km run,500000,")
-            csvBuilder.appendLine("# Weighted Push-up,Dynamic,2025-11-09,10:00,1,10,,With vest,,10000")
+            csvBuilder.appendLine("# Running,Dynamic,2025-11-09,08:00,1,1,,5km run,500000,,")
+            csvBuilder.appendLine("# Weighted Push-up,Dynamic,2025-11-09,10:00,1,10,,With vest,,10000,")
+            csvBuilder.appendLine("# With assistance (g) - band assisted")
+            csvBuilder.appendLine("# Pull-up,Dynamic,2025-11-09,11:00,1,5,,With band,,,22000")
             csvBuilder.appendLine("#")
 
             // 種目リスト（空欄テンプレート）
             currentExercises.forEach { exercise ->
-                csvBuilder.appendLine("${exercise.name},${exercise.type},,,,,,,,")
+                csvBuilder.appendLine("${exercise.name},${exercise.type},,,,,,,,,")
             }
 
             withContext(Dispatchers.Main) {
@@ -883,7 +894,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     }
 
     /**
-     * 実際の記録データをCSV形式でエクスポート (v11: 10列)
+     * 実際の記録データをCSV形式でエクスポート (v12: 11列)
      */
     suspend fun exportRecords(): String = withContext(Dispatchers.IO) {
         try {
@@ -895,8 +906,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
             val csvBuilder = StringBuilder()
 
-            // ヘッダー (v11: 10列)
-            csvBuilder.appendLine("exerciseName,exerciseType,date,time,setNumber,valueRight,valueLeft,comment,distanceCm,weightG")
+            // ヘッダー (v12: 11列)
+            csvBuilder.appendLine("exerciseName,exerciseType,date,time,setNumber,valueRight,valueLeft,comment,distanceCm,weightG,assistanceG")
 
             // 記録データを出力（日付・時刻・セット番号で並べ替え）
             currentRecords
@@ -907,10 +918,11 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         val valueLeft = record.valueLeft?.toString() ?: ""
                         val distanceCm = record.distanceCm?.toString() ?: ""
                         val weightG = record.weightG?.toString() ?: ""
+                        val assistanceG = record.assistanceG?.toString() ?: ""
                         csvBuilder.appendLine(
                             "${exercise.name},${exercise.type},${record.date},${record.time}," +
                             "${record.setNumber},${record.valueRight},$valueLeft,${record.comment}," +
-                            "$distanceCm,$weightG"
+                            "$distanceCm,$weightG,$assistanceG"
                         )
                     }
                 }
@@ -1183,9 +1195,11 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     val valueRightStr = columns[5].trim()
                     val valueLeftStr = columns[6].trim()
                     val comment = columns.getOrNull(7)?.trim() ?: ""
-                    // v11 新フィールド（オプション）
+                    // v11+ 新フィールド（オプション）
                     val distanceCmStr = columns.getOrNull(8)?.trim() ?: ""
                     val weightGStr = columns.getOrNull(9)?.trim() ?: ""
+                    // v12 新フィールド（オプション）
+                    val assistanceGStr = columns.getOrNull(10)?.trim() ?: ""
 
                     // 必須フィールドチェック
                     if (exerciseName.isEmpty() || exerciseType.isEmpty() ||
@@ -1213,6 +1227,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     val valueLeft = if (valueLeftStr.isEmpty()) null else valueLeftStr.toIntOrNull()
                     val distanceCm = if (distanceCmStr.isEmpty()) null else distanceCmStr.toIntOrNull()
                     val weightG = if (weightGStr.isEmpty()) null else weightGStr.toIntOrNull()
+                    val assistanceG = if (assistanceGStr.isEmpty()) null else assistanceGStr.toIntOrNull()
 
                     if (setNumber == null || valueRight == null) {
                         errors.add("Line ${index + 2}: Invalid number format")
@@ -1244,7 +1259,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         time = time,
                         comment = comment,
                         distanceCm = distanceCm,
-                        weightG = weightG
+                        weightG = weightG,
+                        assistanceG = assistanceG
                     )
 
                     recordDao.insertRecord(record)

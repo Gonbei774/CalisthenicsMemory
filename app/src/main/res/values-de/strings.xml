@@ -419,17 +419,23 @@
     <string name="track_distance_description">Distanz (cm) für jede Einheit erfassen</string>
     <string name="track_weight">Gewicht erfassen</string>
     <string name="track_weight_description">Zusatzgewicht (kg) für jede Einheit erfassen</string>
+    <string name="track_assistance">Unterstützung erfassen</string>
+    <string name="track_assistance_description">Band-/Maschinen-Unterstützung (kg) für jede Einheit erfassen</string>
     <string name="distance_input_label">Distanz (cm)</string>
     <string name="weight_input_label">Gewicht (kg)</string>
+    <string name="assistance_input_label">Unterstützung (kg)</string>
     <string name="distance_display_format">%d cm</string>
     <string name="weight_display_format">%.1f kg</string>
+    <string name="assistance_display_format">-%.1f kg</string>
     <!-- Distance Graph -->
     <string name="invert">Invertieren</string>
     <string name="legend_reps">Wdh.</string>
     <string name="legend_distance">Distanz</string>
     <string name="legend_distance_inverted">Distanz (invertiert)</string>
-    <!-- Volume/Weight Statistics -->
+    <!-- Volume/Weight/Assistance Statistics -->
     <string name="legend_volume">Volumen</string>
+    <string name="legend_assistance">Unterstützung</string>
+    <string name="record_assistance_for_graph">Unterstützung für diese Übung erfassen</string>
     <string name="max_daily_volume">Max. Tagesvolumen</string>
     <string name="avg_daily_volume">Durchschn. Tagesvolumen</string>
     <string name="max_weight">Max. Gewicht</string>
