@@ -63,7 +63,8 @@ data class ExportExercise(
     val restInterval: Int? = null,   // 種目固有の休憩時間（デフォルト値で後方互換）
     val repDuration: Int? = null,    // 種目固有の1レップ時間（デフォルト値で後方互換）
     val distanceTrackingEnabled: Boolean = false,  // 距離入力を有効化（v3で追加）
-    val weightTrackingEnabled: Boolean = false     // 荷重入力を有効化（v3で追加）
+    val weightTrackingEnabled: Boolean = false,    // 荷重入力を有効化（v3で追加）
+    val assistanceTrackingEnabled: Boolean = false // アシスト入力を有効化（v6で追加）
 )
 
 @Serializable
@@ -583,7 +584,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     restInterval = exercise.restInterval,
                     repDuration = exercise.repDuration,
                     distanceTrackingEnabled = exercise.distanceTrackingEnabled,
-                    weightTrackingEnabled = exercise.weightTrackingEnabled
+                    weightTrackingEnabled = exercise.weightTrackingEnabled,
+                    assistanceTrackingEnabled = exercise.assistanceTrackingEnabled
                 )
             }
 
@@ -712,7 +714,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         restInterval = exportExercise.restInterval,
                         repDuration = exportExercise.repDuration,
                         distanceTrackingEnabled = exportExercise.distanceTrackingEnabled,
-                        weightTrackingEnabled = exportExercise.weightTrackingEnabled
+                        weightTrackingEnabled = exportExercise.weightTrackingEnabled,
+                        assistanceTrackingEnabled = exportExercise.assistanceTrackingEnabled
                     )
                     exerciseDao.insertExercise(exercise)
                 }
@@ -823,7 +826,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             val currentExercises = exercises.value
 
             val csvBuilder = StringBuilder()
-            csvBuilder.appendLine("name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration,distanceTrackingEnabled,weightTrackingEnabled")
+            csvBuilder.appendLine("name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration,distanceTrackingEnabled,weightTrackingEnabled,assistanceTrackingEnabled")
 
             currentExercises.forEach { exercise ->
                 csvBuilder.appendLine(
@@ -831,7 +834,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     "${exercise.sortOrder},${exercise.laterality}," +
                     "${exercise.targetSets ?: ""},${exercise.targetValue ?: ""},${exercise.isFavorite}," +
                     "${exercise.displayOrder},${exercise.restInterval ?: ""},${exercise.repDuration ?: ""}," +
-                    "${exercise.distanceTrackingEnabled},${exercise.weightTrackingEnabled}"
+                    "${exercise.distanceTrackingEnabled},${exercise.weightTrackingEnabled},${exercise.assistanceTrackingEnabled}"
                 )
             }
 
@@ -1053,6 +1056,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     val repDurationStr = columns.getOrNull(10)?.trim() ?: ""
                     val distanceTrackingEnabledStr = columns.getOrNull(11)?.trim() ?: ""
                     val weightTrackingEnabledStr = columns.getOrNull(12)?.trim() ?: ""
+                    val assistanceTrackingEnabledStr = columns.getOrNull(13)?.trim() ?: ""
 
                     // 必須フィールドチェック
                     if (name.isEmpty() || type.isEmpty() || laterality.isEmpty()) {
@@ -1095,6 +1099,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     val repDuration = repDurationStr.toIntOrNull()
                     val distanceTrackingEnabled = distanceTrackingEnabledStr.toBooleanStrictOrNull() ?: false
                     val weightTrackingEnabled = weightTrackingEnabledStr.toBooleanStrictOrNull() ?: false
+                    val assistanceTrackingEnabled = assistanceTrackingEnabledStr.toBooleanStrictOrNull() ?: false
 
                     // 重複チェック
                     val existing = exercises.value.find {
@@ -1126,7 +1131,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         restInterval = restInterval,
                         repDuration = repDuration,
                         distanceTrackingEnabled = distanceTrackingEnabled,
-                        weightTrackingEnabled = weightTrackingEnabled
+                        weightTrackingEnabled = weightTrackingEnabled,
+                        assistanceTrackingEnabled = assistanceTrackingEnabled
                     )
                     exerciseDao.insertExercise(exercise)
                     successCount++
