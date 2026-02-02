@@ -18,6 +18,7 @@ import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
 import io.github.gonbei774.calisthenicsmemory.data.ProgramWorkoutSet
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 
 @Composable
 internal fun ProgramResultStep(
@@ -25,6 +26,7 @@ internal fun ProgramResultStep(
     onSave: () -> Unit,
     onCancel: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     var comment by remember { mutableStateOf(session.comment) }
 
     // 0のセットがあるかチェック
@@ -54,7 +56,7 @@ internal fun ProgramResultStep(
             text = stringResource(R.string.workout_complete),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White
+            color = appColors.textPrimary
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -92,7 +94,7 @@ internal fun ProgramResultStep(
                         text = exercise.name,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                        color = appColors.textPrimary,
                         modifier = Modifier.padding(top = if (exerciseIndex > 0) 8.dp else 0.dp)
                     )
                 }
@@ -194,13 +196,14 @@ internal fun ProgramUnilateralSetItem(
     leftSet: ProgramWorkoutSet?,
     exerciseType: String
 ) {
+    val appColors = LocalAppColors.current
     var rightValue by remember(rightSet) { mutableStateOf(rightSet?.actualValue?.toString() ?: "0") }
     var leftValue by remember(leftSet) { mutableStateOf(leftSet?.actualValue?.toString() ?: "0") }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (rightSet?.isSkipped == true && leftSet?.isSkipped == true) Slate700 else Slate800
+            containerColor = if (rightSet?.isSkipped == true && leftSet?.isSkipped == true) appColors.cardBackgroundSecondary else appColors.cardBackground
         ),
         shape = RoundedCornerShape(8.dp)
     ) {
@@ -213,14 +216,14 @@ internal fun ProgramUnilateralSetItem(
                 text = stringResource(R.string.set_label, setNumber),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = appColors.textPrimary
             )
 
             if (rightSet?.isSkipped == true && leftSet?.isSkipped == true) {
                 Text(
                     text = stringResource(R.string.skipped_label),
                     fontSize = 12.sp,
-                    color = Slate400,
+                    color = appColors.textSecondary,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
@@ -236,7 +239,7 @@ internal fun ProgramUnilateralSetItem(
                 Text(
                     text = stringResource(R.string.right_colon),
                     fontSize = 14.sp,
-                    color = Slate400,
+                    color = appColors.textSecondary,
                     modifier = Modifier.width(30.dp)
                 )
                 OutlinedTextField(
@@ -264,7 +267,7 @@ internal fun ProgramUnilateralSetItem(
                 Text(
                     text = stringResource(R.string.left_colon),
                     fontSize = 14.sp,
-                    color = Slate400,
+                    color = appColors.textSecondary,
                     modifier = Modifier.width(30.dp)
                 )
                 OutlinedTextField(
@@ -296,12 +299,13 @@ internal fun ProgramBilateralSetItem(
     set: ProgramWorkoutSet,
     exerciseType: String
 ) {
+    val appColors = LocalAppColors.current
     var value by remember(set) { mutableStateOf(set.actualValue.toString()) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (set.isSkipped) Slate700 else Slate800
+            containerColor = if (set.isSkipped) appColors.cardBackgroundSecondary else appColors.cardBackground
         ),
         shape = RoundedCornerShape(8.dp)
     ) {
@@ -317,13 +321,13 @@ internal fun ProgramBilateralSetItem(
                     text = stringResource(R.string.set_label, set.setNumber),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = appColors.textPrimary
                 )
                 if (set.isSkipped) {
                     Text(
                         text = stringResource(R.string.skipped_label),
                         fontSize = 12.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
                 }
             }

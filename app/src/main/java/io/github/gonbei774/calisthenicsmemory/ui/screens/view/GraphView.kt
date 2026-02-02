@@ -51,6 +51,12 @@ data class VolumeDataPoint(
     val volumeLeft: Float? = null  // Unilateral用
 )
 
+// アシストグラフ用データクラス
+data class AssistanceDataPoint(
+    val date: String,
+    val assistanceKg: Float        // アシスト量（kg）
+)
+
 enum class Period(val days: Int, val displayNameResId: Int) {
     OneWeek(7, R.string.period_one_week),
     OneMonth(30, R.string.period_one_month),
@@ -91,6 +97,7 @@ fun GraphView(
     selectedExerciseFilter: Exercise?,
     selectedPeriod: Period?
 ) {
+    val appColors = LocalAppColors.current
     var selectedGraphType by remember { mutableStateOf(GraphType.Average) }
     var isDistanceInverted by remember { mutableStateOf(false) }
 
@@ -106,12 +113,12 @@ fun GraphView(
                 Text(
                     text = stringResource(R.string.no_exercises_registered),
                     fontSize = 18.sp,
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
                 Text(
                     text = stringResource(R.string.add_exercises_in_settings),
                     fontSize = 14.sp,
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
             }
         }
@@ -130,12 +137,12 @@ fun GraphView(
                 Text(
                     text = stringResource(R.string.select_exercise_please),
                     fontSize = 18.sp,
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
                 Text(
                     text = stringResource(R.string.select_from_top),
                     fontSize = 14.sp,
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
             }
         }
@@ -153,7 +160,7 @@ fun GraphView(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
-                    containerColor = Slate800
+                    containerColor = appColors.cardBackground
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -174,9 +181,9 @@ fun GraphView(
                                 label = { Text(stringResource(type.displayNameResId)) },
                                 colors = FilterChipDefaults.filterChipColors(
                                     selectedContainerColor = Purple600,
-                                    selectedLabelColor = Color.White,
-                                    containerColor = Slate700,
-                                    labelColor = Slate300
+                                    selectedLabelColor = appColors.textPrimary,
+                                    containerColor = appColors.cardBackgroundSecondary,
+                                    labelColor = appColors.textTertiary
                                 )
                             )
                         }
@@ -196,9 +203,9 @@ fun GraphView(
                             },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Blue600,
-                                selectedLabelColor = Color.White,
-                                containerColor = Slate700,
-                                labelColor = Slate300
+                                selectedLabelColor = appColors.textPrimary,
+                                containerColor = appColors.cardBackgroundSecondary,
+                                labelColor = appColors.textTertiary
                             )
                         )
                     }
@@ -266,6 +273,55 @@ fun GraphView(
                     data = volumeData,
                     period = selectedPeriod,
                     allTimeVolumeMax = allTimeVolumeMax
+                )
+            }
+        }
+
+        // アシストグラフ（アシストトラッキング有効時のみ）
+        if (selectedExerciseFilter.assistanceTrackingEnabled) {
+            item {
+                val assistanceData = remember(selectedExerciseFilter, records, selectedPeriod) {
+                    prepareAssistanceData(
+                        exercise = selectedExerciseFilter,
+                        records = records,
+                        period = selectedPeriod
+                    )
+                }
+
+                val allTimeAssistanceRange = remember(selectedExerciseFilter, records) {
+                    val allAssistanceData = prepareAssistanceData(
+                        exercise = selectedExerciseFilter,
+                        records = records,
+                        period = null
+                    )
+                    if (allAssistanceData.isNotEmpty()) {
+                        Pair(
+                            allAssistanceData.minOfOrNull { it.assistanceKg } ?: 0f,
+                            allAssistanceData.maxOfOrNull { it.assistanceKg } ?: 0f
+                        )
+                    } else {
+                        Pair(0f, 0f)
+                    }
+                }
+
+                // 全記録の日付範囲を計算（メインチャートと同じX軸範囲にするため）
+                val allRecordsDateRange = remember(selectedExerciseFilter, records) {
+                    val exerciseRecords = records.filter { it.exerciseId == selectedExerciseFilter.id }
+                    if (exerciseRecords.isNotEmpty()) {
+                        val dates = exerciseRecords.mapNotNull {
+                            try { LocalDate.parse(it.date) } catch (e: Exception) { null }
+                        }
+                        if (dates.isNotEmpty()) {
+                            Pair(dates.minOrNull()!!, dates.maxOrNull()!!)
+                        } else null
+                    } else null
+                }
+
+                AssistanceChart(
+                    data = assistanceData,
+                    period = selectedPeriod,
+                    allTimeAssistanceRange = allTimeAssistanceRange,
+                    allRecordsDateRange = allRecordsDateRange
                 )
             }
         }
@@ -480,6 +536,71 @@ fun prepareVolumeData(
     }.sortedBy { it.date }
 }
 
+// アシストデータ準備関数
+fun prepareAssistanceData(
+    exercise: Exercise,
+    records: List<TrainingRecord>,
+    period: Period?
+): List<AssistanceDataPoint> {
+    // アシストトラッキングが無効な場合は空リスト
+    if (!exercise.assistanceTrackingEnabled) {
+        return emptyList()
+    }
+
+    // 対象種目の記録を抽出
+    val exerciseRecords = records.filter { it.exerciseId == exercise.id }
+
+    if (exerciseRecords.isEmpty()) {
+        return emptyList()
+    }
+
+    // 期間でフィルター（nullの場合は全期間）
+    val today = LocalDate.now()
+    val filteredRecords = if (period == null) {
+        exerciseRecords
+    } else {
+        val cutoffDate = today.minusDays(period.days.toLong() - 1)
+        exerciseRecords.filter { record ->
+            try {
+                val recordDate = LocalDate.parse(record.date)
+                recordDate >= cutoffDate && recordDate <= today
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
+    if (filteredRecords.isEmpty()) {
+        return emptyList()
+    }
+
+    // アシストデータがあるレコードのみ抽出
+    val recordsWithAssistance = filteredRecords.filter { it.assistanceG != null && it.assistanceG > 0 }
+    if (recordsWithAssistance.isEmpty()) {
+        return emptyList()
+    }
+
+    // 日付ごとにグループ化してアシスト量の加重平均を計算（レップ数で重み付け）
+    val assistanceByDate = recordsWithAssistance
+        .groupBy { it.date }
+        .mapValues { (_, sessionRecords) ->
+            val totalReps = sessionRecords.sumOf { it.valueRight }
+            if (totalReps > 0) {
+                sessionRecords.sumOf { (it.assistanceG ?: 0) * it.valueRight } / totalReps.toFloat() / 1000f
+            } else {
+                sessionRecords.mapNotNull { it.assistanceG }.average().toFloat() / 1000f
+            }
+        }
+
+    // データポイントを作成
+    return assistanceByDate.map { (date, assistanceKg) ->
+        AssistanceDataPoint(
+            date = date,
+            assistanceKg = assistanceKg
+        )
+    }.sortedBy { it.date }
+}
+
 // 折れ線グラフコンポーネント
 @Composable
 fun LineChart(
@@ -489,6 +610,7 @@ fun LineChart(
     isDistanceInverted: Boolean = false,
     allTimeDistanceRange: Pair<Float, Float>? = null
 ) {
+    val appColors = LocalAppColors.current
     val hasDistanceData = data.any { it.distanceCm != null }
 
     Card(
@@ -496,7 +618,7 @@ fun LineChart(
             .fillMaxWidth()
             .height(if (hasDistanceData) 340.dp else 300.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Slate800
+            containerColor = appColors.cardBackground
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -514,12 +636,12 @@ fun LineChart(
                             Text(
                                 text = stringResource(R.string.no_data),
                                 fontSize = 16.sp,
-                                color = Slate400
+                                color = appColors.textSecondary
                             )
                             Text(
                                 text = stringResource(R.string.record_training_for_exercise),
                                 fontSize = 14.sp,
-                                color = Slate400
+                                color = appColors.textSecondary
                             )
                         }
                     }
@@ -552,7 +674,7 @@ fun LineChart(
                     Text(
                         text = " ${stringResource(R.string.legend_reps)}",
                         fontSize = 12.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
 
                     Spacer(modifier = Modifier.width(24.dp))
@@ -566,7 +688,7 @@ fun LineChart(
                     Text(
                         text = " ${stringResource(if (isDistanceInverted) R.string.legend_distance_inverted else R.string.legend_distance)}",
                         fontSize = 12.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
                 }
             }
@@ -582,6 +704,7 @@ fun SimpleLineChart(
     isDistanceInverted: Boolean = false,
     allTimeDistanceRange: Pair<Float, Float>? = null
 ) {
+    val appColors = LocalAppColors.current
     // Unilateral判定
     val isUnilateral = data.any { it.valueLeft != null }
 
@@ -656,7 +779,7 @@ fun SimpleLineChart(
             val y = topPadding + graphHeight - ((labelValue - minValue) / range * graphHeight)
 
             drawLine(
-                color = Slate600.copy(alpha = 0.3f),
+                color = appColors.border.copy(alpha = 0.3f),
                 start = Offset(leftPadding, y),
                 end = Offset(size.width - rightPadding, y),
                 strokeWidth = 1.dp.toPx()
@@ -777,7 +900,7 @@ fun SimpleLineChart(
                 val y = topPadding + graphHeight - ((point.value - minValue) / range * graphHeight)
 
                 drawCircle(
-                    color = Color.White.copy(alpha = 0.4f),
+                    color = appColors.textPrimary.copy(alpha = 0.4f),
                     radius = 6.dp.toPx(),
                     center = Offset(x, y)
                 )
@@ -804,7 +927,7 @@ fun SimpleLineChart(
                         val y = topPadding + graphHeight - ((leftValue - minValue) / range * graphHeight)
 
                         drawCircle(
-                            color = Color.White.copy(alpha = 0.4f),
+                            color = appColors.textPrimary.copy(alpha = 0.4f),
                             radius = 6.dp.toPx(),
                             center = Offset(x, y)
                         )
@@ -876,7 +999,7 @@ fun SimpleLineChart(
                         }
 
                         drawCircle(
-                            color = Color.White.copy(alpha = 0.4f),
+                            color = appColors.textPrimary.copy(alpha = 0.4f),
                             radius = 6.dp.toPx(),
                             center = Offset(x, y)
                         )
@@ -922,6 +1045,7 @@ fun VolumeChart(
     period: Period?,
     allTimeVolumeMax: Float
 ) {
+    val appColors = LocalAppColors.current
     val isUnilateral = data.any { it.volumeLeft != null }
     val volumeLabel = stringResource(R.string.legend_volume)
 
@@ -930,7 +1054,7 @@ fun VolumeChart(
             .fillMaxWidth()
             .height(300.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Slate800
+            containerColor = appColors.cardBackground
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -948,12 +1072,12 @@ fun VolumeChart(
                             Text(
                                 text = stringResource(R.string.no_data),
                                 fontSize = 16.sp,
-                                color = Slate400
+                                color = appColors.textSecondary
                             )
                             Text(
                                 text = stringResource(R.string.record_weight_for_graph),
                                 fontSize = 14.sp,
-                                color = Slate400
+                                color = appColors.textSecondary
                             )
                         }
                     }
@@ -985,7 +1109,7 @@ fun VolumeChart(
                         Text(
                             text = " ${stringResource(R.string.right_short)}",
                             fontSize = 12.sp,
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                         Box(
@@ -996,7 +1120,7 @@ fun VolumeChart(
                         Text(
                             text = " ${stringResource(R.string.left_short)}",
                             fontSize = 12.sp,
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
                     } else {
                         // Bilateral: ボリューム
@@ -1008,7 +1132,7 @@ fun VolumeChart(
                         Text(
                             text = " $volumeLabel",
                             fontSize = 12.sp,
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
                     }
                 }
@@ -1023,6 +1147,7 @@ fun SimpleVolumeChart(
     period: Period?,
     allTimeVolumeMax: Float
 ) {
+    val appColors = LocalAppColors.current
     val isUnilateral = data.any { it.volumeLeft != null }
 
     Canvas(
@@ -1071,7 +1196,7 @@ fun SimpleVolumeChart(
             val y = topPadding + graphHeight - (labelValue / range * graphHeight)
 
             drawLine(
-                color = Slate600.copy(alpha = 0.3f),
+                color = appColors.border.copy(alpha = 0.3f),
                 start = Offset(leftPadding, y),
                 end = Offset(size.width - rightPadding, y),
                 strokeWidth = 1.dp.toPx()
@@ -1165,7 +1290,7 @@ fun SimpleVolumeChart(
                 val y = topPadding + graphHeight - (point.volumeRight / range * graphHeight)
 
                 drawCircle(
-                    color = Color.White.copy(alpha = 0.4f),
+                    color = appColors.textPrimary.copy(alpha = 0.4f),
                     radius = 6.dp.toPx(),
                     center = Offset(x, y)
                 )
@@ -1192,7 +1317,7 @@ fun SimpleVolumeChart(
                         val y = topPadding + graphHeight - (leftValue / range * graphHeight)
 
                         drawCircle(
-                            color = Color.White.copy(alpha = 0.4f),
+                            color = appColors.textPrimary.copy(alpha = 0.4f),
                             radius = 6.dp.toPx(),
                             center = Offset(x, y)
                         )
@@ -1228,6 +1353,257 @@ fun SimpleVolumeChart(
                 }
             )
         }
+    }
+}
+
+// アシストグラフコンポーネント
+@Composable
+fun AssistanceChart(
+    data: List<AssistanceDataPoint>,
+    period: Period?,
+    allTimeAssistanceRange: Pair<Float, Float>,
+    allRecordsDateRange: Pair<LocalDate, LocalDate>? = null
+) {
+    val appColors = LocalAppColors.current
+    val assistanceLabel = stringResource(R.string.legend_assistance)
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = appColors.cardBackground
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.weight(1f)) {
+                if (data.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.no_data),
+                                fontSize = 16.sp,
+                                color = appColors.textSecondary
+                            )
+                            Text(
+                                text = stringResource(R.string.record_assistance_for_graph),
+                                fontSize = 14.sp,
+                                color = appColors.textSecondary
+                            )
+                        }
+                    }
+                } else {
+                    SimpleAssistanceChart(
+                        data = data,
+                        period = period,
+                        allTimeAssistanceRange = allTimeAssistanceRange,
+                        allRecordsDateRange = allRecordsDateRange
+                    )
+                }
+            }
+
+            // 凡例
+            if (data.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(Amber500, CircleShape)
+                    )
+                    Text(
+                        text = " $assistanceLabel",
+                        fontSize = 12.sp,
+                        color = appColors.textSecondary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SimpleAssistanceChart(
+    data: List<AssistanceDataPoint>,
+    period: Period?,
+    allTimeAssistanceRange: Pair<Float, Float>,
+    allRecordsDateRange: Pair<LocalDate, LocalDate>? = null
+) {
+    val appColors = LocalAppColors.current
+    Canvas(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        if (data.isEmpty()) return@Canvas
+
+        // Y軸スケール: 全期間のデータを使用してスケールを固定
+        val minValue = allTimeAssistanceRange.first.coerceAtLeast(0f)
+        val maxValue = allTimeAssistanceRange.second.coerceAtLeast(minValue + 1f)
+        // ±10%のマージンを追加
+        val margin = (maxValue - minValue) * 0.1f
+        val adjustedMin = (minValue - margin).coerceAtLeast(0f)
+        val adjustedMax = maxValue + margin
+        val range = (adjustedMax - adjustedMin).coerceAtLeast(1f)
+
+        val leftPadding = 50.dp.toPx()
+        val bottomPadding = 16.dp.toPx()
+        val topPadding = 32.dp.toPx()
+        val rightPadding = 30.dp.toPx()
+
+        val graphWidth = size.width - leftPadding - rightPadding
+        val graphHeight = size.height - topPadding - bottomPadding
+
+        val textPaint = Paint().apply {
+            color = android.graphics.Color.parseColor("#94A3B8")
+            textSize = 11.sp.toPx()
+            isAntiAlias = true
+        }
+
+        val today = LocalDate.now()
+        // X軸の日付範囲: 全記録の範囲を使用（メインチャートと同じ）
+        val startDate = if (period == null) {
+            allRecordsDateRange?.first ?: try {
+                LocalDate.parse(data.minOf { it.date })
+            } catch (e: Exception) {
+                today.minusDays(30)
+            }
+        } else {
+            today.minusDays(period.days.toLong() - 1)
+        }
+        val endDate = today
+
+        val totalDays = ChronoUnit.DAYS.between(startDate, endDate).toInt() + 1
+        val yLabels = calculateAssistanceYAxisLabels(adjustedMin, adjustedMax)
+
+        // Y軸グリッド線とラベル（下がるほど進歩なので、上が大きい値）
+        yLabels.forEach { labelValue ->
+            val y = topPadding + graphHeight - ((labelValue - adjustedMin) / range * graphHeight)
+
+            drawLine(
+                color = appColors.border.copy(alpha = 0.3f),
+                start = Offset(leftPadding, y),
+                end = Offset(size.width - rightPadding, y),
+                strokeWidth = 1.dp.toPx()
+            )
+
+            val labelText = String.format("%.1fkg", labelValue)
+
+            drawContext.canvas.nativeCanvas.drawText(
+                labelText,
+                leftPadding - 8.dp.toPx(),
+                y + 4.dp.toPx(),
+                textPaint.apply {
+                    textAlign = Paint.Align.RIGHT
+                }
+            )
+        }
+
+        // 線の描画（Amber500）
+        val path = Path()
+        var isFirstPoint = true
+
+        data.forEach { point ->
+            try {
+                val pointDate = LocalDate.parse(point.date)
+                val daysFromStart = ChronoUnit.DAYS.between(startDate, pointDate).toInt()
+
+                val x = leftPadding + (daysFromStart.toFloat() / (totalDays - 1).coerceAtLeast(1)) * graphWidth
+                val y = topPadding + graphHeight - ((point.assistanceKg - adjustedMin) / range * graphHeight)
+
+                if (isFirstPoint) {
+                    path.moveTo(x, y)
+                    isFirstPoint = false
+                } else {
+                    path.lineTo(x, y)
+                }
+            } catch (e: Exception) {
+                // ignore
+            }
+        }
+
+        drawPath(
+            path = path,
+            color = Amber500,
+            style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+        )
+
+        // ポイント描画
+        data.forEach { point ->
+            try {
+                val pointDate = LocalDate.parse(point.date)
+                val daysFromStart = ChronoUnit.DAYS.between(startDate, pointDate).toInt()
+
+                val x = leftPadding + (daysFromStart.toFloat() / (totalDays - 1).coerceAtLeast(1)) * graphWidth
+                val y = topPadding + graphHeight - ((point.assistanceKg - adjustedMin) / range * graphHeight)
+
+                drawCircle(
+                    color = appColors.textPrimary.copy(alpha = 0.4f),
+                    radius = 6.dp.toPx(),
+                    center = Offset(x, y)
+                )
+
+                drawCircle(
+                    color = Amber500.copy(alpha = 0.6f),
+                    radius = 4.dp.toPx(),
+                    center = Offset(x, y)
+                )
+            } catch (e: Exception) {
+                // ignore
+            }
+        }
+
+        // X軸ラベル
+        val displayDates = calculateXAxisDisplayDates(startDate, endDate, period)
+
+        displayDates.forEach { date ->
+            val daysFromStart = ChronoUnit.DAYS.between(startDate, date).toInt()
+            val x = leftPadding + (daysFromStart.toFloat() / (totalDays - 1).coerceAtLeast(1)) * graphWidth
+            val y = size.height - bottomPadding + 20.dp.toPx()
+
+            val dateText = "${date.monthValue}/${date.dayOfMonth}"
+
+            drawContext.canvas.nativeCanvas.drawText(
+                dateText,
+                x,
+                y,
+                textPaint.apply {
+                    textAlign = Paint.Align.CENTER
+                }
+            )
+        }
+    }
+}
+
+// アシストY軸用のラベル計算（最下部はスキップしてX軸との干渉を回避）
+fun calculateAssistanceYAxisLabels(min: Float, max: Float): List<Float> {
+    val range = max - min
+    val interval = when {
+        range < 5 -> 1f
+        range < 10 -> 2f
+        range < 25 -> 5f
+        range < 50 -> 10f
+        else -> 25f
+    }
+
+    val adjustedMin = (min / interval).toInt() * interval
+    val adjustedMax = ((max / interval).toInt() + 1) * interval
+
+    // 最下部（index 0）をスキップ
+    return (1..5).map { i ->
+        adjustedMin + (adjustedMax - adjustedMin) * i / 5f
     }
 }
 
@@ -1326,10 +1702,11 @@ fun StatisticsSummary(
     statistics: Statistics,
     exercise: Exercise
 ) {
+    val appColors = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = Slate800
+            containerColor = appColors.cardBackground
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -1338,7 +1715,7 @@ fun StatisticsSummary(
                 text = stringResource(R.string.statistics_summary),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = appColors.textPrimary,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
@@ -1346,7 +1723,7 @@ fun StatisticsSummary(
                 Text(
                     text = stringResource(R.string.no_data),
                     fontSize = 14.sp,
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
             } else {
                 val unit = stringResource(if (exercise.type == "Dynamic") R.string.unit_reps else R.string.unit_seconds)
@@ -1393,7 +1770,7 @@ fun StatisticsSummary(
                 // 荷重統計（weightTrackingEnabled時のみ）
                 if (exercise.weightTrackingEnabled && (statistics.maxDailyVolume != null || statistics.maxWeight != null)) {
                     Spacer(modifier = Modifier.height(8.dp))
-                    HorizontalDivider(color = Slate600.copy(alpha = 0.5f))
+                    HorizontalDivider(color = appColors.divider)
                     Spacer(modifier = Modifier.height(8.dp))
 
                     // ボリューム統計（左右別表示 or 単一表示）
@@ -1440,8 +1817,9 @@ fun StatisticsSummary(
 fun StatItem(
     label: String,
     value: String,
-    valueColor: Color = Slate300
+    valueColor: Color? = null
 ) {
+    val appColors = LocalAppColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -1451,13 +1829,13 @@ fun StatItem(
         Text(
             text = label,
             fontSize = 14.sp,
-            color = Slate400
+            color = appColors.textSecondary
         )
         Text(
             text = value,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            color = valueColor
+            color = valueColor ?: appColors.textTertiary
         )
     }
 }
@@ -1469,6 +1847,7 @@ fun StatItemDual(
     valueRight: String,
     valueLeft: String
 ) {
+    val appColors = LocalAppColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -1479,7 +1858,7 @@ fun StatItemDual(
         Text(
             text = label,
             fontSize = 14.sp,
-            color = Slate400
+            color = appColors.textSecondary
         )
 
         Row(
@@ -1495,7 +1874,7 @@ fun StatItemDual(
             Text(
                 text = "|",
                 fontSize = 14.sp,
-                color = Slate600
+                color = appColors.border
             )
             Text(
                 text = valueLeft,

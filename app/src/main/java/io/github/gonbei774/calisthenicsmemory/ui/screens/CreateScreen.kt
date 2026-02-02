@@ -38,6 +38,7 @@ fun CreateScreen(
     viewModel: TrainingViewModel,
     onNavigateBack: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
     val expandedGroups by viewModel.expandedGroups.collectAsState()
 
@@ -100,7 +101,7 @@ fun CreateScreen(
             ) {
                 Text(
                     text = stringResource(R.string.no_exercises_add_with_plus),
-                    color = Slate400,
+                    color = appColors.textSecondary,
                     fontSize = 16.sp
                 )
             }
@@ -250,9 +251,10 @@ fun ExpandableGroupCard(
     onExerciseDelete: (Exercise) -> Unit,
     viewModel: TrainingViewModel
 ) {
+    val appColors = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Slate800),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column {
@@ -277,7 +279,7 @@ fun ExpandableGroupCard(
                         Icon(
                             imageVector = if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = null,
-                            tint = Color.White
+                            tint = appColors.textPrimary
                         )
                         Text(
                             text = when (group.groupName) {
@@ -287,12 +289,12 @@ fun ExpandableGroupCard(
                             },
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = appColors.textPrimary
                         )
                         Text(
                             text = stringResource(R.string.exercises_count, group.exercises.size),
                             fontSize = 14.sp,
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
                     }
 
@@ -304,7 +306,7 @@ fun ExpandableGroupCard(
                             Icon(
                                 Icons.Default.MoreVert,
                                 contentDescription = stringResource(R.string.menu),
-                                tint = Color.White,
+                                tint = appColors.textPrimary,
                                 modifier = Modifier.size(18.dp)
                             )
                         }
@@ -351,7 +353,7 @@ fun ExpandableGroupCard(
                                     Icon(
                                         imageVector = Icons.Default.Menu,
                                         contentDescription = "Drag to reorder",
-                                        tint = if (isDragging) Color.White else Slate400,
+                                        tint = if (isDragging) appColors.textPrimary else appColors.textSecondary,
                                         modifier = Modifier
                                             .size(24.dp)
                                             .longPressDraggableHandle()
@@ -363,7 +365,7 @@ fun ExpandableGroupCard(
                                 Card(
                                     modifier = Modifier.weight(1f),
                                     colors = CardDefaults.cardColors(
-                                        containerColor = if (isDragging) Slate700.copy(alpha = 0.9f) else Slate700
+                                        containerColor = if (isDragging) appColors.cardBackgroundSecondary.copy(alpha = 0.9f) else appColors.cardBackgroundSecondary
                                     ),
                                     shape = RoundedCornerShape(8.dp),
                                     elevation = CardDefaults.cardElevation(defaultElevation = elevation)
@@ -390,6 +392,7 @@ fun ExerciseItemCompactContent(
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -402,7 +405,7 @@ fun ExerciseItemCompactContent(
                 text = exercise.name,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = appColors.textPrimary
             )
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -434,7 +437,7 @@ fun ExerciseItemCompactContent(
                     text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
 
                 // Unilateral
@@ -489,6 +492,7 @@ fun UnifiedAddDialog(
     viewModel: TrainingViewModel,
     onDismiss: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val groups by viewModel.groups.collectAsState()
     val exercises by viewModel.exercises.collectAsState()
     val existingGroupNames = remember(groups) { groups.map { it.name }.sorted() }
@@ -521,6 +525,7 @@ fun UnifiedAddDialog(
     // トラッキング設定用の状態
     var distanceTrackingEnabled by remember { mutableStateOf(exercise?.distanceTrackingEnabled ?: false) }
     var weightTrackingEnabled by remember { mutableStateOf(exercise?.weightTrackingEnabled ?: false) }
+    var assistanceTrackingEnabled by remember { mutableStateOf(exercise?.assistanceTrackingEnabled ?: false) }
 
     // グループ用の状態
     var groupName by remember { mutableStateOf("") }
@@ -589,7 +594,8 @@ fun UnifiedAddDialog(
                         repDuration = finalRepDuration,
                         restInterval = finalRestInterval,
                         distanceTrackingEnabled = distanceTrackingEnabled,
-                        weightTrackingEnabled = weightTrackingEnabled
+                        weightTrackingEnabled = weightTrackingEnabled,
+                        assistanceTrackingEnabled = assistanceTrackingEnabled
                     )
                 )
                 onDismiss()
@@ -621,7 +627,8 @@ fun UnifiedAddDialog(
                     finalRestInterval,
                     finalRepDuration,
                     distanceTrackingEnabled,
-                    weightTrackingEnabled
+                    weightTrackingEnabled,
+                    assistanceTrackingEnabled
                 )
                 onDismiss()
             }
@@ -634,7 +641,7 @@ fun UnifiedAddDialog(
     ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = Slate900
+            color = appColors.background
         ) {
             Scaffold(
                 topBar = {
@@ -704,7 +711,7 @@ fun UnifiedAddDialog(
                         }
                     }
                 },
-                containerColor = Slate900
+                containerColor = appColors.background
             ) { paddingValues ->
                 Column(
                     modifier = Modifier
@@ -719,14 +726,14 @@ fun UnifiedAddDialog(
                     if (exercise == null) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = Slate800),
+                            colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text(
                                     text = stringResource(R.string.create_type),
                                     fontSize = 14.sp,
-                                    color = Slate400,
+                                    color = appColors.textSecondary,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Row(
@@ -752,7 +759,7 @@ fun UnifiedAddDialog(
                     if (creationType == "group" && exercise == null) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = Slate800),
+                            colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
@@ -766,7 +773,7 @@ fun UnifiedAddDialog(
                                     supportingText = {
                                         when {
                                             isGroupDuplicate -> Text(stringResource(R.string.duplicate_group_name), color = Red600)
-                                            else -> Text(stringResource(R.string.character_count, groupName.length, 20), color = Slate400)
+                                            else -> Text(stringResource(R.string.character_count, groupName.length, 20), color = appColors.textSecondary)
                                         }
                                     }
                                 )
@@ -779,7 +786,7 @@ fun UnifiedAddDialog(
                         // 基本情報カード
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = Slate800),
+                            colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Column(
@@ -796,7 +803,7 @@ fun UnifiedAddDialog(
                                     supportingText = {
                                         when {
                                             isDuplicate -> Text(stringResource(R.string.duplicate_exercise_name), color = Red600)
-                                            else -> Text(stringResource(R.string.character_count, exerciseName.length, 30), color = Slate400)
+                                            else -> Text(stringResource(R.string.character_count, exerciseName.length, 30), color = appColors.textSecondary)
                                         }
                                     }
                                 )
@@ -806,7 +813,7 @@ fun UnifiedAddDialog(
                                     Text(
                                         text = stringResource(R.string.type),
                                         fontSize = 14.sp,
-                                        color = Slate400,
+                                        color = appColors.textSecondary,
                                         fontWeight = FontWeight.Bold
                                     )
                                     Row(
@@ -816,12 +823,12 @@ fun UnifiedAddDialog(
                                         FilterChip(
                                             selected = selectedType == "Dynamic",
                                             onClick = { selectedType = "Dynamic" },
-                                            label = { Text("Dynamic") }
+                                            label = { Text(stringResource(R.string.exercise_type_dynamic)) }
                                         )
                                         FilterChip(
                                             selected = selectedType == "Isometric",
                                             onClick = { selectedType = "Isometric" },
-                                            label = { Text("Isometric") }
+                                            label = { Text(stringResource(R.string.exercise_type_isometric)) }
                                         )
                                     }
                                 }
@@ -831,7 +838,7 @@ fun UnifiedAddDialog(
                                     Text(
                                         text = stringResource(R.string.laterality),
                                         fontSize = 14.sp,
-                                        color = Slate400,
+                                        color = appColors.textSecondary,
                                         fontWeight = FontWeight.Bold
                                     )
                                     Row(
@@ -845,8 +852,8 @@ fun UnifiedAddDialog(
                                             colors = FilterChipDefaults.filterChipColors(
                                                 selectedContainerColor = Blue600,
                                                 selectedLabelColor = Color.White,
-                                                containerColor = Slate700,
-                                                labelColor = Slate300
+                                                containerColor = appColors.cardBackgroundSecondary,
+                                                labelColor = appColors.textTertiary
                                             )
                                         )
                                         FilterChip(
@@ -856,8 +863,8 @@ fun UnifiedAddDialog(
                                             colors = FilterChipDefaults.filterChipColors(
                                                 selectedContainerColor = Purple600,
                                                 selectedLabelColor = Color.White,
-                                                containerColor = Slate700,
-                                                labelColor = Slate300
+                                                containerColor = appColors.cardBackgroundSecondary,
+                                                labelColor = appColors.textTertiary
                                             )
                                         )
                                     }
@@ -866,7 +873,7 @@ fun UnifiedAddDialog(
                                             if (selectedLaterality == "Bilateral") R.string.example_bilateral else R.string.example_unilateral
                                         ),
                                         fontSize = 12.sp,
-                                        color = Slate400,
+                                        color = appColors.textSecondary,
                                         modifier = Modifier.padding(top = 4.dp)
                                     )
                                 }
@@ -876,7 +883,7 @@ fun UnifiedAddDialog(
                         // グループ設定カード
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = Slate800),
+                            colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Column(
@@ -886,7 +893,7 @@ fun UnifiedAddDialog(
                                 Text(
                                     text = stringResource(R.string.group_optional),
                                     fontSize = 14.sp,
-                                    color = Slate400,
+                                    color = appColors.textSecondary,
                                     fontWeight = FontWeight.Bold
                                 )
 
@@ -897,7 +904,7 @@ fun UnifiedAddDialog(
                                         label = { Text(stringResource(R.string.new_group_name)) },
                                         modifier = Modifier.fillMaxWidth(),
                                         singleLine = true,
-                                        supportingText = { Text("${newGroupName.length}/20", color = Slate400) },
+                                        supportingText = { Text("${newGroupName.length}/20", color = appColors.textSecondary) },
                                         trailingIcon = {
                                             IconButton(onClick = {
                                                 isCreatingNewGroup = false
@@ -958,7 +965,7 @@ fun UnifiedAddDialog(
                         // 課題設定カード
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = Slate800),
+                            colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Column(
@@ -973,7 +980,7 @@ fun UnifiedAddDialog(
                                     Text(
                                         text = stringResource(R.string.set_challenge),
                                         fontSize = 14.sp,
-                                        color = Slate400,
+                                        color = appColors.textSecondary,
                                         fontWeight = FontWeight.Bold
                                     )
                                     Switch(
@@ -1024,7 +1031,7 @@ fun UnifiedAddDialog(
                                         Text(
                                             text = stringResource(R.string.per_side_parenthesis),
                                             fontSize = 12.sp,
-                                            color = Slate400
+                                            color = appColors.textSecondary
                                         )
                                     }
 
@@ -1033,7 +1040,7 @@ fun UnifiedAddDialog(
                                         Text(
                                             text = stringResource(R.string.level_display, selectedLevel),
                                             fontSize = 14.sp,
-                                            color = Slate400
+                                            color = appColors.textSecondary
                                         )
                                         Slider(
                                             value = selectedLevel.toFloat(),
@@ -1050,7 +1057,7 @@ fun UnifiedAddDialog(
                         // タイマー設定カード
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = Slate800),
+                            colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Column(
@@ -1061,13 +1068,13 @@ fun UnifiedAddDialog(
                                     Text(
                                         text = stringResource(R.string.timer_settings_optional),
                                         fontSize = 14.sp,
-                                        color = Slate400,
+                                        color = appColors.textSecondary,
                                         fontWeight = FontWeight.Bold
                                     )
                                     Text(
                                         text = stringResource(R.string.timer_settings_description),
                                         fontSize = 12.sp,
-                                        color = Slate400,
+                                        color = appColors.textSecondary,
                                         modifier = Modifier.padding(top = 4.dp)
                                     )
                                 }
@@ -1113,7 +1120,7 @@ fun UnifiedAddDialog(
                         // トラッキング設定カード
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = Slate800),
+                            colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Column(
@@ -1123,7 +1130,7 @@ fun UnifiedAddDialog(
                                 Text(
                                     text = stringResource(R.string.tracking_settings_optional),
                                     fontSize = 14.sp,
-                                    color = Slate400,
+                                    color = appColors.textSecondary,
                                     fontWeight = FontWeight.Bold
                                 )
 
@@ -1137,12 +1144,12 @@ fun UnifiedAddDialog(
                                         Text(
                                             text = stringResource(R.string.track_distance),
                                             fontSize = 14.sp,
-                                            color = Color.White
+                                            color = appColors.textPrimary
                                         )
                                         Text(
                                             text = stringResource(R.string.track_distance_description),
                                             fontSize = 12.sp,
-                                            color = Slate400
+                                            color = appColors.textSecondary
                                         )
                                     }
                                     Switch(
@@ -1161,17 +1168,41 @@ fun UnifiedAddDialog(
                                         Text(
                                             text = stringResource(R.string.track_weight),
                                             fontSize = 14.sp,
-                                            color = Color.White
+                                            color = appColors.textPrimary
                                         )
                                         Text(
                                             text = stringResource(R.string.track_weight_description),
                                             fontSize = 12.sp,
-                                            color = Slate400
+                                            color = appColors.textSecondary
                                         )
                                     }
                                     Switch(
                                         checked = weightTrackingEnabled,
                                         onCheckedChange = { weightTrackingEnabled = it }
+                                    )
+                                }
+
+                                // アシストトラッキング
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = stringResource(R.string.track_assistance),
+                                            fontSize = 14.sp,
+                                            color = appColors.textPrimary
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.track_assistance_description),
+                                            fontSize = 12.sp,
+                                            color = appColors.textSecondary
+                                        )
+                                    }
+                                    Switch(
+                                        checked = assistanceTrackingEnabled,
+                                        onCheckedChange = { assistanceTrackingEnabled = it }
                                     )
                                 }
                             }

@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
-import io.github.gonbei774.calisthenicsmemory.ui.theme.Slate400
+import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 
 // 次の種目情報を表示するコンポーザブル（実行中画面用）
 // セット番号は表示しない（今のセット番号から自明のため）
@@ -19,6 +19,7 @@ fun NextExerciseInfo(
     currentSetIndex: Int,
     nextSetIndexOverride: Int? = null  // Redoモード時など、次のセットが+1でない場合に使用
 ) {
+    val appColors = LocalAppColors.current
     val nextSetIndex = nextSetIndexOverride ?: (currentSetIndex + 1)
     val nextSet = session.sets.getOrNull(nextSetIndex) ?: return
 
@@ -39,7 +40,7 @@ fun NextExerciseInfo(
     Text(
         text = displayText,
         fontSize = 16.sp,
-        color = Slate400,
+        color = appColors.textSecondary,
         modifier = Modifier.padding(vertical = 8.dp)
     )
 }

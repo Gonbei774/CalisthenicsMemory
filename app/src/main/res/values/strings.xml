@@ -97,6 +97,8 @@
     <string name="time_label">Time</string>
     <string name="dynamic_type">Reps</string>
     <string name="isometric_type">Time</string>
+    <string name="exercise_type_dynamic">Dynamic</string>
+    <string name="exercise_type_isometric">Isometric</string>
     <!-- View Screen -->
     <string name="view_records">View Records</string>
     <string name="list">List</string>
@@ -275,7 +277,9 @@
     <string name="legend_distance">Distance</string>
     <string name="legend_distance_inverted">Distance (inverted)</string>
     <string name="legend_volume">Volume</string>
+    <string name="legend_assistance">Assistance</string>
     <string name="record_weight_for_graph">Record weight for this exercise</string>
+    <string name="record_assistance_for_graph">Record assistance for this exercise</string>
     <string name="max_daily_volume">Max daily volume</string>
     <string name="avg_daily_volume">Avg daily volume</string>
     <string name="max_weight">Max weight</string>
@@ -393,6 +397,14 @@
     <string name="current_language">Current: %s</string>
     <string name="restart_required">Restart required to apply changes</string>
     <string name="language_changed">Language changed. Please restart the app.</string>
+    <!-- Theme Settings -->
+    <string name="section_theme">Theme Settings</string>
+    <string name="section_theme_description">Change the app appearance.</string>
+    <string name="theme_setting">Theme</string>
+    <string name="current_theme">Current: %s</string>
+    <string name="theme_system">Follow system</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
     <!-- Open Source Licenses -->
     <string name="open_source_licenses">Open Source Licenses</string>
     <string name="licenses_description">View licenses of libraries used in this app</string>
@@ -443,6 +455,10 @@
     <string name="track_distance_description">Record distance (cm) for each session</string>
     <string name="track_weight">Track Weight</string>
     <string name="track_weight_description">Record added weight (kg) for each session</string>
+    <string name="track_assistance">Track Assistance</string>
+    <string name="track_assistance_description">Record band/machine assistance (kg) for each session</string>
+    <string name="assistance_input_label">Assistance (kg)</string>
+    <string name="assistance_display_format">-%.1f kg</string>
     <string name="distance_input_label">Distance (cm)</string>
     <string name="weight_input_label">Weight (kg)</string>
     <string name="distance_display_format">%d cm</string>

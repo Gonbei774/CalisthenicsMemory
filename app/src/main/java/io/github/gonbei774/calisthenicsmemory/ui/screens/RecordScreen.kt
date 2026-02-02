@@ -233,6 +233,7 @@ fun ExerciseSelectionScreen(
     onNavigateBack: () -> Unit,
     onExerciseSelected: (Exercise) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     // ViewModelを取得
     val viewModel: TrainingViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
@@ -299,7 +300,7 @@ fun ExerciseSelectionScreen(
                     Text(
                         text = stringResource(R.string.no_exercises_registered),
                         fontSize = 18.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
                     Button(
                         onClick = onNavigateBack,
@@ -322,7 +323,7 @@ fun ExerciseSelectionScreen(
                     text = stringResource(R.string.select_exercise),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = appColors.textPrimary,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
@@ -336,14 +337,14 @@ fun ExerciseSelectionScreen(
                     placeholder = {
                         Text(
                             text = stringResource(R.string.search_placeholder),
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
                     },
                     leadingIcon = {
                         Icon(
                             Icons.Default.Search,
                             contentDescription = null,
-                            tint = Slate400
+                            tint = appColors.textSecondary
                         )
                     },
                     trailingIcon = {
@@ -352,19 +353,19 @@ fun ExerciseSelectionScreen(
                                 Icon(
                                     Icons.Default.Clear,
                                     contentDescription = stringResource(R.string.clear),
-                                    tint = Slate400
+                                    tint = appColors.textSecondary
                                 )
                             }
                         }
                     },
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedContainerColor = Slate800,
-                        unfocusedContainerColor = Slate800,
+                        focusedTextColor = appColors.textPrimary,
+                        unfocusedTextColor = appColors.textPrimary,
+                        focusedContainerColor = appColors.cardBackground,
+                        unfocusedContainerColor = appColors.cardBackground,
                         focusedBorderColor = Green600,
-                        unfocusedBorderColor = Slate600,
+                        unfocusedBorderColor = appColors.border,
                         cursorColor = Green600
                     ),
                     shape = RoundedCornerShape(8.dp)
@@ -380,7 +381,7 @@ fun ExerciseSelectionScreen(
                             item {
                                 Text(
                                     text = stringResource(R.string.no_results),
-                                    color = Slate400,
+                                    color = appColors.textSecondary,
                                     modifier = Modifier.padding(16.dp)
                                 )
                             }
@@ -432,9 +433,10 @@ fun HierarchicalExerciseGroup(
     onExpandToggle: () -> Unit,
     onExerciseSelected: (Exercise) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Slate800),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column {
@@ -458,7 +460,7 @@ fun HierarchicalExerciseGroup(
                         Icon(
                             imageVector = if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = null,
-                            tint = Color.White
+                            tint = appColors.textPrimary
                         )
                         Text(
                             text = when (group.groupName) {
@@ -468,12 +470,12 @@ fun HierarchicalExerciseGroup(
                             },
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = appColors.textPrimary
                         )
                         Text(
                             text = stringResource(R.string.exercises_count, group.exercises.size),
                             fontSize = 14.sp,
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
                     }
                 }
@@ -507,9 +509,10 @@ fun ExerciseSelectionItem(
     exercise: Exercise,
     onClick: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Slate700),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackgroundSecondary),
         shape = RoundedCornerShape(8.dp),
         onClick = onClick
     ) {
@@ -525,7 +528,7 @@ fun ExerciseSelectionItem(
                     text = exercise.name,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = appColors.textPrimary
                 )
 
                 Row(
@@ -558,7 +561,7 @@ fun ExerciseSelectionItem(
                         text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
 
                     // Unilateral
@@ -631,6 +634,7 @@ fun WorkoutInputScreen(
     onRecord: () -> Unit,
     viewModel: TrainingViewModel
 ) {
+    val appColors = LocalAppColors.current
     // Unilateral判定
     val isUnilateral = exercise.laterality == "Unilateral"
 
@@ -669,6 +673,16 @@ fun WorkoutInputScreen(
             if (prefillData != null && exercise.weightTrackingEnabled) {
                 // gからkgに変換（例: 1500g → 1.5）
                 prefillData.firstOrNull()?.weightG?.let { (it / 1000.0).toString() } ?: ""
+            } else {
+                ""
+            }
+        )
+    }
+    var assistanceInput by remember(prefillData) {
+        mutableStateOf(
+            if (prefillData != null && exercise.assistanceTrackingEnabled) {
+                // gからkgに変換（例: 1500g → 1.5）
+                prefillData.firstOrNull()?.assistanceG?.let { (it / 1000.0).toString() } ?: ""
             } else {
                 ""
             }
@@ -740,7 +754,7 @@ fun WorkoutInputScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = Slate800.copy(alpha = 0.6f)
+                            containerColor = appColors.cardBackground.copy(alpha = 0.6f)
                         ),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -772,7 +786,7 @@ fun WorkoutInputScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Slate800
+                        containerColor = appColors.cardBackground
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -784,7 +798,7 @@ fun WorkoutInputScreen(
                             text = stringResource(R.string.sets_count),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White,
+                            color = appColors.textPrimary,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
 
@@ -802,7 +816,7 @@ fun WorkoutInputScreen(
                                 enabled = numberOfSets > 1,
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Green600,
-                                    disabledContainerColor = Slate700
+                                    disabledContainerColor = appColors.cardBackgroundDisabled
                                 )
                             ) {
                                 Text(
@@ -832,7 +846,7 @@ fun WorkoutInputScreen(
                                 enabled = numberOfSets < 10,
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Green600,
-                                    disabledContainerColor = Slate700
+                                    disabledContainerColor = appColors.cardBackgroundDisabled
                                 )
                             ) {
                                 Text(
@@ -903,7 +917,7 @@ fun WorkoutInputScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = Slate800
+                            containerColor = appColors.cardBackground
                         ),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -915,7 +929,7 @@ fun WorkoutInputScreen(
                                 text = stringResource(R.string.set_number_format, index + 1),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = appColors.textPrimary
                             )
 
                             Row(
@@ -943,12 +957,12 @@ fun WorkoutInputScreen(
                                     ),
                                     colors = OutlinedTextFieldDefaults.colors(
                                         focusedBorderColor = Green600,
-                                        unfocusedBorderColor = Slate600,
+                                        unfocusedBorderColor = appColors.border,
                                         focusedLabelColor = Green600,
-                                        unfocusedLabelColor = Slate400,
+                                        unfocusedLabelColor = appColors.textSecondary,
                                         cursorColor = Green600,
-                                        focusedTextColor = Color.White,
-                                        unfocusedTextColor = Color.White
+                                        focusedTextColor = appColors.textPrimary,
+                                        unfocusedTextColor = appColors.textPrimary
                                     )
                                 )
 
@@ -973,12 +987,12 @@ fun WorkoutInputScreen(
                                     ),
                                     colors = OutlinedTextFieldDefaults.colors(
                                         focusedBorderColor = Purple600,
-                                        unfocusedBorderColor = Slate600,
+                                        unfocusedBorderColor = appColors.border,
                                         focusedLabelColor = Purple600,
-                                        unfocusedLabelColor = Slate400,
+                                        unfocusedLabelColor = appColors.textSecondary,
                                         cursorColor = Purple600,
-                                        focusedTextColor = Color.White,
-                                        unfocusedTextColor = Color.White
+                                        focusedTextColor = appColors.textPrimary,
+                                        unfocusedTextColor = appColors.textPrimary
                                     )
                                 )
                             }
@@ -1003,12 +1017,12 @@ fun WorkoutInputScreen(
                         ),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Green600,
-                            unfocusedBorderColor = Slate600,
+                            unfocusedBorderColor = appColors.border,
                             focusedLabelColor = Green600,
-                            unfocusedLabelColor = Slate400,
+                            unfocusedLabelColor = appColors.textSecondary,
                             cursorColor = Green600,
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
+                            focusedTextColor = appColors.textPrimary,
+                            unfocusedTextColor = appColors.textPrimary
                         )
                     )
                 }
@@ -1020,7 +1034,7 @@ fun WorkoutInputScreen(
                     onClick = { onShowDatePicker(true) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color.White
+                        contentColor = appColors.textPrimary
                     )
                 ) {
                     Text(stringResource(R.string.date_format, selectedDate.format(dateFormatter)))
@@ -1033,7 +1047,7 @@ fun WorkoutInputScreen(
                     onClick = { onShowTimePicker(true) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color.White
+                        contentColor = appColors.textPrimary
                     )
                 ) {
                     Text(stringResource(R.string.time_format, selectedTime.format(timeFormatter)))
@@ -1052,12 +1066,12 @@ fun WorkoutInputScreen(
                     maxLines = 3,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Green600,
-                        unfocusedBorderColor = Slate600,
+                        unfocusedBorderColor = appColors.border,
                         focusedLabelColor = Green600,
-                        unfocusedLabelColor = Slate400,
+                        unfocusedLabelColor = appColors.textSecondary,
                         cursorColor = Green600,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                        focusedTextColor = appColors.textPrimary,
+                        unfocusedTextColor = appColors.textPrimary
                     )
                 )
             }
@@ -1068,9 +1082,13 @@ fun WorkoutInputScreen(
                     OutlinedTextField(
                         value = distanceInput,
                         onValueChange = { value ->
+                            // 全角→半角変換
+                            val normalized = value
+                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                .replace("．", ".").replace("－", "-")
                             // 空、"-"、または整数（負を含む）を許可
-                            if (value.isEmpty() || value == "-" || value.toIntOrNull() != null) {
-                                distanceInput = value
+                            if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
+                                distanceInput = normalized
                             }
                         },
                         label = { Text(stringResource(R.string.distance_input_label)) },
@@ -1081,12 +1099,12 @@ fun WorkoutInputScreen(
                         ),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Blue600,
-                            unfocusedBorderColor = Slate600,
+                            unfocusedBorderColor = appColors.border,
                             focusedLabelColor = Blue600,
-                            unfocusedLabelColor = Slate400,
+                            unfocusedLabelColor = appColors.textSecondary,
                             cursorColor = Blue600,
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
+                            focusedTextColor = appColors.textPrimary,
+                            unfocusedTextColor = appColors.textPrimary
                         )
                     )
                 }
@@ -1098,12 +1116,16 @@ fun WorkoutInputScreen(
                     OutlinedTextField(
                         value = weightInput,
                         onValueChange = { value ->
+                            // 全角→半角変換
+                            val normalized = value
+                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                .replace("．", ".")
                             // 空、または小数（小数点1つまで、小数第1位まで）を許可
-                            val isValidDecimal = value.isEmpty() ||
-                                value == "." ||
-                                value.matches(Regex("^\\d*\\.?\\d?\$"))
+                            val isValidDecimal = normalized.isEmpty() ||
+                                normalized == "." ||
+                                normalized.matches(Regex("^\\d*\\.?\\d?\$"))
                             if (isValidDecimal) {
-                                weightInput = value
+                                weightInput = normalized
                             }
                         },
                         label = { Text(stringResource(R.string.weight_input_label)) },
@@ -1114,12 +1136,49 @@ fun WorkoutInputScreen(
                         ),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Orange600,
-                            unfocusedBorderColor = Slate600,
+                            unfocusedBorderColor = appColors.border,
                             focusedLabelColor = Orange600,
-                            unfocusedLabelColor = Slate400,
+                            unfocusedLabelColor = appColors.textSecondary,
                             cursorColor = Orange600,
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
+                            focusedTextColor = appColors.textPrimary,
+                            unfocusedTextColor = appColors.textPrimary
+                        )
+                    )
+                }
+            }
+
+            // アシスト入力（有効な場合のみ表示）- kg単位で小数第1位まで
+            if (exercise.assistanceTrackingEnabled) {
+                item {
+                    OutlinedTextField(
+                        value = assistanceInput,
+                        onValueChange = { value ->
+                            // 全角→半角変換
+                            val normalized = value
+                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                .replace("．", ".")
+                            // 空、または小数（小数点1つまで、小数第1位まで）を許可
+                            val isValidDecimal = normalized.isEmpty() ||
+                                normalized == "." ||
+                                normalized.matches(Regex("^\\d*\\.?\\d?\$"))
+                            if (isValidDecimal) {
+                                assistanceInput = normalized
+                            }
+                        },
+                        label = { Text(stringResource(R.string.assistance_input_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal
+                        ),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Amber500,
+                            unfocusedBorderColor = appColors.border,
+                            focusedLabelColor = Amber500,
+                            unfocusedLabelColor = appColors.textSecondary,
+                            cursorColor = Amber500,
+                            focusedTextColor = appColors.textPrimary,
+                            unfocusedTextColor = appColors.textPrimary
                         )
                     )
                 }
@@ -1129,10 +1188,12 @@ fun WorkoutInputScreen(
             item {
                 Button(
                     onClick = {
-                        // 距離・荷重の値を取得（空の場合はnull）
+                        // 距離・荷重・アシストの値を取得（空の場合はnull）
                         val distanceCm = distanceInput.ifEmpty { null }?.toIntOrNull()
                         // 荷重はkgで入力、gに変換して保存（例: 1.5kg → 1500g）
                         val weightG = weightInput.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
+                        // アシストはkgで入力、gに変換して保存（例: 22.5kg → 22500g）
+                        val assistanceG = assistanceInput.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
 
                         if (isUnilateral) {
                             // Unilateral: 左右の値を処理（0を含む）
@@ -1155,7 +1216,8 @@ fun WorkoutInputScreen(
                                     time = selectedTime.format(timeFormatter),
                                     comment = comment,
                                     distanceCm = distanceCm,
-                                    weightG = weightG
+                                    weightG = weightG,
+                                    assistanceG = assistanceG
                                 )
                                 // Delete todo task if from ToDo
                                 if (fromToDo) {
@@ -1178,7 +1240,8 @@ fun WorkoutInputScreen(
                                     time = selectedTime.format(timeFormatter),
                                     comment = comment,
                                     distanceCm = distanceCm,
-                                    weightG = weightG
+                                    weightG = weightG,
+                                    assistanceG = assistanceG
                                 )
                                 // Delete todo task if from ToDo
                                 if (fromToDo) {
@@ -1194,7 +1257,7 @@ fun WorkoutInputScreen(
                     enabled = hasValidValues,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Green600,
-                        disabledContainerColor = Slate700
+                        disabledContainerColor = appColors.cardBackgroundDisabled
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {

@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.0] - 2026-02-02
+
+### Added
+- **Light mode with user-selectable theme option**
+  - Choose between Dark, Light, or System default
+- **Assistance tracking for band-assisted exercises** (Issue #15)
+  - Track band assistance level for exercises like pull-ups
+  - Assistance chart displayed alongside main progress chart
+
+### Fixed
+- Light mode UI visibility issues (text, buttons, dialogs)
+- Assistance chart Y-axis label overlapping with X-axis
+- Assistance chart X-axis now aligned with main chart date range
+- Exercise type labels now translatable on Add/Edit screen (Issue #28)
+- Auto Mode description not updating based on switch state (Issue #25)
+
+This release includes contributions from @nautilusx, @SomeTr, and @balaraz.
+
 ## [1.16.1] - 2026-01-20
 
 ### Fixed
@@ -343,6 +361,7 @@ This release includes contributions from @unsealed211, @SomeTr, and @balaraz.
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.17.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.17.0
 [1.16.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.16.1
 [1.16.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.16.0
 [1.15.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.15.0

@@ -16,7 +16,7 @@
     <string name="select">Auswählen</string>
     <string name="settings">Einstellungen</string>
     <string name="comment">Kommentar</string>
-    <string name="comment_optional">Kommentar (Optional)</string>
+    <string name="comment_optional">Kommentar (optional)</string>
     <string name="level">Stufe</string>
     <string name="group">Gruppe</string>
     <string name="none">Keine</string>
@@ -25,8 +25,8 @@
     <string name="loading">Lädt...</string>
     <!-- Home Screen -->
     <string name="bodyweight_training">Eigengewichtstraining</string>
-    <string name="home_create">Übung Erstellen</string>
-    <string name="home_record">Training Aufzeichnen</string>
+    <string name="home_create">Übung erstellen</string>
+    <string name="home_record">Training aufzeichnen</string>
     <string name="home_workout">Training</string>
     <string name="home_view">Ansehen</string>
     <string name="today">Heutiges Training</string>
@@ -53,7 +53,7 @@
     <string name="bilateral_example">z.B. Liegestütze, Kniebeugen</string>
     <string name="unilateral_example">z.B. Pistol Squats, Einarmige Liegestütze</string>
     <string name="one_sided">Einseitig</string>
-    <string name="group_optional">Gruppe (Optional)</string>
+    <string name="group_optional">Gruppe (optional)</string>
     <string name="new_group_name">Neuer Gruppenname</string>
     <string name="new_group">+ Neue Gruppe</string>
     <string name="no_group">Keine Gruppe</string>
@@ -78,7 +78,7 @@
     <string name="go_to_settings">Zu den Einstellungen</string>
     <string name="select_exercise">Übung auswählen</string>
     <string name="select_exercise_please">Bitte wähle eine Übung aus</string>
-    <string name="select_from_top">Wähle aus \"Übung auswählen\" oben</string>
+    <string name="select_from_top">Wähle oben aus unter „Übung auswählen“</string>
     <string name="no_records_for_exercise">Keine Aufzeichnungen für diese Übung</string>
     <string name="target_display">Ziel: %1$d Sätze × %2$d %3$s</string>
     <string name="target_display_unilateral">Ziel: %1$d Sätze × %2$d %3$s (pro Seite)</string>
@@ -103,8 +103,8 @@
     <string name="graph">Diagramm</string>
     <string name="challenge">Herausforderung</string>
     <string name="no_records_yet">Noch keine Aufzeichnungen</string>
-    <string name="tap_to_edit_long_press_for_menu">※ Tippe auf Satz zum Bearbeiten, halte für Menü</string>
-    <string name="tap_to_edit_hint">※ Tippe auf Satz zum Bearbeiten, halte für Menü</string>
+    <string name="tap_to_edit_long_press_for_menu">※ Tippe auf Satz zum Bearbeiten, zum Aufrufen des Menüs lange drücken</string>
+    <string name="tap_to_edit_hint">※ Tippe auf Satz zum Bearbeiten, zum Aufrufen des Menüs lange drücken</string>
     <string name="unknown_exercise">Unbekannte Übung</string>
     <string name="edit_session_info">Sitzungsinfo bearbeiten</string>
     <string name="delete_session">Sitzung löschen</string>
@@ -132,7 +132,7 @@
     <string name="graph_average">Durchschnitt</string>
     <string name="graph_max">Maximum</string>
     <string name="graph_total">Gesamt</string>
-    <string name="no_exercise_select_one">Bitte wähle eine Übung aus\nWähle aus \"Übung auswählen\" oben</string>
+    <string name="no_exercise_select_one">Bitte wähle eine Übung aus\nWähle oben aus unter „Übung auswählen“</string>
     <string name="no_data">Keine Daten</string>
     <string name="record_this_exercise">Training für diese Übung aufzeichnen</string>
     <string name="record_training_for_exercise">Training für diese Übung aufzeichnen</string>
@@ -170,7 +170,7 @@
     <string name="records">Aufzeichnungen</string>
     <string name="count_items">%d Elemente</string>
     <string name="count_records">%d Aufzeichnungen</string>
-    <string name="import_data_preview_message">Möchten Sie mit dem Import dieser Daten fortfahren?</string>
+    <string name="import_data_preview_message">Möchtest du mit dem Import dieser Daten fortfahren?</string>
     <string name="next">Weiter</string>
     <string name="data_overwrite_title">⚠️ Daten überschreiben</string>
     <string name="existing_data_will_be_deleted">Alle vorhandenen Daten werden gelöscht.</string>
@@ -358,7 +358,7 @@
     <string name="section_full_backup">Vollständige Sicherung (JSON)</string>
     <string name="section_full_backup_description">Alle Daten speichern und wiederherstellen (Übungen, Aufzeichnungen, Gruppen).\nVerwende dies beim Gerätewechsel.</string>
     <string name="section_partial_data_management">Teilweise Datenverwaltung (CSV)</string>
-    <string name="section_partial_data_management_description">Gruppen, Übungen oder Aufzeichnungen einzeln exportieren und importieren.\nIm Gegensatz zur JSON-Sicherung können Sie nur die benötigten Daten verwalten.</string>
+    <string name="section_partial_data_management_description">Gruppen, Übungen oder Aufzeichnungen einzeln exportieren und importieren.\nIm Gegensatz zu einer JSON-Sicherung kannst du nur die Daten verwalten, die du brauchst.</string>
     <!-- Legacy key for compatibility -->
     <string name="section_add_records">Aufzeichnungen hinzufügen (CSV)</string>
     <string name="section_add_records_description">Aufzeichnungen zu vorhandenen Daten hinzufügen.\nVerwende dies zum Importieren analoger Aufzeichnungen oder Daten aus anderen Apps.</string>
@@ -407,29 +407,35 @@
     <string name="set_interval_note">Hinweis: Übungsspezifische Einstellungen haben Vorrang, falls konfiguriert.</string>
     <string name="enter_seconds_max">Sekunden eingeben (max %d)</string>
     <!-- Timer Settings (Per-Exercise) -->
-    <string name="timer_settings_optional">Timer-Einstellungen (Optional)</string>
+    <string name="timer_settings_optional">Timer-Einstellungen (optional)</string>
     <string name="timer_settings_description">Timer für diese Übung konfigurieren. Leer lassen für Standardeinstellungen.</string>
     <string name="rep_duration_seconds">Wiederholungsdauer (Sekunden)</string>
     <string name="rest_interval_seconds">Pausenintervall (Sekunden)</string>
     <string name="example_5_seconds">z.B. 5</string>
     <string name="example_240_seconds">z.B. 240</string>
     <!-- Distance/Weight Tracking Settings -->
-    <string name="tracking_settings_optional">Tracking-Einstellungen (Optional)</string>
+    <string name="tracking_settings_optional">Tracking-Einstellungen (optional)</string>
     <string name="track_distance">Distanz erfassen</string>
     <string name="track_distance_description">Distanz (cm) für jede Einheit erfassen</string>
     <string name="track_weight">Gewicht erfassen</string>
     <string name="track_weight_description">Zusatzgewicht (kg) für jede Einheit erfassen</string>
+    <string name="track_assistance">Unterstützung erfassen</string>
+    <string name="track_assistance_description">Band-/Maschinen-Unterstützung (kg) für jede Einheit erfassen</string>
     <string name="distance_input_label">Distanz (cm)</string>
     <string name="weight_input_label">Gewicht (kg)</string>
+    <string name="assistance_input_label">Unterstützung (kg)</string>
     <string name="distance_display_format">%d cm</string>
     <string name="weight_display_format">%.1f kg</string>
+    <string name="assistance_display_format">-%.1f kg</string>
     <!-- Distance Graph -->
     <string name="invert">Invertieren</string>
     <string name="legend_reps">Wdh.</string>
     <string name="legend_distance">Distanz</string>
     <string name="legend_distance_inverted">Distanz (invertiert)</string>
-    <!-- Volume/Weight Statistics -->
+    <!-- Volume/Weight/Assistance Statistics -->
     <string name="legend_volume">Volumen</string>
+    <string name="legend_assistance">Unterstützung</string>
+    <string name="record_assistance_for_graph">Unterstützung für diese Übung erfassen</string>
     <string name="max_daily_volume">Max. Tagesvolumen</string>
     <string name="avg_daily_volume">Durchschn. Tagesvolumen</string>
     <string name="max_weight">Max. Gewicht</string>
@@ -490,7 +496,7 @@
     <string name="program_duplicated">Programm dupliziert</string>
     <string name="program_copy_suffix">(Kopie)</string>
     <string name="discard_changes_title">Änderungen verwerfen?</string>
-    <string name="discard_changes_message">Sie haben ungespeicherte Änderungen. Möchten Sie diese wirklich verwerfen?</string>
+    <string name="discard_changes_message">Du hast nicht gespeicherte Änderungen. Möchtest du diese wirklich verwerfen?</string>
     <string name="discard">Verwerfen</string>
     <string name="program_saved">Programm gespeichert</string>
     <string name="program_name_required">Programmname erforderlich</string>
@@ -507,7 +513,7 @@
     <string name="program_use_program">Programm</string>
     <string name="program_use_challenge">Übung</string>
     <string name="program_use_previous">Vorherig</string>
-    <string name="program_use_all_program">Alle Programm</string>
+    <string name="program_use_all_program">Alle Programme</string>
     <string name="program_use_all_challenge">Alle Vorgabe</string>
     <string name="program_previous_value">Vorherigen Wert verwenden</string>
     <string name="next_exercise_label">Nächste: %s</string>
@@ -518,7 +524,7 @@
     <string name="exit_workout_confirm">Abbrechen</string>
     <!-- Discard Result Confirmation -->
     <string name="discard_result_title">Ergebnisse verwerfen?</string>
-    <string name="discard_result_message">Ihre Trainingsergebnisse werden nicht gespeichert.</string>
+    <string name="discard_result_message">Deine Trainingsergebnisse werden nicht gespeichert.</string>
     <string name="discard_result_confirm">Verwerfen</string>
     <!-- Missing keys -->
     <string name="interval_short">Pause:</string>
@@ -594,4 +600,6 @@
     <string name="add_exercise_to_loop">Übung hinzufügen</string>
     <string name="move_to_loop">In Schleife verschieben</string>
     <string name="loop_number_format">Schleife %d</string>
+    <string name="set_progress">%1$d/%2$d</string>
+    <string name="set_progress_with_side">%1$d/%2$d - %3$s</string>
 </resources>

@@ -10,9 +10,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import io.github.gonbei774.calisthenicsmemory.data.AppLanguage
+import io.github.gonbei774.calisthenicsmemory.data.AppTheme
 import io.github.gonbei774.calisthenicsmemory.data.LanguagePreferences
+import io.github.gonbei774.calisthenicsmemory.data.ThemePreferences
 import java.util.Locale
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -49,6 +52,7 @@ import io.github.gonbei774.calisthenicsmemory.ui.screens.ProgramListScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.ProgramEditScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.ProgramExecutionScreen
 import io.github.gonbei774.calisthenicsmemory.ui.theme.CalisthenicsMemoryTheme
+import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 
 class MainActivity : ComponentActivity() {
@@ -59,9 +63,26 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val themePrefs = ThemePreferences(this)
+
         setContent {
-            CalisthenicsMemoryTheme {
-                CalisthenicsMemoryApp()
+            val savedTheme = remember { themePrefs.getTheme() }
+            var currentTheme by remember { mutableStateOf(savedTheme) }
+
+            val darkTheme = when (currentTheme) {
+                AppTheme.SYSTEM -> isSystemInDarkTheme()
+                AppTheme.LIGHT -> false
+                AppTheme.DARK -> true
+            }
+
+            CalisthenicsMemoryTheme(darkTheme = darkTheme) {
+                CalisthenicsMemoryApp(
+                    currentTheme = currentTheme,
+                    onThemeChange = { newTheme ->
+                        themePrefs.setTheme(newTheme)
+                        currentTheme = newTheme
+                    }
+                )
             }
         }
     }
@@ -147,10 +168,14 @@ fun UiMessage.toMessageString(): String {
 }
 
 @Composable
-fun CalisthenicsMemoryApp() {
+fun CalisthenicsMemoryApp(
+    currentTheme: AppTheme = AppTheme.SYSTEM,
+    onThemeChange: (AppTheme) -> Unit = {}
+) {
     val viewModel: TrainingViewModel = viewModel()
     var currentScreen by remember { mutableStateOf<Screen>(Screen.Home) }
     val snackbarHostState = remember { SnackbarHostState() }
+    val appColors = LocalAppColors.current
 
     // Snackbar message handling
     val snackbarMessage by viewModel.snackbarMessage.collectAsState()
@@ -182,8 +207,8 @@ fun CalisthenicsMemoryApp() {
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF0F172A), // slate900
-                            Color(0xFF1E293B)  // slate800
+                            appColors.backgroundGradientStart,
+                            appColors.backgroundGradientEnd
                         )
                     )
                 )
@@ -218,7 +243,9 @@ fun CalisthenicsMemoryApp() {
                     SettingsScreenNew(
                         viewModel = viewModel,
                         onNavigateBack = { currentScreen = Screen.Home },
-                        onNavigateToLicenses = { currentScreen = Screen.Licenses }
+                        onNavigateToLicenses = { currentScreen = Screen.Licenses },
+                        currentTheme = currentTheme,
+                        onThemeChange = onThemeChange
                     )
                 }
                 is Screen.Licenses -> {

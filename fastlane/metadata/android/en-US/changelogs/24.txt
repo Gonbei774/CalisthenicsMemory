@@ -1,0 +1,8 @@
+Added: Light mode with user-selectable theme option
+Added: Assistance tracking for band-assisted exercises
+Fixed: Various light mode UI visibility issues
+Fixed: Assistance chart display improvements
+Fixed: Exercise type labels now translatable
+Fixed: Auto Mode description updating correctly
+
+Contributors: nautilusx, SomeTr, balaraz

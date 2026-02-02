@@ -1,0 +1,8 @@
+Añadido: Modo claro con opción de tema seleccionable
+Añadido: Seguimiento de asistencia para ejercicios con banda
+Corregido: Varios problemas de visibilidad de UI en modo claro
+Corregido: Mejoras en la visualización del gráfico de asistencia
+Corregido: Etiquetas de tipo de ejercicio ahora traducibles
+Corregido: Descripción del modo automático se actualiza correctamente
+
+Colaboradores: nautilusx, SomeTr, balaraz

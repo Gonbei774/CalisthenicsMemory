@@ -419,17 +419,23 @@
     <string name="track_distance_description">Enregistrer la distance (cm) pour chaque séance</string>
     <string name="track_weight">Suivre le Poids</string>
     <string name="track_weight_description">Enregistrer le poids ajouté (kg) pour chaque séance</string>
+    <string name="track_assistance">Suivre l\'Assistance</string>
+    <string name="track_assistance_description">Enregistrer l\'assistance bande/machine (kg) pour chaque séance</string>
     <string name="distance_input_label">Distance (cm)</string>
     <string name="weight_input_label">Poids (kg)</string>
+    <string name="assistance_input_label">Assistance (kg)</string>
     <string name="distance_display_format">%d cm</string>
     <string name="weight_display_format">%.1f kg</string>
+    <string name="assistance_display_format">-%.1f kg</string>
     <!-- Distance Graph -->
     <string name="invert">Inverser</string>
     <string name="legend_reps">Rép.</string>
     <string name="legend_distance">Distance</string>
     <string name="legend_distance_inverted">Distance (inversée)</string>
-    <!-- Volume/Weight Statistics -->
+    <!-- Volume/Weight/Assistance Statistics -->
     <string name="legend_volume">Volume</string>
+    <string name="legend_assistance">Assistance</string>
+    <string name="record_assistance_for_graph">Enregistrer l\'assistance pour cet exercice</string>
     <string name="max_daily_volume">Volume quotidien max</string>
     <string name="avg_daily_volume">Volume quotidien moy</string>
     <string name="max_weight">Poids max</string>

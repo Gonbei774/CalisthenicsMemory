@@ -1,0 +1,8 @@
+Hinzugefügt: Heller Modus mit wählbarer Theme-Option
+Hinzugefügt: Unterstützungsverfolgung für bandunterstützte Übungen
+Behoben: Verschiedene UI-Sichtbarkeitsprobleme im hellen Modus
+Behoben: Verbesserungen der Unterstützungsdiagrammanzeige
+Behoben: Übungstyp-Labels jetzt übersetzbar
+Behoben: Auto-Modus-Beschreibung wird korrekt aktualisiert
+
+Mitwirkende: nautilusx, SomeTr, balaraz

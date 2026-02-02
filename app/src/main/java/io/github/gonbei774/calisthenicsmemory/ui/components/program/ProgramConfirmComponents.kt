@@ -33,6 +33,7 @@ import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
 import io.github.gonbei774.calisthenicsmemory.data.ProgramLoop
 import io.github.gonbei774.calisthenicsmemory.data.ProgramWorkoutSet
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 import kotlin.math.roundToInt
 
 // Sealed class to represent items in the confirm list (for grouping loops)
@@ -78,6 +79,7 @@ internal fun ProgramConfirmStep(
     onIsometricIntervalSecondsChange: (Int) -> Unit,
     onStart: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     var refreshKey by remember { mutableIntStateOf(0) }
     // 各種目の展開状態を親で管理（スクロール時も状態を保持）
     var expandedExercises by remember { mutableStateOf(session.exercises.indices.toSet()) }
@@ -148,12 +150,12 @@ internal fun ProgramConfirmStep(
                 Text(
                     text = stringResource(R.string.program_exercise_count, session.exercises.size),
                     fontSize = 14.sp,
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
                 Text(
                     text = stringResource(R.string.program_estimated_time, estimatedMinutes),
                     fontSize = 14.sp,
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
             }
         }
@@ -350,6 +352,7 @@ internal fun SettingsSection(
     onIsometricIntervalSoundChange: (Boolean) -> Unit,
     onIsometricIntervalSecondsChange: (Int) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     // 折りたたみ状態（デフォルトは展開状態）
     var isExpanded by remember { mutableStateOf(true) }
     // シェブロンの回転アニメーション
@@ -362,7 +365,7 @@ internal fun SettingsSection(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Slate800),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column {
@@ -382,18 +385,18 @@ internal fun SettingsSection(
                     Text(
                         text = "⚙",
                         fontSize = 14.sp,
-                        color = Slate300
+                        color = appColors.textTertiary
                     )
                     Text(
                         text = stringResource(R.string.settings),
                         fontSize = 14.sp,
-                        color = Slate300
+                        color = appColors.textTertiary
                     )
                 }
                 Text(
                     text = "▼",
                     fontSize = 12.sp,
-                    color = Slate400,
+                    color = appColors.textSecondary,
                     modifier = Modifier.rotate(chevronRotation)
                 )
             }
@@ -418,21 +421,25 @@ internal fun SettingsSection(
                     Text(
                         text = stringResource(R.string.auto_mode),
                         fontSize = 14.sp,
-                        color = Color.White
+                        color = appColors.textPrimary
                     )
                     Text(
-                        text = stringResource(R.string.auto_mode_description),
+                        text = if (isAutoMode) {
+                            stringResource(R.string.timer_mode_on_description)
+                        } else {
+                            stringResource(R.string.timer_mode_off_description)
+                        },
                         fontSize = 11.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
                 }
                 Switch(
                     checked = isAutoMode,
                     onCheckedChange = onAutoModeChange,
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
+                        checkedThumbColor = appColors.switchThumb,
                         checkedTrackColor = Orange600,
-                        uncheckedThumbColor = Color.White,
+                        uncheckedThumbColor = appColors.switchThumb,
                         uncheckedTrackColor = Slate500
                     )
                 )
@@ -447,7 +454,7 @@ internal fun SettingsSection(
                 Text(
                     text = stringResource(R.string.start_countdown),
                     fontSize = 14.sp,
-                    color = Color.White
+                    color = appColors.textPrimary
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -457,12 +464,12 @@ internal fun SettingsSection(
                         onClick = { if (startCountdownSeconds > 0) onStartCountdownChange(startCountdownSeconds - 1) },
                         modifier = Modifier.size(28.dp)
                     ) {
-                        Text("−", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Slate400)
+                        Text("−", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = appColors.textSecondary)
                     }
                     Text(
                         text = startCountdownSeconds.toString(),
                         fontSize = 14.sp,
-                        color = Color.White,
+                        color = appColors.textPrimary,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.width(24.dp)
                     )
@@ -470,12 +477,12 @@ internal fun SettingsSection(
                         onClick = { onStartCountdownChange(startCountdownSeconds + 1) },
                         modifier = Modifier.size(28.dp)
                     ) {
-                        Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Slate400)
+                        Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = appColors.textSecondary)
                     }
                     Text(
                         text = stringResource(R.string.unit_seconds_short),
                         fontSize = 12.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
                 }
             }
@@ -490,21 +497,21 @@ internal fun SettingsSection(
                     Text(
                         text = stringResource(R.string.dynamic_count_sound_label),
                         fontSize = 14.sp,
-                        color = Color.White
+                        color = appColors.textPrimary
                     )
                     Text(
                         text = stringResource(R.string.dynamic_count_sound_description),
                         fontSize = 11.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
                 }
                 Switch(
                     checked = isDynamicCountSoundEnabled,
                     onCheckedChange = onDynamicCountSoundChange,
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
+                        checkedThumbColor = appColors.switchThumb,
                         checkedTrackColor = Orange600,
-                        uncheckedThumbColor = Color.White,
+                        uncheckedThumbColor = appColors.switchThumb,
                         uncheckedTrackColor = Slate500
                     )
                 )
@@ -520,12 +527,12 @@ internal fun SettingsSection(
                     Text(
                         text = stringResource(R.string.isometric_interval_sound_label),
                         fontSize = 14.sp,
-                        color = Color.White
+                        color = appColors.textPrimary
                     )
                     Text(
                         text = stringResource(R.string.isometric_interval_sound_description),
                         fontSize = 11.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
                 }
                 Row(
@@ -552,7 +559,7 @@ internal fun SettingsSection(
                             textStyle = androidx.compose.ui.text.TextStyle(
                                 fontSize = 14.sp,
                                 textAlign = TextAlign.Center,
-                                color = Color.White
+                                color = appColors.textPrimary
                             ),
                             decorationBox = { innerTextField ->
                                 Column {
@@ -571,7 +578,7 @@ internal fun SettingsSection(
                                             .padding(horizontal = 2.dp)
                                             .then(Modifier.drawBehind {
                                                 drawLine(
-                                                    color = Slate400,
+                                                    color = appColors.textSecondary,
                                                     start = androidx.compose.ui.geometry.Offset(0f, 0f),
                                                     end = androidx.compose.ui.geometry.Offset(size.width, 0f),
                                                     strokeWidth = 1.dp.toPx()
@@ -585,16 +592,16 @@ internal fun SettingsSection(
                     Text(
                         text = stringResource(R.string.unit_seconds_short),
                         fontSize = 12.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Switch(
                         checked = isIsometricIntervalSoundEnabled,
                         onCheckedChange = onIsometricIntervalSoundChange,
                         colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White,
+                            checkedThumbColor = appColors.switchThumb,
                             checkedTrackColor = Orange600,
-                            uncheckedThumbColor = Color.White,
+                            uncheckedThumbColor = appColors.switchThumb,
                             uncheckedTrackColor = Slate500
                         )
                     )
@@ -622,6 +629,7 @@ internal fun ProgramConfirmExerciseCard(
     onUpdateSetCount: (Int) -> Unit,
     onUpdateAllSetsValue: (Int) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val unit = stringResource(if (exercise.type == "Isometric") R.string.unit_seconds else R.string.unit_reps)
 
     // 現在のセット数とインターバルを取得
@@ -639,7 +647,7 @@ internal fun ProgramConfirmExerciseCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Slate800),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column {
@@ -663,7 +671,7 @@ internal fun ProgramConfirmExerciseCard(
                         text = displayNumber.toString(),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = appColors.textPrimary
                     )
                 }
 
@@ -672,20 +680,20 @@ internal fun ProgramConfirmExerciseCard(
                     text = exercise.name,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
+                    color = appColors.textPrimary,
                     modifier = Modifier.weight(1f)
                 )
 
                 // セット数バッジ
                 Box(
                     modifier = Modifier
-                        .background(Slate700, RoundedCornerShape(12.dp))
+                        .background(appColors.cardBackgroundSecondary, RoundedCornerShape(12.dp))
                         .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.sets_format, currentSetCount),
                         fontSize = 12.sp,
-                        color = Slate300
+                        color = appColors.textTertiary
                     )
                 }
 
@@ -709,7 +717,7 @@ internal fun ProgramConfirmExerciseCard(
                 Text(
                     text = "▼",
                     fontSize = 12.sp,
-                    color = Slate400,
+                    color = appColors.textSecondary,
                     modifier = Modifier.rotate(chevronRotation)
                 )
             }
@@ -732,11 +740,11 @@ internal fun ProgramConfirmExerciseCard(
                         Text(
                             text = stringResource(R.string.sets_label_short),
                             fontSize = 13.sp,
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
                         Row(
                             modifier = Modifier
-                                .background(Slate700, RoundedCornerShape(8.dp))
+                                .background(appColors.cardBackgroundSecondary, RoundedCornerShape(8.dp))
                                 .padding(2.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -744,12 +752,12 @@ internal fun ProgramConfirmExerciseCard(
                                 onClick = { if (currentSetCount > 1) onUpdateSetCount(currentSetCount - 1) },
                                 modifier = Modifier.size(32.dp)
                             ) {
-                                Text("−", fontSize = 16.sp, color = Slate400)
+                                Text("−", fontSize = 16.sp, color = appColors.textSecondary)
                             }
                             Text(
                                 text = currentSetCount.toString(),
                                 fontSize = 14.sp,
-                                color = Color.White,
+                                color = appColors.textPrimary,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.width(28.dp)
                             )
@@ -757,7 +765,7 @@ internal fun ProgramConfirmExerciseCard(
                                 onClick = { onUpdateSetCount(currentSetCount + 1) },
                                 modifier = Modifier.size(32.dp)
                             ) {
-                                Text("+", fontSize = 16.sp, color = Slate400)
+                                Text("+", fontSize = 16.sp, color = appColors.textSecondary)
                             }
                         }
                     }
@@ -785,7 +793,7 @@ internal fun ProgramConfirmExerciseCard(
                                     .clickable { onUpdateAllSetsValue(-1) },
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text("−", fontSize = 14.sp, color = Slate400)
+                                Text("−", fontSize = 14.sp, color = appColors.textSecondary)
                             }
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
@@ -802,7 +810,7 @@ internal fun ProgramConfirmExerciseCard(
                                     .clickable { onUpdateAllSetsValue(1) },
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text("+", fontSize = 14.sp, color = Slate400)
+                                Text("+", fontSize = 14.sp, color = appColors.textSecondary)
                             }
                         }
 
@@ -846,7 +854,7 @@ internal fun ProgramConfirmExerciseCard(
                     Text(
                         text = stringResource(R.string.set_format, set.setNumber, actualTotalSets),
                         fontSize = 14.sp,
-                        color = Slate300,
+                        color = appColors.textTertiary,
                         modifier = Modifier.width(72.dp)
                     )
 
@@ -876,7 +884,7 @@ internal fun ProgramConfirmExerciseCard(
                                 textStyle = androidx.compose.ui.text.TextStyle(
                                     fontSize = 16.sp,
                                     textAlign = TextAlign.Center,
-                                    color = Color.White
+                                    color = appColors.textPrimary
                                 ),
                                 decorationBox = { innerTextField ->
                                     Column {
@@ -896,7 +904,7 @@ internal fun ProgramConfirmExerciseCard(
                                                 .padding(horizontal = 4.dp)
                                                 .then(Modifier.drawBehind {
                                                     drawLine(
-                                                        color = Slate400,
+                                                        color = appColors.textSecondary,
                                                         start = androidx.compose.ui.geometry.Offset(0f, 0f),
                                                         end = androidx.compose.ui.geometry.Offset(size.width, 0f),
                                                         strokeWidth = 1.dp.toPx()
@@ -944,7 +952,7 @@ internal fun ProgramConfirmExerciseCard(
                             modifier = Modifier
                                 .width(48.dp)
                                 .height(28.dp)
-                                .background(Slate700, RoundedCornerShape(6.dp)),
+                                .background(appColors.cardBackgroundSecondary, RoundedCornerShape(6.dp)),
                             contentAlignment = Alignment.Center
                         ) {
                             BasicTextField(
@@ -961,7 +969,7 @@ internal fun ProgramConfirmExerciseCard(
                                 textStyle = androidx.compose.ui.text.TextStyle(
                                     fontSize = 13.sp,
                                     textAlign = TextAlign.Center,
-                                    color = Color.White
+                                    color = appColors.textPrimary
                                 ),
                                 decorationBox = { innerTextField ->
                                     Box(
@@ -995,6 +1003,7 @@ private fun BulkSettingTab(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Box(
         modifier = Modifier
             .background(
@@ -1007,7 +1016,7 @@ private fun BulkSettingTab(
         Text(
             text = text,
             fontSize = 13.sp,
-            color = if (isSelected) Color.White else Slate400
+            color = if (isSelected) appColors.textPrimary else appColors.textSecondary
         )
     }
 }
@@ -1050,6 +1059,7 @@ private fun ProgramConfirmLoopBlock(
     onUpdateSetCount: (Int, Int) -> Unit,
     onUpdateExerciseSetsValue: (Int, Int) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val chevronRotation by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
         label = "loopChevron"
@@ -1059,7 +1069,7 @@ private fun ProgramConfirmLoopBlock(
         modifier = Modifier
             .fillMaxWidth()
             .border(2.dp, Orange600, RoundedCornerShape(12.dp)),
-        colors = CardDefaults.cardColors(containerColor = Slate800),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column {
@@ -1106,13 +1116,13 @@ private fun ProgramConfirmLoopBlock(
                 if (loop.restBetweenRounds > 0) {
                     Box(
                         modifier = Modifier
-                            .background(Slate700, RoundedCornerShape(12.dp))
+                            .background(appColors.cardBackgroundSecondary, RoundedCornerShape(12.dp))
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Text(
                             text = stringResource(R.string.loop_rest_format, loop.restBetweenRounds),
                             fontSize = 12.sp,
-                            color = Slate300
+                            color = appColors.textTertiary
                         )
                     }
                 }
@@ -1121,7 +1131,7 @@ private fun ProgramConfirmLoopBlock(
                 Text(
                     text = "▼",
                     fontSize = 12.sp,
-                    color = Slate400,
+                    color = appColors.textSecondary,
                     modifier = Modifier.rotate(chevronRotation)
                 )
             }

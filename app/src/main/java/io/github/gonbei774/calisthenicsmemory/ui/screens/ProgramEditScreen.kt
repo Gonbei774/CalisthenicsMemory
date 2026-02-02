@@ -63,6 +63,7 @@ fun ProgramEditScreen(
     onNavigateBack: () -> Unit,
     onSaved: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val exercises by viewModel.exercises.collectAsState()
@@ -397,10 +398,10 @@ fun ProgramEditScreen(
                             focusedBorderColor = Orange600,
                             focusedLabelColor = Orange600,
                             cursorColor = Orange600,
-                            unfocusedTextColor = Color.White,
-                            focusedTextColor = Color.White,
-                            unfocusedLabelColor = Slate400,
-                            unfocusedBorderColor = Slate600
+                            unfocusedTextColor = appColors.textPrimary,
+                            focusedTextColor = appColors.textPrimary,
+                            unfocusedLabelColor = appColors.textSecondary,
+                            unfocusedBorderColor = appColors.border
                         ),
                         singleLine = true
                     )
@@ -412,7 +413,7 @@ fun ProgramEditScreen(
                         text = stringResource(R.string.program_exercises),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = appColors.textPrimary
                     )
                 }
 
@@ -421,13 +422,13 @@ fun ProgramEditScreen(
                     item {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = Slate800),
+                            colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Text(
                                 text = stringResource(R.string.program_exercises_required),
                                 modifier = Modifier.padding(16.dp),
-                                color = Slate400,
+                                color = appColors.textSecondary,
                                 fontSize = 14.sp
                             )
                         }
@@ -635,18 +636,18 @@ fun ProgramEditScreen(
     if (showDeleteConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirmDialog = false },
-            containerColor = Slate800,
+            containerColor = appColors.cardBackground,
             title = {
                 Text(
                     text = stringResource(R.string.delete_program),
-                    color = Color.White,
+                    color = appColors.textPrimary,
                     fontWeight = FontWeight.Bold
                 )
             },
             text = {
                 Text(
                     text = stringResource(R.string.delete_program_warning, name),
-                    color = Slate300
+                    color = appColors.textTertiary
                 )
             },
             confirmButton = {
@@ -662,7 +663,7 @@ fun ProgramEditScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirmDialog = false }) {
-                    Text(stringResource(R.string.cancel), color = Slate400)
+                    Text(stringResource(R.string.cancel), color = appColors.textSecondary)
                 }
             }
         )
@@ -713,18 +714,18 @@ fun ProgramEditScreen(
     if (showDiscardConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showDiscardConfirmDialog = false },
-            containerColor = Slate800,
+            containerColor = appColors.cardBackground,
             title = {
                 Text(
                     text = stringResource(R.string.discard_changes_title),
-                    color = Color.White,
+                    color = appColors.textPrimary,
                     fontWeight = FontWeight.Bold
                 )
             },
             text = {
                 Text(
                     text = stringResource(R.string.discard_changes_message),
-                    color = Slate300
+                    color = appColors.textTertiary
                 )
             },
             confirmButton = {
@@ -739,7 +740,7 @@ fun ProgramEditScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showDiscardConfirmDialog = false }) {
-                    Text(stringResource(R.string.cancel), color = Slate400)
+                    Text(stringResource(R.string.cancel), color = appColors.textSecondary)
                 }
             }
         )

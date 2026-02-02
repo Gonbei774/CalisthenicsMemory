@@ -419,17 +419,23 @@
     <string name="track_distance_description">Registra la distanza (cm) per ogni sessione</string>
     <string name="track_weight">Traccia Peso</string>
     <string name="track_weight_description">Registra il peso aggiunto (kg) per ogni sessione</string>
+    <string name="track_assistance">Traccia Assistenza</string>
+    <string name="track_assistance_description">Registra l\'assistenza banda/macchina (kg) per ogni sessione</string>
     <string name="distance_input_label">Distanza (cm)</string>
     <string name="weight_input_label">Peso (kg)</string>
+    <string name="assistance_input_label">Assistenza (kg)</string>
     <string name="distance_display_format">%d cm</string>
     <string name="weight_display_format">%.1f kg</string>
+    <string name="assistance_display_format">-%.1f kg</string>
     <!-- Distance Graph -->
     <string name="invert">Inverti</string>
     <string name="legend_reps">Rip</string>
     <string name="legend_distance">Distanza</string>
     <string name="legend_distance_inverted">Distanza (invertita)</string>
-    <!-- Volume/Weight Statistics -->
+    <!-- Volume/Weight/Assistance Statistics -->
     <string name="legend_volume">Volume</string>
+    <string name="legend_assistance">Assistenza</string>
+    <string name="record_assistance_for_graph">Registra l\'assistenza per questo esercizio</string>
     <string name="max_daily_volume">Volume giorn. max</string>
     <string name="avg_daily_volume">Volume giorn. medio</string>
     <string name="max_weight">Peso max</string>

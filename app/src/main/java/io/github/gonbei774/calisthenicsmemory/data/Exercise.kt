@@ -23,5 +23,6 @@ data class Exercise(
     val restInterval: Int? = null,       // 種目固有の休憩時間（秒、任意）
     val repDuration: Int? = null,        // 種目固有の1レップ時間（秒、任意）
     val distanceTrackingEnabled: Boolean = false,  // 距離入力を有効化
-    val weightTrackingEnabled: Boolean = false     // 荷重入力を有効化
+    val weightTrackingEnabled: Boolean = false,    // 荷重入力を有効化
+    val assistanceTrackingEnabled: Boolean = false // アシスト入力を有効化
 )

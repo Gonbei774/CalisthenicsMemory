@@ -49,6 +49,7 @@ fun ToDoScreen(
     onNavigateToRecord: (Long) -> Unit,
     onNavigateToWorkout: (Long) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val todoTasks by viewModel.todoTasks.collectAsState()
     val exercises by viewModel.exercises.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
@@ -104,7 +105,7 @@ fun ToDoScreen(
                 onClick = { showAddDialog = true },
                 containerColor = Amber500
             ) {
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add), tint = Color.White)
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add), tint = appColors.textPrimary)
             }
         }
     ) { paddingValues ->
@@ -119,7 +120,7 @@ fun ToDoScreen(
                 Text(
                     text = stringResource(R.string.todo_empty),
                     fontSize = 16.sp,
-                    color = Slate400,
+                    color = appColors.textSecondary,
                     textAlign = TextAlign.Center
                 )
             }
@@ -172,7 +173,7 @@ fun ToDoScreen(
                                         Icon(
                                             Icons.Default.Delete,
                                             contentDescription = stringResource(R.string.delete),
-                                            tint = Color.White
+                                            tint = appColors.textPrimary
                                         )
                                     }
                                 },
@@ -182,7 +183,7 @@ fun ToDoScreen(
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
                                     colors = CardDefaults.cardColors(
-                                        containerColor = if (isDragging) Slate700.copy(alpha = 0.9f) else Slate800
+                                        containerColor = if (isDragging) appColors.cardBackgroundSecondary.copy(alpha = 0.9f) else appColors.cardBackground
                                     ),
                                     shape = RoundedCornerShape(12.dp),
                                     elevation = CardDefaults.cardElevation(defaultElevation = elevation)
@@ -198,7 +199,7 @@ fun ToDoScreen(
                                         Icon(
                                             Icons.Default.Menu,
                                             contentDescription = stringResource(R.string.todo_drag_to_reorder),
-                                            tint = if (isDragging) Color.White else Slate400,
+                                            tint = if (isDragging) appColors.textPrimary else appColors.textSecondary,
                                             modifier = Modifier
                                                 .size(24.dp)
                                                 .longPressDraggableHandle()
@@ -211,7 +212,7 @@ fun ToDoScreen(
                                                 text = exercise.name,
                                                 fontSize = 16.sp,
                                                 fontWeight = FontWeight.Medium,
-                                                color = Color.White
+                                                color = appColors.textPrimary
                                             )
 
                                             // Badges row
@@ -245,7 +246,7 @@ fun ToDoScreen(
                                                     text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
                                                     fontSize = 11.sp,
                                                     fontWeight = FontWeight.Bold,
-                                                    color = Slate400
+                                                    color = appColors.textSecondary
                                                 )
 
                                                 // Unilateral
@@ -289,7 +290,7 @@ fun ToDoScreen(
                                             Text(
                                                 text = stringResource(R.string.todo_rec_button),
                                                 fontSize = 12.sp,
-                                                color = Color.White
+                                                color = appColors.textPrimary
                                             )
                                         }
 
@@ -306,7 +307,7 @@ fun ToDoScreen(
                                             Text(
                                                 text = stringResource(R.string.todo_wo_button),
                                                 fontSize = 12.sp,
-                                                color = Color.White
+                                                color = appColors.textPrimary
                                             )
                                         }
                                     }
@@ -340,6 +341,7 @@ fun AddExercisesDialog(
     onDismiss: () -> Unit,
     onAdd: (List<Exercise>) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val viewModel: TrainingViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
     val expandedGroups by viewModel.expandedGroups.collectAsState()
@@ -372,11 +374,11 @@ fun AddExercisesDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Slate800,
+        containerColor = appColors.cardBackground,
         title = {
             Text(
                 text = stringResource(R.string.todo_add_exercises),
-                color = Color.White,
+                color = appColors.textPrimary,
                 fontWeight = FontWeight.Bold
             )
         },
@@ -384,7 +386,7 @@ fun AddExercisesDialog(
             if (availableExercises.isEmpty()) {
                 Text(
                     text = stringResource(R.string.todo_all_added),
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
             } else {
                 Column(
@@ -402,14 +404,14 @@ fun AddExercisesDialog(
                         placeholder = {
                             Text(
                                 text = stringResource(R.string.search_placeholder),
-                                color = Slate400
+                                color = appColors.textSecondary
                             )
                         },
                         leadingIcon = {
                             Icon(
                                 Icons.Default.Search,
                                 contentDescription = null,
-                                tint = Slate400
+                                tint = appColors.textSecondary
                             )
                         },
                         trailingIcon = {
@@ -418,19 +420,19 @@ fun AddExercisesDialog(
                                     Icon(
                                         Icons.Default.Clear,
                                         contentDescription = stringResource(R.string.clear),
-                                        tint = Slate400
+                                        tint = appColors.textSecondary
                                     )
                                 }
                             }
                         },
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedContainerColor = Slate700,
-                            unfocusedContainerColor = Slate700,
+                            focusedTextColor = appColors.textPrimary,
+                            unfocusedTextColor = appColors.textPrimary,
+                            focusedContainerColor = appColors.cardBackgroundSecondary,
+                            unfocusedContainerColor = appColors.cardBackgroundSecondary,
                             focusedBorderColor = Amber500,
-                            unfocusedBorderColor = Slate600,
+                            unfocusedBorderColor = appColors.border,
                             cursorColor = Amber500
                         ),
                         shape = RoundedCornerShape(8.dp)
@@ -448,7 +450,7 @@ fun AddExercisesDialog(
                                 item {
                                     Text(
                                         text = stringResource(R.string.no_results),
-                                        color = Slate400,
+                                        color = appColors.textSecondary,
                                         modifier = Modifier.padding(16.dp)
                                     )
                                 }
@@ -514,13 +516,13 @@ fun AddExercisesDialog(
             ) {
                 Text(
                     text = stringResource(R.string.add),
-                    color = if (selectedExercises.isNotEmpty()) Amber500 else Slate400
+                    color = if (selectedExercises.isNotEmpty()) Amber500 else appColors.textSecondary
                 )
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.cancel), color = Slate400)
+                Text(text = stringResource(R.string.cancel), color = appColors.textSecondary)
             }
         }
     )
@@ -535,9 +537,10 @@ fun AddExerciseGroup(
     onExpandToggle: () -> Unit,
     onExerciseToggle: (Long) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Slate700),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackgroundSecondary),
         shape = RoundedCornerShape(8.dp)
     ) {
         Column {
@@ -564,18 +567,18 @@ fun AddExerciseGroup(
                             else
                                 Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = null,
-                            tint = Color.White
+                            tint = appColors.textPrimary
                         )
                         Text(
                             text = groupName ?: stringResource(R.string.no_group),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = appColors.textPrimary
                         )
                         Text(
                             text = "(${exercises.size})",
                             fontSize = 14.sp,
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
                     }
                 }
@@ -603,7 +606,7 @@ fun AddExerciseGroup(
                                 onCheckedChange = { onExerciseToggle(exercise.id) },
                                 colors = CheckboxDefaults.colors(
                                     checkedColor = Amber500,
-                                    uncheckedColor = Slate400
+                                    uncheckedColor = appColors.textSecondary
                                 )
                             )
                             Column(modifier = Modifier.padding(start = 4.dp, top = 10.dp)) {
@@ -611,7 +614,7 @@ fun AddExerciseGroup(
                                     text = exercise.name,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.White
+                                    color = appColors.textPrimary
                                 )
                                 // Badges row
                                 Row(
@@ -644,7 +647,7 @@ fun AddExerciseGroup(
                                         text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Slate400
+                                        color = appColors.textSecondary
                                     )
 
                                     // Unilateral
@@ -687,9 +690,10 @@ fun SearchResultExerciseItem(
     isSelected: Boolean,
     onToggle: (Long) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Slate700),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackgroundSecondary),
         shape = RoundedCornerShape(8.dp)
     ) {
         Row(
@@ -703,7 +707,7 @@ fun SearchResultExerciseItem(
                 onCheckedChange = { onToggle(exercise.id) },
                 colors = CheckboxDefaults.colors(
                     checkedColor = Amber500,
-                    uncheckedColor = Slate400
+                    uncheckedColor = appColors.textSecondary
                 )
             )
             Column(modifier = Modifier.padding(start = 4.dp, top = 10.dp)) {
@@ -711,7 +715,7 @@ fun SearchResultExerciseItem(
                     text = exercise.name,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = appColors.textPrimary
                 )
                 // Badges row
                 Row(
@@ -744,7 +748,7 @@ fun SearchResultExerciseItem(
                         text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
 
                     // Unilateral

@@ -16,6 +16,7 @@ import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
 import io.github.gonbei774.calisthenicsmemory.ui.components.common.ProgramCircularTimer
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -33,6 +34,7 @@ internal fun ProgramStartIntervalStep(
     onComplete: () -> Unit,
     onSkip: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val currentSet = session.sets[currentSetIndex]
     val (_, exercise) = session.exercises[currentSet.exerciseIndex]
 
@@ -73,7 +75,7 @@ internal fun ProgramStartIntervalStep(
             text = exercise.name,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(top = 8.dp)
         )
 
@@ -92,7 +94,7 @@ internal fun ProgramStartIntervalStep(
                 stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
-            color = Slate300,
+            color = appColors.textTertiary,
             modifier = Modifier.padding(top = 4.dp)
         )
 
@@ -121,7 +123,7 @@ internal fun ProgramStartIntervalStep(
         TextButton(onClick = onSkip) {
             Text(
                 text = stringResource(R.string.skip_button),
-                color = Slate400
+                color = appColors.textSecondary
             )
         }
     }
@@ -139,6 +141,7 @@ internal fun ProgramIntervalStep(
     onComplete: () -> Unit,
     onSkip: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val currentSet = session.sets[currentSetIndex]
     // 次のセット：オーバーライドがあればそれを使用、なければ+1
     val nextSetIndex = nextSetIndexOverride ?: (currentSetIndex + 1)
@@ -203,7 +206,7 @@ internal fun ProgramIntervalStep(
                 Text(
                     text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
                     fontSize = 20.sp,
-                    color = Slate300,
+                    color = appColors.textTertiary,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             } else {
@@ -219,7 +222,7 @@ internal fun ProgramIntervalStep(
                     Text(
                         text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
                         fontSize = 16.sp,
-                        color = Slate400,
+                        color = appColors.textSecondary,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
@@ -241,7 +244,7 @@ internal fun ProgramIntervalStep(
                 Text(
                     text = stringResource(R.string.next_exercise_label, nextExercise.name),
                     fontSize = 18.sp,
-                    color = Slate300,
+                    color = appColors.textTertiary,
                     modifier = Modifier.padding(top = 8.dp)
                 )
 
@@ -253,7 +256,7 @@ internal fun ProgramIntervalStep(
                         stringResource(R.string.set_progress, nextGlobalIndex, totalSets)
                     },
                     fontSize = 18.sp,
-                    color = Slate300,
+                    color = appColors.textTertiary,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
@@ -299,7 +302,7 @@ internal fun ProgramIntervalStep(
             IconButton(
                 onClick = { remainingTime = (remainingTime - 10).coerceAtLeast(0) }
             ) {
-                Text("-", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text("-", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -307,7 +310,7 @@ internal fun ProgramIntervalStep(
             Text(
                 text = stringResource(R.string.ten_seconds),
                 fontSize = 18.sp,
-                color = Color.White
+                color = appColors.textPrimary
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -315,7 +318,7 @@ internal fun ProgramIntervalStep(
             IconButton(
                 onClick = { remainingTime += 10 }
             ) {
-                Text("+", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text("+", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
             }
         }
 
@@ -325,7 +328,7 @@ internal fun ProgramIntervalStep(
         TextButton(onClick = onSkip) {
             Text(
                 text = stringResource(R.string.skip_button),
-                color = Slate400
+                color = appColors.textSecondary
             )
         }
     }

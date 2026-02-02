@@ -1,0 +1,8 @@
+Ajouté : Mode clair avec option de thème sélectionnable
+Ajouté : Suivi de l'assistance pour les exercices avec bande
+Corrigé : Divers problèmes de visibilité de l'interface en mode clair
+Corrigé : Améliorations de l'affichage du graphique d'assistance
+Corrigé : Les étiquettes de type d'exercice sont maintenant traduisibles
+Corrigé : La description du mode automatique se met à jour correctement
+
+Contributeurs : nautilusx, SomeTr, balaraz

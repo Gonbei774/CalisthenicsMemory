@@ -83,6 +83,7 @@ data class WorkoutSession(
     var comment: String = "",
     val distanceCm: Int? = null, // 距離（cm）
     val weightG: Int? = null, // 追加ウエイト（g）
+    val assistanceG: Int? = null, // アシスト量（g）
     val isAutoMode: Boolean = true, // 自動モード（目標達成時に自動遷移）
     val isDynamicCountSoundEnabled: Boolean = true // レップカウント音有効
 )
@@ -107,6 +108,7 @@ fun WorkoutScreen(
     initialExerciseId: Long? = null,
     fromToDo: Boolean = false
 ) {
+    val appColors = LocalAppColors.current
     val exercises by viewModel.exercises.collectAsState()
     val context = LocalContext.current
 
@@ -500,6 +502,7 @@ fun ExerciseSelectionStep(
     viewModel: TrainingViewModel,
     onExerciseSelected: (Exercise) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val exercises by viewModel.exercises.collectAsState()
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
     val expandedGroups by viewModel.expandedGroups.collectAsState()
@@ -527,7 +530,7 @@ fun ExerciseSelectionStep(
         ) {
             Text(
                 text = stringResource(R.string.no_exercises_yet_workout),
-                color = Slate400,
+                color = appColors.textSecondary,
                 fontSize = 16.sp
             )
         }
@@ -545,14 +548,14 @@ fun ExerciseSelectionStep(
                 placeholder = {
                     Text(
                         text = stringResource(R.string.search_placeholder),
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
                 },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Search,
                         contentDescription = null,
-                        tint = Slate400
+                        tint = appColors.textSecondary
                     )
                 },
                 trailingIcon = {
@@ -561,19 +564,19 @@ fun ExerciseSelectionStep(
                             Icon(
                                 Icons.Default.Clear,
                                 contentDescription = stringResource(R.string.clear),
-                                tint = Slate400
+                                tint = appColors.textSecondary
                             )
                         }
                     }
                 },
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedContainerColor = Slate800,
-                    unfocusedContainerColor = Slate800,
+                    focusedTextColor = appColors.textPrimary,
+                    unfocusedTextColor = appColors.textPrimary,
+                    focusedContainerColor = appColors.cardBackground,
+                    unfocusedContainerColor = appColors.cardBackground,
                     focusedBorderColor = Orange600,
-                    unfocusedBorderColor = Slate600,
+                    unfocusedBorderColor = appColors.border,
                     cursorColor = Orange600
                 ),
                 shape = RoundedCornerShape(8.dp)
@@ -592,7 +595,7 @@ fun ExerciseSelectionStep(
                         item {
                             Text(
                                 text = stringResource(R.string.no_results),
-                                color = Slate400,
+                                color = appColors.textSecondary,
                                 modifier = Modifier.padding(16.dp)
                             )
                         }
@@ -643,9 +646,10 @@ fun WorkoutHierarchicalGroup(
     onExpandToggle: () -> Unit,
     onExerciseSelected: (Exercise) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Slate800),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column {
@@ -669,7 +673,7 @@ fun WorkoutHierarchicalGroup(
                         Icon(
                             imageVector = if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = null,
-                            tint = Color.White
+                            tint = appColors.textPrimary
                         )
                         Text(
                             text = when (group.groupName) {
@@ -679,12 +683,12 @@ fun WorkoutHierarchicalGroup(
                             },
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = appColors.textPrimary
                         )
                         Text(
                             text = stringResource(R.string.exercises_count, group.exercises.size),
                             fontSize = 14.sp,
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
                     }
                 }
@@ -718,9 +722,10 @@ fun WorkoutExerciseItem(
     exercise: Exercise,
     onClick: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Slate700),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackgroundSecondary),
         shape = RoundedCornerShape(8.dp),
         onClick = onClick
     ) {
@@ -736,7 +741,7 @@ fun WorkoutExerciseItem(
                     text = exercise.name,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = appColors.textPrimary
                 )
 
                 Row(
@@ -769,7 +774,7 @@ fun WorkoutExerciseItem(
                         text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
 
                     // Unilateral
@@ -824,6 +829,7 @@ fun SettingsStep(
     onStartWorkout: (WorkoutSession) -> Unit,
     onBack: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val context = LocalContext.current
     val workoutPrefs = remember { WorkoutPreferences(context) }
 
@@ -861,6 +867,7 @@ fun SettingsStep(
     }
     var distanceInput by remember { mutableStateOf("") }
     var weightInput by remember { mutableStateOf("") }
+    var assistanceInput by remember { mutableStateOf("") }
 
     // 実行設定（WorkoutPreferencesと連動）
     // Isometricはデフォルトでタイマーオフ（手動完了）、Dynamicはオン（既存ユーザー体験維持）
@@ -898,6 +905,12 @@ fun SettingsStep(
                     weightInput = (it / 1000.0).toString()
                 }
             }
+            // アシストをプリフィル（トラッキング有効時）
+            if (exercise.assistanceTrackingEnabled) {
+                prevSession.firstOrNull()?.assistanceG?.let {
+                    assistanceInput = (it / 1000.0).toString()
+                }
+            }
         }
     }
 
@@ -912,13 +925,13 @@ fun SettingsStep(
             text = exercise.name,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White
+            color = appColors.textPrimary
         )
 
         Text(
             text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
             fontSize = 14.sp,
-            color = Slate400
+            color = appColors.textSecondary
         )
 
         // 実行設定セクション（上部に配置）
@@ -997,7 +1010,7 @@ fun SettingsStep(
             value = sets,
             onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) sets = it },
             label = { Text(stringResource(R.string.target_sets_label)) },
-            placeholder = { Text("3", color = Slate400) },
+            placeholder = { Text("3", color = appColors.textSecondary) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
@@ -1010,7 +1023,7 @@ fun SettingsStep(
             value = targetValue,
             onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) targetValue = it },
             label = { Text(stringResource(if (exercise.type == "Dynamic") R.string.target_reps_label else R.string.target_duration_label)) },
-            placeholder = { Text("10", color = Slate400) },
+            placeholder = { Text("10", color = appColors.textSecondary) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
@@ -1028,7 +1041,7 @@ fun SettingsStep(
                     }
                 },
                 label = { Text(stringResource(R.string.rep_duration_label)) },
-                placeholder = { Text("5", color = Slate400) },
+                placeholder = { Text("5", color = appColors.textSecondary) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
@@ -1042,7 +1055,7 @@ fun SettingsStep(
             value = startInterval,
             onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) startInterval = it },
             label = { Text(stringResource(R.string.start_countdown_label)) },
-            placeholder = { Text("5", color = Slate400) },
+            placeholder = { Text("5", color = appColors.textSecondary) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
@@ -1055,7 +1068,7 @@ fun SettingsStep(
             value = interval,
             onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) interval = it },
             label = { Text(stringResource(R.string.interval_duration_label)) },
-            placeholder = { Text("240", color = Slate400) },
+            placeholder = { Text("240", color = appColors.textSecondary) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
@@ -1069,9 +1082,13 @@ fun SettingsStep(
             OutlinedTextField(
                 value = distanceInput,
                 onValueChange = { value ->
+                    // 全角→半角変換
+                    val normalized = value
+                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                        .replace("．", ".").replace("－", "-")
                     // 空、"-"、または整数（負を含む）を許可
-                    if (value.isEmpty() || value == "-" || value.toIntOrNull() != null) {
-                        distanceInput = value
+                    if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
+                        distanceInput = normalized
                     }
                 },
                 label = { Text(stringResource(R.string.distance_input_label)) },
@@ -1082,12 +1099,12 @@ fun SettingsStep(
                 ),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Blue600,
-                    unfocusedBorderColor = Slate600,
+                    unfocusedBorderColor = appColors.border,
                     focusedLabelColor = Blue600,
-                    unfocusedLabelColor = Slate400,
+                    unfocusedLabelColor = appColors.textSecondary,
                     cursorColor = Blue600,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White
+                    focusedTextColor = appColors.textPrimary,
+                    unfocusedTextColor = appColors.textPrimary
                 )
             )
         }
@@ -1097,12 +1114,16 @@ fun SettingsStep(
             OutlinedTextField(
                 value = weightInput,
                 onValueChange = { value ->
+                    // 全角→半角変換
+                    val normalized = value
+                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                        .replace("．", ".")
                     // 空、または小数（小数点1つまで、小数第1位まで）を許可
-                    val isValidDecimal = value.isEmpty() ||
-                        value == "." ||
-                        value.matches(Regex("^\\d*\\.?\\d?\$"))
+                    val isValidDecimal = normalized.isEmpty() ||
+                        normalized == "." ||
+                        normalized.matches(Regex("^\\d*\\.?\\d?\$"))
                     if (isValidDecimal) {
-                        weightInput = value
+                        weightInput = normalized
                     }
                 },
                 label = { Text(stringResource(R.string.weight_input_label)) },
@@ -1113,12 +1134,47 @@ fun SettingsStep(
                 ),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Orange600,
-                    unfocusedBorderColor = Slate600,
+                    unfocusedBorderColor = appColors.border,
                     focusedLabelColor = Orange600,
-                    unfocusedLabelColor = Slate400,
+                    unfocusedLabelColor = appColors.textSecondary,
                     cursorColor = Orange600,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White
+                    focusedTextColor = appColors.textPrimary,
+                    unfocusedTextColor = appColors.textPrimary
+                )
+            )
+        }
+
+        // アシスト入力（有効な場合のみ表示）
+        if (exercise.assistanceTrackingEnabled) {
+            OutlinedTextField(
+                value = assistanceInput,
+                onValueChange = { value ->
+                    // 全角→半角変換
+                    val normalized = value
+                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                        .replace("．", ".")
+                    // 空、または小数（小数点1つまで、小数第1位まで）を許可
+                    val isValidDecimal = normalized.isEmpty() ||
+                        normalized == "." ||
+                        normalized.matches(Regex("^\\d*\\.?\\d?\$"))
+                    if (isValidDecimal) {
+                        assistanceInput = normalized
+                    }
+                },
+                label = { Text(stringResource(R.string.assistance_input_label)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal
+                ),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Amber500,
+                    unfocusedBorderColor = appColors.border,
+                    focusedLabelColor = Amber500,
+                    unfocusedLabelColor = appColors.textSecondary,
+                    cursorColor = Amber500,
+                    focusedTextColor = appColors.textPrimary,
+                    unfocusedTextColor = appColors.textPrimary
                 )
             )
         }
@@ -1152,10 +1208,12 @@ fun SettingsStep(
                     }
                 }
 
-                // 距離・荷重の値を取得（空の場合はnull）
+                // 距離・荷重・アシストの値を取得（空の場合はnull）
                 val distanceCm = distanceInput.ifEmpty { null }?.toIntOrNull()
                 // 荷重はkgで入力、gに変換（例: 1.5kg → 1500g）
                 val weightG = weightInput.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
+                // アシストはkgで入力、gに変換（例: 22.5kg → 22500g）
+                val assistanceG = assistanceInput.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
 
                 val session = WorkoutSession(
                     exercise = exercise,
@@ -1167,6 +1225,7 @@ fun SettingsStep(
                     sets = workoutSets,
                     distanceCm = distanceCm,
                     weightG = weightG,
+                    assistanceG = assistanceG,
                     isAutoMode = isAutoMode,
                     isDynamicCountSoundEnabled = isDynamicCountSoundEnabled
                 )
@@ -1201,6 +1260,7 @@ fun StartIntervalStep(
     onIntervalComplete: () -> Unit,
     onSkip: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     var remainingTime by remember { mutableIntStateOf(session.startInterval) }
     val progress = if (session.startInterval > 0) remainingTime.toFloat() / session.startInterval else 0f
 
@@ -1235,7 +1295,7 @@ fun StartIntervalStep(
             text = session.exercise.name,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(top = 8.dp)
         )
 
@@ -1269,14 +1329,12 @@ fun StartIntervalStep(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // ボタン
-        Button(
-            onClick = onSkip,
-            colors = ButtonDefaults.buttonColors(containerColor = Slate600),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.skip_button))
+        // スキップボタン
+        TextButton(onClick = onSkip) {
+            Text(
+                text = stringResource(R.string.skip_button),
+                color = appColors.textSecondary
+            )
         }
     }
 }
@@ -1288,31 +1346,32 @@ fun CircularProgressTimer(
     remainingTime: Int,
     color: Color
 ) {
+    val appColors = LocalAppColors.current
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.size(240.dp)
     ) {
         Canvas(modifier = Modifier.size(240.dp)) {
             drawArc(
-                color = Slate600,
+                color = appColors.timerTrack,
                 startAngle = -90f,
                 sweepAngle = 360f,
                 useCenter = false,
-                style = Stroke(width = 20.dp.toPx(), cap = StrokeCap.Round)
+                style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
             )
             drawArc(
                 color = color,
                 startAngle = -90f,
                 sweepAngle = 360f * progress,
                 useCenter = false,
-                style = Stroke(width = 20.dp.toPx(), cap = StrokeCap.Round)
+                style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
             )
         }
         Text(
             text = "$remainingTime",
             fontSize = 72.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             style = androidx.compose.ui.text.TextStyle(
                 shadow = androidx.compose.ui.graphics.Shadow(
                     color = Color.Black.copy(alpha = 0.3f),
@@ -1336,6 +1395,7 @@ fun ExecutingStep(
     onSkip: (WorkoutSession) -> Unit,
     onAbort: (WorkoutSession) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val currentSet = session.sets.getOrNull(currentSetIndex) ?: return
 
     var elapsedTime by remember(currentSetIndex) { mutableIntStateOf(0) }
@@ -1419,7 +1479,7 @@ fun ExecutingStep(
             text = session.exercise.name,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(top = 8.dp)
         )
 
@@ -1452,7 +1512,7 @@ fun ExecutingStep(
                     stringResource(R.string.set_format, currentSet.setNumber, session.totalSets)
                 },
                 fontSize = 20.sp,
-                color = Slate300,
+                color = appColors.textTertiary,
                 modifier = Modifier.padding(top = 8.dp)
             )
 
@@ -1550,6 +1610,7 @@ fun IntervalStep(
     onSkip: () -> Unit,
     onUpdateInterval: (Int) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     var isRunning by remember { mutableStateOf(true) }
     var remainingTime by remember { mutableIntStateOf(session.intervalDuration) }
     val progress = if (session.intervalDuration > 0) remainingTime.toFloat() / session.intervalDuration else 0f
@@ -1589,7 +1650,7 @@ fun IntervalStep(
             text = session.exercise.name,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(top = 8.dp)
         )
 
@@ -1623,7 +1684,7 @@ fun IntervalStep(
                         stringResource(R.string.next_set_format, it.setNumber, session.totalSets)
                     },
                     fontSize = 20.sp,
-                    color = Slate300,
+                    color = appColors.textTertiary,
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }
@@ -1674,7 +1735,7 @@ fun IntervalStep(
                     text = "-",
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = appColors.textPrimary
                 )
             }
 
@@ -1683,7 +1744,7 @@ fun IntervalStep(
             Text(
                 text = stringResource(R.string.ten_seconds),
                 fontSize = 18.sp,
-                color = Color.White
+                color = appColors.textPrimary
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -1698,7 +1759,7 @@ fun IntervalStep(
                     text = "+",
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = appColors.textPrimary
                 )
             }
         }
@@ -1708,7 +1769,7 @@ fun IntervalStep(
         TextButton(onClick = onSkip) {
             Text(
                 text = stringResource(R.string.skip_button),
-                color = Slate400
+                color = appColors.textSecondary
             )
         }
     }
@@ -1721,6 +1782,7 @@ fun ConfirmationStep(
     onConfirm: (WorkoutSession) -> Unit,
     onCancel: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     var comment by remember { mutableStateOf(session.comment) }
 
     // Unilateralの場合、セット番号でグループ化
@@ -1760,7 +1822,7 @@ fun ConfirmationStep(
             text = stringResource(R.string.workout_complete),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White
+            color = appColors.textPrimary
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -1866,6 +1928,7 @@ fun UnilateralSetItem(
     onRightValueChange: (Int) -> Unit,
     onLeftValueChange: (Int) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     // 編集可能な状態として管理
     var rightValue by remember(rightSet) { mutableStateOf(rightSet?.actualValue?.toString() ?: "0") }
     var leftValue by remember(leftSet) { mutableStateOf(leftSet?.actualValue?.toString() ?: "0") }
@@ -1873,7 +1936,7 @@ fun UnilateralSetItem(
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (rightSet?.isSkipped == true && leftSet?.isSkipped == true) Slate700 else Slate800
+            containerColor = if (rightSet?.isSkipped == true && leftSet?.isSkipped == true) appColors.cardBackgroundSecondary else appColors.cardBackground
         ),
         shape = RoundedCornerShape(8.dp)
     ) {
@@ -1891,7 +1954,7 @@ fun UnilateralSetItem(
                     text = stringResource(R.string.set_label, setNumber),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = appColors.textPrimary
                 )
 
                 // 前回値表示（右/左）
@@ -1904,7 +1967,7 @@ fun UnilateralSetItem(
                             "${prevRight ?: "-"}/${prevLeft ?: "-"}"
                         ),
                         fontSize = 12.sp,
-                        color = Slate500
+                        color = appColors.textDisabled
                     )
                 }
             }
@@ -1913,7 +1976,7 @@ fun UnilateralSetItem(
                 Text(
                     text = stringResource(R.string.skipped_label),
                     fontSize = 12.sp,
-                    color = Slate400,
+                    color = appColors.textSecondary,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
@@ -1929,7 +1992,7 @@ fun UnilateralSetItem(
                 Text(
                     text = stringResource(R.string.right_colon),
                     fontSize = 14.sp,
-                    color = Slate400,
+                    color = appColors.textSecondary,
                     modifier = Modifier.width(30.dp)
                 )
                 OutlinedTextField(
@@ -1956,7 +2019,7 @@ fun UnilateralSetItem(
                 Text(
                     text = stringResource(R.string.left_colon),
                     fontSize = 14.sp,
-                    color = Slate400,
+                    color = appColors.textSecondary,
                     modifier = Modifier.width(30.dp)
                 )
                 OutlinedTextField(
@@ -1988,13 +2051,14 @@ fun BilateralSetItem(
     exerciseType: String,
     onValueChange: (Int) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     // 編集可能な状態として管理
     var value by remember(set) { mutableStateOf(set.actualValue.toString()) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (set.isSkipped) Slate700 else Slate800
+            containerColor = if (set.isSkipped) appColors.cardBackgroundSecondary else appColors.cardBackground
         ),
         shape = RoundedCornerShape(8.dp)
     ) {
@@ -2010,13 +2074,13 @@ fun BilateralSetItem(
                     text = stringResource(R.string.set_label, set.setNumber),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = appColors.textPrimary
                 )
                 if (set.isSkipped) {
                     Text(
                         text = stringResource(R.string.skipped_label),
                         fontSize = 12.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
                 }
                 // 前回値表示
@@ -2024,7 +2088,7 @@ fun BilateralSetItem(
                     Text(
                         text = stringResource(R.string.previous_value_format, prev),
                         fontSize = 12.sp,
-                        color = Slate500
+                        color = appColors.textDisabled
                     )
                 }
             }
@@ -2076,7 +2140,8 @@ fun saveWorkoutRecords(
                 time = now,
                 comment = session.comment.ifEmpty { workoutModeComment },
                 distanceCm = session.distanceCm,
-                weightG = session.weightG
+                weightG = session.weightG,
+                assistanceG = session.assistanceG
             )
         }
     } else {
@@ -2092,7 +2157,8 @@ fun saveWorkoutRecords(
                 time = now,
                 comment = session.comment.ifEmpty { workoutModeComment },
                 distanceCm = session.distanceCm,
-                weightG = session.weightG
+                weightG = session.weightG,
+                assistanceG = session.assistanceG
             )
         }
     }
@@ -2104,6 +2170,7 @@ fun NextSetInfo(
     session: WorkoutSession,
     currentSetIndex: Int
 ) {
+    val appColors = LocalAppColors.current
     val nextSetIndex = currentSetIndex + 1
     val nextSet = session.sets.getOrNull(nextSetIndex) ?: return
 
@@ -2125,7 +2192,7 @@ fun NextSetInfo(
                 stringResource(R.string.next_set_format, nextSet.setNumber, session.totalSets)
             },
             fontSize = 16.sp,
-            color = Slate400
+            color = appColors.textSecondary
         )
     }
 }
@@ -2159,13 +2226,14 @@ fun SingleWorkoutSettingsSection(
     onIsometricIntervalSoundChange: (Boolean) -> Unit,
     onIsometricIntervalSecondsChange: (Int) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     // ローカル状態（間隔秒数入力用）
     var intervalText by remember(isometricIntervalSeconds) { mutableStateOf(isometricIntervalSeconds.toString()) }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, Slate700, RoundedCornerShape(12.dp))
+            .border(1.dp, appColors.cardBackgroundSecondary, RoundedCornerShape(12.dp))
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -2173,7 +2241,7 @@ fun SingleWorkoutSettingsSection(
             text = stringResource(R.string.settings),
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
-            color = Slate300
+            color = appColors.textTertiary
         )
 
         if (isDynamicExercise) {
@@ -2187,22 +2255,22 @@ fun SingleWorkoutSettingsSection(
                     Text(
                         text = stringResource(R.string.dynamic_count_sound_label),
                         fontSize = 14.sp,
-                        color = Color.White
+                        color = appColors.textPrimary
                     )
                     Text(
                         text = stringResource(R.string.dynamic_count_sound_description),
                         fontSize = 11.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
                 }
                 Switch(
                     checked = isDynamicCountSoundEnabled,
                     onCheckedChange = onDynamicCountSoundChange,
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
+                        checkedThumbColor = appColors.switchThumb,
                         checkedTrackColor = Orange600,
-                        uncheckedThumbColor = Color.White,
-                        uncheckedTrackColor = Slate500
+                        uncheckedThumbColor = appColors.switchThumb,
+                        uncheckedTrackColor = appColors.switchTrack
                     )
                 )
             }
@@ -2217,16 +2285,20 @@ fun SingleWorkoutSettingsSection(
                     Text(
                         text = stringResource(R.string.auto_mode),
                         fontSize = 14.sp,
-                        color = if (isDynamicCountSoundEnabled) Color.White else Slate500
+                        color = if (isDynamicCountSoundEnabled) appColors.textPrimary else appColors.textDisabled
                     )
                     Text(
                         text = if (isDynamicCountSoundEnabled) {
-                            stringResource(R.string.auto_mode_description)
+                            if (isAutoMode) {
+                                stringResource(R.string.timer_mode_on_description)
+                            } else {
+                                stringResource(R.string.timer_mode_off_description)
+                            }
                         } else {
                             stringResource(R.string.auto_mode_disabled_hint)
                         },
                         fontSize = 11.sp,
-                        color = if (isDynamicCountSoundEnabled) Slate400 else Slate600
+                        color = if (isDynamicCountSoundEnabled) appColors.textSecondary else appColors.textDisabled
                     )
                 }
                 Switch(
@@ -2234,14 +2306,14 @@ fun SingleWorkoutSettingsSection(
                     onCheckedChange = onAutoModeChange,
                     enabled = isDynamicCountSoundEnabled,
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
+                        checkedThumbColor = appColors.switchThumb,
                         checkedTrackColor = Orange600,
-                        uncheckedThumbColor = Color.White,
-                        uncheckedTrackColor = Slate500,
-                        disabledCheckedThumbColor = Slate400,
-                        disabledCheckedTrackColor = Slate600,
-                        disabledUncheckedThumbColor = Slate400,
-                        disabledUncheckedTrackColor = Slate600
+                        uncheckedThumbColor = appColors.switchThumb,
+                        uncheckedTrackColor = appColors.switchTrack,
+                        disabledCheckedThumbColor = appColors.textSecondary,
+                        disabledCheckedTrackColor = appColors.border,
+                        disabledUncheckedThumbColor = appColors.textSecondary,
+                        disabledUncheckedTrackColor = appColors.border
                     )
                 )
             }
@@ -2256,22 +2328,26 @@ fun SingleWorkoutSettingsSection(
                     Text(
                         text = stringResource(R.string.auto_mode),
                         fontSize = 14.sp,
-                        color = Color.White
+                        color = appColors.textPrimary
                     )
                     Text(
-                        text = stringResource(R.string.auto_mode_description),
+                        text = if (isAutoMode) {
+                            stringResource(R.string.timer_mode_on_description)
+                        } else {
+                            stringResource(R.string.timer_mode_off_description)
+                        },
                         fontSize = 11.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
                 }
                 Switch(
                     checked = isAutoMode,
                     onCheckedChange = onAutoModeChange,
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
+                        checkedThumbColor = appColors.switchThumb,
                         checkedTrackColor = Orange600,
-                        uncheckedThumbColor = Color.White,
-                        uncheckedTrackColor = Slate500
+                        uncheckedThumbColor = appColors.switchThumb,
+                        uncheckedTrackColor = appColors.switchTrack
                     )
                 )
             }
@@ -2286,12 +2362,12 @@ fun SingleWorkoutSettingsSection(
                     Text(
                         text = stringResource(R.string.isometric_interval_sound_label),
                         fontSize = 14.sp,
-                        color = Color.White
+                        color = appColors.textPrimary
                     )
                     Text(
                         text = stringResource(R.string.isometric_interval_sound_description),
                         fontSize = 11.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
                 }
                 Row(
@@ -2318,7 +2394,7 @@ fun SingleWorkoutSettingsSection(
                             textStyle = androidx.compose.ui.text.TextStyle(
                                 fontSize = 14.sp,
                                 textAlign = TextAlign.Center,
-                                color = Color.White
+                                color = appColors.textPrimary
                             ),
                             decorationBox = { innerTextField ->
                                 Column {
@@ -2337,7 +2413,7 @@ fun SingleWorkoutSettingsSection(
                                             .padding(horizontal = 2.dp)
                                             .then(Modifier.drawBehind {
                                                 drawLine(
-                                                    color = Slate400,
+                                                    color = appColors.textSecondary,
                                                     start = androidx.compose.ui.geometry.Offset(0f, 0f),
                                                     end = androidx.compose.ui.geometry.Offset(size.width, 0f),
                                                     strokeWidth = 1.dp.toPx()
@@ -2351,17 +2427,17 @@ fun SingleWorkoutSettingsSection(
                     Text(
                         text = stringResource(R.string.unit_seconds_short),
                         fontSize = 12.sp,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Switch(
                         checked = isIsometricIntervalSoundEnabled,
                         onCheckedChange = onIsometricIntervalSoundChange,
                         colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White,
+                            checkedThumbColor = appColors.switchThumb,
                             checkedTrackColor = Orange600,
-                            uncheckedThumbColor = Color.White,
-                            uncheckedTrackColor = Slate500
+                            uncheckedThumbColor = appColors.switchThumb,
+                            uncheckedTrackColor = appColors.switchTrack
                         )
                     )
                 }
@@ -2376,6 +2452,7 @@ fun ModeSelectionStep(
     onSingleModeSelected: () -> Unit,
     onProgramModeSelected: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -2386,7 +2463,7 @@ fun ModeSelectionStep(
             text = stringResource(R.string.workout_mode_selection),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
@@ -2395,7 +2472,7 @@ fun ModeSelectionStep(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 12.dp),
-            colors = CardDefaults.cardColors(containerColor = Slate800),
+            colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
             shape = RoundedCornerShape(12.dp),
             onClick = onSingleModeSelected
         ) {
@@ -2411,12 +2488,12 @@ fun ModeSelectionStep(
                         text = stringResource(R.string.single_mode),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = appColors.textPrimary
                     )
                     Text(
                         text = stringResource(R.string.single_mode_description),
                         fontSize = 14.sp,
-                        color = Slate400,
+                        color = appColors.textSecondary,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
@@ -2432,7 +2509,7 @@ fun ModeSelectionStep(
         // プログラムモード
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Slate800),
+            colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
             shape = RoundedCornerShape(12.dp),
             onClick = onProgramModeSelected
         ) {
@@ -2448,12 +2525,12 @@ fun ModeSelectionStep(
                         text = stringResource(R.string.program_mode),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = appColors.textPrimary
                     )
                     Text(
                         text = stringResource(R.string.program_mode_description),
                         fontSize = 14.sp,
-                        color = Slate400,
+                        color = appColors.textSecondary,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
@@ -2474,9 +2551,10 @@ fun WorkoutSearchResultItem(
     exercise: Exercise,
     onSelected: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Slate800),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
         shape = RoundedCornerShape(12.dp),
         onClick = onSelected
     ) {
@@ -2496,7 +2574,7 @@ fun WorkoutSearchResultItem(
                         text = exercise.name,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = appColors.textPrimary
                     )
                     // グループ名バッジ
                     exercise.group?.let { groupName ->
@@ -2545,7 +2623,7 @@ fun WorkoutSearchResultItem(
                         text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
 
                     // Unilateral

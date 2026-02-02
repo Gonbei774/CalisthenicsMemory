@@ -28,6 +28,7 @@ import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
 import io.github.gonbei774.calisthenicsmemory.data.ProgramWorkoutSet
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 
 /**
  * ワークアウトナビゲーションモーダルボトムシート
@@ -47,6 +48,7 @@ fun ProgramNavigationSheet(
     onSaveAndExit: () -> Unit,
     onDiscard: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     // 進捗計算
@@ -57,7 +59,7 @@ fun ProgramNavigationSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Slate900,
+        containerColor = appColors.background,
         dragHandle = {
             // ドラッグハンドル
             Box(
@@ -110,6 +112,7 @@ fun ProgramNavigationSheet(
 private fun NavigationSheetHeader(
     onDismiss: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -129,7 +132,7 @@ private fun NavigationSheetHeader(
             text = stringResource(R.string.nav_program_overview),
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold,
-            color = Color.White
+            color = appColors.textPrimary
         )
         IconButton(
             onClick = onDismiss,
@@ -138,7 +141,7 @@ private fun NavigationSheetHeader(
             Icon(
                 imageVector = Icons.Default.Close,
                 contentDescription = null,
-                tint = Slate400
+                tint = appColors.textSecondary
             )
         }
     }
@@ -153,6 +156,7 @@ private fun NavigationProgressSection(
     totalSets: Int,
     progress: Float
 ) {
+    val appColors = LocalAppColors.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -180,7 +184,7 @@ private fun NavigationProgressSection(
                 text = stringResource(R.string.nav_sets_format, completedSets, totalSets),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.White
+                color = appColors.textPrimary
             )
             LinearProgressIndicator(
                 progress = { progress },
@@ -364,6 +368,7 @@ private fun NavigationRoundCard(
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val roundStatus = when {
         sets.all { it.isCompleted } -> ExerciseStatus.DONE
         sets.any { allSets.indexOf(it) == currentSetIndex } -> ExerciseStatus.CURRENT
@@ -371,7 +376,7 @@ private fun NavigationRoundCard(
     }
 
     Card(
-        colors = CardDefaults.cardColors(containerColor = Slate800),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier.border(
             width = 2.dp,
@@ -406,7 +411,7 @@ private fun NavigationRoundCard(
                         text = stringResource(R.string.loop_current_round, roundNumber, totalRounds),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = appColors.textPrimary
                     )
                 }
 
@@ -482,6 +487,7 @@ private fun NavigationRoundSetRow(
     onRedoSet: (Int) -> Unit,
     isLast: Boolean
 ) {
+    val appColors = LocalAppColors.current
     val setStatus = when {
         set.isCompleted -> SetStatus.COMPLETED
         set.isSkipped -> SetStatus.SKIPPED
@@ -582,8 +588,9 @@ private fun NavigationExerciseCard(
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Card(
-        colors = CardDefaults.cardColors(containerColor = Slate800),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column {
@@ -655,6 +662,7 @@ private fun NavigationExerciseHeader(
     exerciseType: String,
     exerciseStatus: ExerciseStatus
 ) {
+    val appColors = LocalAppColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -681,7 +689,7 @@ private fun NavigationExerciseHeader(
                 text = displayNumber.toString(),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = appColors.textPrimary
             )
         }
 
@@ -690,7 +698,7 @@ private fun NavigationExerciseHeader(
             text = exerciseName,
             fontSize = 15.sp,
             fontWeight = FontWeight.SemiBold,
-            color = Color.White,
+            color = appColors.textPrimary,
             modifier = Modifier.weight(1f)
         )
 
@@ -760,6 +768,7 @@ private fun NavigationBilateralSetRow(
     onRedoSet: (Int) -> Unit,
     isLast: Boolean
 ) {
+    val appColors = LocalAppColors.current
     val setStatus = when {
         set.isCompleted -> SetStatus.COMPLETED
         set.isSkipped -> SetStatus.SKIPPED
@@ -881,6 +890,7 @@ private fun NavigationUnilateralSetRow(
     onRedoSet: (Int) -> Unit,
     isLast: Boolean
 ) {
+    val appColors = LocalAppColors.current
     // 両方完了していれば COMPLETED、どちらかがスキップなら SKIPPED、現在実行中なら CURRENT
     val setStatus = when {
         rightSet?.isCompleted == true && leftSet?.isCompleted == true -> SetStatus.COMPLETED
@@ -994,6 +1004,7 @@ private fun NavigationUnilateralSetRow(
  */
 @Composable
 private fun SetStatusIcon(status: SetStatus) {
+    val appColors = LocalAppColors.current
     Box(
         modifier = Modifier
             .size(22.dp)
@@ -1012,7 +1023,7 @@ private fun SetStatusIcon(status: SetStatus) {
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = appColors.textPrimary,
                     modifier = Modifier.size(14.dp)
                 )
             }
@@ -1045,6 +1056,7 @@ private fun SetValueText(
     status: SetStatus,
     isIsometric: Boolean
 ) {
+    val appColors = LocalAppColors.current
     val unit = stringResource(if (isIsometric) R.string.unit_seconds else R.string.unit_reps)
 
     when (status) {
@@ -1116,6 +1128,7 @@ private fun UnilateralValueText(
     rightIsCurrent: Boolean,
     leftIsCurrent: Boolean
 ) {
+    val appColors = LocalAppColors.current
     val unit = stringResource(if (isIsometric) R.string.unit_seconds else R.string.unit_reps)
 
     when (status) {
@@ -1294,6 +1307,7 @@ private fun SetActionButton(
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     when (setStatus) {
         SetStatus.COMPLETED -> {
             OutlinedButton(
@@ -1340,6 +1354,7 @@ private fun NavigationSheetFooter(
     onSaveAndExit: () -> Unit,
     onDiscard: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -1404,7 +1419,7 @@ private fun NavigationSheetFooter(
                     text = stringResource(R.string.nav_discard),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Slate300
+                    color = appColors.textTertiary
                 )
             }
         }

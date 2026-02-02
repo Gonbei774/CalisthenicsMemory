@@ -29,6 +29,7 @@ import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
 import io.github.gonbei774.calisthenicsmemory.data.ProgramLoop
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import androidx.compose.foundation.lazy.LazyColumn
@@ -52,6 +53,7 @@ fun LoopBlock(
     onLoopExercisesReordered: (List<ProgramExercise>) -> Unit,
     dragHandle: @Composable () -> Modifier
 ) {
+    val appColors = LocalAppColors.current
     // State for loop exercise reordering
     var loopExerciseList by remember(exercises) {
         mutableStateOf(exercises.map { it.first })
@@ -66,7 +68,7 @@ fun LoopBlock(
                 shape = RoundedCornerShape(12.dp)
             ),
         colors = CardDefaults.cardColors(
-            containerColor = if (isDragging) Slate700.copy(alpha = 0.9f) else Slate800
+            containerColor = if (isDragging) appColors.cardBackgroundSecondary.copy(alpha = 0.9f) else appColors.cardBackground
         ),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = elevation)
@@ -94,7 +96,7 @@ fun LoopBlock(
                         Icon(
                             Icons.Default.Menu,
                             contentDescription = stringResource(R.string.todo_drag_to_reorder),
-                            tint = if (isDragging) Color.White else Slate400,
+                            tint = if (isDragging) appColors.textPrimary else appColors.textSecondary,
                             modifier = Modifier
                                 .size(24.dp)
                                 .then(dragHandle())
@@ -122,9 +124,9 @@ fun LoopBlock(
                             Text(
                                 text = stringResource(R.string.loop_rest_format, loop.restBetweenRounds),
                                 fontSize = 12.sp,
-                                color = Slate300,
+                                color = appColors.textTertiary,
                                 modifier = Modifier
-                                    .background(Slate700, RoundedCornerShape(4.dp))
+                                    .background(appColors.cardBackgroundSecondary, RoundedCornerShape(4.dp))
                                     .padding(horizontal = 8.dp, vertical = 2.dp)
                             )
                         }
@@ -132,7 +134,7 @@ fun LoopBlock(
                         Text(
                             text = "(${exercises.size})",
                             fontSize = 12.sp,
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
                     }
 
@@ -158,7 +160,7 @@ fun LoopBlock(
                             else
                                 Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = null,
-                            tint = Slate400
+                            tint = appColors.textSecondary
                         )
                     }
                 }
@@ -180,7 +182,7 @@ fun LoopBlock(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .background(
-                                    color = Slate700,
+                                    color = appColors.cardBackgroundSecondary,
                                     shape = RoundedCornerShape(8.dp)
                                 )
                                 .border(
@@ -193,7 +195,7 @@ fun LoopBlock(
                         ) {
                             Text(
                                 text = stringResource(R.string.loop_empty),
-                                color = Slate400,
+                                color = appColors.textSecondary,
                                 fontSize = 14.sp
                             )
                         }
@@ -310,6 +312,7 @@ private fun LoopExerciseItemWithDrag(
     onDelete: () -> Unit,
     dragHandle: @Composable () -> Modifier
 ) {
+    val appColors = LocalAppColors.current
     var pendingDelete by remember { mutableStateOf(false) }
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
@@ -345,7 +348,7 @@ private fun LoopExerciseItemWithDrag(
                 Icon(
                     Icons.Default.Delete,
                     contentDescription = stringResource(R.string.delete),
-                    tint = Color.White
+                    tint = appColors.textPrimary
                 )
             }
         },
@@ -362,7 +365,7 @@ private fun LoopExerciseItemWithDrag(
                     shape = RoundedCornerShape(8.dp)
                 ),
             colors = CardDefaults.cardColors(
-                containerColor = if (isDragging) Slate600.copy(alpha = 0.9f) else Slate700
+                containerColor = if (isDragging) Slate600.copy(alpha = 0.9f) else appColors.cardBackgroundSecondary
             ),
             shape = RoundedCornerShape(8.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = elevation)
@@ -378,7 +381,7 @@ private fun LoopExerciseItemWithDrag(
                 Icon(
                     Icons.Default.Menu,
                     contentDescription = stringResource(R.string.todo_drag_to_reorder),
-                    tint = if (isDragging) Color.White else Slate400,
+                    tint = if (isDragging) appColors.textPrimary else appColors.textSecondary,
                     modifier = Modifier
                         .size(24.dp)
                         .then(dragHandle())
@@ -390,7 +393,7 @@ private fun LoopExerciseItemWithDrag(
                         text = exercise.name,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
-                        color = Color.White
+                        color = appColors.textPrimary
                     )
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -413,7 +416,7 @@ private fun LoopExerciseItemWithDrag(
                         Text(
                             text = stringResource(R.string.program_interval_format, programExercise.intervalSeconds),
                             fontSize = 11.sp,
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
                     }
                 }

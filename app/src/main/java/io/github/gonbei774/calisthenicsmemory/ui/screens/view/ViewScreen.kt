@@ -53,6 +53,7 @@ fun ViewScreen(
     viewModel: TrainingViewModel,
     onNavigateBack: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val exercises by viewModel.exercises.collectAsState()
     val records by viewModel.records.collectAsState()
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
@@ -165,8 +166,8 @@ fun ViewScreen(
                     ViewMode.Graph -> 1
                     ViewMode.Challenge -> 2
                 },
-                containerColor = Slate800,
-                contentColor = Color.White
+                containerColor = appColors.cardBackground,
+                contentColor = appColors.textPrimary
             ) {
                 Tab(
                     selected = currentMode == ViewMode.List,
@@ -206,7 +207,7 @@ fun ViewScreen(
             // フィルターチップ（全タブで表示、一行に並べる）
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = Slate800
+                color = appColors.cardBackground
             ) {
                 Row(
                     modifier = Modifier
@@ -233,7 +234,7 @@ fun ViewScreen(
                             },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Purple600,
-                                selectedLabelColor = Color.White
+                                selectedLabelColor = appColors.textPrimary
                             )
                         )
                     } else {
@@ -255,8 +256,8 @@ fun ViewScreen(
                                 }
                             },
                             colors = FilterChipDefaults.filterChipColors(
-                                containerColor = Slate700,
-                                labelColor = Color.White
+                                containerColor = appColors.cardBackgroundSecondary,
+                                labelColor = appColors.textPrimary
                             )
                         )
                     }
@@ -271,9 +272,9 @@ fun ViewScreen(
                             label = { Text(stringResource(period.displayNameResId)) },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Purple600,
-                                selectedLabelColor = Color.White,
-                                containerColor = Slate700,
-                                labelColor = Slate300
+                                selectedLabelColor = appColors.textPrimary,
+                                containerColor = appColors.cardBackgroundSecondary,
+                                labelColor = appColors.textTertiary
                             )
                         )
                     }
@@ -369,7 +370,7 @@ fun ViewScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
                         text = stringResource(R.string.set_number_format, record.setNumber),
-                        color = Slate400,
+                        color = appColors.textSecondary,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
 
@@ -503,7 +504,7 @@ fun ViewScreen(
         SessionEditDialog(
             session = session,
             onDismiss = { showSessionEditDialog = null },
-            onConfirm = { newDate, newTime, newComment, newDistanceCm, newWeightG ->
+            onConfirm = { newDate, newTime, newComment, newDistanceCm, newWeightG, newAssistanceG ->
                 session.records.forEach { record ->
                     viewModel.updateRecord(
                         record.copy(
@@ -511,7 +512,8 @@ fun ViewScreen(
                             time = newTime,
                             comment = newComment,
                             distanceCm = newDistanceCm,
-                            weightG = newWeightG
+                            weightG = newWeightG,
+                            assistanceG = newAssistanceG
                         )
                     )
                 }
@@ -570,6 +572,7 @@ fun FilterBottomSheetContent(
     onExerciseSelected: (Exercise?) -> Unit,
     onClearFilter: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     var expandedGroups by remember { mutableStateOf(setOf<String?>()) }
     var searchQuery by remember { mutableStateOf("") }
 
@@ -587,7 +590,7 @@ fun FilterBottomSheetContent(
             text = stringResource(R.string.select_exercise),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
@@ -598,12 +601,12 @@ fun FilterBottomSheetContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
-            placeholder = { Text(stringResource(R.string.search_exercise), color = Slate400) },
+            placeholder = { Text(stringResource(R.string.search_exercise), color = appColors.textSecondary) },
             leadingIcon = {
                 Icon(
                     Icons.Default.Search,
                     contentDescription = stringResource(R.string.search),
-                    tint = Slate400
+                    tint = appColors.textSecondary
                 )
             },
             trailingIcon = {
@@ -612,16 +615,16 @@ fun FilterBottomSheetContent(
                         Icon(
                             Icons.Default.Close,
                             contentDescription = stringResource(R.string.clear),
-                            tint = Slate400
+                            tint = appColors.textSecondary
                         )
                     }
                 }
             },
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
+                focusedTextColor = appColors.textPrimary,
+                unfocusedTextColor = appColors.textPrimary,
                 focusedBorderColor = Purple600,
-                unfocusedBorderColor = Slate600,
+                unfocusedBorderColor = appColors.border,
                 cursorColor = Purple600
             ),
             singleLine = true
@@ -664,7 +667,7 @@ fun FilterBottomSheetContent(
                                     expandedGroups + group.groupName
                                 }
                             },
-                            color = Slate800,
+                            color = appColors.cardBackground,
                             shape = RoundedCornerShape(8.dp)
                         ) {
                             Row(
@@ -686,12 +689,12 @@ fun FilterBottomSheetContent(
                                         },
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color.White
+                                        color = appColors.textPrimary
                                     )
                                     Text(
                                         text = "(${group.exercises.size})",
                                         fontSize = 14.sp,
-                                        color = Slate400
+                                        color = appColors.textSecondary
                                     )
                                 }
                                 Icon(
@@ -701,7 +704,7 @@ fun FilterBottomSheetContent(
                                         Icons.AutoMirrored.Filled.KeyboardArrowRight
                                     },
                                     contentDescription = null,
-                                    tint = Slate400
+                                    tint = appColors.textSecondary
                                 )
                             }
                         }
@@ -738,6 +741,7 @@ fun FilterExerciseItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val appColors = LocalAppColors.current
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -757,7 +761,7 @@ fun FilterExerciseItem(
                 Text(
                     text = exercise.name,
                     fontSize = 16.sp,
-                    color = if (isSelected) Purple600 else Color.White,
+                    color = if (isSelected) Purple600 else appColors.textPrimary,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                 )
 
@@ -792,7 +796,7 @@ fun FilterExerciseItem(
                         text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Slate400
+                        color = appColors.textSecondary
                     )
 
                     // Unilateral
@@ -826,6 +830,7 @@ fun FilterTextItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val appColors = LocalAppColors.current
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -844,7 +849,7 @@ fun FilterTextItem(
             Text(
                 text = text,
                 fontSize = 16.sp,
-                color = if (isSelected) Purple600 else Color.White,
+                color = if (isSelected) Purple600 else appColors.textPrimary,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
             )
 
@@ -871,6 +876,7 @@ fun ChallengeView(
     selectedPeriod: Period?,
     onExerciseClick: (Exercise) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     // ViewModelを取得（階層データ用）
     val viewModel: TrainingViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
@@ -921,7 +927,7 @@ fun ChallengeView(
                         stringResource(R.string.no_exercises_in_period, stringResource(selectedPeriod.displayNameResId))
                     },
                     fontSize = 18.sp,
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
             }
         }
@@ -947,7 +953,7 @@ fun ChallengeView(
                             },
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Slate400,
+                            color = appColors.textSecondary,
                             modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                         )
                     }
@@ -999,6 +1005,7 @@ fun ChallengeExerciseCard(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val hasChallenge = exercise.targetSets != null && exercise.targetValue != null
 
     // 課題ありの場合、ステータスを計算（期間を考慮）
@@ -1045,7 +1052,7 @@ fun ChallengeExerciseCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) Slate750 else Slate800
+            containerColor = if (isSelected) appColors.cardBackgroundSelected else appColors.cardBackground
         ),
         shape = RoundedCornerShape(12.dp),
         onClick = onClick
@@ -1076,7 +1083,7 @@ fun ChallengeExerciseCard(
                     text = exercise.name,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = appColors.textPrimary
                 )
 
                 // 達成マーク
@@ -1099,7 +1106,7 @@ fun ChallengeExerciseCard(
                         .fillMaxWidth()
                         .height(8.dp),
                     color = Purple600,  // 統一された色
-                    trackColor = Slate800,
+                    trackColor = appColors.cardBackground,
                 )
 
                 // 達成率と実績/目標
@@ -1116,7 +1123,7 @@ fun ChallengeExerciseCard(
                     Text(
                         text = "${status.achievementRate}% ($actualTotal/$targetTotal$unit)",
                         fontSize = 14.sp,
-                        color = Color.White,
+                        color = appColors.textPrimary,
                         fontWeight = FontWeight.Bold
                     )
 
@@ -1130,14 +1137,14 @@ fun ChallengeExerciseCard(
                         Text(
                             text = rightText,
                             fontSize = 14.sp,
-                            color = Color.White
+                            color = appColors.textPrimary
                         )
                     } else if (trainingDaysInfo != null) {
                         // 最終トレーニング日がない場合はトレーニング日数のみ
                         Text(
                             text = trainingDaysInfo,
                             fontSize = 14.sp,
-                            color = Color.White
+                            color = appColors.textPrimary
                         )
                     }
                 }
@@ -1146,7 +1153,7 @@ fun ChallengeExerciseCard(
                 Text(
                     text = stringResource(R.string.no_challenge_set),
                     fontSize = 14.sp,
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
             }
         }
