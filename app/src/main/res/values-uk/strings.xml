@@ -552,4 +552,11 @@
     <string name="home_view">Перегляд</string>
     <string name="nav_type_dynamic_short">Дин.</string>
     <string name="nav_type_isometric_short">Ізом.</string>
+    <string name="theme_setting">Тема</string>
+    <string name="current_theme">Поточна: %s</string>
+    <string name="theme_light">Світла</string>
+    <string name="theme_dark">Темна</string>
+    <string name="section_theme">Налаштування теми</string>
+    <string name="theme_system">Як у системі</string>
+    <string name="section_theme_description">Зміна зовнішнього вигляду додатка.</string>
 </resources>
