@@ -22,6 +22,7 @@ import io.github.gonbei774.calisthenicsmemory.ui.screens.NextSetInfo
 import io.github.gonbei774.calisthenicsmemory.ui.screens.playTripleBeepTwice
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -41,6 +42,7 @@ fun SingleExecutingStepDynamicManual(
     onAbort: (WorkoutSession) -> Unit,
     onRetry: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val currentSet = session.sets.getOrNull(currentSetIndex) ?: return
     val repDuration = session.repDuration ?: 5
 
@@ -100,7 +102,7 @@ fun SingleExecutingStepDynamicManual(
             text = session.exercise.name,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(top = 8.dp)
         )
 
@@ -117,7 +119,7 @@ fun SingleExecutingStepDynamicManual(
                 stringResource(R.string.set_format, currentSet.setNumber, session.totalSets)
             },
             fontSize = 18.sp,
-            color = Slate300,
+            color = appColors.textTertiary,
             modifier = Modifier.padding(top = 4.dp)
         )
 
@@ -140,7 +142,7 @@ fun SingleExecutingStepDynamicManual(
         ) {
             Canvas(modifier = Modifier.size(220.dp)) {
                 drawArc(
-                    color = Slate600,
+                    color = appColors.timerTrack,
                     startAngle = -90f,
                     sweepAngle = 360f,
                     useCenter = false,
@@ -182,7 +184,7 @@ fun SingleExecutingStepDynamicManual(
                         modifier = Modifier.size(48.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "-", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(text = "-", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
                     }
                 }
             }
@@ -212,7 +214,7 @@ fun SingleExecutingStepDynamicManual(
                         modifier = Modifier.size(48.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "+", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(text = "+", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
                     }
                 }
             }
@@ -221,7 +223,7 @@ fun SingleExecutingStepDynamicManual(
         Text(
             text = stringResource(R.string.target_reps_format, currentSet.targetValue),
             fontSize = 14.sp,
-            color = Slate400
+            color = appColors.textSecondary
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -296,7 +298,7 @@ fun SingleExecutingStepDynamicManual(
             Text(
                 text = stringResource(R.string.retry_set_button),
                 fontSize = 14.sp,
-                color = Slate300
+                color = appColors.textTertiary
             )
         }
     }
@@ -318,6 +320,7 @@ fun SingleExecutingStepDynamicAuto(
     onAbort: (WorkoutSession) -> Unit,
     onRetry: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val currentSet = session.sets.getOrNull(currentSetIndex) ?: return
     val repDuration = session.repDuration ?: 5
 
@@ -375,7 +378,7 @@ fun SingleExecutingStepDynamicAuto(
             text = session.exercise.name,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(top = 8.dp)
         )
 
@@ -391,7 +394,7 @@ fun SingleExecutingStepDynamicAuto(
                 stringResource(R.string.set_format, currentSet.setNumber, session.totalSets)
             },
             fontSize = 18.sp,
-            color = Slate300,
+            color = appColors.textTertiary,
             modifier = Modifier.padding(top = 4.dp)
         )
 
@@ -412,7 +415,7 @@ fun SingleExecutingStepDynamicAuto(
         ) {
             Canvas(modifier = Modifier.size(220.dp)) {
                 drawArc(
-                    color = Slate600,
+                    color = appColors.timerTrack,
                     startAngle = -90f,
                     sweepAngle = 360f,
                     useCenter = false,
@@ -453,7 +456,7 @@ fun SingleExecutingStepDynamicAuto(
                         modifier = Modifier.size(48.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "-", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(text = "-", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
                     }
                 }
             }
@@ -483,7 +486,7 @@ fun SingleExecutingStepDynamicAuto(
                         modifier = Modifier.size(48.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "+", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(text = "+", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
                     }
                 }
             }
@@ -492,7 +495,7 @@ fun SingleExecutingStepDynamicAuto(
         Text(
             text = stringResource(R.string.target_reps_format, currentSet.targetValue),
             fontSize = 14.sp,
-            color = Slate400
+            color = appColors.textSecondary
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -567,7 +570,7 @@ fun SingleExecutingStepDynamicAuto(
             Text(
                 text = stringResource(R.string.retry_set_button),
                 fontSize = 14.sp,
-                color = Slate300
+                color = appColors.textTertiary
             )
         }
     }
@@ -588,6 +591,7 @@ fun SingleExecutingStepDynamicSimple(
     onAbort: (WorkoutSession) -> Unit,
     onRetry: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val currentSet = session.sets.getOrNull(currentSetIndex) ?: return
 
     var reps by remember(currentSetIndex) { mutableIntStateOf(currentSet.targetValue) }
@@ -604,7 +608,7 @@ fun SingleExecutingStepDynamicSimple(
             text = session.exercise.name,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(top = 8.dp)
         )
 
@@ -620,7 +624,7 @@ fun SingleExecutingStepDynamicSimple(
                 stringResource(R.string.set_format, currentSet.setNumber, session.totalSets)
             },
             fontSize = 18.sp,
-            color = Slate300,
+            color = appColors.textTertiary,
             modifier = Modifier.padding(top = 4.dp)
         )
 
@@ -653,7 +657,7 @@ fun SingleExecutingStepDynamicSimple(
                         modifier = Modifier.size(64.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "-", fontSize = 36.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(text = "-", fontSize = 36.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
                     }
                 }
             }
@@ -678,7 +682,7 @@ fun SingleExecutingStepDynamicSimple(
                         modifier = Modifier.size(64.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "+", fontSize = 36.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(text = "+", fontSize = 36.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
                     }
                 }
             }
@@ -687,7 +691,7 @@ fun SingleExecutingStepDynamicSimple(
         Text(
             text = stringResource(R.string.target_reps_format, currentSet.targetValue),
             fontSize = 14.sp,
-            color = Slate400
+            color = appColors.textSecondary
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -762,7 +766,7 @@ fun SingleExecutingStepDynamicSimple(
             Text(
                 text = stringResource(R.string.retry_set_button),
                 fontSize = 14.sp,
-                color = Slate300
+                color = appColors.textTertiary
             )
         }
     }
@@ -785,6 +789,7 @@ fun SingleExecutingStepIsometricManual(
     onAbort: (WorkoutSession) -> Unit,
     onRetry: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val currentSet = session.sets.getOrNull(currentSetIndex) ?: return
 
     var elapsedTime by remember(currentSetIndex) { mutableIntStateOf(0) }
@@ -838,7 +843,7 @@ fun SingleExecutingStepIsometricManual(
             text = session.exercise.name,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(top = 8.dp)
         )
 
@@ -854,7 +859,7 @@ fun SingleExecutingStepIsometricManual(
                 stringResource(R.string.set_format, currentSet.setNumber, session.totalSets)
             },
             fontSize = 18.sp,
-            color = Slate300,
+            color = appColors.textTertiary,
             modifier = Modifier.padding(top = 4.dp)
         )
 
@@ -889,7 +894,7 @@ fun SingleExecutingStepIsometricManual(
                         modifier = Modifier.size(48.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "-", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(text = "-", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
                     }
                 }
             }
@@ -937,7 +942,7 @@ fun SingleExecutingStepIsometricManual(
                         modifier = Modifier.size(48.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "+", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(text = "+", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
                     }
                 }
             }
@@ -948,7 +953,7 @@ fun SingleExecutingStepIsometricManual(
         Text(
             text = stringResource(R.string.elapsed_target_format, recordValue, currentSet.targetValue),
             fontSize = 14.sp,
-            color = Slate400
+            color = appColors.textSecondary
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -1022,7 +1027,7 @@ fun SingleExecutingStepIsometricManual(
             Text(
                 text = stringResource(R.string.retry_set_button),
                 fontSize = 14.sp,
-                color = Slate300
+                color = appColors.textTertiary
             )
         }
     }
@@ -1045,6 +1050,7 @@ fun SingleExecutingStepIsometricAuto(
     onAbort: (WorkoutSession) -> Unit,
     onRetry: () -> Unit
 ) {
+    val appColors = LocalAppColors.current
     val currentSet = session.sets.getOrNull(currentSetIndex) ?: return
 
     var elapsedTime by remember(currentSetIndex) { mutableIntStateOf(0) }
@@ -1097,7 +1103,7 @@ fun SingleExecutingStepIsometricAuto(
             text = session.exercise.name,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(top = 8.dp)
         )
 
@@ -1113,7 +1119,7 @@ fun SingleExecutingStepIsometricAuto(
                 stringResource(R.string.set_format, currentSet.setNumber, session.totalSets)
             },
             fontSize = 18.sp,
-            color = Slate300,
+            color = appColors.textTertiary,
             modifier = Modifier.padding(top = 4.dp)
         )
 
@@ -1148,7 +1154,7 @@ fun SingleExecutingStepIsometricAuto(
                         modifier = Modifier.size(48.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "-", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(text = "-", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
                     }
                 }
             }
@@ -1196,7 +1202,7 @@ fun SingleExecutingStepIsometricAuto(
                         modifier = Modifier.size(48.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "+", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(text = "+", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
                     }
                 }
             }
@@ -1207,7 +1213,7 @@ fun SingleExecutingStepIsometricAuto(
         Text(
             text = stringResource(R.string.elapsed_target_format, recordValue, currentSet.targetValue),
             fontSize = 14.sp,
-            color = Slate400
+            color = appColors.textSecondary
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -1282,7 +1288,7 @@ fun SingleExecutingStepIsometricAuto(
             Text(
                 text = stringResource(R.string.retry_set_button),
                 fontSize = 14.sp,
-                color = Slate300
+                color = appColors.textTertiary
             )
         }
     }

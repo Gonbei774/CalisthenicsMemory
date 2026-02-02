@@ -58,6 +58,7 @@ data class AppColors(
     val divider: Color,
     val switchTrack: Color,
     val switchThumb: Color,
+    val timerTrack: Color,
     val isDark: Boolean
 )
 
@@ -78,6 +79,7 @@ private val DarkAppColors = AppColors(
     divider = Slate700,
     switchTrack = Slate500,
     switchThumb = Color.White,
+    timerTrack = Slate600,
     isDark = true
 )
 
@@ -98,6 +100,7 @@ private val LightAppColors = AppColors(
     divider = Slate200,
     switchTrack = Slate300,
     switchThumb = Color.White,
+    timerTrack = Slate200,
     isDark = false
 )
 

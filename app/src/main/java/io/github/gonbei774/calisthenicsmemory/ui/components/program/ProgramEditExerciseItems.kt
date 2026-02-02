@@ -20,6 +20,7 @@ import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 
 @Composable
 fun ProgramExerciseItem(
@@ -31,6 +32,7 @@ fun ProgramExerciseItem(
     onDelete: () -> Unit,
     dragHandle: @Composable () -> Modifier
 ) {
+    val appColors = LocalAppColors.current
     var pendingDelete by remember { mutableStateOf(false) }
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
@@ -67,7 +69,7 @@ fun ProgramExerciseItem(
                 Icon(
                     Icons.Default.Delete,
                     contentDescription = stringResource(R.string.delete),
-                    tint = Color.White
+                    tint = appColors.textPrimary
                 )
             }
         },
@@ -78,7 +80,7 @@ fun ProgramExerciseItem(
             onClick = onEdit,
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
-                containerColor = if (isDragging) Slate700.copy(alpha = 0.9f) else Slate800
+                containerColor = if (isDragging) appColors.cardBackgroundSecondary.copy(alpha = 0.9f) else appColors.cardBackground
             ),
             shape = RoundedCornerShape(12.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = elevation)
@@ -94,7 +96,7 @@ fun ProgramExerciseItem(
                 Icon(
                     Icons.Default.Menu,
                     contentDescription = stringResource(R.string.todo_drag_to_reorder),
-                    tint = if (isDragging) Color.White else Slate400,
+                    tint = if (isDragging) appColors.textPrimary else appColors.textSecondary,
                     modifier = Modifier
                         .size(24.dp)
                         .then(dragHandle())
@@ -106,7 +108,7 @@ fun ProgramExerciseItem(
                         text = exercise.name,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
-                        color = Color.White
+                        color = appColors.textPrimary
                     )
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -129,7 +131,7 @@ fun ProgramExerciseItem(
                         Text(
                             text = stringResource(R.string.program_interval_format, programExercise.intervalSeconds),
                             fontSize = 12.sp,
-                            color = Slate400
+                            color = appColors.textSecondary
                         )
                     }
                 }

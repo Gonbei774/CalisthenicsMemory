@@ -21,6 +21,7 @@ import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
 import io.github.gonbei774.calisthenicsmemory.ui.screens.playTripleBeepTwice
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -39,6 +40,7 @@ internal fun ProgramExecutingStepDynamicManual(
     onRetry: () -> Unit,
     onOpenNavigation: () -> Unit = {}
 ) {
+    val appColors = LocalAppColors.current
     val currentSet = session.sets[currentSetIndex]
     val (pe, exercise) = session.exercises[currentSet.exerciseIndex]
 
@@ -120,7 +122,7 @@ internal fun ProgramExecutingStepDynamicManual(
             text = exercise.name,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(top = 8.dp)
         )
 
@@ -139,7 +141,7 @@ internal fun ProgramExecutingStepDynamicManual(
                 stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
-            color = Slate300,
+            color = appColors.textTertiary,
             modifier = Modifier.padding(top = 4.dp)
         )
 
@@ -273,7 +275,7 @@ internal fun ProgramExecutingStepDynamicManual(
         Text(
             text = stringResource(R.string.target_reps_format, currentSet.targetValue),
             fontSize = 14.sp,
-            color = Slate400
+            color = appColors.textSecondary
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -370,6 +372,7 @@ internal fun ProgramExecutingStepIsometricManual(
     onRetry: () -> Unit,
     onOpenNavigation: () -> Unit = {}
 ) {
+    val appColors = LocalAppColors.current
     val currentSet = session.sets[currentSetIndex]
     val (pe, exercise) = session.exercises[currentSet.exerciseIndex]
 
@@ -446,7 +449,7 @@ internal fun ProgramExecutingStepIsometricManual(
             text = exercise.name,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(top = 8.dp)
         )
 
@@ -465,7 +468,7 @@ internal fun ProgramExecutingStepIsometricManual(
                 stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
-            color = Slate300,
+            color = appColors.textTertiary,
             modifier = Modifier.padding(top = 4.dp)
         )
 
@@ -590,7 +593,7 @@ internal fun ProgramExecutingStepIsometricManual(
         Text(
             text = stringResource(R.string.elapsed_target_format, elapsedTime, currentSet.targetValue),
             fontSize = 14.sp,
-            color = Slate400
+            color = appColors.textSecondary
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -687,6 +690,7 @@ internal fun ProgramExecutingStepIsometricAuto(
     onRetry: () -> Unit,
     onOpenNavigation: () -> Unit = {}
 ) {
+    val appColors = LocalAppColors.current
     val currentSet = session.sets[currentSetIndex]
     val (pe, exercise) = session.exercises[currentSet.exerciseIndex]
 
@@ -760,7 +764,7 @@ internal fun ProgramExecutingStepIsometricAuto(
             text = exercise.name,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(top = 8.dp)
         )
 
@@ -779,7 +783,7 @@ internal fun ProgramExecutingStepIsometricAuto(
                 stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
-            color = Slate300,
+            color = appColors.textTertiary,
             modifier = Modifier.padding(top = 4.dp)
         )
 
@@ -904,7 +908,7 @@ internal fun ProgramExecutingStepIsometricAuto(
         Text(
             text = stringResource(R.string.elapsed_target_format, elapsedTime, currentSet.targetValue),
             fontSize = 14.sp,
-            color = Slate400
+            color = appColors.textSecondary
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -1000,6 +1004,7 @@ internal fun ProgramExecutingStepDynamicAuto(
     onRetry: () -> Unit,
     onOpenNavigation: () -> Unit = {}
 ) {
+    val appColors = LocalAppColors.current
     val currentSet = session.sets[currentSetIndex]
     val (pe, exercise) = session.exercises[currentSet.exerciseIndex]
 
@@ -1073,7 +1078,7 @@ internal fun ProgramExecutingStepDynamicAuto(
             text = exercise.name,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(top = 8.dp)
         )
 
@@ -1092,7 +1097,7 @@ internal fun ProgramExecutingStepDynamicAuto(
                 stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
-            color = Slate300,
+            color = appColors.textTertiary,
             modifier = Modifier.padding(top = 4.dp)
         )
 
@@ -1226,7 +1231,7 @@ internal fun ProgramExecutingStepDynamicAuto(
         Text(
             text = stringResource(R.string.target_reps_format, currentSet.targetValue),
             fontSize = 14.sp,
-            color = Slate400
+            color = appColors.textSecondary
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -1316,6 +1321,7 @@ internal fun ProgramExecutingStepDynamicSimple(
     onAbort: () -> Unit,
     onOpenNavigation: () -> Unit = {}
 ) {
+    val appColors = LocalAppColors.current
     val currentSet = session.sets[currentSetIndex]
     val (pe, exercise) = session.exercises[currentSet.exerciseIndex]
 
@@ -1333,7 +1339,7 @@ internal fun ProgramExecutingStepDynamicSimple(
             text = exercise.name,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             modifier = Modifier.padding(top = 8.dp)
         )
 
@@ -1352,7 +1358,7 @@ internal fun ProgramExecutingStepDynamicSimple(
                 stringResource(R.string.set_progress, globalSetIndex, totalSets)
             },
             fontSize = 18.sp,
-            color = Slate300,
+            color = appColors.textTertiary,
             modifier = Modifier.padding(top = 4.dp)
         )
 
@@ -1413,7 +1419,7 @@ internal fun ProgramExecutingStepDynamicSimple(
                 Text(
                     text = stringResource(R.string.reps_unit),
                     fontSize = 24.sp,
-                    color = Slate400
+                    color = appColors.textSecondary
                 )
             }
 
@@ -1446,7 +1452,7 @@ internal fun ProgramExecutingStepDynamicSimple(
         Text(
             text = stringResource(R.string.target_reps_format, currentSet.targetValue),
             fontSize = 14.sp,
-            color = Slate400,
+            color = appColors.textSecondary,
             modifier = Modifier.padding(top = 8.dp)
         )
 

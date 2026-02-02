@@ -16,7 +16,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.gonbei774.calisthenicsmemory.ui.theme.Slate600
+import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 
 @Composable
 fun ProgramCircularTimer(
@@ -24,13 +24,14 @@ fun ProgramCircularTimer(
     remainingTime: Int,
     color: Color
 ) {
+    val appColors = LocalAppColors.current
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.size(240.dp)
     ) {
         Canvas(modifier = Modifier.size(240.dp)) {
             drawArc(
-                color = Slate600,
+                color = appColors.timerTrack,
                 startAngle = -90f,
                 sweepAngle = 360f,
                 useCenter = false,
@@ -48,7 +49,7 @@ fun ProgramCircularTimer(
             text = "$remainingTime",
             fontSize = 72.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White,
+            color = appColors.textPrimary,
             style = TextStyle(
                 shadow = Shadow(
                     color = Color.Black.copy(alpha = 0.3f),
