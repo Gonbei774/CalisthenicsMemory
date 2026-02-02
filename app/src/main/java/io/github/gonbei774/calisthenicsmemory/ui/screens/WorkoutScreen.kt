@@ -1329,14 +1329,12 @@ fun StartIntervalStep(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // ボタン
-        Button(
-            onClick = onSkip,
-            colors = ButtonDefaults.buttonColors(containerColor = appColors.cardBackgroundSecondary),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.skip_button))
+        // スキップボタン
+        TextButton(onClick = onSkip) {
+            Text(
+                text = stringResource(R.string.skip_button),
+                color = appColors.textSecondary
+            )
         }
     }
 }
@@ -1355,18 +1353,18 @@ fun CircularProgressTimer(
     ) {
         Canvas(modifier = Modifier.size(240.dp)) {
             drawArc(
-                color = appColors.border,
+                color = appColors.timerTrack,
                 startAngle = -90f,
                 sweepAngle = 360f,
                 useCenter = false,
-                style = Stroke(width = 20.dp.toPx(), cap = StrokeCap.Round)
+                style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
             )
             drawArc(
                 color = color,
                 startAngle = -90f,
                 sweepAngle = 360f * progress,
                 useCenter = false,
-                style = Stroke(width = 20.dp.toPx(), cap = StrokeCap.Round)
+                style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
             )
         }
         Text(
