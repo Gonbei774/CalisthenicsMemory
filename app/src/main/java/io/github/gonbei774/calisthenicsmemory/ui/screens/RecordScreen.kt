@@ -1034,7 +1034,7 @@ fun WorkoutInputScreen(
                     onClick = { onShowDatePicker(true) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color.White
+                        contentColor = appColors.textPrimary
                     )
                 ) {
                     Text(stringResource(R.string.date_format, selectedDate.format(dateFormatter)))
@@ -1047,7 +1047,7 @@ fun WorkoutInputScreen(
                     onClick = { onShowTimePicker(true) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color.White
+                        contentColor = appColors.textPrimary
                     )
                 ) {
                     Text(stringResource(R.string.time_format, selectedTime.format(timeFormatter)))

@@ -160,7 +160,7 @@ fun SingleExecutingStepDynamicManual(
                 text = "$repTimeElapsed",
                 fontSize = 56.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = appColors.textPrimary
             )
         }
 
@@ -433,7 +433,7 @@ fun SingleExecutingStepDynamicAuto(
                 text = "$repTimeElapsed",
                 fontSize = 56.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = appColors.textPrimary
             )
         }
 
@@ -923,7 +923,7 @@ fun SingleExecutingStepIsometricManual(
                     text = "$remainingTime",
                     fontSize = 56.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = appColors.textPrimary
                 )
             }
 
@@ -1183,7 +1183,7 @@ fun SingleExecutingStepIsometricAuto(
                     text = "$remainingTime",
                     fontSize = 56.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = appColors.textPrimary
                 )
             }
 

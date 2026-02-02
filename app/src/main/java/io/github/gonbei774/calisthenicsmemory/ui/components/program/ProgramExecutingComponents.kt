@@ -198,7 +198,7 @@ internal fun ProgramExecutingStepDynamicManual(
                 text = "$repTimeElapsed",
                 fontSize = 56.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = appColors.textPrimary
             )
         }
 
@@ -227,7 +227,7 @@ internal fun ProgramExecutingStepDynamicManual(
                             text = "-",
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = appColors.textPrimary
                         )
                     }
                 }
@@ -264,7 +264,7 @@ internal fun ProgramExecutingStepDynamicManual(
                             text = "+",
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = appColors.textPrimary
                         )
                     }
                 }
@@ -522,7 +522,7 @@ internal fun ProgramExecutingStepIsometricManual(
                             text = "-",
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = appColors.textPrimary
                         )
                     }
                 }
@@ -556,7 +556,7 @@ internal fun ProgramExecutingStepIsometricManual(
                     text = "$remainingTime",
                     fontSize = 56.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = appColors.textPrimary
                 )
             }
 
@@ -580,7 +580,7 @@ internal fun ProgramExecutingStepIsometricManual(
                             text = "+",
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = appColors.textPrimary
                         )
                     }
                 }
@@ -837,7 +837,7 @@ internal fun ProgramExecutingStepIsometricAuto(
                             text = "-",
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = appColors.textPrimary
                         )
                     }
                 }
@@ -871,7 +871,7 @@ internal fun ProgramExecutingStepIsometricAuto(
                     text = "$remainingTime",
                     fontSize = 56.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = appColors.textPrimary
                 )
             }
 
@@ -895,7 +895,7 @@ internal fun ProgramExecutingStepIsometricAuto(
                             text = "+",
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = appColors.textPrimary
                         )
                     }
                 }
@@ -1154,7 +1154,7 @@ internal fun ProgramExecutingStepDynamicAuto(
                 text = "$repTimeElapsed",
                 fontSize = 56.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = appColors.textPrimary
             )
         }
 
@@ -1183,7 +1183,7 @@ internal fun ProgramExecutingStepDynamicAuto(
                             text = "-",
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = appColors.textPrimary
                         )
                     }
                 }
@@ -1220,7 +1220,7 @@ internal fun ProgramExecutingStepDynamicAuto(
                             text = "+",
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = appColors.textPrimary
                         )
                     }
                 }
@@ -1400,7 +1400,7 @@ internal fun ProgramExecutingStepDynamicSimple(
                             text = "-",
                             fontSize = 32.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = appColors.textPrimary
                         )
                     }
                 }
@@ -1441,7 +1441,7 @@ internal fun ProgramExecutingStepDynamicSimple(
                             text = "+",
                             fontSize = 32.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = appColors.textPrimary
                         )
                     }
                 }

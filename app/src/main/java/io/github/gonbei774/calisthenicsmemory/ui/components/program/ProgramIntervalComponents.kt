@@ -302,7 +302,7 @@ internal fun ProgramIntervalStep(
             IconButton(
                 onClick = { remainingTime = (remainingTime - 10).coerceAtLeast(0) }
             ) {
-                Text("-", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text("-", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -310,7 +310,7 @@ internal fun ProgramIntervalStep(
             Text(
                 text = stringResource(R.string.ten_seconds),
                 fontSize = 18.sp,
-                color = Color.White
+                color = appColors.textPrimary
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -318,7 +318,7 @@ internal fun ProgramIntervalStep(
             IconButton(
                 onClick = { remainingTime += 10 }
             ) {
-                Text("+", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text("+", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
             }
         }
 
