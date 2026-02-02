@@ -87,14 +87,14 @@ fun ToDoScreen(
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = stringResource(R.string.back),
-                                tint = appColors.textPrimary
+                                tint = Color.White
                             )
                         }
                         Text(
                             text = stringResource(R.string.todo_title),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = appColors.textPrimary
+                            color = Color.White
                         )
                     }
                 }

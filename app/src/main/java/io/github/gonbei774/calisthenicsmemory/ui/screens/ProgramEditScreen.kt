@@ -307,7 +307,7 @@ fun ProgramEditScreen(
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back),
-                            tint = appColors.textPrimary
+                            tint = Color.White
                         )
                     }
                     Text(
@@ -316,7 +316,7 @@ fun ProgramEditScreen(
                         ),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = appColors.textPrimary,
+                        color = Color.White,
                         modifier = Modifier.weight(1f)
                     )
                     // Save button
@@ -326,7 +326,7 @@ fun ProgramEditScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.save),
-                            color = if (isValid) appColors.textPrimary else appColors.textPrimary.copy(alpha = 0.5f),
+                            color = if (isValid) Color.White else Color.White.copy(alpha = 0.5f),
                             fontWeight = FontWeight.Bold
                         )
                     }
