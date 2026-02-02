@@ -1,0 +1,8 @@
+Aggiunto: Modalità chiara con opzione tema selezionabile
+Aggiunto: Tracciamento assistenza per esercizi con banda
+Corretto: Vari problemi di visibilità UI in modalità chiara
+Corretto: Miglioramenti nella visualizzazione del grafico assistenza
+Corretto: Le etichette del tipo di esercizio sono ora traducibili
+Corretto: La descrizione della modalità automatica si aggiorna correttamente
+
+Collaboratori: nautilusx, SomeTr, balaraz
