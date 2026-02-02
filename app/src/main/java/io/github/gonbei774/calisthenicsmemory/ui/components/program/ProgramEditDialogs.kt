@@ -393,7 +393,7 @@ fun SelectExerciseGroup(
                         Surface(
                             onClick = { onExerciseSelected(exercise) },
                             modifier = Modifier.fillMaxWidth(),
-                            color = Slate600,
+                            color = appColors.cardBackground,
                             shape = RoundedCornerShape(8.dp)
                         ) {
                             Row(
