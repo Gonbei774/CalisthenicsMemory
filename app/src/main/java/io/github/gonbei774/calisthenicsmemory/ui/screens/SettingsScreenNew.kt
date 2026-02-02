@@ -723,7 +723,7 @@ fun SettingsScreenNew(
                                             containerColor = if (selectedLanguage == language) {
                                                 Purple600.copy(alpha = 0.3f)
                                             } else {
-                                                Slate700
+                                                appColors.cardBackgroundSecondary
                                             }
                                         ),
                                         onClick = {
@@ -854,7 +854,7 @@ fun SettingsScreenNew(
                                             containerColor = if (currentTheme == theme) {
                                                 Purple600.copy(alpha = 0.3f)
                                             } else {
-                                                Slate700
+                                                appColors.cardBackgroundSecondary
                                             }
                                         ),
                                         onClick = {
