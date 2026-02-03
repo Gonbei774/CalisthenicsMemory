@@ -1,44 +1,44 @@
-Ein einfacher Tracker für Eigengewichtstraining, den Sie an Ihre Bedürfnisse anpassen können.
+Ein einfacher Tracker für Eigengewichtstraining, den du an deine Bedürfnisse anpassen kannst.
 
-Erstellen Sie Ihre eigenen Übungen, organisieren Sie sie in Gruppen und verfolgen Sie Ihren Fortschritt auf Ihre Weise. Keine starren Vorlagen - passen Sie die App an Ihre Trainingsmethode an.
+Erstelle eigene Übungen, organisiere sie in Gruppen und verfolge deinen Fortschritt auf deine Weise. Keine starren Vorlagen - passe die App an deine Trainingsmethode an.
 
 <b>FUNKTIONEN</b>
 
 <b>Vollständige Anpassung</b>
 
-• Erstellen Sie beliebige Übungen mit beliebigen Namen
-• Organisieren Sie Übungen in benutzerdefinierten Gruppen
-• Wählen Sie zwischen wiederholungsbasierter oder zeitbasierter Aufzeichnung
-• Setzen Sie 10 Progressionsstufen passend zu Ihrer Methode
+• Erstelle beliebige Übungen mit beliebigen Namen
+• Organisiere Übungen in individuellen Gruppen
+• Wähle zwischen wiederholungsbasierter oder zeitbasierter Aufzeichnung
+• Setze 10 Progressionsstufen passend zu deiner Methode
 • Unterstützung für einseitige (einarmige/einbeinige) Übungen
 • Favoriten-Übungen für schnellen Zugriff mit Stern-Symbol (★)
 
 <b>Zwei Trainingsmodi</b>
 
-• Aufzeichnungsmodus: Schnelles Protokollieren Ihrer Workouts nach dem Training
-• Trainingsmodus: Auto-geführtes Training mit integrierten Timern für Countdown, Ausführung und Pausen
+• Aufzeichnungsmodus: Schnelles Protokollieren deines Workouts nach dem Training
+• Trainingsmodus: Automatisch gesteuertes Training mit integrierten Timern für Countdown, Ausführung und Pausen
 
 <b>Trainingsaufzeichnungen</b>
 
-• Protokollieren Sie Datum, Zeit, Sätze und Wiederholungen/Sekunden
-• Fügen Sie Kommentare hinzu, um Formnotizen und Beobachtungen zu verfolgen
-• Bearbeiten oder löschen Sie vergangene Aufzeichnungen
+• Protokolliere Datum, Zeit, Sätze und Wiederholungen/Sekunden
+• Füge Kommentare hinzu, um Formnotizen und Beobachtungen zu verfolgen
+• Bearbeite oder lösche vergangene Aufzeichnungen
 
 <b>Fortschrittsverfolgung</b>
 
-• Listenansicht: Durchsuchen Sie alle Trainingseinheiten
-• Diagrammansicht: Visualisieren Sie den Fortschritt mit Durchschnitts-/Max-/Gesamtstatistiken
-• Zielansicht: Verfolgen Sie die Zielerreichung
+• Listenansicht: Durchsuche alle Trainingseinheiten
+• Diagrammansicht: Visualisiere den Fortschritt mit Durchschnitts-/Max-/Gesamtstatistiken
+• Zielansicht: Verfolge die Zielerreichung
 
 <b>Zielsystem</b>
 
-• Setzen Sie Ziele wie "3 Sätze × 50 Wiederholungen"
+• Setze Ziele wie "3 Sätze × 50 Wiederholungen"
 • Farbcodierte Fortschrittsindikatoren
 
 <b>Datenverwaltung</b>
 
 • Exportieren/Importieren im JSON-Format
-• Ihre Daten bleiben auf Ihrem Gerät
+• Deine Daten bleiben auf deinem Gerät
 • Keine Internetverbindung erforderlich
 
-Ob Sie Convict Conditioning, StartBodyweight oder Ihr eigenes Programm folgen, diese App passt sich Ihrer Trainingsphilosophie an.
+Egal, ob du Convict Conditioning, StartBodyweight oder dein eigenes individuelles Programm befolgst, diese App passt sich deiner Trainingsphilosophie an.
