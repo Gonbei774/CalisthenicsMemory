@@ -420,7 +420,7 @@
     <string name="track_weight">Gewicht erfassen</string>
     <string name="track_weight_description">Zusatzgewicht (kg) für jede Einheit erfassen</string>
     <string name="track_assistance">Unterstützung erfassen</string>
-    <string name="track_assistance_description">Band-/Maschinen-Unterstützung (kg) für jede Einheit erfassen</string>
+    <string name="track_assistance_description">Band-/Maschinenunterstützung (kg) für jede Einheit erfassen</string>
     <string name="distance_input_label">Distanz (cm)</string>
     <string name="weight_input_label">Gewicht (kg)</string>
     <string name="assistance_input_label">Unterstützung (kg)</string>
@@ -602,4 +602,13 @@
     <string name="loop_number_format">Schleife %d</string>
     <string name="set_progress">%1$d/%2$d</string>
     <string name="set_progress_with_side">%1$d/%2$d - %3$s</string>
+    <string name="exercise_type_dynamic">Dynamisch</string>
+    <string name="exercise_type_isometric">Isometrisch</string>
+    <string name="section_theme">Designeinstellungen</string>
+    <string name="section_theme_description">Das Erscheinungsbild der App ändern.</string>
+    <string name="theme_setting">Design</string>
+    <string name="current_theme">Aktuell: %s</string>
+    <string name="theme_system">Systemeinstellung folgen</string>
+    <string name="theme_light">Hell</string>
+    <string name="theme_dark">Dunkel</string>
 </resources>
