@@ -3,9 +3,11 @@ package io.github.gonbei774.calisthenicsmemory.ui.screens.view
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -167,26 +169,23 @@ fun GraphView(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
                         .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        GraphType.values().forEach { type ->
-                            FilterChip(
-                                selected = selectedGraphType == type,
-                                onClick = { selectedGraphType = type },
-                                label = { Text(stringResource(type.displayNameResId)) },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = Purple600,
-                                    selectedLabelColor = appColors.textPrimary,
-                                    containerColor = appColors.cardBackgroundSecondary,
-                                    labelColor = appColors.textTertiary
-                                )
+                    GraphType.values().forEach { type ->
+                        FilterChip(
+                            selected = selectedGraphType == type,
+                            onClick = { selectedGraphType = type },
+                            label = { Text(stringResource(type.displayNameResId)) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Purple600,
+                                selectedLabelColor = appColors.textPrimary,
+                                containerColor = appColors.cardBackgroundSecondary,
+                                labelColor = appColors.textTertiary
                             )
-                        }
+                        )
                     }
 
                     // 距離トラッキング有効時のみ反転トグルを表示
