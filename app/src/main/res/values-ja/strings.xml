@@ -600,4 +600,13 @@
     <string name="add_exercise_to_loop">種目を追加</string>
     <string name="move_to_loop">ループに移動</string>
     <string name="loop_number_format">ループ %d</string>
+
+    <!-- Theme Settings -->
+    <string name="section_theme">テーマ設定</string>
+    <string name="section_theme_description">アプリの外観を変更します。</string>
+    <string name="theme_setting">テーマ</string>
+    <string name="current_theme">現在: %s</string>
+    <string name="theme_system">システムに従う</string>
+    <string name="theme_light">ライト</string>
+    <string name="theme_dark">ダーク</string>
 </resources>
