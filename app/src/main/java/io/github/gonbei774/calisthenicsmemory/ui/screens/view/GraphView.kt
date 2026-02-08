@@ -3,9 +3,11 @@ package io.github.gonbei774.calisthenicsmemory.ui.screens.view
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -167,26 +169,23 @@ fun GraphView(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
                         .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        GraphType.values().forEach { type ->
-                            FilterChip(
-                                selected = selectedGraphType == type,
-                                onClick = { selectedGraphType = type },
-                                label = { Text(stringResource(type.displayNameResId)) },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = Purple600,
-                                    selectedLabelColor = appColors.textPrimary,
-                                    containerColor = appColors.cardBackgroundSecondary,
-                                    labelColor = appColors.textTertiary
-                                )
+                    GraphType.values().forEach { type ->
+                        FilterChip(
+                            selected = selectedGraphType == type,
+                            onClick = { selectedGraphType = type },
+                            label = { Text(stringResource(type.displayNameResId)) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Purple600,
+                                selectedLabelColor = appColors.textPrimary,
+                                containerColor = appColors.cardBackgroundSecondary,
+                                labelColor = appColors.textTertiary
                             )
-                        }
+                        )
                     }
 
                     // 距離トラッキング有効時のみ反転トグルを表示
@@ -1449,14 +1448,12 @@ fun SimpleAssistanceChart(
     ) {
         if (data.isEmpty()) return@Canvas
 
-        // Y軸スケール: 全期間のデータを使用してスケールを固定
-        val minValue = allTimeAssistanceRange.first.coerceAtLeast(0f)
-        val maxValue = allTimeAssistanceRange.second.coerceAtLeast(minValue + 1f)
-        // ±10%のマージンを追加
-        val margin = (maxValue - minValue) * 0.1f
-        val adjustedMin = (minValue - margin).coerceAtLeast(0f)
+        // Y軸スケール: 基準ラインを0に固定（アシストは0kgがゴール）
+        val maxValue = allTimeAssistanceRange.second.coerceAtLeast(1f)
+        val margin = maxValue * 0.1f
+        val adjustedMin = 0f
         val adjustedMax = maxValue + margin
-        val range = (adjustedMax - adjustedMin).coerceAtLeast(1f)
+        val range = adjustedMax.coerceAtLeast(1f)
 
         val leftPadding = 50.dp.toPx()
         val bottomPadding = 16.dp.toPx()
@@ -1587,7 +1584,7 @@ fun SimpleAssistanceChart(
     }
 }
 
-// アシストY軸用のラベル計算（最下部はスキップしてX軸との干渉を回避）
+// アシストY軸用のラベル計算（0kg基準）
 fun calculateAssistanceYAxisLabels(min: Float, max: Float): List<Float> {
     val range = max - min
     val interval = when {
@@ -1598,12 +1595,11 @@ fun calculateAssistanceYAxisLabels(min: Float, max: Float): List<Float> {
         else -> 25f
     }
 
-    val adjustedMin = (min / interval).toInt() * interval
     val adjustedMax = ((max / interval).toInt() + 1) * interval
 
-    // 最下部（index 0）をスキップ
-    return (1..5).map { i ->
-        adjustedMin + (adjustedMax - adjustedMin) * i / 5f
+    // 0kgから均等に配置（0を含む）
+    return (0..4).map { i ->
+        adjustedMax * i / 4f
     }
 }
 

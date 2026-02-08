@@ -512,8 +512,8 @@
     <string name="auto_mode_disabled_hint">Requires Count Sound to be ON</string>
     <string name="timer_on">ON</string>
     <string name="timer_off">OFF</string>
-    <string name="timer_mode_on_description">Auto countdown during exercise</string>
-    <string name="timer_mode_off_description">Manual completion button</string>
+    <string name="timer_mode_on_description">Auto-complete when goal is reached</string>
+    <string name="timer_mode_off_description">Manually complete with the Done button</string>
     <string name="start_countdown">Start Countdown</string>
     <string name="program_exercises">Exercises</string>
     <string name="add_exercise_to_program">Add Exercise</string>

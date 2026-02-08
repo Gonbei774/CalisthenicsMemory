@@ -1,0 +1,7 @@
+- Corretto: Il tracciamento dell'assistenza non era incluso nel backup/esportazione
+- Corretto: L'asse Y del grafico dell'assistenza ora parte da 0kg
+- Migliorato: I pulsanti del tipo di grafico ora scorrono orizzontalmente
+- Migliorato: Descrizione più chiara della modalità automatica
+- Traduzioni aggiornate (tedesco, ucraino, giapponese)
+
+Contributors: nautilusx, SomeTr

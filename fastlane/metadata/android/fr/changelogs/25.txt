@@ -1,0 +1,7 @@
+- Corrigé : Le suivi d'assistance n'était pas inclus dans la sauvegarde/exportation
+- Corrigé : L'axe Y du graphique d'assistance commence maintenant à 0kg
+- Amélioré : Les boutons de type de graphique défilent maintenant horizontalement
+- Amélioré : Description plus claire du mode automatique
+- Traductions mises à jour (allemand, ukrainien, japonais)
+
+Contributors: nautilusx, SomeTr

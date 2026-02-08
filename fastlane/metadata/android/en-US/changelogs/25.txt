@@ -1,0 +1,7 @@
+- Fixed: Assistance tracking not included in backup/export
+- Fixed: Assistance graph Y-axis now starts from 0kg
+- Improved: Graph type buttons now scroll horizontally
+- Improved: Clearer auto mode description text
+- Updated translations (German, Ukrainian, Japanese)
+
+Contributors: nautilusx, SomeTr

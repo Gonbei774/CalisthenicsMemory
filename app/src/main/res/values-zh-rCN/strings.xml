@@ -536,8 +536,8 @@
     <string name="start_countdown">开始倒计时</string>
     <string name="timer_on">开</string>
     <string name="timer_off">关</string>
-    <string name="timer_mode_on_description">运动时自动倒计时</string>
-    <string name="timer_mode_off_description">手动完成按钮</string>
+    <string name="timer_mode_on_description">达成目标时自动完成</string>
+    <string name="timer_mode_off_description">通过完成按钮手动完成</string>
     <string name="workout_mode_selection">选择模式</string>
     <string name="record_weight_for_graph">记录此动作的重量</string>
     <string name="complete_with_reps">✓ 完成 (%d次)</string>

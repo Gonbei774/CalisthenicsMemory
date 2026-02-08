@@ -536,8 +536,8 @@
     <string name="start_countdown">Compte à rebours de départ</string>
     <string name="timer_on">ON</string>
     <string name="timer_off">OFF</string>
-    <string name="timer_mode_on_description">Compte à rebours auto pendant l\'exercice</string>
-    <string name="timer_mode_off_description">Bouton de validation manuel</string>
+    <string name="timer_mode_on_description">Complétion automatique à l\'atteinte de l\'objectif</string>
+    <string name="timer_mode_off_description">Complétion manuelle avec le bouton Terminer</string>
     <string name="workout_mode_selection">Sélectionner le mode</string>
     <string name="record_weight_for_graph">Enregistrer le poids pour cet exercice</string>
     <string name="complete_with_reps">✓ Terminer (%d reps)</string>

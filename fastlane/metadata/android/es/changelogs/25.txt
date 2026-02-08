@@ -1,0 +1,7 @@
+- Corregido: El seguimiento de asistencia no se incluía en la copia de seguridad/exportación
+- Corregido: El eje Y del gráfico de asistencia ahora comienza desde 0kg
+- Mejorado: Los botones de tipo de gráfico ahora se desplazan horizontalmente
+- Mejorado: Descripción más clara del modo automático
+- Traducciones actualizadas (alemán, ucraniano, japonés)
+
+Contributors: nautilusx, SomeTr

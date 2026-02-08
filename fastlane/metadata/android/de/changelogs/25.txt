@@ -1,0 +1,7 @@
+- Behoben: Assistenz-Tracking wurde nicht in Backup/Export einbezogen
+- Behoben: Y-Achse des Assistenz-Diagramms beginnt jetzt bei 0kg
+- Verbessert: Diagrammtyp-Schaltflächen sind jetzt horizontal scrollbar
+- Verbessert: Klarere Beschreibung des automatischen Modus
+- Übersetzungen aktualisiert (Deutsch, Ukrainisch, Japanisch)
+
+Contributors: nautilusx, SomeTr
