@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.1] - 2026-02-08
+
+### Improved
+- Graph type buttons now scroll horizontally
+- Clearer auto mode description text
+
+### Fixed
+- Assistance tracking not included in backup/export
+- Assistance graph Y-axis now starts from 0kg
+
+This release includes contributions from @nautilusx and @SomeTr.
+
 ## [1.17.0] - 2026-02-02
 
 ### Added
@@ -361,6 +373,7 @@ This release includes contributions from @unsealed211, @SomeTr, and @balaraz.
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.17.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.17.1
 [1.17.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.17.0
 [1.16.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.16.1
 [1.16.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.16.0
