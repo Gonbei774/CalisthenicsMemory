@@ -536,8 +536,8 @@
     <string name="start_countdown">Cuenta regresiva inicial</string>
     <string name="timer_on">ACT</string>
     <string name="timer_off">DES</string>
-    <string name="timer_mode_on_description">Cuenta regresiva automática durante el ejercicio</string>
-    <string name="timer_mode_off_description">Botón de finalización manual</string>
+    <string name="timer_mode_on_description">Completar automáticamente al alcanzar la meta</string>
+    <string name="timer_mode_off_description">Completar manualmente con el botón Finalizar</string>
     <string name="workout_mode_selection">Seleccionar modo</string>
     <string name="record_weight_for_graph">Registrar peso para este ejercicio</string>
     <string name="complete_with_reps">✓ Completar (%d reps)</string>

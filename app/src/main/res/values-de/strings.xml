@@ -536,8 +536,8 @@
     <string name="start_countdown">Start-Countdown</string>
     <string name="timer_on">AN</string>
     <string name="timer_off">AUS</string>
-    <string name="timer_mode_on_description">Automatischer Countdown während der Übung</string>
-    <string name="timer_mode_off_description">Manueller Abschluss-Button</string>
+    <string name="timer_mode_on_description">Automatisch abschließen bei Zielerreichung</string>
+    <string name="timer_mode_off_description">Manuell mit der Fertig-Taste abschließen</string>
     <string name="workout_mode_selection">Modus wählen</string>
     <string name="record_weight_for_graph">Gewicht für diese Übung aufzeichnen</string>
     <string name="complete_with_reps">✓ Fertig (%d Wdh.)</string>

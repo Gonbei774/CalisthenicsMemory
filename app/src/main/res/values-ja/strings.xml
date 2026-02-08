@@ -491,8 +491,8 @@
     <string name="program_name_hint">例: 朝のルーティン</string>
     <string name="timer_on">ON</string>
     <string name="timer_off">OFF</string>
-    <string name="timer_mode_on_description">運動中に自動カウント</string>
-    <string name="timer_mode_off_description">手動で完了ボタン</string>
+    <string name="timer_mode_on_description">目標達成で自動完了</string>
+    <string name="timer_mode_off_description">完了ボタンで手動完了</string>
     <string name="start_countdown">開始カウントダウン</string>
     <string name="program_exercises">種目</string>
     <string name="add_exercise_to_program">種目を追加</string>

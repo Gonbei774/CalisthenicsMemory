@@ -537,8 +537,8 @@
     <string name="auto_mode_label">Автоматичний режим</string>
     <string name="auto_mode">Автоматичний режим</string>
     <string name="auto_mode_description">Натискати кнопку «Завершити» вручну</string>
-    <string name="timer_mode_off_description">Натискати кнопку «Завершити» вручну</string>
-    <string name="timer_mode_on_description">Автоматичний відлік часу під час тренування</string>
+    <string name="timer_mode_off_description">Ручне завершення кнопкою Готово</string>
+    <string name="timer_mode_on_description">Автоматичне завершення при досягненні мети</string>
     <string name="previous_value_format">Попереднє: %d</string>
     <string name="last_record_short">Останній: %s</string>
     <string name="exercise_type_isometric">Ізометрична</string>
