@@ -473,7 +473,7 @@
     <string name="stop_button">Стоп</string>
     <string name="nav_current">Поточна</string>
     <string name="nav_program_overview">Огляд програми</string>
-    <string name="nav_done">Виконано</string>
+    <string name="nav_done">Готово</string>
     <string name="nav_finish">Завершити</string>
     <string name="graph_max">Максимум</string>
     <string name="graph_type_max">Максимум</string>
@@ -537,7 +537,7 @@
     <string name="auto_mode_label">Автоматичний режим</string>
     <string name="auto_mode">Автоматичний режим</string>
     <string name="auto_mode_description">Натискати кнопку «Завершити» вручну</string>
-    <string name="timer_mode_off_description">Ручне завершення кнопкою Готово</string>
+    <string name="timer_mode_off_description">Ручне завершення кнопкою «Готово»</string>
     <string name="timer_mode_on_description">Автоматичне завершення при досягненні мети</string>
     <string name="previous_value_format">Попереднє: %d</string>
     <string name="last_record_short">Останній: %s</string>
