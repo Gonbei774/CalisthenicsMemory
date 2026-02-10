@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -396,17 +397,44 @@ fun IntervalEditScreen(
                                     targetValue = if (isDragging) 4.dp else 0.dp,
                                     label = "elevation"
                                 )
-                                IntervalExerciseItem(
-                                    index = index + 1,
-                                    exercise = exercise,
-                                    isDragging = isDragging,
-                                    elevation = elevation,
-                                    onDelete = {
+                                val dismissState = rememberSwipeToDismissBoxState()
+                                LaunchedEffect(dismissState.currentValue) {
+                                    if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
                                         programExercises = programExercises.filter { it != pe }
                                             .mapIndexed { i, e -> e.copy(sortOrder = i) }
+                                    }
+                                }
+                                SwipeToDismissBox(
+                                    state = dismissState,
+                                    backgroundContent = {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .background(
+                                                    color = Red600,
+                                                    shape = RoundedCornerShape(12.dp)
+                                                )
+                                                .padding(horizontal = 16.dp),
+                                            contentAlignment = Alignment.CenterEnd
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Delete,
+                                                contentDescription = stringResource(R.string.delete),
+                                                tint = appColors.textPrimary
+                                            )
+                                        }
                                     },
-                                    dragHandle = { Modifier.longPressDraggableHandle() }
-                                )
+                                    enableDismissFromStartToEnd = false,
+                                    enableDismissFromEndToStart = true
+                                ) {
+                                    IntervalExerciseItem(
+                                        index = index + 1,
+                                        exercise = exercise,
+                                        isDragging = isDragging,
+                                        elevation = elevation,
+                                        dragHandle = { Modifier.longPressDraggableHandle() }
+                                    )
+                                }
                             }
                         }
                     }
@@ -625,7 +653,6 @@ private fun IntervalExerciseItem(
     exercise: Exercise,
     isDragging: Boolean,
     elevation: androidx.compose.ui.unit.Dp,
-    onDelete: () -> Unit,
     dragHandle: @Composable () -> Modifier
 ) {
     val appColors = LocalAppColors.current
@@ -674,19 +701,6 @@ private fun IntervalExerciseItem(
                         modifier = Modifier.padding(top = 2.dp)
                     )
                 }
-            }
-
-            // Delete button
-            IconButton(
-                onClick = onDelete,
-                modifier = Modifier.size(32.dp)
-            ) {
-                Icon(
-                    Icons.Default.Clear,
-                    contentDescription = stringResource(R.string.delete),
-                    tint = Red600,
-                    modifier = Modifier.size(18.dp)
-                )
             }
         }
     }

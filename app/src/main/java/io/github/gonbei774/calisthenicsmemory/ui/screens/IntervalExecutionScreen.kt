@@ -1015,56 +1015,61 @@ private fun IntervalTimerContent(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Control buttons
-        Row(
+        // Control buttons - 2 rows
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 32.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Pause/Resume
-            OutlinedButton(
-                onClick = onPauseToggle,
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = appColors.textPrimary
-                ),
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp)
+            // Row 1: Pause + Stop
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    text = if (isPaused) stringResource(R.string.interval_resume)
-                    else stringResource(R.string.interval_pause),
-                    fontSize = 15.sp
-                )
-            }
-
-            // Stop or Skip
-            if (onStop != null) {
-                Button(
-                    onClick = onStop,
+                OutlinedButton(
+                    onClick = onPauseToggle,
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Red600),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = appColors.textPrimary
+                    ),
                     modifier = Modifier
                         .weight(1f)
                         .height(48.dp)
                 ) {
                     Text(
-                        text = stringResource(R.string.interval_stop),
-                        fontSize = 15.sp,
-                        color = Color.White
+                        text = if (isPaused) stringResource(R.string.interval_resume)
+                        else stringResource(R.string.interval_pause),
+                        fontSize = 15.sp
                     )
+                }
+
+                if (onStop != null) {
+                    Button(
+                        onClick = onStop,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Red600),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.interval_stop),
+                            fontSize = 15.sp,
+                            color = Color.White
+                        )
+                    }
                 }
             }
 
+            // Row 2: Skip
             if (onSkip != null) {
                 Button(
                     onClick = onSkip,
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = phaseColor),
                     modifier = Modifier
-                        .weight(1f)
+                        .fillMaxWidth()
                         .height(48.dp)
                 ) {
                     Text(
@@ -1094,7 +1099,7 @@ private fun IntervalCompleteContent(
     onSave: () -> Unit,
     onDiscard: () -> Unit
 ) {
-    val statusColor = if (isFullCompletion) Green600 else Yellow500
+    val statusColor = Orange600
 
     Scaffold(
         topBar = {
@@ -1219,7 +1224,7 @@ private fun IntervalCompleteContent(
                                 ),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Yellow500
+                                color = Orange600
                             )
                         }
                     }
@@ -1239,38 +1244,47 @@ private fun IntervalCompleteContent(
                 )
             }
 
-            // Calculate which exercises were executed
-            val totalExecuted = completedRounds * exercises.size + completedExercisesInLastRound
+            // Show exercises grouped by round
+            val totalRoundsToShow = if (isFullCompletion) completedRounds
+            else completedRounds + if (completedExercisesInLastRound > 0) 1 else 0
 
-            itemsIndexed(exercises) { index, exercise ->
-                val executed = index < totalExecuted || (totalExecuted >= exercises.size * program.rounds)
-                // For display, consider exercise as executed if within completed scope
-                // In a full round scenario, all are executed
-                val isExecuted = if (isFullCompletion) true
-                else {
-                    // Exercises from completed full rounds are all executed
-                    // Plus exercises in the last partial round up to completedExercisesInLastRound
-                    index < completedExercisesInLastRound || completedRounds > 0
+            for (round in 1..totalRoundsToShow) {
+                val isLastPartialRound = !isFullCompletion && round == totalRoundsToShow && round > completedRounds
+
+                item {
+                    Text(
+                        text = stringResource(R.string.interval_round_header_format, round),
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Orange600,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = if (round == 1) 0.dp else 8.dp, bottom = 4.dp)
+                    )
                 }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 2.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = exercise.name,
-                        fontSize = 14.sp,
-                        color = if (isExecuted) appColors.textPrimary
-                        else appColors.textTertiary.copy(alpha = 0.5f)
-                    )
-                    if (!isExecuted) {
+                itemsIndexed(exercises) { index, exercise ->
+                    val isExecuted = if (isLastPartialRound) index < completedExercisesInLastRound else true
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 12.dp, top = 2.dp, bottom = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(
-                            text = " ${stringResource(R.string.interval_not_executed)}",
-                            fontSize = 12.sp,
-                            color = appColors.textTertiary.copy(alpha = 0.5f)
+                            text = exercise.name,
+                            fontSize = 14.sp,
+                            color = if (isExecuted) appColors.textPrimary
+                            else appColors.textTertiary.copy(alpha = 0.5f)
                         )
+                        if (!isExecuted) {
+                            Text(
+                                text = " ${stringResource(R.string.interval_not_executed)}",
+                                fontSize = 12.sp,
+                                color = appColors.textTertiary.copy(alpha = 0.5f)
+                            )
+                        }
                     }
                 }
             }

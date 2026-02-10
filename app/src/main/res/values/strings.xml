@@ -664,6 +664,7 @@
     <string name="interval_partial_format">%1$d / %2$d rounds + %3$d / %4$d exercises</string>
     <string name="interval_partial_note">(Stopped early)</string>
     <string name="interval_exercises_done">Exercises</string>
+    <string name="interval_round_header_format">Round %1$d</string>
     <string name="interval_not_executed">(not executed)</string>
     <string name="interval_save_and_finish">Save and Finish</string>
     <string name="interval_discard_result">Don\'t Save</string>
