@@ -147,7 +147,7 @@
     <string name="next_exercise_label">Наступна: %s</string>
     <string name="program_estimated_time">~%d хв</string>
     <string name="sound_settings_section">Налаштування звуку</string>
-    <string name="dynamic_count_sound_description">Динамічні вправи</string>
+    <string name="dynamic_count_sound_description">Допомагає рахувати динамічні вправи</string>
     <string name="isometric_interval_sound_description">Ізометричні вправи</string>
     <string name="interval_seconds_short">%d с</string>
     <string name="program_copy_suffix">(копія)</string>

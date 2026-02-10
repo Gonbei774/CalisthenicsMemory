@@ -572,7 +572,7 @@
     <!-- Sound Settings (Program Confirm) -->
     <string name="sound_settings_section">Sound Settings</string>
     <string name="dynamic_count_sound_label">Count Sound</string>
-    <string name="dynamic_count_sound_description">Dynamic exercises</string>
+    <string name="dynamic_count_sound_description">Assists counting for dynamic exercises</string>
     <string name="isometric_interval_sound_label">Interval Notification</string>
     <string name="isometric_interval_sound_description">Isometric exercises</string>
     <string name="interval_seconds_short">%d sec</string>

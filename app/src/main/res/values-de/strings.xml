@@ -551,7 +551,7 @@
     <!-- Sound Settings (Program Confirm) -->
     <string name="sound_settings_section">Toneinstellungen</string>
     <string name="dynamic_count_sound_label">Zählton</string>
-    <string name="dynamic_count_sound_description">Dynamische Übungen</string>
+    <string name="dynamic_count_sound_description">Unterstützt das Zählen bei dynamischen Übungen</string>
     <string name="isometric_interval_sound_label">Intervallbenachrichtigung</string>
     <string name="isometric_interval_sound_description">Isometrische Übungen</string>
     <string name="interval_seconds_short">%d Sek.</string>

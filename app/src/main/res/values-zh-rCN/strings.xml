@@ -551,7 +551,7 @@
     <!-- Sound Settings (Program Confirm) -->
     <string name="sound_settings_section">声音设置</string>
     <string name="dynamic_count_sound_label">计数音效</string>
-    <string name="dynamic_count_sound_description">次数类动作</string>
+    <string name="dynamic_count_sound_description">辅助次数类动作的计数</string>
     <string name="isometric_interval_sound_label">间隔提醒</string>
     <string name="isometric_interval_sound_description">静态类动作</string>
     <string name="interval_seconds_short">%d秒</string>

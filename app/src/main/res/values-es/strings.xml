@@ -551,7 +551,7 @@
     <!-- Sound Settings (Program Confirm) -->
     <string name="sound_settings_section">Ajustes de sonido</string>
     <string name="dynamic_count_sound_label">Sonido de conteo</string>
-    <string name="dynamic_count_sound_description">Ejercicios dinámicos</string>
+    <string name="dynamic_count_sound_description">Asiste el conteo en ejercicios dinámicos</string>
     <string name="isometric_interval_sound_label">Notificación de intervalo</string>
     <string name="isometric_interval_sound_description">Ejercicios isométricos</string>
     <string name="interval_seconds_short">%d seg</string>

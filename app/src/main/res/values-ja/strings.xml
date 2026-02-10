@@ -552,7 +552,7 @@
     <!-- Sound Settings (Program Confirm) -->
     <string name="sound_settings_section">サウンド設定</string>
     <string name="dynamic_count_sound_label">カウント音</string>
-    <string name="dynamic_count_sound_description">回数系の種目</string>
+    <string name="dynamic_count_sound_description">回数系種目のカウントを補助</string>
     <string name="isometric_interval_sound_label">インターバル通知</string>
     <string name="isometric_interval_sound_description">静止系の種目</string>
     <string name="interval_seconds_short">%d秒</string>
