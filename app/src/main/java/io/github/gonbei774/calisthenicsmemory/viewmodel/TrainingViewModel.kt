@@ -8,6 +8,9 @@ import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.ExerciseGroup
 import io.github.gonbei774.calisthenicsmemory.data.Program
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
+import io.github.gonbei774.calisthenicsmemory.data.IntervalProgram
+import io.github.gonbei774.calisthenicsmemory.data.IntervalProgramExercise
+import io.github.gonbei774.calisthenicsmemory.data.IntervalRecord
 import io.github.gonbei774.calisthenicsmemory.data.ProgramLoop
 import io.github.gonbei774.calisthenicsmemory.data.TodoTask
 import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
@@ -122,6 +125,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     private val programDao = database.programDao()
     private val programExerciseDao = database.programExerciseDao()
     private val programLoopDao = database.programLoopDao()
+    private val intervalProgramDao = database.intervalProgramDao()
+    private val intervalProgramExerciseDao = database.intervalProgramExerciseDao()
+    private val intervalRecordDao = database.intervalRecordDao()
 
     companion object {
         // お気に入りグループの固定キー（UI側で翻訳される）
@@ -1677,6 +1683,178 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             programExerciseDao.update(programExercise.copy(loopId = loopId))
         } catch (e: Exception) {
             _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
+    // ========================================
+    // IntervalProgram 操作
+    // ========================================
+
+    val intervalPrograms: StateFlow<List<IntervalProgram>> = intervalProgramDao.getAllPrograms()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptyList()
+        )
+
+    suspend fun createIntervalProgramAndGetId(
+        name: String,
+        workSeconds: Int,
+        restSeconds: Int,
+        rounds: Int,
+        roundRestSeconds: Int
+    ): Long? {
+        return try {
+            val program = IntervalProgram(
+                name = name,
+                workSeconds = workSeconds,
+                restSeconds = restSeconds,
+                rounds = rounds,
+                roundRestSeconds = roundRestSeconds
+            )
+            intervalProgramDao.insert(program)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+            null
+        }
+    }
+
+    suspend fun updateIntervalProgram(program: IntervalProgram) {
+        try {
+            intervalProgramDao.update(program)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
+    fun deleteIntervalProgram(programId: Long) {
+        viewModelScope.launch {
+            try {
+                intervalProgramDao.deleteById(programId)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    suspend fun getIntervalProgramById(programId: Long): IntervalProgram? {
+        return intervalProgramDao.getProgramById(programId)
+    }
+
+    fun duplicateIntervalProgram(programId: Long, copySuffix: String) {
+        viewModelScope.launch {
+            try {
+                val source = intervalProgramDao.getProgramById(programId) ?: return@launch
+                val sourceExercises = intervalProgramExerciseDao.getExercisesForProgramSync(programId)
+
+                val newId = intervalProgramDao.insert(
+                    IntervalProgram(
+                        name = "${source.name} $copySuffix",
+                        workSeconds = source.workSeconds,
+                        restSeconds = source.restSeconds,
+                        rounds = source.rounds,
+                        roundRestSeconds = source.roundRestSeconds
+                    )
+                )
+
+                sourceExercises.forEach { exercise ->
+                    intervalProgramExerciseDao.insert(
+                        IntervalProgramExercise(
+                            programId = newId,
+                            exerciseId = exercise.exerciseId,
+                            sortOrder = exercise.sortOrder
+                        )
+                    )
+                }
+
+                _snackbarMessage.value = UiMessage.ProgramDuplicated
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    // ========================================
+    // IntervalProgramExercise 操作
+    // ========================================
+
+    fun getIntervalProgramExercisesFlow(programId: Long) =
+        intervalProgramExerciseDao.getExercisesForProgram(programId)
+
+    suspend fun getIntervalProgramExercisesSync(programId: Long): List<IntervalProgramExercise> {
+        return intervalProgramExerciseDao.getExercisesForProgramSync(programId)
+    }
+
+    suspend fun addIntervalProgramExerciseSync(
+        programId: Long,
+        exerciseId: Long,
+        sortOrder: Int? = null
+    ): Long? {
+        return try {
+            val finalSortOrder = sortOrder ?: intervalProgramExerciseDao.getNextSortOrder(programId)
+            val exercise = IntervalProgramExercise(
+                programId = programId,
+                exerciseId = exerciseId,
+                sortOrder = finalSortOrder
+            )
+            intervalProgramExerciseDao.insert(exercise)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+            null
+        }
+    }
+
+    suspend fun deleteIntervalProgramExercise(exercise: IntervalProgramExercise) {
+        try {
+            intervalProgramExerciseDao.delete(exercise)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
+    suspend fun reorderIntervalProgramExercises(exerciseIds: List<Long>) {
+        try {
+            intervalProgramExerciseDao.reorderExercises(exerciseIds)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
+    // ========================================
+    // IntervalRecord 操作
+    // ========================================
+
+    val intervalRecords: StateFlow<List<IntervalRecord>> = intervalRecordDao.getAllRecords()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptyList()
+        )
+
+    suspend fun saveIntervalRecord(record: IntervalRecord): Long? {
+        return try {
+            intervalRecordDao.insert(record)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+            null
+        }
+    }
+
+    suspend fun updateIntervalRecord(record: IntervalRecord) {
+        try {
+            intervalRecordDao.update(record)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
+    fun deleteIntervalRecord(recordId: Long) {
+        viewModelScope.launch {
+            try {
+                intervalRecordDao.deleteById(recordId)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
         }
     }
 

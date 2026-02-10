@@ -9,8 +9,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [Exercise::class, TrainingRecord::class, ExerciseGroup::class, TodoTask::class, Program::class, ProgramExercise::class, ProgramLoop::class],
-    version = 17,
+    entities = [Exercise::class, TrainingRecord::class, ExerciseGroup::class, TodoTask::class, Program::class, ProgramExercise::class, ProgramLoop::class, IntervalProgram::class, IntervalProgramExercise::class, IntervalRecord::class],
+    version = 18,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -22,6 +22,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun programDao(): ProgramDao
     abstract fun programExerciseDao(): ProgramExerciseDao
     abstract fun programLoopDao(): ProgramLoopDao
+    abstract fun intervalProgramDao(): IntervalProgramDao
+    abstract fun intervalProgramExerciseDao(): IntervalProgramExerciseDao
+    abstract fun intervalRecordDao(): IntervalRecordDao
 
     companion object {
         @Volatile
@@ -34,7 +37,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "bodyweight_trainer_database"
                 )
-                    .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17)
+                    .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
@@ -264,6 +267,55 @@ abstract class AppDatabase : RoomDatabase() {
                 database.execSQL(
                     "ALTER TABLE exercises ADD COLUMN description TEXT"
                 )
+            }
+        }
+
+        // マイグレーション 17 → 18: インターバルモード用テーブル追加
+        val MIGRATION_17_18 = object : Migration(17, 18) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // IntervalProgram テーブル作成
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS interval_programs (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        name TEXT NOT NULL,
+                        workSeconds INTEGER NOT NULL,
+                        restSeconds INTEGER NOT NULL,
+                        rounds INTEGER NOT NULL,
+                        roundRestSeconds INTEGER NOT NULL
+                    )
+                """)
+
+                // IntervalProgramExercise テーブル作成
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS interval_program_exercises (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        programId INTEGER NOT NULL,
+                        exerciseId INTEGER NOT NULL,
+                        sortOrder INTEGER NOT NULL,
+                        FOREIGN KEY (programId) REFERENCES interval_programs(id) ON DELETE CASCADE,
+                        FOREIGN KEY (exerciseId) REFERENCES exercises(id) ON DELETE CASCADE
+                    )
+                """)
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_interval_program_exercises_programId ON interval_program_exercises(programId)")
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_interval_program_exercises_exerciseId ON interval_program_exercises(exerciseId)")
+
+                // IntervalRecord テーブル作成
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS interval_records (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        programName TEXT NOT NULL,
+                        date TEXT NOT NULL,
+                        time TEXT NOT NULL,
+                        workSeconds INTEGER NOT NULL,
+                        restSeconds INTEGER NOT NULL,
+                        rounds INTEGER NOT NULL,
+                        roundRestSeconds INTEGER NOT NULL,
+                        completedRounds INTEGER NOT NULL,
+                        completedExercisesInLastRound INTEGER NOT NULL,
+                        exercisesJson TEXT NOT NULL,
+                        comment TEXT
+                    )
+                """)
             }
         }
     }
