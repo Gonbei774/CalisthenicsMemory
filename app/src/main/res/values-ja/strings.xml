@@ -667,6 +667,7 @@
     <string name="interval_exercises_done">実行した種目</string>
     <string name="interval_round_header_format">%1$d周目</string>
     <string name="interval_not_executed">（未実行）</string>
+    <string name="interval_skipped_label">（スキップ）</string>
     <string name="interval_save_and_finish">保存して終了</string>
     <string name="interval_discard_result">保存しない</string>
     <string name="interval_exit_confirm_title">ワークアウトを終了しますか？</string>

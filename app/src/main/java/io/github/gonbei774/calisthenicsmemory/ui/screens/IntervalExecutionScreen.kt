@@ -81,7 +81,8 @@ private sealed class IntervalPhase {
         val completedRounds: Int,
         val completedExercisesInLastRound: Int,
         val isFullCompletion: Boolean,
-        val skippedCount: Int = 0
+        val skippedCount: Int = 0,
+        val skippedExercises: Set<Pair<Int, Int>> = emptySet()
     ) : IntervalPhase()
 }
 
@@ -113,6 +114,7 @@ fun IntervalExecutionScreen(
     var isPaused by remember { mutableStateOf(false) }
     var showExitDialog by remember { mutableStateOf(false) }
     var skippedCount by remember { mutableIntStateOf(0) }
+    var skippedExercises by remember { mutableStateOf(emptySet<Pair<Int, Int>>()) }
 
     // Load program data
     LaunchedEffect(programId) {
@@ -228,7 +230,8 @@ fun IntervalExecutionScreen(
                         completedRounds = completedRounds,
                         completedExercisesInLastRound = completedExInLast,
                         isFullCompletion = false,
-                        skippedCount = skippedCount
+                        skippedCount = skippedCount,
+                        skippedExercises = skippedExercises
                     )
                 }) {
                     Text(stringResource(R.string.interval_stop), color = Red600)
@@ -254,7 +257,8 @@ fun IntervalExecutionScreen(
                     completedRounds = p.rounds,
                     completedExercisesInLastRound = exercises.size,
                     isFullCompletion = true,
-                    skippedCount = skippedCount
+                    skippedCount = skippedCount,
+                    skippedExercises = skippedExercises
                 )
             }
             isLastExercise -> {
@@ -335,6 +339,7 @@ fun IntervalExecutionScreen(
                 onStop = { showExitDialog = true },
                 onSkip = {
                     skippedCount++
+                    skippedExercises = skippedExercises + Pair(currentPhase.round, currentPhase.exerciseIndex)
                     advanceFromWork(currentPhase.round, currentPhase.exerciseIndex)
                 },
                 onTimerFinish = {
@@ -424,6 +429,7 @@ fun IntervalExecutionScreen(
                 completedExercisesInLastRound = currentPhase.completedExercisesInLastRound,
                 isFullCompletion = currentPhase.isFullCompletion,
                 skippedCount = currentPhase.skippedCount,
+                skippedExercises = currentPhase.skippedExercises,
                 appColors = appColors,
                 onSave = {
                     scope.launch {
@@ -1080,6 +1086,7 @@ private fun IntervalCompleteContent(
     completedExercisesInLastRound: Int,
     isFullCompletion: Boolean,
     skippedCount: Int,
+    skippedExercises: Set<Pair<Int, Int>>,
     appColors: AppColors,
     onSave: () -> Unit,
     onDiscard: () -> Unit
@@ -1250,6 +1257,7 @@ private fun IntervalCompleteContent(
 
                 itemsIndexed(exercises) { index, exercise ->
                     val isExecuted = if (isLastPartialRound) index < completedExercisesInLastRound else true
+                    val isSkipped = Pair(round, index) in skippedExercises
 
                     Row(
                         modifier = Modifier
@@ -1260,10 +1268,16 @@ private fun IntervalCompleteContent(
                         Text(
                             text = exercise.name,
                             fontSize = 14.sp,
-                            color = if (isExecuted) appColors.textPrimary
-                            else appColors.textTertiary.copy(alpha = 0.5f)
+                            color = if (!isExecuted || isSkipped) appColors.textTertiary.copy(alpha = 0.5f)
+                            else appColors.textPrimary
                         )
-                        if (!isExecuted) {
+                        if (isSkipped) {
+                            Text(
+                                text = " ${stringResource(R.string.interval_skipped_label)}",
+                                fontSize = 12.sp,
+                                color = appColors.textTertiary.copy(alpha = 0.5f)
+                            )
+                        } else if (!isExecuted) {
                             Text(
                                 text = " ${stringResource(R.string.interval_not_executed)}",
                                 fontSize = 12.sp,
