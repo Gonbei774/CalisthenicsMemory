@@ -880,15 +880,43 @@ private fun IntervalTimerContent(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Round indicator
+        // Top: exercise name or phase label
+        if (exerciseName != null) {
+            Text(
+                text = exerciseName,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = appColors.textPrimary,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        } else {
+            Text(
+                text = phaseLabel,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = appColors.textPrimary,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+
+        // Sub info
         Text(
-            text = stringResource(R.string.interval_round_format, round, program.rounds),
+            text = if (exerciseName != null) {
+                stringResource(
+                    R.string.interval_exercise_format,
+                    exerciseIndex + 1,
+                    exercises.size
+                ) + " · " + stringResource(R.string.interval_round_format, round, program.rounds)
+            } else {
+                if (roundCompleteMessage != null) roundCompleteMessage
+                else stringResource(R.string.interval_round_format, round, program.rounds)
+            },
             fontSize = 16.sp,
-            color = appColors.textSecondary,
-            modifier = Modifier.padding(top = 16.dp)
+            color = appColors.textTertiary,
+            modifier = Modifier.padding(top = 8.dp)
         )
 
-        Spacer(modifier = Modifier.weight(0.5f))
+        Spacer(modifier = Modifier.weight(1f))
 
         // Circular timer
         Box(
@@ -896,7 +924,6 @@ private fun IntervalTimerContent(
             modifier = Modifier.size(240.dp)
         ) {
             androidx.compose.foundation.Canvas(modifier = Modifier.size(240.dp)) {
-                // Background circle
                 drawArc(
                     color = phaseColor.copy(alpha = 0.2f),
                     startAngle = -90f,
@@ -904,8 +931,6 @@ private fun IntervalTimerContent(
                     useCenter = false,
                     style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                 )
-
-                // Progress arc
                 drawArc(
                     color = phaseColor,
                     startAngle = -90f,
@@ -923,46 +948,16 @@ private fun IntervalTimerContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
-        // Phase label / exercise name
-        if (exerciseName != null) {
-            Text(
-                text = exerciseName,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = phaseColor
-            )
-            Text(
-                text = stringResource(
-                    R.string.interval_exercise_format,
-                    exerciseIndex + 1,
-                    exercises.size
-                ),
-                fontSize = 14.sp,
-                color = appColors.textSecondary,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-        } else {
-            Text(
-                text = phaseLabel,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = phaseColor
-            )
-            if (roundCompleteMessage != null) {
-                Text(
-                    text = roundCompleteMessage,
-                    fontSize = 14.sp,
-                    color = appColors.textSecondary,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
-        }
+        // Next exercise info
+        val nextExIndex = exerciseIndex + 1
+        val nextEx = if (exerciseName != null) {
+            if (nextExIndex < exercises.size) exercises[nextExIndex]
+            else if (round < program.rounds) exercises.firstOrNull()
+            else null
+        } else null
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Next preview card
         if (nextPreview != null) {
             Card(
                 colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
@@ -995,25 +990,15 @@ private fun IntervalTimerContent(
                     }
                 }
             }
+        } else if (nextEx != null) {
+            Text(
+                text = "${stringResource(R.string.interval_next)}: ${nextEx.name}",
+                fontSize = 14.sp,
+                color = appColors.textSecondary
+            )
         }
 
-        // Work phase: show next exercise name inline
-        if (exerciseName != null) {
-            val nextExIndex = exerciseIndex + 1
-            val nextEx = if (nextExIndex < exercises.size) exercises[nextExIndex]
-                else if (round < program.rounds) exercises.firstOrNull()
-                else null
-            if (nextEx != null) {
-                Text(
-                    text = "${stringResource(R.string.interval_next)}: ${nextEx.name}",
-                    fontSize = 13.sp,
-                    color = appColors.textSecondary,
-                    modifier = Modifier.padding(top = 12.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Control buttons - 2 rows
         Column(
