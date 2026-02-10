@@ -559,4 +559,7 @@
     <string name="section_theme">Налаштування теми</string>
     <string name="theme_system">Як у системі</string>
     <string name="section_theme_description">Зміна зовнішнього вигляду додатка.</string>
+
+    <!-- Exercise Description -->
+    <string name="description_optional">Опис (необов\'язково)</string>
 </resources>

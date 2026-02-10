@@ -609,4 +609,7 @@
     <string name="theme_system">システムに従う</string>
     <string name="theme_light">ライト</string>
     <string name="theme_dark">ダーク</string>
+
+    <!-- Exercise Description -->
+    <string name="description_optional">説明文（任意）</string>
 </resources>

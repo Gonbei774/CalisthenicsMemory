@@ -599,4 +599,7 @@
     <string name="add_exercise_to_loop">Aggiungi esercizio</string>
     <string name="move_to_loop">Sposta nel ciclo</string>
     <string name="loop_number_format">Ciclo %d</string>
+
+    <!-- Exercise Description -->
+    <string name="description_optional">Descrizione (Opzionale)</string>
 </resources>

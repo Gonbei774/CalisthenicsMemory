@@ -523,6 +523,9 @@ fun UnifiedAddDialog(
     var repDuration by remember { mutableStateOf(exercise?.repDuration?.toString() ?: "") }
     var restInterval by remember { mutableStateOf(exercise?.restInterval?.toString() ?: "") }
 
+    // 説明文の状態
+    var description by remember { mutableStateOf(exercise?.description ?: "") }
+
     // トラッキング設定用の状態
     var distanceTrackingEnabled by remember { mutableStateOf(exercise?.distanceTrackingEnabled ?: false) }
     var weightTrackingEnabled by remember { mutableStateOf(exercise?.weightTrackingEnabled ?: false) }
@@ -596,7 +599,8 @@ fun UnifiedAddDialog(
                         restInterval = finalRestInterval,
                         distanceTrackingEnabled = distanceTrackingEnabled,
                         weightTrackingEnabled = weightTrackingEnabled,
-                        assistanceTrackingEnabled = assistanceTrackingEnabled
+                        assistanceTrackingEnabled = assistanceTrackingEnabled,
+                        description = description.ifBlank { null }
                     )
                 )
                 onDismiss()
@@ -629,7 +633,8 @@ fun UnifiedAddDialog(
                     finalRepDuration,
                     distanceTrackingEnabled,
                     weightTrackingEnabled,
-                    assistanceTrackingEnabled
+                    assistanceTrackingEnabled,
+                    description.ifBlank { null }
                 )
                 onDismiss()
             }
@@ -1266,6 +1271,37 @@ fun UnifiedAddDialog(
                                         onCheckedChange = { assistanceTrackingEnabled = it }
                                     )
                                 }
+                            }
+                        }
+                        // 説明文カード
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.description_optional),
+                                    fontSize = 14.sp,
+                                    color = appColors.textSecondary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                OutlinedTextField(
+                                    value = description,
+                                    onValueChange = { if (it.length <= 60) description = it },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    minLines = 2,
+                                    maxLines = 3,
+                                    supportingText = {
+                                        Text(
+                                            stringResource(R.string.character_count, description.length, 60),
+                                            color = appColors.textSecondary
+                                        )
+                                    }
+                                )
                             }
                         }
                     }

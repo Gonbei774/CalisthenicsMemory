@@ -608,4 +608,7 @@
     <string name="add_exercise_to_loop">Add Exercise</string>
     <string name="move_to_loop">Move to loop</string>
     <string name="loop_number_format">Loop %d</string>
+
+    <!-- Exercise Description -->
+    <string name="description_optional">Description (Optional)</string>
 </resources>

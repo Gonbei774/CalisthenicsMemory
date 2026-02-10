@@ -611,4 +611,7 @@
     <string name="theme_system">Systemeinstellung folgen</string>
     <string name="theme_light">Hell</string>
     <string name="theme_dark">Dunkel</string>
+
+    <!-- Exercise Description -->
+    <string name="description_optional">Beschreibung (optional)</string>
 </resources>

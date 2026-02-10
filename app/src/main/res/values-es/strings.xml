@@ -599,4 +599,7 @@
     <string name="add_exercise_to_loop">Añadir ejercicio</string>
     <string name="move_to_loop">Mover al bucle</string>
     <string name="loop_number_format">Bucle %d</string>
+
+    <!-- Exercise Description -->
+    <string name="description_optional">Descripción (Opcional)</string>
 </resources>
