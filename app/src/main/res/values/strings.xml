@@ -611,4 +611,32 @@
 
     <!-- Exercise Description -->
     <string name="description_optional">Description (Optional)</string>
+
+    <!-- Interval Mode -->
+    <string name="interval_mode">Interval</string>
+    <string name="interval_mode_description">For HIIT and circuits</string>
+    <string name="interval_mode_note">Interval mode does not record reps or hold time. Use Program mode if you need records.</string>
+    <string name="interval_list_title">Interval</string>
+    <string name="interval_empty">No interval programs yet\nTap + to create one</string>
+    <string name="interval_summary_format">%1$d exercises · %2$ds/%3$ds · %4$d rounds</string>
+    <string name="new_interval_program">New Program</string>
+    <string name="edit_interval_program">Edit Program</string>
+    <string name="interval_program_name">Program Name</string>
+    <string name="interval_program_name_hint">e.g., HIIT Circuit A</string>
+    <string name="interval_timer_settings">Timer Settings</string>
+    <string name="interval_work_seconds">Work Time</string>
+    <string name="interval_rest_seconds">Rest Time</string>
+    <string name="interval_rounds">Rounds</string>
+    <string name="interval_round_rest_seconds">Round Rest</string>
+    <string name="interval_exercises">Exercises</string>
+    <string name="interval_add_exercise">Add Exercise</string>
+    <string name="interval_exercises_required">Add at least one exercise</string>
+    <string name="interval_no_record_note">This mode does not record reps or hold time</string>
+    <string name="interval_delete_program">Delete Program</string>
+    <string name="interval_delete_program_warning">Delete \"%s\"?</string>
+    <string name="interval_start">Start</string>
+    <string name="interval_duplicate">Duplicate</string>
+    <string name="interval_duplicated">Program duplicated</string>
+    <string name="interval_seconds_suffix">sec</string>
+    <string name="interval_rounds_suffix">rounds</string>
 </resources>

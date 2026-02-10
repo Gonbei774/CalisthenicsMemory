@@ -612,4 +612,32 @@
 
     <!-- Exercise Description -->
     <string name="description_optional">説明文（任意）</string>
+
+    <!-- Interval Mode -->
+    <string name="interval_mode">インターバル</string>
+    <string name="interval_mode_description">HIITやサーキット用</string>
+    <string name="interval_mode_note">インターバルモードではレップ数・保持時間は記録されません。記録が必要な場合はプログラムモードをご利用ください。</string>
+    <string name="interval_list_title">インターバル</string>
+    <string name="interval_empty">インターバルプログラムがありません\n+ をタップして作成</string>
+    <string name="interval_summary_format">%1$d種目 · %2$d秒/%3$d秒 · %4$d周</string>
+    <string name="new_interval_program">新規プログラム</string>
+    <string name="edit_interval_program">プログラムを編集</string>
+    <string name="interval_program_name">プログラム名</string>
+    <string name="interval_program_name_hint">例: HIITサーキットA</string>
+    <string name="interval_timer_settings">タイマー設定</string>
+    <string name="interval_work_seconds">ワーク時間</string>
+    <string name="interval_rest_seconds">レスト時間</string>
+    <string name="interval_rounds">周回数</string>
+    <string name="interval_round_rest_seconds">周間レスト</string>
+    <string name="interval_exercises">種目リスト</string>
+    <string name="interval_add_exercise">種目を追加</string>
+    <string name="interval_exercises_required">種目を1つ以上追加してください</string>
+    <string name="interval_no_record_note">※ このモードではレップ数・保持時間は記録されません</string>
+    <string name="interval_delete_program">プログラムを削除</string>
+    <string name="interval_delete_program_warning">「%s」を削除しますか？</string>
+    <string name="interval_start">実行</string>
+    <string name="interval_duplicate">複製</string>
+    <string name="interval_duplicated">プログラムを複製しました</string>
+    <string name="interval_seconds_suffix">秒</string>
+    <string name="interval_rounds_suffix">周</string>
 </resources>

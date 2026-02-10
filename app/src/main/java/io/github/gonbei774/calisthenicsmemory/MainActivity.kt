@@ -51,6 +51,8 @@ import io.github.gonbei774.calisthenicsmemory.ui.screens.ToDoScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.ProgramListScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.ProgramEditScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.ProgramExecutionScreen
+import io.github.gonbei774.calisthenicsmemory.ui.screens.IntervalListScreen
+import io.github.gonbei774.calisthenicsmemory.ui.screens.IntervalEditScreen
 import io.github.gonbei774.calisthenicsmemory.ui.theme.CalisthenicsMemoryTheme
 import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
@@ -280,6 +282,7 @@ fun CalisthenicsMemoryApp(
                         viewModel = viewModel,
                         onNavigateBack = { currentScreen = backDestination },
                         onNavigateToProgramList = { currentScreen = Screen.ProgramList },
+                        onNavigateToIntervalList = { currentScreen = Screen.IntervalList },
                         initialExerciseId = workoutScreen.exerciseId,
                         fromToDo = workoutScreen.fromToDo
                     )
@@ -319,6 +322,34 @@ fun CalisthenicsMemoryApp(
                         onComplete = { currentScreen = Screen.ProgramList }
                     )
                 }
+                is Screen.IntervalList -> {
+                    BackHandler { currentScreen = Screen.Workout() }
+                    IntervalListScreen(
+                        viewModel = viewModel,
+                        onNavigateBack = { currentScreen = Screen.Workout() },
+                        onNavigateToEdit = { programId -> currentScreen = Screen.IntervalEdit(programId) },
+                        onNavigateToExecute = { programId ->
+                            currentScreen = Screen.IntervalExecution(programId)
+                        }
+                    )
+                }
+                is Screen.IntervalEdit -> {
+                    val editScreen = currentScreen as Screen.IntervalEdit
+                    BackHandler { currentScreen = Screen.IntervalList }
+                    IntervalEditScreen(
+                        viewModel = viewModel,
+                        programId = editScreen.programId,
+                        onNavigateBack = { currentScreen = Screen.IntervalList },
+                        onSaved = { currentScreen = Screen.IntervalList }
+                    )
+                }
+                is Screen.IntervalExecution -> {
+                    // Phase 3で実装予定
+                    BackHandler { currentScreen = Screen.IntervalList }
+                    LaunchedEffect(Unit) {
+                        currentScreen = Screen.IntervalList
+                    }
+                }
             }
         }
     }
@@ -336,4 +367,7 @@ sealed class Screen {
     object ProgramList : Screen()
     data class ProgramEdit(val programId: Long?) : Screen()
     data class ProgramExecution(val programId: Long, val resumeSavedState: Boolean = false) : Screen()
+    object IntervalList : Screen()
+    data class IntervalEdit(val programId: Long?) : Screen()
+    data class IntervalExecution(val programId: Long) : Screen()
 }

@@ -1812,6 +1812,14 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    suspend fun updateIntervalProgramExercise(exercise: IntervalProgramExercise) {
+        try {
+            intervalProgramExerciseDao.update(exercise)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
     suspend fun reorderIntervalProgramExercises(exerciseIds: List<Long>) {
         try {
             intervalProgramExerciseDao.reorderExercises(exerciseIds)
