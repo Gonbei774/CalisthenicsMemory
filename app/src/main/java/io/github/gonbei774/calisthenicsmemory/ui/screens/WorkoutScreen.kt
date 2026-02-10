@@ -1044,6 +1044,7 @@ fun SettingsStep(
                 placeholder = { Text("5", color = appColors.textSecondary) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
+                enabled = isDynamicCountSoundEnabled,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Orange600,
                     focusedLabelColor = Orange600
@@ -1182,7 +1183,7 @@ fun SettingsStep(
         Spacer(modifier = Modifier.height(24.dp))
 
         val isValid = sets.isNotEmpty() && targetValue.isNotEmpty() &&
-                (exercise.type != "Dynamic" || repDuration.toIntOrNull()?.let { it >= 1 } == true)
+                (exercise.type != "Dynamic" || !isDynamicCountSoundEnabled || repDuration.toIntOrNull()?.let { it >= 1 } == true)
 
         Button(
             onClick = {
