@@ -739,18 +739,42 @@ fun UnifiedAddDialog(
                                 )
                                 Row(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    modifier = Modifier.padding(top = 8.dp)
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 8.dp)
                                 ) {
-                                    FilterChip(
-                                        selected = creationType == "exercise",
+                                    val isExercise = creationType == "exercise"
+                                    val isGroup = creationType == "group"
+                                    OutlinedButton(
                                         onClick = { creationType = "exercise" },
-                                        label = { Text(stringResource(R.string.exercise)) }
-                                    )
-                                    FilterChip(
-                                        selected = creationType == "group",
+                                        modifier = Modifier.weight(1f),
+                                        colors = ButtonDefaults.outlinedButtonColors(
+                                            containerColor = if (isExercise) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                            contentColor = if (isExercise) Color.White else appColors.textTertiary
+                                        ),
+                                        border = BorderStroke(
+                                            1.dp,
+                                            if (isExercise) MaterialTheme.colorScheme.primary else appColors.border
+                                        ),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text(stringResource(R.string.exercise))
+                                    }
+                                    OutlinedButton(
                                         onClick = { creationType = "group" },
-                                        label = { Text(stringResource(R.string.group)) }
-                                    )
+                                        modifier = Modifier.weight(1f),
+                                        colors = ButtonDefaults.outlinedButtonColors(
+                                            containerColor = if (isGroup) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                            contentColor = if (isGroup) Color.White else appColors.textTertiary
+                                        ),
+                                        border = BorderStroke(
+                                            1.dp,
+                                            if (isGroup) MaterialTheme.colorScheme.primary else appColors.border
+                                        ),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text(stringResource(R.string.group))
+                                    }
                                 }
                             }
                         }
