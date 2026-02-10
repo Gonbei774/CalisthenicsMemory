@@ -728,9 +728,18 @@ private fun IntervalPrepareContent(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Top: "Get Ready!"
+        Text(
+            text = stringResource(R.string.interval_get_ready),
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = appColors.textPrimary,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+
         Spacer(modifier = Modifier.weight(1f))
 
-        // Circular timer
+        // Center: timer
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.size(240.dp)
@@ -743,7 +752,6 @@ private fun IntervalPrepareContent(
                     useCenter = false,
                     style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                 )
-
                 drawArc(
                     color = Orange600,
                     startAngle = -90f,
@@ -761,18 +769,10 @@ private fun IntervalPrepareContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
-        Text(
-            text = stringResource(R.string.interval_get_ready),
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Orange600
-        )
-
-        // Show first exercise preview
+        // Bottom: first exercise preview
         if (firstExercise != null) {
-            Spacer(modifier = Modifier.height(16.dp))
             Card(
                 colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
                 shape = RoundedCornerShape(12.dp),
@@ -802,9 +802,8 @@ private fun IntervalPrepareContent(
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
         }
-
-        Spacer(modifier = Modifier.weight(1f))
     }
 }
 

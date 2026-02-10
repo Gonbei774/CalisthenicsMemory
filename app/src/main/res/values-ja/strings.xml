@@ -646,7 +646,7 @@
     <string name="interval_total_time">推定時間</string>
     <string name="interval_total_time_format">約%1$d分%2$d秒</string>
     <string name="interval_start_workout">ワークアウト開始</string>
-    <string name="interval_get_ready">準備！</string>
+    <string name="interval_get_ready">準備</string>
     <string name="interval_work_label">ワーク</string>
     <string name="interval_rest_label">レスト</string>
     <string name="interval_round_rest_label">周間レスト</string>
