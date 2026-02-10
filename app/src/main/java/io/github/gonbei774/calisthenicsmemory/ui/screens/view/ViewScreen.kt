@@ -3,6 +3,8 @@ package io.github.gonbei774.calisthenicsmemory.ui.screens.view
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -16,6 +18,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -58,8 +61,14 @@ fun ViewScreen(
     val records by viewModel.records.collectAsState()
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
 
-    // ViewModeの状態
-    var currentMode by remember { mutableStateOf(ViewMode.List) }
+    // ViewModeの状態（HorizontalPager用）
+    val pagerState = rememberPagerState(pageCount = { 3 })
+    val coroutineScope = rememberCoroutineScope()
+    val currentMode = when (pagerState.currentPage) {
+        0 -> ViewMode.List
+        1 -> ViewMode.Graph
+        else -> ViewMode.Challenge
+    }
 
     // フィルター関連の状態
     var selectedExerciseFilter by remember { mutableStateOf<Exercise?>(null) }
@@ -161,44 +170,43 @@ fun ViewScreen(
         ) {
             // タブ
             TabRow(
-                selectedTabIndex = when (currentMode) {
-                    ViewMode.List -> 0
-                    ViewMode.Graph -> 1
-                    ViewMode.Challenge -> 2
-                },
+                selectedTabIndex = pagerState.currentPage,
                 containerColor = appColors.cardBackground,
                 contentColor = appColors.textPrimary
             ) {
                 Tab(
-                    selected = currentMode == ViewMode.List,
-                    onClick = { currentMode = ViewMode.List },
+                    selected = pagerState.currentPage == 0,
+                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } },
                     text = {
                         Text(
                             stringResource(R.string.tab_list),
                             fontSize = 16.sp,
-                            fontWeight = if (currentMode == ViewMode.List) FontWeight.Bold else FontWeight.Normal
+                            fontWeight = if (pagerState.currentPage == 0) FontWeight.Bold else FontWeight.Normal,
+                            maxLines = 1
                         )
                     }
                 )
                 Tab(
-                    selected = currentMode == ViewMode.Graph,
-                    onClick = { currentMode = ViewMode.Graph },
+                    selected = pagerState.currentPage == 1,
+                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } },
                     text = {
                         Text(
                             stringResource(R.string.tab_graph),
                             fontSize = 16.sp,
-                            fontWeight = if (currentMode == ViewMode.Graph) FontWeight.Bold else FontWeight.Normal
+                            fontWeight = if (pagerState.currentPage == 1) FontWeight.Bold else FontWeight.Normal,
+                            maxLines = 1
                         )
                     }
                 )
                 Tab(
-                    selected = currentMode == ViewMode.Challenge,
-                    onClick = { currentMode = ViewMode.Challenge },
+                    selected = pagerState.currentPage == 2,
+                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
                     text = {
                         Text(
                             stringResource(R.string.tab_challenge),
                             fontSize = 16.sp,
-                            fontWeight = if (currentMode == ViewMode.Challenge) FontWeight.Bold else FontWeight.Normal
+                            fontWeight = if (pagerState.currentPage == 2) FontWeight.Bold else FontWeight.Normal,
+                            maxLines = 1
                         )
                     }
                 )
@@ -281,53 +289,58 @@ fun ViewScreen(
                 }
             }
 
-            // モードに応じた表示
-            when (currentMode) {
-                ViewMode.List -> {
-                    RecordListView(
-                        sessions = filteredSessions,
-                        exercises = exercises,
-                        selectedExerciseFilter = selectedExerciseFilter,
-                        onExerciseClick = { exercise ->
-                            selectedExerciseFilter = exercise
-                        },
-                        onRecordClick = { record ->
-                            editingRecord = record
-                            if (record.valueLeft != null) {
-                                // Unilateral
-                                editValueRight = record.valueRight.toString()
-                                editValueLeft = record.valueLeft.toString()
-                            } else {
-                                // Bilateral
-                                editValue = record.valueRight.toString()
+            // モードに応じた表示（スワイプ対応）
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { page ->
+                when (page) {
+                    0 -> {
+                        RecordListView(
+                            sessions = filteredSessions,
+                            exercises = exercises,
+                            selectedExerciseFilter = selectedExerciseFilter,
+                            onExerciseClick = { exercise ->
+                                selectedExerciseFilter = exercise
+                            },
+                            onRecordClick = { record ->
+                                editingRecord = record
+                                if (record.valueLeft != null) {
+                                    // Unilateral
+                                    editValueRight = record.valueRight.toString()
+                                    editValueLeft = record.valueLeft.toString()
+                                } else {
+                                    // Bilateral
+                                    editValue = record.valueRight.toString()
+                                }
+                            },
+                            onSessionLongPress = { session ->
+                                showSessionEditDialog = session
+                            },
+                            onDeleteClick = { session ->
+                                showDeleteDialog = session
                             }
-                        },
-                        onSessionLongPress = { session ->
-                            showSessionEditDialog = session
-                        },
-                        onDeleteClick = { session ->
-                            showDeleteDialog = session
-                        }
-                    )
-                }
-                ViewMode.Graph -> {
-                    GraphView(
-                        exercises = exercises,
-                        records = records,
-                        selectedExerciseFilter = selectedExerciseFilter,
-                        selectedPeriod = selectedPeriod
-                    )
-                }
-                ViewMode.Challenge -> {
-                    ChallengeView(
-                        exercises = exercises,
-                        records = records,
-                        selectedExerciseFilter = selectedExerciseFilter,
-                        selectedPeriod = selectedPeriod,
-                        onExerciseClick = { exercise ->
-                            selectedExerciseFilter = exercise
-                        }
-                    )
+                        )
+                    }
+                    1 -> {
+                        GraphView(
+                            exercises = exercises,
+                            records = records,
+                            selectedExerciseFilter = selectedExerciseFilter,
+                            selectedPeriod = selectedPeriod
+                        )
+                    }
+                    2 -> {
+                        ChallengeView(
+                            exercises = exercises,
+                            records = records,
+                            selectedExerciseFilter = selectedExerciseFilter,
+                            selectedPeriod = selectedPeriod,
+                            onExerciseClick = { exercise ->
+                                selectedExerciseFilter = exercise
+                            }
+                        )
+                    }
                 }
             }
         }
