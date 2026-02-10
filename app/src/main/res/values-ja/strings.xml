@@ -640,4 +640,35 @@
     <string name="interval_duplicated">プログラムを複製しました</string>
     <string name="interval_seconds_suffix">秒</string>
     <string name="interval_rounds_suffix">周</string>
+
+    <!-- Interval Execution -->
+    <string name="interval_confirm_title">確認</string>
+    <string name="interval_total_time">推定時間</string>
+    <string name="interval_total_time_format">約%1$d分%2$d秒</string>
+    <string name="interval_start_workout">ワークアウト開始</string>
+    <string name="interval_work_label">ワーク</string>
+    <string name="interval_rest_label">レスト</string>
+    <string name="interval_round_rest_label">周間レスト</string>
+    <string name="interval_round_format">周回 %1$d / %2$d</string>
+    <string name="interval_exercise_format">種目 %1$d / %2$d</string>
+    <string name="interval_next">NEXT</string>
+    <string name="interval_next_round">NEXT ROUND</string>
+    <string name="interval_round_complete_format">%d周目完了！</string>
+    <string name="interval_pause">一時停止</string>
+    <string name="interval_resume">再開</string>
+    <string name="interval_skip">スキップ</string>
+    <string name="interval_stop">終了</string>
+    <string name="interval_complete_title">完了</string>
+    <string name="interval_ended_title">終了</string>
+    <string name="interval_full_complete_format">%1$d / %2$d 周 完走</string>
+    <string name="interval_partial_format">%1$d / %2$d 周 + %3$d / %4$d 種目</string>
+    <string name="interval_partial_note">（途中終了）</string>
+    <string name="interval_exercises_done">実行した種目</string>
+    <string name="interval_not_executed">（未実行）</string>
+    <string name="interval_save_and_finish">保存して終了</string>
+    <string name="interval_discard_result">保存しない</string>
+    <string name="interval_exit_confirm_title">ワークアウトを終了しますか？</string>
+    <string name="interval_exit_confirm_message">現在のインターバルワークアウトを終了しますか？</string>
+    <string name="interval_settings_format">%1$d秒 × %2$d種目 × %3$d周</string>
+    <string name="interval_record_saved">インターバル記録を保存しました</string>
 </resources>

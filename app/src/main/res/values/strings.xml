@@ -639,4 +639,35 @@
     <string name="interval_duplicated">Program duplicated</string>
     <string name="interval_seconds_suffix">sec</string>
     <string name="interval_rounds_suffix">rounds</string>
+
+    <!-- Interval Execution -->
+    <string name="interval_confirm_title">Confirm</string>
+    <string name="interval_total_time">Estimated Time</string>
+    <string name="interval_total_time_format">~%1$d min %2$d sec</string>
+    <string name="interval_start_workout">Start Workout</string>
+    <string name="interval_work_label">WORK</string>
+    <string name="interval_rest_label">REST</string>
+    <string name="interval_round_rest_label">Round Rest</string>
+    <string name="interval_round_format">Round %1$d / %2$d</string>
+    <string name="interval_exercise_format">Exercise %1$d / %2$d</string>
+    <string name="interval_next">NEXT</string>
+    <string name="interval_next_round">NEXT ROUND</string>
+    <string name="interval_round_complete_format">Round %d complete!</string>
+    <string name="interval_pause">Pause</string>
+    <string name="interval_resume">Resume</string>
+    <string name="interval_skip">Skip</string>
+    <string name="interval_stop">Stop</string>
+    <string name="interval_complete_title">Complete</string>
+    <string name="interval_ended_title">Ended</string>
+    <string name="interval_full_complete_format">%1$d / %2$d rounds completed</string>
+    <string name="interval_partial_format">%1$d / %2$d rounds + %3$d / %4$d exercises</string>
+    <string name="interval_partial_note">(Stopped early)</string>
+    <string name="interval_exercises_done">Exercises</string>
+    <string name="interval_not_executed">(not executed)</string>
+    <string name="interval_save_and_finish">Save and Finish</string>
+    <string name="interval_discard_result">Don\'t Save</string>
+    <string name="interval_exit_confirm_title">Stop Workout?</string>
+    <string name="interval_exit_confirm_message">Stop the current interval workout?</string>
+    <string name="interval_settings_format">%1$ds × %2$d exercises × %3$d rounds</string>
+    <string name="interval_record_saved">Interval record saved</string>
 </resources>

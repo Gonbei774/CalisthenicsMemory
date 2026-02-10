@@ -53,6 +53,7 @@ import io.github.gonbei774.calisthenicsmemory.ui.screens.ProgramEditScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.ProgramExecutionScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.IntervalListScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.IntervalEditScreen
+import io.github.gonbei774.calisthenicsmemory.ui.screens.IntervalExecutionScreen
 import io.github.gonbei774.calisthenicsmemory.ui.theme.CalisthenicsMemoryTheme
 import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
@@ -344,11 +345,14 @@ fun CalisthenicsMemoryApp(
                     )
                 }
                 is Screen.IntervalExecution -> {
-                    // Phase 3で実装予定
+                    val execScreen = currentScreen as Screen.IntervalExecution
                     BackHandler { currentScreen = Screen.IntervalList }
-                    LaunchedEffect(Unit) {
-                        currentScreen = Screen.IntervalList
-                    }
+                    IntervalExecutionScreen(
+                        viewModel = viewModel,
+                        programId = execScreen.programId,
+                        onNavigateBack = { currentScreen = Screen.IntervalList },
+                        onComplete = { currentScreen = Screen.IntervalList }
+                    )
                 }
             }
         }
