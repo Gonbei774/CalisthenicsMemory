@@ -596,7 +596,7 @@
     <string name="loop_rest_format">Pause: %ds</string>
     <string name="loop_current_round">Runde %1$d/%2$d</string>
     <string name="loop_delete_confirm">Diese Schleife löschen? Übungen darin werden ebenfalls gelöscht.</string>
-    <string name="loop_empty">Übungen hierher ziehen oder + tippen zum Hinzufügen</string>
+    <string name="loop_empty">+ tippen, um Übungen hinzuzufügen</string>
     <string name="add_exercise_to_loop">Übung hinzufügen</string>
     <string name="move_to_loop">In Schleife verschieben</string>
     <string name="loop_number_format">Schleife %d</string>

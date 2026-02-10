@@ -596,7 +596,7 @@
     <string name="loop_rest_format">休憩: %d秒</string>
     <string name="loop_current_round">ラウンド %1$d/%2$d</string>
     <string name="loop_delete_confirm">このループを削除しますか？内部の種目も削除されます。</string>
-    <string name="loop_empty">種目をここにドラッグするか、+をタップして追加</string>
+    <string name="loop_empty">+をタップして種目を追加</string>
     <string name="add_exercise_to_loop">種目を追加</string>
     <string name="move_to_loop">ループに移動</string>
     <string name="loop_number_format">ループ %d</string>

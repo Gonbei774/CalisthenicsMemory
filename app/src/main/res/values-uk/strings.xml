@@ -501,7 +501,7 @@
     <string name="interval_short">Відпочинок:</string>
     <string name="loop_label">Цикл</string>
     <string name="loop_round_current">Раунд %1$d/%2$d</string>
-    <string name="loop_empty">Перетягніть вправи сюди або натисніть +, щоб додати</string>
+    <string name="loop_empty">Натисніть +, щоб додати вправи</string>
     <string name="loop_round_rest">Відпочинок раунду</string>
     <string name="set_progress">%1$d/%2$d</string>
     <string name="set_progress_with_side">%1$d/%2$d – %3$s</string>

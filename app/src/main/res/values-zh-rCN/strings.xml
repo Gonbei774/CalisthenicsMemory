@@ -595,7 +595,7 @@
     <string name="loop_rest_format">休息：%d秒</string>
     <string name="loop_current_round">回合 %1$d/%2$d</string>
     <string name="loop_delete_confirm">删除此循环？内部的动作也将被删除。</string>
-    <string name="loop_empty">将动作拖到这里或点击+添加</string>
+    <string name="loop_empty">点击+添加动作</string>
     <string name="add_exercise_to_loop">添加动作</string>
     <string name="move_to_loop">移动到循环</string>
     <string name="loop_number_format">循环 %d</string>

@@ -595,7 +595,7 @@
     <string name="loop_rest_format">Riposo: %ds</string>
     <string name="loop_current_round">Round %1$d/%2$d</string>
     <string name="loop_delete_confirm">Eliminare questo ciclo? Anche gli esercizi al suo interno verranno eliminati.</string>
-    <string name="loop_empty">Trascina gli esercizi qui o tocca + per aggiungere</string>
+    <string name="loop_empty">Tocca + per aggiungere esercizi</string>
     <string name="add_exercise_to_loop">Aggiungi esercizio</string>
     <string name="move_to_loop">Sposta nel ciclo</string>
     <string name="loop_number_format">Ciclo %d</string>

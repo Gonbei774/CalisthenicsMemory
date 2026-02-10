@@ -595,7 +595,7 @@
     <string name="loop_rest_format">Descanso: %ds</string>
     <string name="loop_current_round">Ronda %1$d/%2$d</string>
     <string name="loop_delete_confirm">¿Eliminar este bucle? Los ejercicios dentro también se eliminarán.</string>
-    <string name="loop_empty">Arrastra ejercicios aquí o toca + para añadir</string>
+    <string name="loop_empty">Toca + para añadir ejercicios</string>
     <string name="add_exercise_to_loop">Añadir ejercicio</string>
     <string name="move_to_loop">Mover al bucle</string>
     <string name="loop_number_format">Bucle %d</string>
