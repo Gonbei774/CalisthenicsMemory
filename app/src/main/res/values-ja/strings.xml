@@ -646,6 +646,7 @@
     <string name="interval_total_time">推定時間</string>
     <string name="interval_total_time_format">約%1$d分%2$d秒</string>
     <string name="interval_start_workout">ワークアウト開始</string>
+    <string name="interval_get_ready">準備！</string>
     <string name="interval_work_label">ワーク</string>
     <string name="interval_rest_label">レスト</string>
     <string name="interval_round_rest_label">周間レスト</string>
@@ -671,4 +672,5 @@
     <string name="interval_exit_confirm_message">現在のインターバルワークアウトを終了しますか？</string>
     <string name="interval_settings_format">%1$d秒 × %2$d種目 × %3$d周</string>
     <string name="interval_record_saved">インターバル記録を保存しました</string>
+    <string name="interval_skipped_format">スキップ: %1$d種目</string>
 </resources>

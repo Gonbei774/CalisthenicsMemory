@@ -1,7 +1,10 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -467,20 +471,22 @@ fun IntervalEditScreen(
         }
     }
 
-    // Add Exercise Dialog (simplified - no sets/target/interval)
+    // Add Exercise Dialog (batch selection with checkboxes)
     if (showAddExerciseDialog) {
         AddExerciseToIntervalDialog(
             viewModel = viewModel,
             exercises = exercises,
             onDismiss = { showAddExerciseDialog = false },
-            onAdd = { selectedExercise ->
-                val newPe = IntervalProgramExercise(
-                    id = System.currentTimeMillis(),
-                    programId = programId ?: 0L,
-                    exerciseId = selectedExercise.id,
-                    sortOrder = programExercises.size
-                )
-                programExercises = programExercises + newPe
+            onAdd = { selectedExercisesList ->
+                val newEntries = selectedExercisesList.mapIndexed { index, exercise ->
+                    IntervalProgramExercise(
+                        id = System.currentTimeMillis() + index,
+                        programId = programId ?: 0L,
+                        exerciseId = exercise.id,
+                        sortOrder = programExercises.size + index
+                    )
+                }
+                programExercises = programExercises + newEntries
                 showAddExerciseDialog = false
                 coroutineScope.launch {
                     lazyListState.animateScrollToItem(lazyListState.layoutInfo.totalItemsCount - 1)
@@ -686,18 +692,19 @@ private fun IntervalExerciseItem(
     }
 }
 
-// Simplified exercise selection dialog for interval mode (no sets/target/interval)
+// Batch exercise selection dialog for interval mode (checkboxes + badges like ToDo)
 @Composable
 private fun AddExerciseToIntervalDialog(
     viewModel: TrainingViewModel,
     exercises: List<Exercise>,
     onDismiss: () -> Unit,
-    onAdd: (Exercise) -> Unit
+    onAdd: (List<Exercise>) -> Unit
 ) {
     val appColors = LocalAppColors.current
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
     val expandedGroups by viewModel.expandedGroups.collectAsState()
 
+    var selectedExercises by remember { mutableStateOf(setOf<Long>()) }
     var searchQuery by remember { mutableStateOf("") }
     val searchResults = remember(exercises, searchQuery) {
         SearchUtils.searchExercises(exercises, searchQuery)
@@ -721,23 +728,24 @@ private fun AddExerciseToIntervalDialog(
             )
         },
         text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.7f),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                if (exercises.isEmpty()) {
-                    Text(
-                        text = stringResource(R.string.no_exercises_available),
-                        color = appColors.textSecondary
-                    )
-                } else {
+            if (exercises.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.no_exercises_available),
+                    color = appColors.textSecondary
+                )
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.7f)
+                ) {
                     // Search field
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
                         placeholder = {
                             Text(
                                 text = stringResource(R.string.search_placeholder),
@@ -775,9 +783,10 @@ private fun AddExerciseToIntervalDialog(
                         shape = RoundedCornerShape(8.dp)
                     )
 
+                    // Exercise list
                     LazyColumn(
                         state = listState,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         if (searchQuery.isNotBlank()) {
@@ -797,7 +806,14 @@ private fun AddExerciseToIntervalDialog(
                                     val exercise = searchResults[index]
                                     IntervalExerciseSelectItem(
                                         exercise = exercise,
-                                        onSelected = { onAdd(exercise) }
+                                        isSelected = exercise.id in selectedExercises,
+                                        onToggle = { exerciseId ->
+                                            selectedExercises = if (exerciseId in selectedExercises) {
+                                                selectedExercises - exerciseId
+                                            } else {
+                                                selectedExercises + exerciseId
+                                            }
+                                        }
                                     )
                                 }
                             }
@@ -811,11 +827,18 @@ private fun AddExerciseToIntervalDialog(
                                     IntervalSelectExerciseGroup(
                                         groupName = group.groupName,
                                         exercises = group.exercises,
+                                        selectedExercises = selectedExercises,
                                         isExpanded = (group.groupName ?: "ungrouped") in expandedGroups,
                                         onExpandToggle = {
                                             viewModel.toggleGroupExpansion(group.groupName ?: "ungrouped")
                                         },
-                                        onExerciseSelected = { exercise -> onAdd(exercise) }
+                                        onExerciseToggle = { exerciseId ->
+                                            selectedExercises = if (exerciseId in selectedExercises) {
+                                                selectedExercises - exerciseId
+                                            } else {
+                                                selectedExercises + exerciseId
+                                            }
+                                        }
                                     )
                                 }
                             }
@@ -824,7 +847,20 @@ private fun AddExerciseToIntervalDialog(
                 }
             }
         },
-        confirmButton = { },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val selected = exercises.filter { it.id in selectedExercises }
+                    onAdd(selected)
+                },
+                enabled = selectedExercises.isNotEmpty()
+            ) {
+                Text(
+                    text = stringResource(R.string.add),
+                    color = if (selectedExercises.isNotEmpty()) Orange600 else appColors.textSecondary
+                )
+            }
+        },
         dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.cancel), color = appColors.textSecondary)
@@ -836,42 +872,88 @@ private fun AddExerciseToIntervalDialog(
 @Composable
 private fun IntervalExerciseSelectItem(
     exercise: Exercise,
-    onSelected: () -> Unit
+    isSelected: Boolean,
+    onToggle: (Long) -> Unit
 ) {
     val appColors = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = appColors.cardBackgroundSecondary),
-        shape = RoundedCornerShape(8.dp),
-        onClick = onSelected
+        shape = RoundedCornerShape(8.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.Top
         ) {
-            Column(modifier = Modifier.weight(1f)) {
+            Checkbox(
+                checked = isSelected,
+                onCheckedChange = { onToggle(exercise.id) },
+                colors = CheckboxDefaults.colors(
+                    checkedColor = Orange600,
+                    uncheckedColor = appColors.textSecondary
+                )
+            )
+            Column(modifier = Modifier.padding(start = 4.dp, top = 10.dp)) {
                 Text(
                     text = exercise.name,
                     fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
                     color = appColors.textPrimary
                 )
-                if (!exercise.description.isNullOrBlank()) {
+                // Badges row
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 2.dp)
+                ) {
+                    if (exercise.isFavorite) {
+                        Text(
+                            text = "★",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFFD700)
+                        )
+                    }
+                    if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
+                        Text(
+                            text = "Lv.${exercise.sortOrder}",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Blue600
+                        )
+                    }
                     Text(
-                        text = exercise.description,
-                        fontSize = 11.sp,
-                        color = appColors.textTertiary,
+                        text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = appColors.textSecondary
+                    )
+                    if (exercise.laterality == "Unilateral") {
+                        Text(
+                            text = stringResource(R.string.one_sided),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Purple600
+                        )
+                    }
+                }
+                if (exercise.targetSets != null && exercise.targetValue != null) {
+                    Text(
+                        text = stringResource(
+                            if (exercise.laterality == "Unilateral") R.string.target_format_unilateral else R.string.target_format,
+                            exercise.targetSets!!,
+                            exercise.targetValue!!,
+                            stringResource(if (exercise.type == "Dynamic") R.string.unit_reps else R.string.unit_seconds)
+                        ),
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Green400,
                         modifier = Modifier.padding(top = 2.dp)
                     )
                 }
             }
-            Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = null,
-                tint = Orange600,
-                modifier = Modifier.size(20.dp)
-            )
         }
     }
 }
@@ -880,63 +962,144 @@ private fun IntervalExerciseSelectItem(
 private fun IntervalSelectExerciseGroup(
     groupName: String?,
     exercises: List<Exercise>,
+    selectedExercises: Set<Long>,
     isExpanded: Boolean,
     onExpandToggle: () -> Unit,
-    onExerciseSelected: (Exercise) -> Unit
+    onExerciseToggle: (Long) -> Unit
 ) {
     val appColors = LocalAppColors.current
-    Column {
-        // Group header
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = appColors.cardBackgroundSecondary),
-            shape = RoundedCornerShape(8.dp),
-            onClick = onExpandToggle
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackgroundSecondary),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column {
+            // Group header
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = Color.Transparent,
+                onClick = onExpandToggle
             ) {
-                Text(
-                    text = groupName ?: stringResource(R.string.no_group),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = appColors.textPrimary
-                )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = stringResource(R.string.exercises_count, exercises.size),
-                        fontSize = 12.sp,
-                        color = appColors.textTertiary
-                    )
-                    Icon(
-                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = appColors.textTertiary,
-                        modifier = Modifier
-                            .size(20.dp)
-                            .then(
-                                if (isExpanded) Modifier else Modifier
-                            )
-                    )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = if (isExpanded)
+                                Icons.Default.KeyboardArrowDown
+                            else
+                                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = appColors.textPrimary
+                        )
+                        Text(
+                            text = groupName ?: stringResource(R.string.no_group),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = appColors.textPrimary
+                        )
+                        Text(
+                            text = "(${exercises.size})",
+                            fontSize = 14.sp,
+                            color = appColors.textSecondary
+                        )
+                    }
                 }
             }
-        }
 
-        // Exercises in group (when expanded)
-        if (isExpanded) {
-            Column(
-                modifier = Modifier.padding(start = 16.dp, top = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+            // Exercise list with animation
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically(),
+                exit = shrinkVertically()
             ) {
-                exercises.forEach { exercise ->
-                    IntervalExerciseSelectItem(
-                        exercise = exercise,
-                        onSelected = { onExerciseSelected(exercise) }
-                    )
+                Column(
+                    modifier = Modifier.padding(start = 8.dp, end = 16.dp, bottom = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    exercises.forEach { exercise ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            Checkbox(
+                                checked = exercise.id in selectedExercises,
+                                onCheckedChange = { onExerciseToggle(exercise.id) },
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = Orange600,
+                                    uncheckedColor = appColors.textSecondary
+                                )
+                            )
+                            Column(modifier = Modifier.padding(start = 4.dp, top = 10.dp)) {
+                                Text(
+                                    text = exercise.name,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = appColors.textPrimary
+                                )
+                                // Badges row
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(top = 2.dp)
+                                ) {
+                                    if (exercise.isFavorite) {
+                                        Text(
+                                            text = "★",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFFFFD700)
+                                        )
+                                    }
+                                    if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
+                                        Text(
+                                            text = "Lv.${exercise.sortOrder}",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Blue600
+                                        )
+                                    }
+                                    Text(
+                                        text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = appColors.textSecondary
+                                    )
+                                    if (exercise.laterality == "Unilateral") {
+                                        Text(
+                                            text = stringResource(R.string.one_sided),
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Purple600
+                                        )
+                                    }
+                                }
+                                if (exercise.targetSets != null && exercise.targetValue != null) {
+                                    Text(
+                                        text = stringResource(
+                                            if (exercise.laterality == "Unilateral") R.string.target_format_unilateral else R.string.target_format,
+                                            exercise.targetSets!!,
+                                            exercise.targetValue!!,
+                                            stringResource(if (exercise.type == "Dynamic") R.string.unit_reps else R.string.unit_seconds)
+                                        ),
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Green400,
+                                        modifier = Modifier.padding(top = 2.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

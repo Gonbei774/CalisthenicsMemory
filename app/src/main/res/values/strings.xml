@@ -645,6 +645,7 @@
     <string name="interval_total_time">Estimated Time</string>
     <string name="interval_total_time_format">~%1$d min %2$d sec</string>
     <string name="interval_start_workout">Start Workout</string>
+    <string name="interval_get_ready">Get Ready!</string>
     <string name="interval_work_label">WORK</string>
     <string name="interval_rest_label">REST</string>
     <string name="interval_round_rest_label">Round Rest</string>
@@ -670,4 +671,5 @@
     <string name="interval_exit_confirm_message">Stop the current interval workout?</string>
     <string name="interval_settings_format">%1$ds × %2$d exercises × %3$d rounds</string>
     <string name="interval_record_saved">Interval record saved</string>
+    <string name="interval_skipped_format">Skipped: %1$d exercises</string>
 </resources>

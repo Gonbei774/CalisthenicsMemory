@@ -16,8 +16,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -63,6 +61,8 @@ private sealed class IntervalPhase {
         val exercises: List<IntervalExerciseInfo>
     ) : IntervalPhase()
 
+    object Prepare : IntervalPhase()
+
     data class Work(
         val round: Int,           // 1-based
         val exerciseIndex: Int    // 0-based
@@ -80,7 +80,8 @@ private sealed class IntervalPhase {
     data class Complete(
         val completedRounds: Int,
         val completedExercisesInLastRound: Int,
-        val isFullCompletion: Boolean
+        val isFullCompletion: Boolean,
+        val skippedCount: Int = 0
     ) : IntervalPhase()
 }
 
@@ -111,6 +112,7 @@ fun IntervalExecutionScreen(
     var exercises by remember { mutableStateOf<List<IntervalExerciseInfo>>(emptyList()) }
     var isPaused by remember { mutableStateOf(false) }
     var showExitDialog by remember { mutableStateOf(false) }
+    var skippedCount by remember { mutableIntStateOf(0) }
 
     // Load program data
     LaunchedEffect(programId) {
@@ -145,6 +147,7 @@ fun IntervalExecutionScreen(
         val window = (view.context as? android.app.Activity)?.window
         if (isKeepScreenOnEnabled) {
             when (phase) {
+                is IntervalPhase.Prepare,
                 is IntervalPhase.Work,
                 is IntervalPhase.Rest,
                 is IntervalPhase.RoundRest -> {
@@ -162,6 +165,7 @@ fun IntervalExecutionScreen(
     // Foreground service
     LaunchedEffect(phase) {
         when (phase) {
+            is IntervalPhase.Prepare,
             is IntervalPhase.Work,
             is IntervalPhase.Rest,
             is IntervalPhase.RoundRest -> WorkoutTimerService.startService(context)
@@ -223,7 +227,8 @@ fun IntervalExecutionScreen(
                     phase = IntervalPhase.Complete(
                         completedRounds = completedRounds,
                         completedExercisesInLastRound = completedExInLast,
-                        isFullCompletion = false
+                        isFullCompletion = false,
+                        skippedCount = skippedCount
                     )
                 }) {
                     Text(stringResource(R.string.interval_stop), color = Red600)
@@ -248,7 +253,8 @@ fun IntervalExecutionScreen(
                 phase = IntervalPhase.Complete(
                     completedRounds = p.rounds,
                     completedExercisesInLastRound = exercises.size,
-                    isFullCompletion = true
+                    isFullCompletion = true,
+                    skippedCount = skippedCount
                 )
             }
             isLastExercise -> {
@@ -294,9 +300,22 @@ fun IntervalExecutionScreen(
                 appColors = appColors,
                 onStart = {
                     isPaused = false
-                    phase = IntervalPhase.Work(round = 1, exerciseIndex = 0)
+                    phase = IntervalPhase.Prepare
                 },
                 onBack = onNavigateBack
+            )
+        }
+
+        is IntervalPhase.Prepare -> {
+            IntervalPrepareContent(
+                exercises = exercises,
+                toneGenerator = toneGenerator,
+                flashController = flashController,
+                isFlashEnabled = isFlashEnabled,
+                appColors = appColors,
+                onFinish = {
+                    phase = IntervalPhase.Work(round = 1, exerciseIndex = 0)
+                }
             )
         }
 
@@ -314,14 +333,18 @@ fun IntervalExecutionScreen(
                 isPaused = isPaused,
                 onPauseToggle = { isPaused = !isPaused },
                 onStop = { showExitDialog = true },
-                onSkip = null,
+                onSkip = {
+                    skippedCount++
+                    advanceFromWork(currentPhase.round, currentPhase.exerciseIndex)
+                },
                 onTimerFinish = {
                     advanceFromWork(currentPhase.round, currentPhase.exerciseIndex)
                 },
                 toneGenerator = toneGenerator,
                 flashController = flashController,
                 isFlashEnabled = isFlashEnabled,
-                appColors = appColors
+                appColors = appColors,
+                isWorkPhase = true
             )
         }
 
@@ -400,6 +423,7 @@ fun IntervalExecutionScreen(
                 completedRounds = currentPhase.completedRounds,
                 completedExercisesInLastRound = currentPhase.completedExercisesInLastRound,
                 isFullCompletion = currentPhase.isFullCompletion,
+                skippedCount = currentPhase.skippedCount,
                 appColors = appColors,
                 onSave = {
                     scope.launch {
@@ -421,7 +445,10 @@ fun IntervalExecutionScreen(
                             roundRestSeconds = p.roundRestSeconds,
                             completedRounds = currentPhase.completedRounds,
                             completedExercisesInLastRound = currentPhase.completedExercisesInLastRound,
-                            exercisesJson = exercisesJson
+                            exercisesJson = exercisesJson,
+                            comment = if (currentPhase.skippedCount > 0)
+                                "Skipped: ${currentPhase.skippedCount}"
+                            else null
                         )
                         viewModel.saveIntervalRecord(record)
                         onComplete()
@@ -651,6 +678,131 @@ private fun ConfirmSettingRow(
 }
 
 // ========================================
+// Prepare Countdown Screen
+// ========================================
+
+@Composable
+private fun IntervalPrepareContent(
+    exercises: List<IntervalExerciseInfo>,
+    toneGenerator: ToneGenerator,
+    flashController: FlashController,
+    isFlashEnabled: Boolean,
+    appColors: AppColors,
+    onFinish: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val totalSeconds = 5
+    var remainingSeconds by remember { mutableIntStateOf(totalSeconds) }
+    val progress = remainingSeconds.toFloat() / totalSeconds
+    val firstExercise = exercises.firstOrNull()
+
+    LaunchedEffect(Unit) {
+        while (remainingSeconds > 0) {
+            delay(1000L)
+            remainingSeconds--
+            if (remainingSeconds in 1..3) {
+                toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                if (isFlashEnabled) {
+                    scope.launch { flashController.flashShort() }
+                }
+            }
+        }
+        // Prepare complete: single beep like rest completion
+        toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 300)
+        if (isFlashEnabled) {
+            scope.launch { flashController.flashComplete() }
+        }
+        delay(300L)
+        onFinish()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.weight(1f))
+
+        // Circular timer
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.size(240.dp)
+        ) {
+            androidx.compose.foundation.Canvas(modifier = Modifier.size(240.dp)) {
+                drawArc(
+                    color = Orange600.copy(alpha = 0.2f),
+                    startAngle = -90f,
+                    sweepAngle = 360f,
+                    useCenter = false,
+                    style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
+                )
+
+                drawArc(
+                    color = Orange600,
+                    startAngle = -90f,
+                    sweepAngle = 360f * progress,
+                    useCenter = false,
+                    style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
+                )
+            }
+
+            Text(
+                text = "$remainingSeconds",
+                fontSize = 56.sp,
+                fontWeight = FontWeight.Bold,
+                color = Orange600
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = stringResource(R.string.interval_get_ready),
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Orange600
+        )
+
+        // Show first exercise preview
+        if (firstExercise != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Card(
+                colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text(
+                        text = "${stringResource(R.string.interval_next)} ▶",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Orange600
+                    )
+                    Text(
+                        text = firstExercise.name,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = appColors.textPrimary,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                    if (!firstExercise.description.isNullOrBlank()) {
+                        Text(
+                            text = firstExercise.description,
+                            fontSize = 13.sp,
+                            color = appColors.textSecondary,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+    }
+}
+
+// ========================================
 // Timer Screen (Work / Rest / RoundRest)
 // ========================================
 
@@ -680,6 +832,7 @@ private fun IntervalTimerContent(
     flashController: FlashController,
     isFlashEnabled: Boolean,
     appColors: AppColors,
+    isWorkPhase: Boolean = false,
     roundCompleteMessage: String? = null
 ) {
     var remainingSeconds by remember(round, exerciseIndex, phaseLabel) {
@@ -700,16 +853,23 @@ private fun IntervalTimerContent(
                         launch { flashController.flashShort() }
                     }
                 }
-                // Finish beep
-                if (remainingSeconds == 0) {
-                    toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP2, 300)
-                    if (isFlashEnabled) {
-                        launch { flashController.flashShort() }
-                    }
-                }
             }
         }
         if (remainingSeconds <= 0) {
+            if (isWorkPhase) {
+                // Work complete: triple beep pattern (ピピピ×3) + long flash
+                if (isFlashEnabled) {
+                    launch { flashController.flashSetComplete() }
+                }
+                playTripleBeepTwice(toneGenerator)
+            } else {
+                // Rest/RoundRest complete: single beep + short flash
+                toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 300)
+                if (isFlashEnabled) {
+                    launch { flashController.flashComplete() }
+                }
+                delay(300L)
+            }
             onTimerFinish()
         }
     }
@@ -733,22 +893,16 @@ private fun IntervalTimerContent(
         // Circular timer
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.size(200.dp)
+            modifier = Modifier.size(240.dp)
         ) {
-            androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
-                val strokeWidth = 12.dp.toPx()
-                val arcSize = Size(size.width - strokeWidth, size.height - strokeWidth)
-                val arcOffset = Offset(strokeWidth / 2, strokeWidth / 2)
-
+            androidx.compose.foundation.Canvas(modifier = Modifier.size(240.dp)) {
                 // Background circle
                 drawArc(
                     color = phaseColor.copy(alpha = 0.2f),
                     startAngle = -90f,
                     sweepAngle = 360f,
                     useCenter = false,
-                    topLeft = arcOffset,
-                    size = arcSize,
-                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                    style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                 )
 
                 // Progress arc
@@ -757,9 +911,7 @@ private fun IntervalTimerContent(
                     startAngle = -90f,
                     sweepAngle = 360f * progress,
                     useCenter = false,
-                    topLeft = arcOffset,
-                    size = arcSize,
-                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                    style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                 )
             }
 
@@ -937,6 +1089,7 @@ private fun IntervalCompleteContent(
     completedRounds: Int,
     completedExercisesInLastRound: Int,
     isFullCompletion: Boolean,
+    skippedCount: Int,
     appColors: AppColors,
     onSave: () -> Unit,
     onDiscard: () -> Unit
@@ -1057,6 +1210,18 @@ private fun IntervalCompleteContent(
                             fontSize = 13.sp,
                             color = appColors.textSecondary
                         )
+
+                        if (skippedCount > 0) {
+                            Text(
+                                text = stringResource(
+                                    R.string.interval_skipped_format,
+                                    skippedCount
+                                ),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Yellow500
+                            )
+                        }
                     }
                 }
             }
