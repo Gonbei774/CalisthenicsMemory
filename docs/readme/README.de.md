@@ -80,4 +80,4 @@ Dieses Projekt ist unter der GNU General Public License v3.0 lizenziert. Siehe [
 
 ---
 
-**Zuletzt aktualisiert**: 6. Dezember 2025
+**Zuletzt aktualisiert**: 12. Februar 2026
