@@ -1,5 +1,6 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
+import androidx.activity.compose.BackHandler
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.view.WindowManager
@@ -80,9 +81,7 @@ private sealed class IntervalPhase {
     data class Complete(
         val completedRounds: Int,
         val completedExercisesInLastRound: Int,
-        val isFullCompletion: Boolean,
-        val skippedCount: Int = 0,
-        val skippedExercises: Set<Pair<Int, Int>> = emptySet()
+        val isFullCompletion: Boolean
     ) : IntervalPhase()
 }
 
@@ -113,8 +112,6 @@ fun IntervalExecutionScreen(
     var exercises by remember { mutableStateOf<List<IntervalExerciseInfo>>(emptyList()) }
     var isPaused by remember { mutableStateOf(false) }
     var showExitDialog by remember { mutableStateOf(false) }
-    var skippedCount by remember { mutableIntStateOf(0) }
-    var skippedExercises by remember { mutableStateOf(emptySet<Pair<Int, Int>>()) }
 
     // Load program data
     LaunchedEffect(programId) {
@@ -186,6 +183,15 @@ fun IntervalExecutionScreen(
         }
     }
 
+    // Back gesture: show exit dialog during active phases
+    val isActivePhase = phase is IntervalPhase.Prepare ||
+            phase is IntervalPhase.Work ||
+            phase is IntervalPhase.Rest ||
+            phase is IntervalPhase.RoundRest
+    BackHandler(enabled = isActivePhase) {
+        showExitDialog = true
+    }
+
     // Exit dialog
     if (showExitDialog) {
         AlertDialog(
@@ -229,9 +235,7 @@ fun IntervalExecutionScreen(
                     phase = IntervalPhase.Complete(
                         completedRounds = completedRounds,
                         completedExercisesInLastRound = completedExInLast,
-                        isFullCompletion = false,
-                        skippedCount = skippedCount,
-                        skippedExercises = skippedExercises
+                        isFullCompletion = false
                     )
                 }) {
                     Text(stringResource(R.string.interval_stop), color = Red600)
@@ -256,9 +260,7 @@ fun IntervalExecutionScreen(
                 phase = IntervalPhase.Complete(
                     completedRounds = p.rounds,
                     completedExercisesInLastRound = exercises.size,
-                    isFullCompletion = true,
-                    skippedCount = skippedCount,
-                    skippedExercises = skippedExercises
+                    isFullCompletion = true
                 )
             }
             isLastExercise -> {
@@ -337,11 +339,7 @@ fun IntervalExecutionScreen(
                 isPaused = isPaused,
                 onPauseToggle = { isPaused = !isPaused },
                 onStop = { showExitDialog = true },
-                onSkip = {
-                    skippedCount++
-                    skippedExercises = skippedExercises + Pair(currentPhase.round, currentPhase.exerciseIndex)
-                    advanceFromWork(currentPhase.round, currentPhase.exerciseIndex)
-                },
+                onSkip = null,
                 onTimerFinish = {
                     advanceFromWork(currentPhase.round, currentPhase.exerciseIndex)
                 },
@@ -428,8 +426,6 @@ fun IntervalExecutionScreen(
                 completedRounds = currentPhase.completedRounds,
                 completedExercisesInLastRound = currentPhase.completedExercisesInLastRound,
                 isFullCompletion = currentPhase.isFullCompletion,
-                skippedCount = currentPhase.skippedCount,
-                skippedExercises = currentPhase.skippedExercises,
                 appColors = appColors,
                 onSave = {
                     scope.launch {
@@ -452,9 +448,7 @@ fun IntervalExecutionScreen(
                             completedRounds = currentPhase.completedRounds,
                             completedExercisesInLastRound = currentPhase.completedExercisesInLastRound,
                             exercisesJson = exercisesJson,
-                            comment = if (currentPhase.skippedCount > 0)
-                                "Skipped: ${currentPhase.skippedCount}"
-                            else null
+                            comment = null
                         )
                         viewModel.saveIntervalRecord(record)
                         onComplete()
@@ -1012,43 +1006,39 @@ private fun IntervalTimerContent(
                 .padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Row 1: Pause + Stop
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            // Pause
+            OutlinedButton(
+                onClick = onPauseToggle,
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = appColors.textPrimary
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
             ) {
-                OutlinedButton(
-                    onClick = onPauseToggle,
+                Text(
+                    text = if (isPaused) stringResource(R.string.interval_resume)
+                    else stringResource(R.string.interval_pause),
+                    fontSize = 15.sp
+                )
+            }
+
+            // Stop
+            if (onStop != null) {
+                Button(
+                    onClick = onStop,
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = appColors.textPrimary
-                    ),
+                    colors = ButtonDefaults.buttonColors(containerColor = Red600),
                     modifier = Modifier
-                        .weight(1f)
+                        .fillMaxWidth()
                         .height(48.dp)
                 ) {
                     Text(
-                        text = if (isPaused) stringResource(R.string.interval_resume)
-                        else stringResource(R.string.interval_pause),
-                        fontSize = 15.sp
+                        text = stringResource(R.string.interval_stop),
+                        fontSize = 15.sp,
+                        color = Color.White
                     )
-                }
-
-                if (onStop != null) {
-                    Button(
-                        onClick = onStop,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Red600),
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(48.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.interval_stop),
-                            fontSize = 15.sp,
-                            color = Color.White
-                        )
-                    }
                 }
             }
 
@@ -1084,8 +1074,6 @@ private fun IntervalCompleteContent(
     completedRounds: Int,
     completedExercisesInLastRound: Int,
     isFullCompletion: Boolean,
-    skippedCount: Int,
-    skippedExercises: Set<Pair<Int, Int>>,
     appColors: AppColors,
     onSave: () -> Unit,
     onDiscard: () -> Unit
@@ -1207,17 +1195,6 @@ private fun IntervalCompleteContent(
                             color = appColors.textSecondary
                         )
 
-                        if (skippedCount > 0) {
-                            Text(
-                                text = stringResource(
-                                    R.string.interval_skipped_format,
-                                    skippedCount
-                                ),
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Orange600
-                            )
-                        }
                     }
                 }
             }
@@ -1256,7 +1233,6 @@ private fun IntervalCompleteContent(
 
                 itemsIndexed(exercises) { index, exercise ->
                     val isExecuted = if (isLastPartialRound) index < completedExercisesInLastRound else true
-                    val isSkipped = Pair(round, index) in skippedExercises
 
                     Row(
                         modifier = Modifier
@@ -1267,16 +1243,10 @@ private fun IntervalCompleteContent(
                         Text(
                             text = exercise.name,
                             fontSize = 14.sp,
-                            color = if (!isExecuted || isSkipped) appColors.textTertiary.copy(alpha = 0.5f)
+                            color = if (!isExecuted) appColors.textTertiary.copy(alpha = 0.5f)
                             else appColors.textPrimary
                         )
-                        if (isSkipped) {
-                            Text(
-                                text = " ${stringResource(R.string.interval_skipped_label)}",
-                                fontSize = 12.sp,
-                                color = appColors.textTertiary.copy(alpha = 0.5f)
-                            )
-                        } else if (!isExecuted) {
+                        if (!isExecuted) {
                             Text(
                                 text = " ${stringResource(R.string.interval_not_executed)}",
                                 fontSize = 12.sp,
