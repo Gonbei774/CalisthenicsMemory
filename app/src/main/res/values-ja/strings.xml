@@ -252,6 +252,7 @@
     <string name="tab_list">一覧</string>
     <string name="tab_graph">グラフ</string>
     <string name="tab_challenge">課題</string>
+    <string name="tab_calendar">カレンダー</string>
     <string name="search_placeholder">検索</string>
     <string name="clear">クリア</string>
     <string name="value_label">値</string>

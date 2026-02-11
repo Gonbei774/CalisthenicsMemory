@@ -37,6 +37,7 @@ import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 
 // ViewMode enum
 enum class ViewMode {
+    Calendar,   // カレンダーモード
     List,       // 一覧モード
     Graph,      // グラフモード
     Challenge   // 課題モード
@@ -70,11 +71,12 @@ fun ViewScreen(
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
 
     // ViewModeの状態（HorizontalPager用）
-    val pagerState = rememberPagerState(pageCount = { 3 })
+    val pagerState = rememberPagerState(pageCount = { 4 })
     val coroutineScope = rememberCoroutineScope()
     val currentMode = when (pagerState.currentPage) {
-        0 -> ViewMode.List
-        1 -> ViewMode.Graph
+        0 -> ViewMode.Calendar
+        1 -> ViewMode.List
+        2 -> ViewMode.Graph
         else -> ViewMode.Challenge
     }
 
@@ -217,7 +219,7 @@ fun ViewScreen(
                     onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } },
                     text = {
                         Text(
-                            stringResource(R.string.tab_list),
+                            stringResource(R.string.tab_calendar),
                             fontSize = 16.sp,
                             fontWeight = if (pagerState.currentPage == 0) FontWeight.Bold else FontWeight.Normal,
                             maxLines = 1
@@ -229,7 +231,7 @@ fun ViewScreen(
                     onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } },
                     text = {
                         Text(
-                            stringResource(R.string.tab_graph),
+                            stringResource(R.string.tab_list),
                             fontSize = 16.sp,
                             fontWeight = if (pagerState.currentPage == 1) FontWeight.Bold else FontWeight.Normal,
                             maxLines = 1
@@ -241,9 +243,21 @@ fun ViewScreen(
                     onClick = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
                     text = {
                         Text(
-                            stringResource(R.string.tab_challenge),
+                            stringResource(R.string.tab_graph),
                             fontSize = 16.sp,
                             fontWeight = if (pagerState.currentPage == 2) FontWeight.Bold else FontWeight.Normal,
+                            maxLines = 1
+                        )
+                    }
+                )
+                Tab(
+                    selected = pagerState.currentPage == 3,
+                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(3) } },
+                    text = {
+                        Text(
+                            stringResource(R.string.tab_challenge),
+                            fontSize = 16.sp,
+                            fontWeight = if (pagerState.currentPage == 3) FontWeight.Bold else FontWeight.Normal,
                             maxLines = 1
                         )
                     }
@@ -334,6 +348,16 @@ fun ViewScreen(
             ) { page ->
                 when (page) {
                     0 -> {
+                        CalendarView(
+                            items = filteredItems,
+                            exercises = exercises,
+                            selectedExerciseFilter = selectedExerciseFilter,
+                            onExerciseClick = { exercise ->
+                                selectedExerciseFilter = exercise
+                            }
+                        )
+                    }
+                    1 -> {
                         RecordListView(
                             items = filteredItems,
                             exercises = exercises,
@@ -366,7 +390,7 @@ fun ViewScreen(
                             }
                         )
                     }
-                    1 -> {
+                    2 -> {
                         GraphView(
                             exercises = exercises,
                             records = records,
@@ -374,7 +398,7 @@ fun ViewScreen(
                             selectedPeriod = selectedPeriod
                         )
                     }
-                    2 -> {
+                    3 -> {
                         ChallengeView(
                             exercises = exercises,
                             records = records,

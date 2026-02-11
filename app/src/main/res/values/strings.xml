@@ -262,6 +262,7 @@
     <string name="tab_list">List</string>
     <string name="tab_graph">Graph</string>
     <string name="tab_challenge">Challenge</string>
+    <string name="tab_calendar">Calendar</string>
     <string name="search_placeholder">Search</string>
     <string name="clear">Clear</string>
     <string name="no_results">No results found</string>
