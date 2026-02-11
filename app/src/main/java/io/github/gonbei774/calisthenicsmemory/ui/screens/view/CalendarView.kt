@@ -156,6 +156,7 @@ fun CalendarView(
                     today = today,
                     selectedDate = selectedDate,
                     dayInfoMap = dayInfoMap,
+                    selectedPeriod = selectedPeriod,
                     onDateClick = { date ->
                         selectedDate = if (selectedDate == date) null else date
                     },
@@ -188,9 +189,14 @@ private fun MonthGrid(
     today: LocalDate,
     selectedDate: LocalDate?,
     dayInfoMap: Map<String, DayInfo>,
+    selectedPeriod: Period? = null,
     onDateClick: (LocalDate) -> Unit,
     appColors: AppColors
 ) {
+    val cutoffDate = remember(selectedPeriod, today) {
+        selectedPeriod?.let { today.minusDays(it.days.toLong() - 1) }
+    }
+
     Column {
         // 月ヘッダー
         Text(
@@ -240,10 +246,13 @@ private fun MonthGrid(
                         val isToday = date == today
                         val isSelected = date == selectedDate
 
+                        val isOutOfRange = cutoffDate != null && (date < cutoffDate || date > today)
+
                         DayCell(
                             dayOfMonth = dayOfMonth,
                             isToday = isToday,
                             isSelected = isSelected,
+                            isOutOfRange = isOutOfRange,
                             hasSession = dayInfo?.hasSession == true,
                             hasInterval = dayInfo?.hasInterval == true,
                             onClick = { onDateClick(date) },
@@ -275,12 +284,19 @@ private fun DayCell(
     dayOfMonth: Int,
     isToday: Boolean,
     isSelected: Boolean,
+    isOutOfRange: Boolean = false,
     hasSession: Boolean,
     hasInterval: Boolean,
     onClick: () -> Unit,
     appColors: AppColors,
     modifier: Modifier = Modifier
 ) {
+    val textColor = when {
+        isOutOfRange -> appColors.textTertiary.copy(alpha = 0.3f)
+        isToday -> Purple600
+        else -> appColors.textPrimary
+    }
+
     Column(
         modifier = modifier
             .aspectRatio(1f)
@@ -301,7 +317,7 @@ private fun DayCell(
             text = dayOfMonth.toString(),
             fontSize = 14.sp,
             fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-            color = if (isToday) Purple600 else appColors.textPrimary,
+            color = textColor,
             textAlign = TextAlign.Center
         )
 
