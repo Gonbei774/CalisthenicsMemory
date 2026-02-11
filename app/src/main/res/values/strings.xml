@@ -671,6 +671,9 @@
     <string name="interval_discard_result">Don\'t Save</string>
     <string name="interval_exit_confirm_title">Stop Workout?</string>
     <string name="interval_exit_confirm_message">Stop the current interval workout?</string>
+    <string name="interval_unsaved_title">Record Not Saved</string>
+    <string name="interval_unsaved_message">The workout record has not been saved. Leave without saving?</string>
+    <string name="interval_unsaved_leave">Leave</string>
     <string name="interval_settings_format">%1$ds × %2$d exercises × %3$d rounds</string>
     <string name="interval_record_saved">Interval record saved</string>
     <string name="interval_skipped_format">Skipped: %1$d exercises</string>

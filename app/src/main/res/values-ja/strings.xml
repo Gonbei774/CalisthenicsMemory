@@ -672,6 +672,9 @@
     <string name="interval_discard_result">保存しない</string>
     <string name="interval_exit_confirm_title">ワークアウトを終了しますか？</string>
     <string name="interval_exit_confirm_message">現在のインターバルワークアウトを終了しますか？</string>
+    <string name="interval_unsaved_title">記録が保存されていません</string>
+    <string name="interval_unsaved_message">ワークアウトの記録が保存されていません。保存せずに戻りますか？</string>
+    <string name="interval_unsaved_leave">戻る</string>
     <string name="interval_settings_format">%1$d秒 × %2$d種目 × %3$d周</string>
     <string name="interval_record_saved">インターバル記録を保存しました</string>
     <string name="interval_skipped_format">スキップ: %1$d種目</string>

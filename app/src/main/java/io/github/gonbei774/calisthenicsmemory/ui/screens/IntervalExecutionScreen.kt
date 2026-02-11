@@ -112,6 +112,7 @@ fun IntervalExecutionScreen(
     var exercises by remember { mutableStateOf<List<IntervalExerciseInfo>>(emptyList()) }
     var isPaused by remember { mutableStateOf(false) }
     var showExitDialog by remember { mutableStateOf(false) }
+    var showUnsavedDialog by remember { mutableStateOf(false) }
 
     // Load program data
     LaunchedEffect(programId) {
@@ -183,13 +184,18 @@ fun IntervalExecutionScreen(
         }
     }
 
-    // Back gesture: show exit dialog during active phases
+    // Back gesture: show exit dialog during active phases, unsaved dialog on complete
     val isActivePhase = phase is IntervalPhase.Prepare ||
             phase is IntervalPhase.Work ||
             phase is IntervalPhase.Rest ||
             phase is IntervalPhase.RoundRest
-    BackHandler(enabled = isActivePhase) {
-        showExitDialog = true
+    val isCompletePhase = phase is IntervalPhase.Complete
+    BackHandler(enabled = isActivePhase || isCompletePhase) {
+        if (isCompletePhase) {
+            showUnsavedDialog = true
+        } else {
+            showExitDialog = true
+        }
     }
 
     // Exit dialog
@@ -243,6 +249,40 @@ fun IntervalExecutionScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showExitDialog = false }) {
+                    Text(stringResource(R.string.cancel), color = appColors.textSecondary)
+                }
+            }
+        )
+    }
+
+    // Unsaved record dialog (back gesture on complete screen)
+    if (showUnsavedDialog) {
+        AlertDialog(
+            onDismissRequest = { showUnsavedDialog = false },
+            containerColor = appColors.cardBackground,
+            title = {
+                Text(
+                    stringResource(R.string.interval_unsaved_title),
+                    color = appColors.textPrimary,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    stringResource(R.string.interval_unsaved_message),
+                    color = appColors.textTertiary
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showUnsavedDialog = false
+                    onComplete()
+                }) {
+                    Text(stringResource(R.string.interval_unsaved_leave), color = Red600)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showUnsavedDialog = false }) {
                     Text(stringResource(R.string.cancel), color = appColors.textSecondary)
                 }
             }
@@ -1199,7 +1239,7 @@ private fun IntervalCompleteContent(
                 }
             }
 
-            // Exercise list
+            // Exercise list with per-exercise round count
             item {
                 Text(
                     text = stringResource(R.string.interval_exercises_done),
@@ -1212,48 +1252,36 @@ private fun IntervalCompleteContent(
                 )
             }
 
-            // Show exercises grouped by round
-            val totalRoundsToShow = if (isFullCompletion) completedRounds
-            else completedRounds + if (completedExercisesInLastRound > 0) 1 else 0
-
-            for (round in 1..totalRoundsToShow) {
-                val isLastPartialRound = !isFullCompletion && round == totalRoundsToShow && round > completedRounds
-
-                item {
-                    Text(
-                        text = stringResource(R.string.interval_round_header_format, round),
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Orange600,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = if (round == 1) 0.dp else 8.dp, bottom = 4.dp)
-                    )
+            itemsIndexed(exercises) { index, exercise ->
+                val doneRounds = if (isFullCompletion) {
+                    program.rounds
+                } else if (index < completedExercisesInLastRound) {
+                    completedRounds + 1
+                } else {
+                    completedRounds
                 }
+                val isComplete = doneRounds == program.rounds
 
-                itemsIndexed(exercises) { index, exercise ->
-                    val isExecuted = if (isLastPartialRound) index < completedExercisesInLastRound else true
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 12.dp, top = 2.dp, bottom = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = exercise.name,
-                            fontSize = 14.sp,
-                            color = if (!isExecuted) appColors.textTertiary.copy(alpha = 0.5f)
-                            else appColors.textPrimary
-                        )
-                        if (!isExecuted) {
-                            Text(
-                                text = " ${stringResource(R.string.interval_not_executed)}",
-                                fontSize = 12.sp,
-                                color = appColors.textTertiary.copy(alpha = 0.5f)
-                            )
-                        }
-                    }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 12.dp, top = 2.dp, bottom = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = exercise.name,
+                        fontSize = 14.sp,
+                        color = if (isComplete) appColors.textPrimary
+                        else appColors.textTertiary,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = "$doneRounds/${program.rounds}",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (isComplete) Orange600
+                        else appColors.textTertiary
+                    )
                 }
             }
 
