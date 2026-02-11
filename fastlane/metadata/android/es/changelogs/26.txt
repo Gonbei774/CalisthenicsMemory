@@ -1,0 +1,17 @@
+Añadido:
+- Modo intervalo: crea ciclos de trabajo/descanso cronometrados con rondas personalizables
+- Pestaña de vista de calendario para consultar registros
+- Programas e intervalos en la lista de tareas
+- Repetición por día de la semana para tareas
+- Campo de descripción de ejercicios (máx. 60 caracteres)
+- Navegación por deslizamiento entre pestañas de vista de registros
+- Datos de intervalos y tareas en la copia de seguridad JSON (v7/v8)
+
+Mejorado:
+- Filtro de período del calendario: fechas fuera de rango en gris, mostrar todos los registros
+- Varias mejoras de interfaz (botones de alternancia, diseño del temporizador, etc.)
+
+Corregido:
+- Pulsación larga en el controlador de arrastre activaba el diálogo de repetición
+
+Contributors: SomeTr

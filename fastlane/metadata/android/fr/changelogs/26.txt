@@ -1,0 +1,17 @@
+Ajouté :
+- Mode intervalle : créez des cycles travail/repos chronométrés avec des rounds personnalisables
+- Onglet vue calendrier pour consulter les enregistrements
+- Programmes et intervalles dans la liste des tâches
+- Répétition par jour de la semaine pour les tâches
+- Champ de description des exercices (max. 60 caractères)
+- Navigation par balayage entre les onglets de vue des enregistrements
+- Données d'intervalles et de tâches dans la sauvegarde JSON (v7/v8)
+
+Amélioré :
+- Filtre de période du calendrier : dates hors plage grisées, afficher tous les enregistrements
+- Diverses améliorations de l'interface (boutons bascule, disposition du minuteur, etc.)
+
+Corrigé :
+- L'appui long sur la poignée de glissement déclenchait le dialogue de répétition
+
+Contributors : SomeTr

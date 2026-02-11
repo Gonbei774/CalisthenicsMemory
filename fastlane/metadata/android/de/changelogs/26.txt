@@ -1,0 +1,17 @@
+Hinzugefügt:
+- Intervallmodus: Erstelle zeitgesteuerte Arbeit/Pause-Zyklen mit anpassbaren Runden
+- Kalenderansicht-Tab zum Durchsuchen von Aufzeichnungen
+- Programme und Intervalle in der To-Do-Liste
+- Wochentag-Wiederholung für To-Do-Aufgaben
+- Beschreibungsfeld für Übungen (max. 60 Zeichen)
+- Wischnavigation zwischen Aufzeichnungsansicht-Tabs
+- Intervall- und To-Do-Daten im JSON-Backup (v7/v8)
+
+Verbessert:
+- Kalender-Periodenfilter: Außerhalb des Bereichs liegende Daten ausgegraut, alle Aufzeichnungen anzeigen
+- Verschiedene UI-Verbesserungen (Toggle-Buttons, Timer-Layout usw.)
+
+Behoben:
+- Langes Drücken auf den Ziehgriff löste den Wiederholungsdialog aus
+
+Contributors: SomeTr
