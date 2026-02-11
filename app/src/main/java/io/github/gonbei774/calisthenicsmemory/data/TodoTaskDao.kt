@@ -18,8 +18,11 @@ interface TodoTaskDao {
     @Query("DELETE FROM todo_tasks WHERE id = :id")
     suspend fun deleteById(id: Long)
 
-    @Query("DELETE FROM todo_tasks WHERE exerciseId = :exerciseId")
-    suspend fun deleteByExerciseId(exerciseId: Long)
+    @Query("DELETE FROM todo_tasks WHERE type = :type AND referenceId = :referenceId")
+    suspend fun deleteByReference(type: String, referenceId: Long)
+
+    @Query("SELECT EXISTS(SELECT 1 FROM todo_tasks WHERE type = :type AND referenceId = :referenceId)")
+    suspend fun existsTask(type: String, referenceId: Long): Boolean
 
     @Query("SELECT COALESCE(MAX(sortOrder), 0) + 1 FROM todo_tasks")
     suspend fun getNextSortOrder(): Int

@@ -10,7 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [Exercise::class, TrainingRecord::class, ExerciseGroup::class, TodoTask::class, Program::class, ProgramExercise::class, ProgramLoop::class, IntervalProgram::class, IntervalProgramExercise::class, IntervalRecord::class],
-    version = 18,
+    version = 19,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -37,7 +37,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "bodyweight_trainer_database"
                 )
-                    .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18)
+                    .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
@@ -316,6 +316,30 @@ abstract class AppDatabase : RoomDatabase() {
                         comment TEXT
                     )
                 """)
+            }
+        }
+        // マイグレーション 18 → 19: TodoTaskにtype/referenceIdカラム追加（プログラム・インターバル対応）
+        val MIGRATION_18_19 = object : Migration(18, 19) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // 新テーブル作成
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS todo_tasks_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        type TEXT NOT NULL DEFAULT 'EXERCISE',
+                        referenceId INTEGER NOT NULL,
+                        sortOrder INTEGER NOT NULL
+                    )
+                """)
+
+                // データ移行（既存はすべてEXERCISE型）
+                database.execSQL("""
+                    INSERT INTO todo_tasks_new (id, type, referenceId, sortOrder)
+                    SELECT id, 'EXERCISE', exerciseId, sortOrder FROM todo_tasks
+                """)
+
+                // 入れ替え
+                database.execSQL("DROP TABLE todo_tasks")
+                database.execSQL("ALTER TABLE todo_tasks_new RENAME TO todo_tasks")
             }
         }
     }

@@ -1449,7 +1449,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             try {
                 val sortOrder = todoTaskDao.getNextSortOrder()
                 val task = TodoTask(
-                    exerciseId = exerciseId,
+                    type = TodoTask.TYPE_EXERCISE,
+                    referenceId = exerciseId,
                     sortOrder = sortOrder
                 )
                 todoTaskDao.insert(task)
@@ -1465,7 +1466,76 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 var sortOrder = todoTaskDao.getNextSortOrder()
                 exerciseIds.forEach { exerciseId ->
                     val task = TodoTask(
-                        exerciseId = exerciseId,
+                        type = TodoTask.TYPE_EXERCISE,
+                        referenceId = exerciseId,
+                        sortOrder = sortOrder++
+                    )
+                    todoTaskDao.insert(task)
+                }
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun addTodoTaskProgram(programId: Long) {
+        viewModelScope.launch {
+            try {
+                val sortOrder = todoTaskDao.getNextSortOrder()
+                val task = TodoTask(
+                    type = TodoTask.TYPE_PROGRAM,
+                    referenceId = programId,
+                    sortOrder = sortOrder
+                )
+                todoTaskDao.insert(task)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun addTodoTaskPrograms(programIds: List<Long>) {
+        viewModelScope.launch {
+            try {
+                var sortOrder = todoTaskDao.getNextSortOrder()
+                programIds.forEach { programId ->
+                    val task = TodoTask(
+                        type = TodoTask.TYPE_PROGRAM,
+                        referenceId = programId,
+                        sortOrder = sortOrder++
+                    )
+                    todoTaskDao.insert(task)
+                }
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun addTodoTaskInterval(intervalProgramId: Long) {
+        viewModelScope.launch {
+            try {
+                val sortOrder = todoTaskDao.getNextSortOrder()
+                val task = TodoTask(
+                    type = TodoTask.TYPE_INTERVAL,
+                    referenceId = intervalProgramId,
+                    sortOrder = sortOrder
+                )
+                todoTaskDao.insert(task)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun addTodoTaskIntervals(intervalProgramIds: List<Long>) {
+        viewModelScope.launch {
+            try {
+                var sortOrder = todoTaskDao.getNextSortOrder()
+                intervalProgramIds.forEach { intervalProgramId ->
+                    val task = TodoTask(
+                        type = TodoTask.TYPE_INTERVAL,
+                        referenceId = intervalProgramId,
                         sortOrder = sortOrder++
                     )
                     todoTaskDao.insert(task)
@@ -1486,10 +1556,10 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun deleteTodoTaskByExerciseId(exerciseId: Long) {
+    fun deleteTodoTaskByReference(type: String, referenceId: Long) {
         viewModelScope.launch {
             try {
-                todoTaskDao.deleteByExerciseId(exerciseId)
+                todoTaskDao.deleteByReference(type, referenceId)
             } catch (e: Exception) {
                 _snackbarMessage.value = UiMessage.ErrorOccurred
             }

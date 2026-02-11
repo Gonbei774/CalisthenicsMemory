@@ -231,6 +231,12 @@ fun CalisthenicsMemoryApp(
                         },
                         onNavigateToWorkout = { exerciseId ->
                             currentScreen = Screen.Workout(exerciseId = exerciseId, fromToDo = true)
+                        },
+                        onNavigateToProgramPreview = { programId ->
+                            currentScreen = Screen.ProgramExecution(programId = programId, fromToDo = true)
+                        },
+                        onNavigateToIntervalPreview = { programId ->
+                            currentScreen = Screen.IntervalExecution(programId = programId, fromToDo = true)
                         }
                     )
                 }
@@ -314,13 +320,14 @@ fun CalisthenicsMemoryApp(
                 }
                 is Screen.ProgramExecution -> {
                     val execScreen = currentScreen as Screen.ProgramExecution
-                    BackHandler { currentScreen = Screen.ProgramList }
+                    val backDestination = if (execScreen.fromToDo) Screen.ToDo else Screen.ProgramList
+                    BackHandler { currentScreen = backDestination }
                     ProgramExecutionScreen(
                         viewModel = viewModel,
                         programId = execScreen.programId,
                         resumeSavedState = execScreen.resumeSavedState,
-                        onNavigateBack = { currentScreen = Screen.ProgramList },
-                        onComplete = { currentScreen = Screen.ProgramList }
+                        onNavigateBack = { currentScreen = backDestination },
+                        onComplete = { currentScreen = backDestination }
                     )
                 }
                 is Screen.IntervalList -> {
@@ -346,12 +353,13 @@ fun CalisthenicsMemoryApp(
                 }
                 is Screen.IntervalExecution -> {
                     val execScreen = currentScreen as Screen.IntervalExecution
-                    BackHandler { currentScreen = Screen.IntervalList }
+                    val backDestination = if (execScreen.fromToDo) Screen.ToDo else Screen.IntervalList
+                    BackHandler { currentScreen = backDestination }
                     IntervalExecutionScreen(
                         viewModel = viewModel,
                         programId = execScreen.programId,
-                        onNavigateBack = { currentScreen = Screen.IntervalList },
-                        onComplete = { currentScreen = Screen.IntervalList }
+                        onNavigateBack = { currentScreen = backDestination },
+                        onComplete = { currentScreen = backDestination }
                     )
                 }
             }
@@ -370,8 +378,8 @@ sealed class Screen {
     data class Workout(val exerciseId: Long? = null, val fromToDo: Boolean = false) : Screen()
     object ProgramList : Screen()
     data class ProgramEdit(val programId: Long?) : Screen()
-    data class ProgramExecution(val programId: Long, val resumeSavedState: Boolean = false) : Screen()
+    data class ProgramExecution(val programId: Long, val resumeSavedState: Boolean = false, val fromToDo: Boolean = false) : Screen()
     object IntervalList : Screen()
     data class IntervalEdit(val programId: Long?) : Screen()
-    data class IntervalExecution(val programId: Long) : Screen()
+    data class IntervalExecution(val programId: Long, val fromToDo: Boolean = false) : Screen()
 }

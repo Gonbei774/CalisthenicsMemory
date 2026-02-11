@@ -44,6 +44,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
+import io.github.gonbei774.calisthenicsmemory.data.TodoTask
 import io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import androidx.compose.ui.platform.LocalContext
@@ -455,7 +456,7 @@ fun WorkoutScreen(
                             saveWorkoutRecords(viewModel, finalSession, workoutModeComment)
                             // Delete todo task if from ToDo
                             if (fromToDo) {
-                                viewModel.deleteTodoTaskByExerciseId(finalSession.exercise.id)
+                                viewModel.deleteTodoTaskByReference(TodoTask.TYPE_EXERCISE, finalSession.exercise.id)
                             }
                             onNavigateBack()
                         },
