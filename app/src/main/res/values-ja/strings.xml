@@ -96,6 +96,8 @@
     <string name="time_label">秒数</string>
     <string name="dynamic_type">回数制</string>
     <string name="isometric_type">時間制</string>
+    <string name="exercise_type_dynamic">動的</string>
+    <string name="exercise_type_isometric">静的</string>
     <!-- View Screen -->
     <string name="view_records">記録閲覧</string>
     <string name="list">一覧</string>
@@ -215,6 +217,8 @@
     <string name="workout_in_progress">ワークアウト中</string>
     <string name="set_format">セット %1$d/%2$d</string>
     <string name="set_format_with_side">セット %1$d/%2$d - %3$s</string>
+    <string name="set_progress">%1$d/%2$d</string>
+    <string name="set_progress_with_side">%1$d/%2$d - %3$s</string>
     <string name="side_right">右</string>
     <string name="side_left">左</string>
     <string name="reps_count">%d回</string>
@@ -254,6 +258,7 @@
     <string name="tab_challenge">課題</string>
     <string name="tab_calendar">カレンダー</string>
     <string name="search_placeholder">検索</string>
+    <string name="no_results">結果が見つかりません</string>
     <string name="clear">クリア</string>
     <string name="value_label">値</string>
     <string name="right_with_unit">右 (%s)</string>

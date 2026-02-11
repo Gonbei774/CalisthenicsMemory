@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Calisthenics Memory</string>
     <string name="ok">Гаразд</string>
     <string name="cancel">Скасувати</string>
     <string name="save">Зберегти</string>
@@ -234,6 +235,7 @@
     <string name="no_challenge_set">Немає встановлених викликів</string>
     <string name="challenge">Виклик</string>
     <string name="tab_challenge">Виклик</string>
+    <string name="tab_calendar">Календар</string>
     <string name="program_use_all_challenge">Усі виклики</string>
     <string name="no_exercises_in_period">Жодних вправ не виконано за %s</string>
     <string name="achievement_rate">%1$d%% (%2$d/%3$d%4$s)</string>
@@ -620,4 +622,15 @@
     <string name="interval_next">НАСТУПНИЙ</string>
     <string name="interval_next_round">НАСТУПНИЙ РАУНД</string>
     <string name="interval_ended_title">Завершено</string>
+    <string name="interval_comment_label">Коментар</string>
+    <string name="interval_comment_placeholder">Як пройшло тренування?</string>
+    <string name="interval_unsaved_title">Запис не збережено</string>
+    <string name="interval_unsaved_message">Запис тренування не збережено. Вийти без збереження?</string>
+    <string name="interval_unsaved_leave">Вийти</string>
+    <string name="interval_delete_record_confirm">Видалити запис інтервалу для «%1$s» (%2$s)?</string>
+    <string name="interval_record_rounds_format">%1$d/%2$d раундів</string>
+    <string name="interval_record_settings_format">Тренування %1$dс / Відпочинок %2$dс / Відпочинок між раундами %3$dс</string>
+    <string name="interval_record_complete">Завершено</string>
+    <string name="interval_record_partial">Припинено раніше</string>
+    <string name="interval_record_exercises_count">%1$d вправ</string>
 </resources>
