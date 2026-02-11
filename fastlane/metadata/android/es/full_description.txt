@@ -1,44 +1,45 @@
-Un rastreador de entrenamiento con peso corporal simple que puede personalizar según sus necesidades.
+Un rastreador de entrenamiento con peso corporal centrado en la privacidad. Personaliza todo — ejercicios, métodos de entrenamiento y flujo de trabajo — según tus necesidades.
 
-Cree sus propios ejercicios, organícelos en grupos y rastree el progreso a su manera. Sin plantillas rígidas: adapte la aplicación a su método de entrenamiento.
+Sin plantillas rígidas. Adapta la aplicación a tu estilo de entrenamiento.
 
-<b>CARACTERÍSTICAS</b>
+<b>To Do</b>
 
-<b>Personalización Completa</b>
+• Planifica tu entrenamiento como una lista, toca para saltar directamente
+• Programa repeticiones por día de la semana para automatizar tu rutina semanal
 
-• Cree cualquier ejercicio con cualquier nombre
-• Organice ejercicios en grupos personalizados
-• Elija seguimiento basado en repeticiones o tiempo
-• Establezca progresiones de 10 niveles para adaptarse a su método
-• Soporte para ejercicios unilaterales (un brazo/una pierna)
-• Ejercicios favoritos para acceso rápido con icono de estrella (★)
+<b>Modo Registro</b>
 
-<b>Dos Modos de Entrenamiento</b>
+• Registra rápidamente tus entrenamientos después de entrenar
 
-• Modo de Registro: Registre rápidamente sus entrenamientos después de entrenar
-• Modo de Entrenamiento: Entrenamiento autoguiado con temporizadores integrados para cuenta regresiva, ejecución e intervalos de descanso
+<b>Modo Entrenamiento</b>
 
-<b>Registros de Entrenamiento</b>
+• Entrenamiento autoguiado con temporizadores integrados
+• Individual: Temporizador para conteo de repeticiones y medición de ejercicios isométricos
+• Programa: Crea y ejecuta rutinas de múltiples ejercicios en secuencia
+• Intervalo: Ciclos de trabajo/descanso cronometrados con rondas personalizables
+• Los programas e intervalos se crean combinando libremente tus propios ejercicios
 
-• Registre fecha, hora, series y repeticiones/segundos
-• Agregue comentarios para rastrear notas de forma y observaciones
-• Edite o elimine registros pasados
+<b>Creación de Ejercicios</b>
+
+• Crea cualquier ejercicio con cualquier nombre, organízalos en grupos
+• Elige seguimiento por repeticiones (dinámico) o por tiempo (isométrico)
+• Soporte para ejercicios unilaterales
+• Progresiones de 10 niveles para adaptarse a tu método
+• Seguimiento opcional de distancia, peso y asistencia
+• Ejercicios favoritos (★) para acceso rápido
+• Añade notas de descripción opcionales a cada ejercicio
 
 <b>Seguimiento del Progreso</b>
 
-• Vista de lista: Explore todas las sesiones de entrenamiento
-• Vista de gráfico: Visualice el progreso con estadísticas de promedio/máximo/total
-• Vista de desafío: Rastree el logro de objetivos
-
-<b>Sistema de Objetivos</b>
-
-• Establezca objetivos como "3 series × 50 repeticiones"
-• Indicadores de progreso codificados por color
+• Calendario: Ve tu actividad de entrenamiento de un vistazo
+• Lista: Explora todas las sesiones cronológicamente
+• Gráfico: Visualiza tendencias con estadísticas de promedio/máximo/total
+• Desafío: Seguimiento de logros con indicadores de color
+• Filtros por período (1 semana, 1 mes, 3 meses)
 
 <b>Gestión de Datos</b>
 
-• Exportar/importar en formato JSON
-• Sus datos permanecen en su dispositivo
-• No se requiere internet
+• Exporta/importa en formato JSON/CSV
+• Tus datos permanecen en tu dispositivo, no se requiere internet
 
-Ya sea que siga Convict Conditioning, StartBodyweight o su propio programa personalizado, esta aplicación se adapta a su filosofía de entrenamiento.
+Convict Conditioning, StartBodyweight, RR (Recommended Routine), HIIT, entrenamiento en circuito — sea cual sea tu método, esta aplicación se adapta a ti.

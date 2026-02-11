@@ -1,44 +1,45 @@
-A simple bodyweight training tracker you can customize to match your needs.
+A privacy-focused bodyweight training tracker. Customize everything — exercises, training methods, and workflow — to match your needs.
 
-Create your own exercises, organize them into groups, and track progress your way. No rigid templates - adapt the app to your training method.
+No rigid templates. Adapt the app to your training style.
 
-<b>FEATURES</b>
+<b>To Do</b>
 
-<b>Complete Customization</b>
+• Plan your workout as a list, tap to jump directly
+• Schedule repeats by day of week to automate your weekly routine
 
-• Create any exercise with any name
-• Organize exercises into custom groups
-• Choose rep-based or time-based tracking
-• Set 10-level progressions to match your method
+<b>Record Mode</b>
+
+• Quickly log your workouts after training
+
+<b>Workout Mode</b>
+
+• Auto-guided training with built-in timers
+• Single: Timer-assisted rep counting and isometric hold tracking
+• Program: Create and run multi-exercise routines in sequence
+• Interval: Timed work/rest cycles with customizable rounds
+• Programs and intervals are built by freely combining your own exercises
+
+<b>Exercise Creation</b>
+
+• Create any exercise with any name, organize into groups
+• Choose rep-based (dynamic) or time-based (isometric) tracking
 • Support for unilateral (one-sided) exercises
-• Favorite exercises for quick access with star icon (★)
-
-<b>Two Training Modes</b>
-
-• Record Mode: Quickly log your workouts after training
-• Workout Mode: Auto-guided training with built-in timers for countdown, execution, and rest intervals
-
-<b>Training Records</b>
-
-• Log date, time, sets, and reps/seconds
-• Add comments to track form notes and observations
-• Edit or delete past records
+• 10-level progressions to match your method
+• Optional distance, weight, and assistance tracking
+• Favorite exercises (★) for quick access
+• Add optional description notes to each exercise
 
 <b>Progress Tracking</b>
 
-• List view: Browse all training sessions
-• Graph view: Visualize progress with average/max/total stats
-• Challenge view: Track goal achievement
-
-<b>Goal System</b>
-
-• Set targets like "3 sets × 50 reps"
-• Color-coded progress indicators
+• Calendar: See your training activity at a glance
+• List: Browse all sessions chronologically
+• Graph: Visualize trends with average/max/total stats
+• Challenge: Color-coded goal achievement tracking
+• Period filters (1 week, 1 month, 3 months)
 
 <b>Data Management</b>
 
-• Export/import in JSON format
-• Your data stays on your device
-• No internet required
+• Export/import in JSON/CSV format
+• Your data stays on your device, no internet required
 
-Whether you follow Convict Conditioning, StartBodyweight, or your own custom program, this app adapts to your training philosophy.
+Convict Conditioning, StartBodyweight, RR (Recommended Routine), HIIT, circuit training — whatever your method, this app adapts to you.
