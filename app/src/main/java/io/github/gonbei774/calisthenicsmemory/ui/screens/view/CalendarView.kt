@@ -109,6 +109,22 @@ fun CalendarView(
                         )
                     }
                 }
+            } else {
+                // 日付未タップ → 1週間内の全記録を日付ごとに表示
+                weekDays.forEach { date ->
+                    val dayItems = dayInfoMap[date.toString()]?.items
+                    if (!dayItems.isNullOrEmpty()) {
+                        item(key = "week-all-${date}") {
+                            DayRecordSummary(
+                                date = date,
+                                items = dayItems,
+                                exerciseMap = exerciseMap,
+                                appColors = appColors,
+                                onExerciseClick = onExerciseClick
+                            )
+                        }
+                    }
+                }
             }
         }
     } else {
@@ -176,6 +192,28 @@ fun CalendarView(
                             appColors = appColors,
                             onExerciseClick = onExerciseClick
                         )
+                    }
+                }
+            }
+
+            // 期間フィルターあり + 日付未タップ → 期間内の全記録を日付ごとに表示
+            if (selectedPeriod != null && selectedDate == null) {
+                val sortedDates = dayInfoMap.keys.sorted()
+                sortedDates.forEach { dateKey ->
+                    val dayItems = dayInfoMap[dateKey]?.items
+                    if (!dayItems.isNullOrEmpty()) {
+                        val date = try { LocalDate.parse(dateKey) } catch (e: Exception) { null }
+                        if (date != null) {
+                            item(key = "period-summary-$dateKey") {
+                                DayRecordSummary(
+                                    date = date,
+                                    items = dayItems,
+                                    exerciseMap = exerciseMap,
+                                    appColors = appColors,
+                                    onExerciseClick = onExerciseClick
+                                )
+                            }
+                        }
                     }
                 }
             }
