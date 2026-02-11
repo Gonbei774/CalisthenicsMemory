@@ -1856,6 +1856,12 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun updateIntervalRecordAsync(record: IntervalRecord) {
+        viewModelScope.launch {
+            updateIntervalRecord(record)
+        }
+    }
+
     fun deleteIntervalRecord(recordId: Long) {
         viewModelScope.launch {
             try {

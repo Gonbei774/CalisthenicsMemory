@@ -680,4 +680,10 @@
     <string name="interval_settings_format">%1$d秒 × %2$d種目 × %3$d周</string>
     <string name="interval_record_saved">インターバル記録を保存しました</string>
     <string name="interval_skipped_format">スキップ: %1$d種目</string>
+    <string name="interval_record_rounds_format">%1$d/%2$d周</string>
+    <string name="interval_record_complete">完走</string>
+    <string name="interval_record_partial">途中終了</string>
+    <string name="interval_record_settings_format">ワーク%1$d秒 / レスト%2$d秒 / 周間レスト%3$d秒</string>
+    <string name="interval_record_exercises_count">%1$d種目</string>
+    <string name="interval_delete_record_confirm">「%1$s」のインターバル記録（%2$s）を削除しますか？</string>
 </resources>

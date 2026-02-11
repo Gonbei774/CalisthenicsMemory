@@ -679,4 +679,10 @@
     <string name="interval_settings_format">%1$ds × %2$d exercises × %3$d rounds</string>
     <string name="interval_record_saved">Interval record saved</string>
     <string name="interval_skipped_format">Skipped: %1$d exercises</string>
+    <string name="interval_record_rounds_format">%1$d/%2$d rounds</string>
+    <string name="interval_record_complete">Complete</string>
+    <string name="interval_record_partial">Stopped early</string>
+    <string name="interval_record_settings_format">Work %1$ds / Rest %2$ds / Round rest %3$ds</string>
+    <string name="interval_record_exercises_count">%1$d exercises</string>
+    <string name="interval_delete_record_confirm">Delete interval record for \"%1$s\" (%2$s)?</string>
 </resources>
