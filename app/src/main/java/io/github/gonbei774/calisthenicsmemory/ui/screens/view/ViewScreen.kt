@@ -352,6 +352,7 @@ fun ViewScreen(
                             items = filteredItems,
                             exercises = exercises,
                             selectedExerciseFilter = selectedExerciseFilter,
+                            selectedPeriod = selectedPeriod,
                             onExerciseClick = { exercise ->
                                 selectedExerciseFilter = exercise
                             }

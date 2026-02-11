@@ -34,6 +34,7 @@ fun CalendarView(
     items: List<RecordItem>,
     exercises: List<Exercise>,
     selectedExerciseFilter: Exercise?,
+    selectedPeriod: Period?,
     onExerciseClick: (Exercise) -> Unit
 ) {
     val appColors = LocalAppColors.current
@@ -49,75 +50,132 @@ fun CalendarView(
         }
     }
 
-    // 表示月の範囲を算出（最古の記録月〜当月、古い順）
-    val months = remember(items) {
-        val now = YearMonth.now()
-        if (items.isEmpty()) {
-            listOf(now)
-        } else {
-            val dates = items.mapNotNull { item ->
-                try {
-                    LocalDate.parse(item.date)
-                } catch (e: Exception) {
-                    null
-                }
-            }
-            if (dates.isEmpty()) {
-                listOf(now)
-            } else {
-                val earliest = YearMonth.from(dates.min())
-                val latest = maxOf(YearMonth.from(dates.max()), now)
-                generateSequence(earliest) { it.plusMonths(1) }
-                    .takeWhile { it <= latest }
-                    .toList()
-            }
-        }
-    }
-
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
     val today = remember { LocalDate.now() }
     val exerciseMap = remember(exercises) { exercises.associateBy { it.id } }
 
-    // 初期表示時に最下部（当月）へスクロール
-    val listState = rememberLazyListState()
-    LaunchedEffect(months.size) {
-        if (months.isNotEmpty()) {
-            listState.scrollToItem(months.size - 1)
+    if (selectedPeriod == Period.OneWeek) {
+        // 週間表示（1週間フィルター時）
+        val weekDays = remember(today) {
+            val startOfWeek = today.minusDays(6)
+            (0L..6L).map { startOfWeek.plusDays(it) }
         }
-    }
 
-    LazyColumn(
-        state = listState,
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-        items(months, key = { it.toString() }) { yearMonth ->
-            MonthGrid(
-                yearMonth = yearMonth,
-                today = today,
-                selectedDate = selectedDate,
-                dayInfoMap = dayInfoMap,
-                onDateClick = { date ->
-                    selectedDate = if (selectedDate == date) null else date
-                },
-                appColors = appColors
-            )
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // 曜日 + 日付の大きなセル行
+            item(key = "week-grid") {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    weekDays.forEach { date ->
+                        val dateKey = date.toString()
+                        val dayInfo = dayInfoMap[dateKey]
+                        val isToday = date == today
+                        val isSelected = date == selectedDate
 
-            // 選択日がこの月内であればサマリーを表示
+                        WeekDayCell(
+                            date = date,
+                            isToday = isToday,
+                            isSelected = isSelected,
+                            hasSession = dayInfo?.hasSession == true,
+                            hasInterval = dayInfo?.hasInterval == true,
+                            onClick = {
+                                selectedDate = if (selectedDate == date) null else date
+                            },
+                            appColors = appColors,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+
+            // 選択日の記録サマリー
             val selected = selectedDate
-            if (selected != null && YearMonth.from(selected) == yearMonth) {
-                val dateKey = selected.toString()
-                val dayItems = dayInfoMap[dateKey]?.items
+            if (selected != null) {
+                val dayItems = dayInfoMap[selected.toString()]?.items
                 if (!dayItems.isNullOrEmpty()) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    DayRecordSummary(
-                        date = selected,
-                        items = dayItems,
-                        exerciseMap = exerciseMap,
-                        appColors = appColors,
-                        onExerciseClick = onExerciseClick
-                    )
+                    item(key = "week-summary") {
+                        DayRecordSummary(
+                            date = selected,
+                            items = dayItems,
+                            exerciseMap = exerciseMap,
+                            appColors = appColors,
+                            onExerciseClick = onExerciseClick
+                        )
+                    }
+                }
+            }
+        }
+    } else {
+        // 月間表示（通常・1ヶ月・3ヶ月）
+        val months = remember(items) {
+            val now = YearMonth.now()
+            if (items.isEmpty()) {
+                listOf(now)
+            } else {
+                val dates = items.mapNotNull { item ->
+                    try {
+                        LocalDate.parse(item.date)
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+                if (dates.isEmpty()) {
+                    listOf(now)
+                } else {
+                    val earliest = YearMonth.from(dates.min())
+                    val latest = maxOf(YearMonth.from(dates.max()), now)
+                    generateSequence(earliest) { it.plusMonths(1) }
+                        .takeWhile { it <= latest }
+                        .toList()
+                }
+            }
+        }
+
+        val listState = rememberLazyListState()
+        LaunchedEffect(months.size) {
+            if (months.isNotEmpty()) {
+                listState.scrollToItem(months.size - 1)
+            }
+        }
+
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            items(months, key = { it.toString() }) { yearMonth ->
+                MonthGrid(
+                    yearMonth = yearMonth,
+                    today = today,
+                    selectedDate = selectedDate,
+                    dayInfoMap = dayInfoMap,
+                    onDateClick = { date ->
+                        selectedDate = if (selectedDate == date) null else date
+                    },
+                    appColors = appColors
+                )
+
+                val selected = selectedDate
+                if (selected != null && YearMonth.from(selected) == yearMonth) {
+                    val dateKey = selected.toString()
+                    val dayItems = dayInfoMap[dateKey]?.items
+                    if (!dayItems.isNullOrEmpty()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        DayRecordSummary(
+                            date = selected,
+                            items = dayItems,
+                            exerciseMap = exerciseMap,
+                            appColors = appColors,
+                            onExerciseClick = onExerciseClick
+                        )
+                    }
                 }
             }
         }
@@ -270,6 +328,77 @@ private fun DayCell(
             }
         } else {
             // ドットがないときもスペース確保で高さを揃える
+            Spacer(modifier = Modifier.height(6.dp))
+        }
+    }
+}
+
+@Composable
+private fun WeekDayCell(
+    date: LocalDate,
+    isToday: Boolean,
+    isSelected: Boolean,
+    hasSession: Boolean,
+    hasInterval: Boolean,
+    onClick: () -> Unit,
+    appColors: AppColors,
+    modifier: Modifier = Modifier
+) {
+    val locale = Locale.getDefault()
+    val dayOfWeekText = date.dayOfWeek.getDisplayName(TextStyle.SHORT, locale)
+
+    Column(
+        modifier = modifier
+            .border(0.5.dp, appColors.textTertiary.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(8.dp))
+            .then(
+                if (isSelected) {
+                    Modifier.background(Purple600.copy(alpha = 0.15f))
+                } else {
+                    Modifier
+                }
+            )
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        // 曜日
+        Text(
+            text = dayOfWeekText,
+            fontSize = 11.sp,
+            color = appColors.textTertiary,
+            textAlign = TextAlign.Center
+        )
+        // 日付（大きめ）
+        Text(
+            text = date.dayOfMonth.toString(),
+            fontSize = 20.sp,
+            fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+            color = if (isToday) Purple600 else appColors.textPrimary,
+            textAlign = TextAlign.Center
+        )
+        // ドット
+        if (hasSession || hasInterval) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                if (hasSession) {
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .background(Purple600, CircleShape)
+                    )
+                }
+                if (hasInterval) {
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .background(Orange600, CircleShape)
+                    )
+                }
+            }
+        } else {
             Spacer(modifier = Modifier.height(6.dp))
         }
     }
