@@ -42,7 +42,10 @@ data class BackupData(
     val records: List<ExportRecord>,
     val programs: List<ExportProgram> = emptyList(),           // v4で追加
     val programExercises: List<ExportProgramExercise> = emptyList(),  // v4で追加
-    val programLoops: List<ExportProgramLoop> = emptyList()    // v5で追加（後方互換性のためデフォルト空）
+    val programLoops: List<ExportProgramLoop> = emptyList(),    // v5で追加（後方互換性のためデフォルト空）
+    val intervalPrograms: List<ExportIntervalProgram> = emptyList(),              // v7で追加
+    val intervalProgramExercises: List<ExportIntervalProgramExercise> = emptyList(), // v7で追加
+    val intervalRecords: List<ExportIntervalRecord> = emptyList()                 // v7で追加
 )
 
 @Serializable
@@ -113,6 +116,40 @@ data class ExportProgramLoop(
     val sortOrder: Int,
     val rounds: Int,
     val restBetweenRounds: Int
+)
+
+@Serializable
+data class ExportIntervalProgram(
+    val id: Long,
+    val name: String,
+    val workSeconds: Int,
+    val restSeconds: Int,
+    val rounds: Int,
+    val roundRestSeconds: Int
+)
+
+@Serializable
+data class ExportIntervalProgramExercise(
+    val id: Long,
+    val programId: Long,
+    val exerciseId: Long,
+    val sortOrder: Int
+)
+
+@Serializable
+data class ExportIntervalRecord(
+    val id: Long,
+    val programName: String,
+    val date: String,
+    val time: String,
+    val workSeconds: Int,
+    val restSeconds: Int,
+    val rounds: Int,
+    val roundRestSeconds: Int,
+    val completedRounds: Int,
+    val completedExercisesInLastRound: Int,
+    val exercisesJson: String,
+    val comment: String? = null
 )
 
 class TrainingViewModel(application: Application) : AndroidViewModel(application) {
@@ -661,8 +698,56 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 }
             }
 
+            // インターバルプログラムをエクスポート（v7で追加）
+            val currentIntervalPrograms = intervalPrograms.value
+            val exportIntervalPrograms = currentIntervalPrograms.map { program ->
+                ExportIntervalProgram(
+                    id = program.id,
+                    name = program.name,
+                    workSeconds = program.workSeconds,
+                    restSeconds = program.restSeconds,
+                    rounds = program.rounds,
+                    roundRestSeconds = program.roundRestSeconds
+                )
+            }
+
+            // インターバルプログラム内種目をエクスポート（v7で追加）
+            val allIntervalProgramExercises = mutableListOf<ExportIntervalProgramExercise>()
+            currentIntervalPrograms.forEach { program ->
+                val exercises = intervalProgramExerciseDao.getExercisesForProgramSync(program.id)
+                exercises.forEach { pe ->
+                    allIntervalProgramExercises.add(
+                        ExportIntervalProgramExercise(
+                            id = pe.id,
+                            programId = pe.programId,
+                            exerciseId = pe.exerciseId,
+                            sortOrder = pe.sortOrder
+                        )
+                    )
+                }
+            }
+
+            // インターバル記録をエクスポート（v7で追加）
+            val currentIntervalRecords = intervalRecords.value
+            val exportIntervalRecords = currentIntervalRecords.map { record ->
+                ExportIntervalRecord(
+                    id = record.id,
+                    programName = record.programName,
+                    date = record.date,
+                    time = record.time,
+                    workSeconds = record.workSeconds,
+                    restSeconds = record.restSeconds,
+                    rounds = record.rounds,
+                    roundRestSeconds = record.roundRestSeconds,
+                    completedRounds = record.completedRounds,
+                    completedExercisesInLastRound = record.completedExercisesInLastRound,
+                    exercisesJson = record.exercisesJson,
+                    comment = record.comment
+                )
+            }
+
             val backupData = BackupData(
-                version = 6,  // v6: 種目の説明文追加
+                version = 7,  // v7: インターバルモード追加
                 exportDate = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 app = "CalisthenicsMemory",
                 groups = exportGroups,
@@ -670,7 +755,10 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 records = exportRecords,
                 programs = exportPrograms,
                 programExercises = allProgramExercises,
-                programLoops = allProgramLoops  // v5で追加
+                programLoops = allProgramLoops,
+                intervalPrograms = exportIntervalPrograms,
+                intervalProgramExercises = allIntervalProgramExercises,
+                intervalRecords = exportIntervalRecords
             )
 
             withContext(Dispatchers.Main) {
@@ -785,6 +873,49 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         loopId = exportPe.loopId  // v5で追加（v4以前のバックアップではnull）
                     )
                     programExerciseDao.insert(programExercise)
+                }
+
+                // 8. インターバルプログラムをインポート（v7で追加）
+                backupData.intervalPrograms.forEach { exportIp ->
+                    val intervalProgram = IntervalProgram(
+                        id = exportIp.id,
+                        name = exportIp.name,
+                        workSeconds = exportIp.workSeconds,
+                        restSeconds = exportIp.restSeconds,
+                        rounds = exportIp.rounds,
+                        roundRestSeconds = exportIp.roundRestSeconds
+                    )
+                    intervalProgramDao.insert(intervalProgram)
+                }
+
+                // 9. インターバルプログラム内種目をインポート（v7で追加）
+                backupData.intervalProgramExercises.forEach { exportIpe ->
+                    val intervalProgramExercise = IntervalProgramExercise(
+                        id = exportIpe.id,
+                        programId = exportIpe.programId,
+                        exerciseId = exportIpe.exerciseId,
+                        sortOrder = exportIpe.sortOrder
+                    )
+                    intervalProgramExerciseDao.insert(intervalProgramExercise)
+                }
+
+                // 10. インターバル記録をインポート（v7で追加）
+                backupData.intervalRecords.forEach { exportIr ->
+                    val intervalRecord = IntervalRecord(
+                        id = exportIr.id,
+                        programName = exportIr.programName,
+                        date = exportIr.date,
+                        time = exportIr.time,
+                        workSeconds = exportIr.workSeconds,
+                        restSeconds = exportIr.restSeconds,
+                        rounds = exportIr.rounds,
+                        roundRestSeconds = exportIr.roundRestSeconds,
+                        completedRounds = exportIr.completedRounds,
+                        completedExercisesInLastRound = exportIr.completedExercisesInLastRound,
+                        exercisesJson = exportIr.exercisesJson,
+                        comment = exportIr.comment
+                    )
+                    intervalRecordDao.insert(intervalRecord)
                 }
 
                 withContext(Dispatchers.Main) {
