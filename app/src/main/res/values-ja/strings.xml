@@ -654,7 +654,7 @@
     <string name="interval_no_record_note">※ このモードではレップ数・保持時間は記録されません</string>
     <string name="interval_delete_program">プログラムを削除</string>
     <string name="interval_delete_program_warning">「%s」を削除しますか？</string>
-    <string name="interval_start">実行</string>
+    <string name="interval_start">開始</string>
     <string name="interval_duplicate">複製</string>
     <string name="interval_duplicated">プログラムを複製しました</string>
     <string name="interval_seconds_suffix">秒</string>

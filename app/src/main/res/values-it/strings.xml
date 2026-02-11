@@ -662,7 +662,7 @@
     <string name="interval_total_time_format">~%1$d min %2$d sec</string>
     <string name="interval_confirm_title">Conferma</string>
     <string name="interval_start_workout">Inizia allenamento</string>
-    <string name="interval_start">Inizia</string>
+    <string name="interval_start">Avvia</string>
     <string name="interval_get_ready">Preparati</string>
     <string name="interval_work_label">LAVORO</string>
     <string name="interval_rest_label">RIPOSO</string>
