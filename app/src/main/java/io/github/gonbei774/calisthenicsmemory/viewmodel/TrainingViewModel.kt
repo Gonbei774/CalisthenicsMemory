@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import android.database.sqlite.SQLiteConstraintException
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -1560,6 +1561,32 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             try {
                 todoTaskDao.deleteByReference(type, referenceId)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun completeTodoTaskByReference(type: String, referenceId: Long) {
+        viewModelScope.launch {
+            try {
+                val task = todoTaskDao.getTaskByReference(type, referenceId)
+                if (task != null && task.isRepeating()) {
+                    val todayStr = java.time.LocalDate.now().toString()
+                    todoTaskDao.updateLastCompletedDate(type, referenceId, todayStr)
+                } else {
+                    todoTaskDao.deleteByReference(type, referenceId)
+                }
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun updateTodoRepeatDays(taskId: Long, repeatDays: String) {
+        viewModelScope.launch {
+            try {
+                todoTaskDao.updateRepeatDays(taskId, repeatDays)
             } catch (e: Exception) {
                 _snackbarMessage.value = UiMessage.ErrorOccurred
             }

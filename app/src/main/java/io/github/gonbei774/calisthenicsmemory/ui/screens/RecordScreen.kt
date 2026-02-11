@@ -1222,7 +1222,7 @@ fun WorkoutInputScreen(
                                 )
                                 // Delete todo task if from ToDo
                                 if (fromToDo) {
-                                    viewModel.deleteTodoTaskByReference(TodoTask.TYPE_EXERCISE, exercise.id)
+                                    viewModel.completeTodoTaskByReference(TodoTask.TYPE_EXERCISE, exercise.id)
                                 }
                                 onNavigateBack()
                             }
@@ -1246,7 +1246,7 @@ fun WorkoutInputScreen(
                                 )
                                 // Delete todo task if from ToDo
                                 if (fromToDo) {
-                                    viewModel.deleteTodoTaskByReference(TodoTask.TYPE_EXERCISE, exercise.id)
+                                    viewModel.completeTodoTaskByReference(TodoTask.TYPE_EXERCISE, exercise.id)
                                 }
                                 onNavigateBack()
                             }

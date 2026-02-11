@@ -500,6 +500,9 @@
     <string name="todo_no_programs">No programs</string>
     <string name="todo_no_intervals">No intervals</string>
     <string name="todo_add_items">Add Items</string>
+    <string name="todo_repeat_title">Repeat</string>
+    <string name="todo_repeat_clear">Clear</string>
+    <string name="todo_repeat_save">Save</string>
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">Workout Timer</string>
     <string name="notification_channel_workout_description">Shows notification while workout timer is running</string>

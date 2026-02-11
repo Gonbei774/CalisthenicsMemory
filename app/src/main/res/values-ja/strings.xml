@@ -488,6 +488,9 @@
     <string name="todo_no_programs">プログラムがありません</string>
     <string name="todo_no_intervals">インターバルがありません</string>
     <string name="todo_add_items">追加</string>
+    <string name="todo_repeat_title">繰り返し設定</string>
+    <string name="todo_repeat_clear">解除</string>
+    <string name="todo_repeat_save">保存</string>
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">ワークアウトタイマー</string>
     <string name="notification_channel_workout_description">ワークアウトタイマー実行中の通知を表示</string>

@@ -4,7 +4,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,6 +29,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -59,6 +62,7 @@ fun ToDoScreen(
     val programs by viewModel.programs.collectAsState()
     val intervalPrograms by viewModel.intervalPrograms.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
+    var repeatDialogTask by remember { mutableStateOf<TodoTask?>(null) }
 
     // Map IDs to objects for display
     val exerciseMap = remember(exercises) {
@@ -132,6 +136,24 @@ fun ToDoScreen(
             }
         }
     ) { paddingValues ->
+        // Split tasks into active and inactive
+        val today = remember { java.time.LocalDate.now() }
+        val todayDayNumber = remember { today.dayOfWeek.value }
+        val todayStr = remember { today.toString() }
+
+        val activeTasks = remember(todoTasks, todayDayNumber, todayStr) {
+            todoTasks.filter { task ->
+                if (!task.isRepeating()) true
+                else todayDayNumber in task.getRepeatDayNumbers() && task.lastCompletedDate != todayStr
+            }
+        }
+        val inactiveTasks = remember(todoTasks, todayDayNumber, todayStr) {
+            todoTasks.filter { task ->
+                task.isRepeating() &&
+                    (todayDayNumber !in task.getRepeatDayNumbers() || task.lastCompletedDate == todayStr)
+            }
+        }
+
         if (todoTasks.isEmpty()) {
             // Empty state
             Box(
@@ -148,165 +170,158 @@ fun ToDoScreen(
                 )
             }
         } else {
-            // Task list with drag-and-drop reordering
             val scrollState = rememberScrollState()
-            ReorderableColumn(
-                list = todoTasks,
-                onSettle = { fromIndex, toIndex ->
-                    viewModel.reorderTodoTasks(fromIndex, toIndex)
-                },
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(16.dp)
                     .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) { index, task, isDragging ->
-                key(task.id) {
-                    ReorderableItem {
-                        val elevation by animateDpAsState(
-                            targetValue = if (isDragging) 4.dp else 0.dp,
-                            label = "elevation"
-                        )
-                        val dismissState = rememberSwipeToDismissBoxState(
-                            confirmValueChange = { value ->
-                                if (value == SwipeToDismissBoxValue.EndToStart) {
-                                    viewModel.deleteTodoTask(task.id)
-                                    true
-                                } else {
-                                    false
-                                }
-                            }
-                        )
-                        val dragHandleModifier = Modifier.longPressDraggableHandle()
-                        SwipeToDismissBox(
-                            state = dismissState,
-                            backgroundContent = {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(
-                                            color = Red600,
-                                            shape = RoundedCornerShape(12.dp)
-                                        )
-                                        .padding(horizontal = 16.dp),
-                                    contentAlignment = Alignment.CenterEnd
-                                ) {
-                                    Icon(
-                                        Icons.Default.Delete,
-                                        contentDescription = stringResource(R.string.delete),
-                                        tint = appColors.textPrimary
-                                    )
-                                }
-                            },
-                            enableDismissFromStartToEnd = false,
-                            enableDismissFromEndToStart = true
-                        ) {
-                            when (task.type) {
-                                TodoTask.TYPE_EXERCISE -> {
-                                    val exercise = exerciseMap[task.referenceId]
-                                    if (exercise != null) {
-                                        var showModeDialog by remember { mutableStateOf(false) }
-                                        ExerciseTaskCard(
-                                            exercise = exercise,
-                                            task = task,
-                                            isDragging = isDragging,
-                                            elevation = elevation,
-                                            dragHandleModifier = dragHandleModifier,
-                                            onStart = { showModeDialog = true }
-                                        )
-                                        if (showModeDialog) {
-                                            AlertDialog(
-                                                onDismissRequest = { showModeDialog = false },
-                                                containerColor = appColors.cardBackground,
-                                                title = {
-                                                    Text(
-                                                        text = stringResource(R.string.todo_choose_mode),
-                                                        color = appColors.textPrimary,
-                                                        fontWeight = FontWeight.Bold
-                                                    )
-                                                },
-                                                text = {
-                                                    Column(
-                                                        modifier = Modifier.fillMaxWidth(),
-                                                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                                                    ) {
-                                                        Button(
-                                                            onClick = {
-                                                                showModeDialog = false
-                                                                onNavigateToRecord(task.referenceId)
-                                                            },
-                                                            colors = ButtonDefaults.buttonColors(containerColor = Green600),
-                                                            shape = RoundedCornerShape(8.dp),
-                                                            modifier = Modifier.fillMaxWidth().height(48.dp)
-                                                        ) {
-                                                            Text(
-                                                                text = stringResource(R.string.todo_mode_record),
-                                                                fontSize = 16.sp,
-                                                                color = appColors.textPrimary
-                                                            )
-                                                        }
-                                                        Button(
-                                                            onClick = {
-                                                                showModeDialog = false
-                                                                onNavigateToWorkout(task.referenceId)
-                                                            },
-                                                            colors = ButtonDefaults.buttonColors(containerColor = Orange600),
-                                                            shape = RoundedCornerShape(8.dp),
-                                                            modifier = Modifier.fillMaxWidth().height(48.dp)
-                                                        ) {
-                                                            Text(
-                                                                text = stringResource(R.string.todo_mode_workout),
-                                                                fontSize = 16.sp,
-                                                                color = appColors.textPrimary
-                                                            )
-                                                        }
-                                                    }
-                                                },
-                                                confirmButton = {},
-                                                dismissButton = {
-                                                    TextButton(onClick = { showModeDialog = false }) {
-                                                        Text(
-                                                            text = stringResource(R.string.cancel),
-                                                            color = appColors.textSecondary
-                                                        )
-                                                    }
-                                                }
-                                            )
+            ) {
+                // Active tasks with drag-and-drop reordering
+                if (activeTasks.isNotEmpty()) {
+                    ReorderableColumn(
+                        list = activeTasks,
+                        onSettle = { fromIndex, toIndex ->
+                            val reorderedActive = activeTasks.toMutableList()
+                            val item = reorderedActive.removeAt(fromIndex)
+                            reorderedActive.add(toIndex, item)
+                            val allIds = reorderedActive.map { it.id } + inactiveTasks.map { it.id }
+                            viewModel.reorderTodoTasks(allIds)
+                        },
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) { index, task, isDragging ->
+                        key(task.id) {
+                            ReorderableItem {
+                                val elevation by animateDpAsState(
+                                    targetValue = if (isDragging) 4.dp else 0.dp,
+                                    label = "elevation"
+                                )
+                                val dismissState = rememberSwipeToDismissBoxState(
+                                    confirmValueChange = { value ->
+                                        if (value == SwipeToDismissBoxValue.EndToStart) {
+                                            viewModel.deleteTodoTask(task.id)
+                                            true
+                                        } else {
+                                            false
                                         }
                                     }
+                                )
+                                val dragHandleModifier = Modifier.longPressDraggableHandle()
+                                SwipeToDismissBox(
+                                    state = dismissState,
+                                    backgroundContent = {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .background(
+                                                    color = Red600,
+                                                    shape = RoundedCornerShape(12.dp)
+                                                )
+                                                .padding(horizontal = 16.dp),
+                                            contentAlignment = Alignment.CenterEnd
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Delete,
+                                                contentDescription = stringResource(R.string.delete),
+                                                tint = appColors.textPrimary
+                                            )
+                                        }
+                                    },
+                                    enableDismissFromStartToEnd = false,
+                                    enableDismissFromEndToStart = true
+                                ) {
+                                    ActiveTaskContent(
+                                        task = task,
+                                        exerciseMap = exerciseMap,
+                                        programMap = programMap,
+                                        intervalProgramMap = intervalProgramMap,
+                                        intervalExerciseCounts = intervalExerciseCounts,
+                                        isDragging = isDragging,
+                                        elevation = elevation,
+                                        dragHandleModifier = dragHandleModifier,
+                                        onNavigateToRecord = onNavigateToRecord,
+                                        onNavigateToWorkout = onNavigateToWorkout,
+                                        onNavigateToProgramPreview = onNavigateToProgramPreview,
+                                        onNavigateToIntervalPreview = onNavigateToIntervalPreview,
+                                        onLongClick = { repeatDialogTask = task }
+                                    )
                                 }
-                                TodoTask.TYPE_PROGRAM -> {
-                                    val program = programMap[task.referenceId]
-                                    if (program != null) {
-                                        ProgramTaskCard(
-                                            program = program,
-                                            isDragging = isDragging,
-                                            elevation = elevation,
-                                            dragHandleModifier = dragHandleModifier,
-                                            onNavigate = { onNavigateToProgramPreview(program.id) }
-                                        )
+                            }
+                        }
+                    }
+                }
+
+                // Inactive tasks (grayed out, no start button)
+                if (inactiveTasks.isNotEmpty()) {
+                    if (activeTasks.isNotEmpty()) {
+                        HorizontalDivider(
+                            color = appColors.border,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+                    inactiveTasks.forEach { task ->
+                        key(task.id) {
+                            val dismissState = rememberSwipeToDismissBoxState(
+                                confirmValueChange = { value ->
+                                    if (value == SwipeToDismissBoxValue.EndToStart) {
+                                        viewModel.deleteTodoTask(task.id)
+                                        true
+                                    } else {
+                                        false
                                     }
                                 }
-                                TodoTask.TYPE_INTERVAL -> {
-                                    val intervalProgram = intervalProgramMap[task.referenceId]
-                                    if (intervalProgram != null) {
-                                        IntervalTaskCard(
-                                            intervalProgram = intervalProgram,
-                                            exerciseCount = intervalExerciseCounts[intervalProgram.id] ?: 0,
-                                            isDragging = isDragging,
-                                            elevation = elevation,
-                                            dragHandleModifier = dragHandleModifier,
-                                            onNavigate = { onNavigateToIntervalPreview(intervalProgram.id) }
+                            )
+                            SwipeToDismissBox(
+                                state = dismissState,
+                                backgroundContent = {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(
+                                                color = Red600,
+                                                shape = RoundedCornerShape(12.dp)
+                                            )
+                                            .padding(horizontal = 16.dp),
+                                        contentAlignment = Alignment.CenterEnd
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Delete,
+                                            contentDescription = stringResource(R.string.delete),
+                                            tint = appColors.textPrimary
                                         )
                                     }
-                                }
+                                },
+                                enableDismissFromStartToEnd = false,
+                                enableDismissFromEndToStart = true
+                            ) {
+                                InactiveTaskContent(
+                                    task = task,
+                                    exerciseMap = exerciseMap,
+                                    programMap = programMap,
+                                    intervalProgramMap = intervalProgramMap,
+                                    intervalExerciseCounts = intervalExerciseCounts,
+                                    onLongClick = { repeatDialogTask = task }
+                                )
                             }
                         }
                     }
                 }
             }
         }
+    }
+
+    // Repeat days dialog
+    repeatDialogTask?.let { task ->
+        RepeatDaysDialog(
+            currentRepeatDays = task.repeatDays,
+            onSave = { newRepeatDays ->
+                viewModel.updateTodoRepeatDays(task.id, newRepeatDays)
+                repeatDialogTask = null
+            },
+            onDismiss = { repeatDialogTask = null }
+        )
     }
 
     // Add items dialog (tabbed)
@@ -324,17 +339,207 @@ fun ToDoScreen(
 }
 
 @Composable
+private fun ActiveTaskContent(
+    task: TodoTask,
+    exerciseMap: Map<Long, Exercise>,
+    programMap: Map<Long, Program>,
+    intervalProgramMap: Map<Long, IntervalProgram>,
+    intervalExerciseCounts: Map<Long, Int>,
+    isDragging: Boolean,
+    elevation: androidx.compose.ui.unit.Dp,
+    dragHandleModifier: Modifier,
+    onNavigateToRecord: (Long) -> Unit,
+    onNavigateToWorkout: (Long) -> Unit,
+    onNavigateToProgramPreview: (Long) -> Unit,
+    onNavigateToIntervalPreview: (Long) -> Unit,
+    onLongClick: () -> Unit
+) {
+    val appColors = LocalAppColors.current
+    when (task.type) {
+        TodoTask.TYPE_EXERCISE -> {
+            val exercise = exerciseMap[task.referenceId]
+            if (exercise != null) {
+                var showModeDialog by remember { mutableStateOf(false) }
+                ExerciseTaskCard(
+                    exercise = exercise,
+                    task = task,
+                    isDragging = isDragging,
+                    elevation = elevation,
+                    dragHandleModifier = dragHandleModifier,
+                    onStart = { showModeDialog = true },
+                    onLongClick = onLongClick
+                )
+                if (showModeDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showModeDialog = false },
+                        containerColor = appColors.cardBackground,
+                        title = {
+                            Text(
+                                text = stringResource(R.string.todo_choose_mode),
+                                color = appColors.textPrimary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        text = {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Button(
+                                    onClick = {
+                                        showModeDialog = false
+                                        onNavigateToRecord(task.referenceId)
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Green600),
+                                    shape = RoundedCornerShape(8.dp),
+                                    modifier = Modifier.fillMaxWidth().height(48.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.todo_mode_record),
+                                        fontSize = 16.sp,
+                                        color = appColors.textPrimary
+                                    )
+                                }
+                                Button(
+                                    onClick = {
+                                        showModeDialog = false
+                                        onNavigateToWorkout(task.referenceId)
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Orange600),
+                                    shape = RoundedCornerShape(8.dp),
+                                    modifier = Modifier.fillMaxWidth().height(48.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.todo_mode_workout),
+                                        fontSize = 16.sp,
+                                        color = appColors.textPrimary
+                                    )
+                                }
+                            }
+                        },
+                        confirmButton = {},
+                        dismissButton = {
+                            TextButton(onClick = { showModeDialog = false }) {
+                                Text(
+                                    text = stringResource(R.string.cancel),
+                                    color = appColors.textSecondary
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        TodoTask.TYPE_PROGRAM -> {
+            val program = programMap[task.referenceId]
+            if (program != null) {
+                ProgramTaskCard(
+                    program = program,
+                    repeatDays = task.repeatDays,
+                    isDragging = isDragging,
+                    elevation = elevation,
+                    dragHandleModifier = dragHandleModifier,
+                    onNavigate = { onNavigateToProgramPreview(program.id) },
+                    onLongClick = onLongClick
+                )
+            }
+        }
+        TodoTask.TYPE_INTERVAL -> {
+            val intervalProgram = intervalProgramMap[task.referenceId]
+            if (intervalProgram != null) {
+                IntervalTaskCard(
+                    intervalProgram = intervalProgram,
+                    exerciseCount = intervalExerciseCounts[intervalProgram.id] ?: 0,
+                    repeatDays = task.repeatDays,
+                    isDragging = isDragging,
+                    elevation = elevation,
+                    dragHandleModifier = dragHandleModifier,
+                    onNavigate = { onNavigateToIntervalPreview(intervalProgram.id) },
+                    onLongClick = onLongClick
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun InactiveTaskContent(
+    task: TodoTask,
+    exerciseMap: Map<Long, Exercise>,
+    programMap: Map<Long, Program>,
+    intervalProgramMap: Map<Long, IntervalProgram>,
+    intervalExerciseCounts: Map<Long, Int>,
+    onLongClick: () -> Unit
+) {
+    val appColors = LocalAppColors.current
+    when (task.type) {
+            TodoTask.TYPE_EXERCISE -> {
+                val exercise = exerciseMap[task.referenceId]
+                if (exercise != null) {
+                    ExerciseTaskCard(
+                        exercise = exercise,
+                        task = task,
+                        isDragging = false,
+                        elevation = 0.dp,
+                        dragHandleModifier = Modifier,
+                        onStart = {},
+                        onLongClick = onLongClick,
+                        showStartButton = false
+                    )
+                }
+            }
+            TodoTask.TYPE_PROGRAM -> {
+                val program = programMap[task.referenceId]
+                if (program != null) {
+                    ProgramTaskCard(
+                        program = program,
+                        repeatDays = task.repeatDays,
+                        isDragging = false,
+                        elevation = 0.dp,
+                        dragHandleModifier = Modifier,
+                        onNavigate = {},
+                        onLongClick = onLongClick,
+                        showStartButton = false
+                    )
+                }
+            }
+            TodoTask.TYPE_INTERVAL -> {
+                val intervalProgram = intervalProgramMap[task.referenceId]
+                if (intervalProgram != null) {
+                    IntervalTaskCard(
+                        intervalProgram = intervalProgram,
+                        exerciseCount = intervalExerciseCounts[intervalProgram.id] ?: 0,
+                        repeatDays = task.repeatDays,
+                        isDragging = false,
+                        elevation = 0.dp,
+                        dragHandleModifier = Modifier,
+                        onNavigate = {},
+                        onLongClick = onLongClick,
+                        showStartButton = false
+                    )
+                }
+            }
+        }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
 private fun ExerciseTaskCard(
     exercise: Exercise,
     task: TodoTask,
     isDragging: Boolean,
     elevation: androidx.compose.ui.unit.Dp,
     dragHandleModifier: Modifier,
-    onStart: () -> Unit
+    onStart: () -> Unit,
+    onLongClick: () -> Unit,
+    showStartButton: Boolean = true
 ) {
     val appColors = LocalAppColors.current
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(onClick = {}, onLongClick = onLongClick),
         colors = CardDefaults.cardColors(
             containerColor = if (isDragging) appColors.cardBackgroundSecondary.copy(alpha = 0.9f) else appColors.cardBackground
         ),
@@ -344,7 +549,8 @@ private fun ExerciseTaskCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(12.dp)
+                .alpha(if (showStartButton) 1f else 0.4f),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -398,33 +604,42 @@ private fun ExerciseTaskCard(
                         modifier = Modifier.padding(top = 2.dp)
                     )
                 }
+                RepeatDaysLabel(repeatDays = task.repeatDays)
             }
 
             // Start button
-            Button(
-                onClick = onStart,
-                colors = ButtonDefaults.buttonColors(containerColor = Amber500),
-                shape = RoundedCornerShape(8.dp),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                modifier = Modifier.height(32.dp)
-            ) {
-                Text(text = stringResource(R.string.todo_start_button), fontSize = 12.sp, color = appColors.textPrimary)
+            if (showStartButton) {
+                Button(
+                    onClick = onStart,
+                    colors = ButtonDefaults.buttonColors(containerColor = Amber500),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text(text = stringResource(R.string.todo_start_button), fontSize = 12.sp, color = appColors.textPrimary)
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ProgramTaskCard(
     program: Program,
+    repeatDays: String,
     isDragging: Boolean,
     elevation: androidx.compose.ui.unit.Dp,
     dragHandleModifier: Modifier,
-    onNavigate: () -> Unit
+    onNavigate: () -> Unit,
+    onLongClick: () -> Unit,
+    showStartButton: Boolean = true
 ) {
     val appColors = LocalAppColors.current
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(onClick = {}, onLongClick = onLongClick),
         colors = CardDefaults.cardColors(
             containerColor = if (isDragging) appColors.cardBackgroundSecondary.copy(alpha = 0.9f) else appColors.cardBackground
         ),
@@ -434,7 +649,8 @@ private fun ProgramTaskCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(12.dp)
+                .alpha(if (showStartButton) 1f else 0.4f),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -463,34 +679,43 @@ private fun ProgramTaskCard(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(top = 2.dp)
                 )
+                RepeatDaysLabel(repeatDays = repeatDays)
             }
 
             // Start button
-            Button(
-                onClick = onNavigate,
-                colors = ButtonDefaults.buttonColors(containerColor = Amber500),
-                shape = RoundedCornerShape(8.dp),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                modifier = Modifier.height(32.dp)
-            ) {
-                Text(text = stringResource(R.string.todo_start_button), fontSize = 12.sp, color = appColors.textPrimary)
+            if (showStartButton) {
+                Button(
+                    onClick = onNavigate,
+                    colors = ButtonDefaults.buttonColors(containerColor = Amber500),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text(text = stringResource(R.string.todo_start_button), fontSize = 12.sp, color = appColors.textPrimary)
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun IntervalTaskCard(
     intervalProgram: IntervalProgram,
     exerciseCount: Int,
+    repeatDays: String,
     isDragging: Boolean,
     elevation: androidx.compose.ui.unit.Dp,
     dragHandleModifier: Modifier,
-    onNavigate: () -> Unit
+    onNavigate: () -> Unit,
+    onLongClick: () -> Unit,
+    showStartButton: Boolean = true
 ) {
     val appColors = LocalAppColors.current
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(onClick = {}, onLongClick = onLongClick),
         colors = CardDefaults.cardColors(
             containerColor = if (isDragging) appColors.cardBackgroundSecondary.copy(alpha = 0.9f) else appColors.cardBackground
         ),
@@ -500,7 +725,8 @@ private fun IntervalTaskCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(12.dp)
+                .alpha(if (showStartButton) 1f else 0.4f),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -534,17 +760,20 @@ private fun IntervalTaskCard(
                     color = appColors.textSecondary,
                     modifier = Modifier.padding(top = 2.dp)
                 )
+                RepeatDaysLabel(repeatDays = repeatDays)
             }
 
             // Start button
-            Button(
-                onClick = onNavigate,
-                colors = ButtonDefaults.buttonColors(containerColor = Amber500),
-                shape = RoundedCornerShape(8.dp),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                modifier = Modifier.height(32.dp)
-            ) {
-                Text(text = stringResource(R.string.todo_start_button), fontSize = 12.sp, color = appColors.textPrimary)
+            if (showStartButton) {
+                Button(
+                    onClick = onNavigate,
+                    colors = ButtonDefaults.buttonColors(containerColor = Amber500),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text(text = stringResource(R.string.todo_start_button), fontSize = 12.sp, color = appColors.textPrimary)
+                }
             }
         }
     }
@@ -1145,4 +1374,93 @@ fun SearchResultExerciseItem(
             }
         }
     }
+}
+
+@Composable
+private fun RepeatDaysLabel(repeatDays: String) {
+    if (repeatDays.isEmpty()) return
+    val dayNumbers = repeatDays.split(",").map { it.trim().toInt() }
+    val locale = java.util.Locale.getDefault()
+    val dayNames = dayNumbers.map { dayNum ->
+        java.time.DayOfWeek.of(dayNum).getDisplayName(java.time.format.TextStyle.SHORT, locale)
+    }
+    Text(
+        text = dayNames.joinToString(" "),
+        fontSize = 10.sp,
+        color = Amber500,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(top = 2.dp)
+    )
+}
+
+@Composable
+private fun RepeatDaysDialog(
+    currentRepeatDays: String,
+    onSave: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val appColors = LocalAppColors.current
+    val locale = java.util.Locale.getDefault()
+    var selectedDays by remember(currentRepeatDays) {
+        val initial = if (currentRepeatDays.isEmpty()) emptySet()
+        else currentRepeatDays.split(",").map { it.trim().toInt() }.toSet()
+        mutableStateOf(initial)
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = appColors.cardBackground,
+        title = {
+            Text(
+                text = stringResource(R.string.todo_repeat_title),
+                color = appColors.textPrimary,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                (1..7).forEach { dayNum ->
+                    val dayOfWeek = java.time.DayOfWeek.of(dayNum)
+                    val dayName = dayOfWeek.getDisplayName(java.time.format.TextStyle.NARROW, locale)
+                    val isSelected = dayNum in selectedDays
+
+                    Surface(
+                        modifier = Modifier.size(40.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        color = if (isSelected) Amber500 else appColors.cardBackgroundSecondary,
+                        onClick = {
+                            selectedDays = if (isSelected) selectedDays - dayNum else selectedDays + dayNum
+                        }
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = dayName,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isSelected) Color.White else appColors.textSecondary
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                val result = selectedDays.sorted().joinToString(",")
+                onSave(result)
+            }) {
+                Text(stringResource(R.string.todo_repeat_save), color = Amber500)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = {
+                onSave("")
+            }) {
+                Text(stringResource(R.string.todo_repeat_clear), color = appColors.textSecondary)
+            }
+        }
+    )
 }

@@ -456,7 +456,7 @@ fun WorkoutScreen(
                             saveWorkoutRecords(viewModel, finalSession, workoutModeComment)
                             // Delete todo task if from ToDo
                             if (fromToDo) {
-                                viewModel.deleteTodoTaskByReference(TodoTask.TYPE_EXERCISE, finalSession.exercise.id)
+                                viewModel.completeTodoTaskByReference(TodoTask.TYPE_EXERCISE, finalSession.exercise.id)
                             }
                             onNavigateBack()
                         },

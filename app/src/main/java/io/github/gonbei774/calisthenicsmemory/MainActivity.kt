@@ -330,7 +330,7 @@ fun CalisthenicsMemoryApp(
                         onNavigateBack = { currentScreen = backDestination },
                         onComplete = {
                             if (execScreen.fromToDo) {
-                                viewModel.deleteTodoTaskByReference(TodoTask.TYPE_PROGRAM, execScreen.programId)
+                                viewModel.completeTodoTaskByReference(TodoTask.TYPE_PROGRAM, execScreen.programId)
                             }
                             currentScreen = backDestination
                         }
@@ -367,7 +367,7 @@ fun CalisthenicsMemoryApp(
                         onNavigateBack = { currentScreen = backDestination },
                         onComplete = {
                             if (execScreen.fromToDo) {
-                                viewModel.deleteTodoTaskByReference(TodoTask.TYPE_INTERVAL, execScreen.programId)
+                                viewModel.completeTodoTaskByReference(TodoTask.TYPE_INTERVAL, execScreen.programId)
                             }
                             currentScreen = backDestination
                         }

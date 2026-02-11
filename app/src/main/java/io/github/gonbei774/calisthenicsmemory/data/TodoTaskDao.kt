@@ -36,4 +36,13 @@ interface TodoTaskDao {
             updateSortOrder(id, index)
         }
     }
+
+    @Query("UPDATE todo_tasks SET repeatDays = :repeatDays WHERE id = :id")
+    suspend fun updateRepeatDays(id: Long, repeatDays: String)
+
+    @Query("UPDATE todo_tasks SET lastCompletedDate = :date WHERE type = :type AND referenceId = :referenceId")
+    suspend fun updateLastCompletedDate(type: String, referenceId: Long, date: String)
+
+    @Query("SELECT * FROM todo_tasks WHERE type = :type AND referenceId = :referenceId LIMIT 1")
+    suspend fun getTaskByReference(type: String, referenceId: Long): TodoTask?
 }
