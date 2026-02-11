@@ -467,7 +467,7 @@ fun IntervalExecutionScreen(
                 completedExercisesInLastRound = currentPhase.completedExercisesInLastRound,
                 isFullCompletion = currentPhase.isFullCompletion,
                 appColors = appColors,
-                onSave = {
+                onSave = { comment ->
                     scope.launch {
                         val p = program!!
                         val exercisesJson = JSONArray().apply {
@@ -488,7 +488,7 @@ fun IntervalExecutionScreen(
                             completedRounds = currentPhase.completedRounds,
                             completedExercisesInLastRound = currentPhase.completedExercisesInLastRound,
                             exercisesJson = exercisesJson,
-                            comment = null
+                            comment = comment.ifBlank { null }
                         )
                         viewModel.saveIntervalRecord(record)
                         onComplete()
@@ -1115,10 +1115,11 @@ private fun IntervalCompleteContent(
     completedExercisesInLastRound: Int,
     isFullCompletion: Boolean,
     appColors: AppColors,
-    onSave: () -> Unit,
+    onSave: (String) -> Unit,
     onDiscard: () -> Unit
 ) {
     val statusColor = Orange600
+    var comment by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -1285,11 +1286,35 @@ private fun IntervalCompleteContent(
                 }
             }
 
+            // Comment input
+            item {
+                OutlinedTextField(
+                    value = comment,
+                    onValueChange = { comment = it },
+                    label = { Text(stringResource(R.string.interval_comment_label)) },
+                    placeholder = { Text(stringResource(R.string.interval_comment_placeholder)) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = appColors.textPrimary,
+                        unfocusedTextColor = appColors.textPrimary,
+                        focusedBorderColor = Orange600,
+                        unfocusedBorderColor = appColors.textTertiary,
+                        focusedLabelColor = Orange600,
+                        unfocusedLabelColor = appColors.textTertiary,
+                        cursorColor = Orange600
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
+
             // Buttons
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
-                    onClick = onSave,
+                    onClick = { onSave(comment) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
