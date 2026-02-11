@@ -22,6 +22,8 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -204,15 +206,74 @@ fun ToDoScreen(
                                 TodoTask.TYPE_EXERCISE -> {
                                     val exercise = exerciseMap[task.referenceId]
                                     if (exercise != null) {
+                                        var showModeDialog by remember { mutableStateOf(false) }
                                         ExerciseTaskCard(
                                             exercise = exercise,
                                             task = task,
                                             isDragging = isDragging,
                                             elevation = elevation,
                                             dragHandleModifier = dragHandleModifier,
-                                            onNavigateToRecord = onNavigateToRecord,
-                                            onNavigateToWorkout = onNavigateToWorkout
+                                            onStart = { showModeDialog = true }
                                         )
+                                        if (showModeDialog) {
+                                            AlertDialog(
+                                                onDismissRequest = { showModeDialog = false },
+                                                containerColor = appColors.cardBackground,
+                                                title = {
+                                                    Text(
+                                                        text = stringResource(R.string.todo_choose_mode),
+                                                        color = appColors.textPrimary,
+                                                        fontWeight = FontWeight.Bold
+                                                    )
+                                                },
+                                                text = {
+                                                    Column(
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                                    ) {
+                                                        Button(
+                                                            onClick = {
+                                                                showModeDialog = false
+                                                                onNavigateToRecord(task.referenceId)
+                                                            },
+                                                            colors = ButtonDefaults.buttonColors(containerColor = Green600),
+                                                            shape = RoundedCornerShape(8.dp),
+                                                            modifier = Modifier.fillMaxWidth().height(48.dp)
+                                                        ) {
+                                                            Text(
+                                                                text = stringResource(R.string.todo_mode_record),
+                                                                fontSize = 16.sp,
+                                                                color = appColors.textPrimary
+                                                            )
+                                                        }
+                                                        Button(
+                                                            onClick = {
+                                                                showModeDialog = false
+                                                                onNavigateToWorkout(task.referenceId)
+                                                            },
+                                                            colors = ButtonDefaults.buttonColors(containerColor = Orange600),
+                                                            shape = RoundedCornerShape(8.dp),
+                                                            modifier = Modifier.fillMaxWidth().height(48.dp)
+                                                        ) {
+                                                            Text(
+                                                                text = stringResource(R.string.todo_mode_workout),
+                                                                fontSize = 16.sp,
+                                                                color = appColors.textPrimary
+                                                            )
+                                                        }
+                                                    }
+                                                },
+                                                confirmButton = {},
+                                                dismissButton = {
+                                                    TextButton(onClick = { showModeDialog = false }) {
+                                                        Text(
+                                                            text = stringResource(R.string.cancel),
+                                                            color = appColors.textSecondary
+                                                        )
+                                                    }
+                                                }
+                                            )
+                                        }
                                     }
                                 }
                                 TodoTask.TYPE_PROGRAM -> {
@@ -269,8 +330,7 @@ private fun ExerciseTaskCard(
     isDragging: Boolean,
     elevation: androidx.compose.ui.unit.Dp,
     dragHandleModifier: Modifier,
-    onNavigateToRecord: (Long) -> Unit,
-    onNavigateToWorkout: (Long) -> Unit
+    onStart: () -> Unit
 ) {
     val appColors = LocalAppColors.current
     Card(
@@ -340,26 +400,15 @@ private fun ExerciseTaskCard(
                 }
             }
 
-            // Record button
+            // Start button
             Button(
-                onClick = { onNavigateToRecord(task.referenceId) },
-                colors = ButtonDefaults.buttonColors(containerColor = Green600),
+                onClick = onStart,
+                colors = ButtonDefaults.buttonColors(containerColor = Amber500),
                 shape = RoundedCornerShape(8.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                 modifier = Modifier.height(32.dp)
             ) {
-                Text(text = stringResource(R.string.todo_rec_button), fontSize = 12.sp, color = appColors.textPrimary)
-            }
-
-            // Workout button
-            Button(
-                onClick = { onNavigateToWorkout(task.referenceId) },
-                colors = ButtonDefaults.buttonColors(containerColor = Orange600),
-                shape = RoundedCornerShape(8.dp),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                modifier = Modifier.height(32.dp)
-            ) {
-                Text(text = stringResource(R.string.todo_wo_button), fontSize = 12.sp, color = appColors.textPrimary)
+                Text(text = stringResource(R.string.todo_start_button), fontSize = 12.sp, color = appColors.textPrimary)
             }
         }
     }
@@ -416,20 +465,15 @@ private fun ProgramTaskCard(
                 )
             }
 
-            // Navigate button
+            // Start button
             Button(
                 onClick = onNavigate,
-                colors = ButtonDefaults.buttonColors(containerColor = Orange600),
+                colors = ButtonDefaults.buttonColors(containerColor = Amber500),
                 shape = RoundedCornerShape(8.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                 modifier = Modifier.height(32.dp)
             ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(18.dp)
-                )
+                Text(text = stringResource(R.string.todo_start_button), fontSize = 12.sp, color = appColors.textPrimary)
             }
         }
     }
@@ -492,20 +536,15 @@ private fun IntervalTaskCard(
                 )
             }
 
-            // Navigate button
+            // Start button
             Button(
                 onClick = onNavigate,
-                colors = ButtonDefaults.buttonColors(containerColor = Orange600),
+                colors = ButtonDefaults.buttonColors(containerColor = Amber500),
                 shape = RoundedCornerShape(8.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                 modifier = Modifier.height(32.dp)
             ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(18.dp)
-                )
+                Text(text = stringResource(R.string.todo_start_button), fontSize = 12.sp, color = appColors.textPrimary)
             }
         }
     }
@@ -547,104 +586,109 @@ private fun AddItemsDialog(
 
     val hasSelection = selectedExercises.isNotEmpty() || selectedPrograms.isNotEmpty() || selectedIntervals.isNotEmpty()
 
-    AlertDialog(
+    Dialog(
         onDismissRequest = onDismiss,
-        containerColor = appColors.cardBackground,
-        title = {
-            Text(
-                text = stringResource(R.string.todo_add_items),
-                color = appColors.textPrimary,
-                fontWeight = FontWeight.Bold
-            )
-        },
-        text = {
-            Column(
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(appColors.cardBackground)
+                .systemBarsPadding()
+        ) {
+            // Top bar
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.7f)
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // Tabs
-                TabRow(
-                    selectedTabIndex = selectedTab,
-                    containerColor = appColors.cardBackground,
-                    contentColor = Amber500
-                ) {
-                    tabTitles.forEachIndexed { index, title ->
-                        Tab(
-                            selected = selectedTab == index,
-                            onClick = { selectedTab = index },
-                            text = {
-                                Text(
-                                    text = title,
-                                    fontSize = 13.sp,
-                                    color = if (selectedTab == index) Amber500 else appColors.textSecondary
-                                )
-                            }
-                        )
-                    }
+                TextButton(onClick = onDismiss) {
+                    Text(text = stringResource(R.string.cancel), color = appColors.textSecondary)
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Tab content
-                when (selectedTab) {
-                    0 -> ExercisesTabContent(
-                        viewModel = viewModel,
-                        exercises = exercises,
-                        existingIds = existingExerciseIds,
-                        selectedIds = selectedExercises,
-                        onToggle = { id ->
-                            selectedExercises = if (id in selectedExercises) selectedExercises - id else selectedExercises + id
+                Text(
+                    text = stringResource(R.string.todo_add_items),
+                    color = appColors.textPrimary,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+                TextButton(
+                    onClick = {
+                        if (selectedExercises.isNotEmpty()) {
+                            viewModel.addTodoTasks(selectedExercises.toList())
                         }
-                    )
-                    1 -> ProgramsTabContent(
-                        programs = programs,
-                        existingIds = existingProgramIds,
-                        selectedIds = selectedPrograms,
-                        onToggle = { id ->
-                            selectedPrograms = if (id in selectedPrograms) selectedPrograms - id else selectedPrograms + id
+                        if (selectedPrograms.isNotEmpty()) {
+                            viewModel.addTodoTaskPrograms(selectedPrograms.toList())
                         }
+                        if (selectedIntervals.isNotEmpty()) {
+                            viewModel.addTodoTaskIntervals(selectedIntervals.toList())
+                        }
+                        onDismiss()
+                    },
+                    enabled = hasSelection
+                ) {
+                    Text(
+                        text = stringResource(R.string.add),
+                        color = if (hasSelection) Amber500 else appColors.textSecondary
                     )
-                    2 -> IntervalsTabContent(
-                        intervalPrograms = intervalPrograms,
-                        existingIds = existingIntervalIds,
-                        selectedIds = selectedIntervals,
-                        exerciseCounts = intervalExerciseCounts,
-                        onToggle = { id ->
-                            selectedIntervals = if (id in selectedIntervals) selectedIntervals - id else selectedIntervals + id
+                }
+            }
+
+            // Tabs
+            TabRow(
+                selectedTabIndex = selectedTab,
+                containerColor = appColors.cardBackground,
+                contentColor = Amber500
+            ) {
+                tabTitles.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
+                        text = {
+                            Text(
+                                text = title,
+                                fontSize = 13.sp,
+                                color = if (selectedTab == index) Amber500 else appColors.textSecondary
+                            )
                         }
                     )
                 }
             }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    if (selectedExercises.isNotEmpty()) {
-                        viewModel.addTodoTasks(selectedExercises.toList())
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Tab content
+            when (selectedTab) {
+                0 -> ExercisesTabContent(
+                    viewModel = viewModel,
+                    exercises = exercises,
+                    existingIds = existingExerciseIds,
+                    selectedIds = selectedExercises,
+                    onToggle = { id ->
+                        selectedExercises = if (id in selectedExercises) selectedExercises - id else selectedExercises + id
                     }
-                    if (selectedPrograms.isNotEmpty()) {
-                        viewModel.addTodoTaskPrograms(selectedPrograms.toList())
+                )
+                1 -> ProgramsTabContent(
+                    programs = programs,
+                    existingIds = existingProgramIds,
+                    selectedIds = selectedPrograms,
+                    onToggle = { id ->
+                        selectedPrograms = if (id in selectedPrograms) selectedPrograms - id else selectedPrograms + id
                     }
-                    if (selectedIntervals.isNotEmpty()) {
-                        viewModel.addTodoTaskIntervals(selectedIntervals.toList())
+                )
+                2 -> IntervalsTabContent(
+                    intervalPrograms = intervalPrograms,
+                    existingIds = existingIntervalIds,
+                    selectedIds = selectedIntervals,
+                    exerciseCounts = intervalExerciseCounts,
+                    onToggle = { id ->
+                        selectedIntervals = if (id in selectedIntervals) selectedIntervals - id else selectedIntervals + id
                     }
-                    onDismiss()
-                },
-                enabled = hasSelection
-            ) {
-                Text(
-                    text = stringResource(R.string.add),
-                    color = if (hasSelection) Amber500 else appColors.textSecondary
                 )
             }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.cancel), color = appColors.textSecondary)
-            }
         }
-    )
+    }
 }
 
 @Composable

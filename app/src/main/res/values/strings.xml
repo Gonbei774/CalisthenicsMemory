@@ -490,6 +490,10 @@
     <string name="todo_drag_to_reorder">Drag to reorder</string>
     <string name="todo_rec_button">Rec</string>
     <string name="todo_wo_button">WO</string>
+    <string name="todo_start_button">Start</string>
+    <string name="todo_choose_mode">Choose Mode</string>
+    <string name="todo_mode_record">Record</string>
+    <string name="todo_mode_workout">Workout</string>
     <string name="todo_tab_exercises">Exercises</string>
     <string name="todo_tab_programs">Programs</string>
     <string name="todo_tab_intervals">Intervals</string>

@@ -478,6 +478,10 @@
     <string name="todo_drag_to_reorder">ドラッグで並び替え</string>
     <string name="todo_rec_button">記録</string>
     <string name="todo_wo_button">WO</string>
+    <string name="todo_start_button">開始</string>
+    <string name="todo_choose_mode">モード選択</string>
+    <string name="todo_mode_record">記録</string>
+    <string name="todo_mode_workout">ワークアウト</string>
     <string name="todo_tab_exercises">種目</string>
     <string name="todo_tab_programs">プログラム</string>
     <string name="todo_tab_intervals">インターバル</string>
