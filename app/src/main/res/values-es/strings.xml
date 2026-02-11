@@ -477,6 +477,19 @@
     <string name="todo_drag_to_reorder">Arrastra para reordenar</string>
     <string name="todo_rec_button">Reg</string>
     <string name="todo_wo_button">WO</string>
+    <string name="todo_start_button">Iniciar</string>
+    <string name="todo_choose_mode">Elegir modo</string>
+    <string name="todo_mode_record">Registro</string>
+    <string name="todo_mode_workout">Entrenamiento</string>
+    <string name="todo_tab_exercises">Ejercicios</string>
+    <string name="todo_tab_programs">Programas</string>
+    <string name="todo_tab_intervals">Intervalos</string>
+    <string name="todo_no_programs">Sin programas</string>
+    <string name="todo_no_intervals">Sin intervalos</string>
+    <string name="todo_add_items">Añadir elementos</string>
+    <string name="todo_repeat_title">Repetir</string>
+    <string name="todo_repeat_clear">Borrar</string>
+    <string name="todo_repeat_save">Guardar</string>
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">Temporizador de entrenamiento</string>
     <string name="notification_channel_workout_description">Muestra notificación mientras el temporizador de entrenamiento está activo</string>

@@ -477,6 +477,19 @@
     <string name="todo_drag_to_reorder">Trascina per riordinare</string>
     <string name="todo_rec_button">Reg</string>
     <string name="todo_wo_button">WO</string>
+    <string name="todo_start_button">Avvia</string>
+    <string name="todo_choose_mode">Scegli modalità</string>
+    <string name="todo_mode_record">Registra</string>
+    <string name="todo_mode_workout">Allenamento</string>
+    <string name="todo_tab_exercises">Esercizi</string>
+    <string name="todo_tab_programs">Programmi</string>
+    <string name="todo_tab_intervals">Intervalli</string>
+    <string name="todo_no_programs">Nessun programma</string>
+    <string name="todo_no_intervals">Nessun intervallo</string>
+    <string name="todo_add_items">Aggiungi elementi</string>
+    <string name="todo_repeat_title">Ripeti</string>
+    <string name="todo_repeat_clear">Cancella</string>
+    <string name="todo_repeat_save">Salva</string>
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">Timer allenamento</string>
     <string name="notification_channel_workout_description">Mostra notifica mentre il timer allenamento è attivo</string>
