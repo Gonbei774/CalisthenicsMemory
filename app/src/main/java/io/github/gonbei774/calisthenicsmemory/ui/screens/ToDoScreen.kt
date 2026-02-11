@@ -538,8 +538,7 @@ private fun ExerciseTaskCard(
     val appColors = LocalAppColors.current
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .combinedClickable(onClick = {}, onLongClick = onLongClick),
+            .fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = if (isDragging) appColors.cardBackgroundSecondary.copy(alpha = 0.9f) else appColors.cardBackground
         ),
@@ -565,7 +564,7 @@ private fun ExerciseTaskCard(
             )
 
             // Exercise info
-            Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.weight(1f).combinedClickable(onClick = {}, onLongClick = onLongClick)) {
                 Text(
                     text = exercise.name,
                     fontSize = 16.sp,
@@ -638,8 +637,7 @@ private fun ProgramTaskCard(
     val appColors = LocalAppColors.current
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .combinedClickable(onClick = {}, onLongClick = onLongClick),
+            .fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = if (isDragging) appColors.cardBackgroundSecondary.copy(alpha = 0.9f) else appColors.cardBackground
         ),
@@ -665,7 +663,7 @@ private fun ProgramTaskCard(
             )
 
             // Program info
-            Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.weight(1f).combinedClickable(onClick = {}, onLongClick = onLongClick)) {
                 Text(
                     text = program.name,
                     fontSize = 16.sp,
@@ -714,8 +712,7 @@ private fun IntervalTaskCard(
     val appColors = LocalAppColors.current
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .combinedClickable(onClick = {}, onLongClick = onLongClick),
+            .fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = if (isDragging) appColors.cardBackgroundSecondary.copy(alpha = 0.9f) else appColors.cardBackground
         ),
@@ -741,7 +738,7 @@ private fun IntervalTaskCard(
             )
 
             // Interval program info
-            Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.weight(1f).combinedClickable(onClick = {}, onLongClick = onLongClick)) {
                 Text(
                     text = intervalProgram.name,
                     fontSize = 16.sp,
