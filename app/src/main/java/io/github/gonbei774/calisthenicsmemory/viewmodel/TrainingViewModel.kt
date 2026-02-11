@@ -46,7 +46,8 @@ data class BackupData(
     val programLoops: List<ExportProgramLoop> = emptyList(),    // v5で追加（後方互換性のためデフォルト空）
     val intervalPrograms: List<ExportIntervalProgram> = emptyList(),              // v7で追加
     val intervalProgramExercises: List<ExportIntervalProgramExercise> = emptyList(), // v7で追加
-    val intervalRecords: List<ExportIntervalRecord> = emptyList()                 // v7で追加
+    val intervalRecords: List<ExportIntervalRecord> = emptyList(),                 // v7で追加
+    val todoTasks: List<ExportTodoTask> = emptyList()                             // v8で追加
 )
 
 @Serializable
@@ -151,6 +152,16 @@ data class ExportIntervalRecord(
     val completedExercisesInLastRound: Int,
     val exercisesJson: String,
     val comment: String? = null
+)
+
+@Serializable
+data class ExportTodoTask(
+    val id: Long,
+    val type: String,
+    val referenceId: Long,
+    val sortOrder: Int,
+    val repeatDays: String = "",
+    val lastCompletedDate: String? = null
 )
 
 class TrainingViewModel(application: Application) : AndroidViewModel(application) {
@@ -747,8 +758,21 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 )
             }
 
+            // ToDoタスクをエクスポート（v8で追加）
+            val currentTodoTasks = todoTasks.value
+            val exportTodoTasks = currentTodoTasks.map { task ->
+                ExportTodoTask(
+                    id = task.id,
+                    type = task.type,
+                    referenceId = task.referenceId,
+                    sortOrder = task.sortOrder,
+                    repeatDays = task.repeatDays,
+                    lastCompletedDate = task.lastCompletedDate
+                )
+            }
+
             val backupData = BackupData(
-                version = 7,  // v7: インターバルモード追加
+                version = 8,  // v8: ToDoタスク追加
                 exportDate = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 app = "CalisthenicsMemory",
                 groups = exportGroups,
@@ -759,7 +783,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 programLoops = allProgramLoops,
                 intervalPrograms = exportIntervalPrograms,
                 intervalProgramExercises = allIntervalProgramExercises,
-                intervalRecords = exportIntervalRecords
+                intervalRecords = exportIntervalRecords,
+                todoTasks = exportTodoTasks
             )
 
             withContext(Dispatchers.Main) {
@@ -917,6 +942,19 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         comment = exportIr.comment
                     )
                     intervalRecordDao.insert(intervalRecord)
+                }
+
+                // 11. ToDoタスクをインポート（v8で追加）
+                backupData.todoTasks.forEach { exportTask ->
+                    val task = TodoTask(
+                        id = exportTask.id,
+                        type = exportTask.type,
+                        referenceId = exportTask.referenceId,
+                        sortOrder = exportTask.sortOrder,
+                        repeatDays = exportTask.repeatDays,
+                        lastCompletedDate = exportTask.lastCompletedDate
+                    )
+                    todoTaskDao.insert(task)
                 }
 
                 withContext(Dispatchers.Main) {
