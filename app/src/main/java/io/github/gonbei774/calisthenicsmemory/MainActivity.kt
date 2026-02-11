@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import io.github.gonbei774.calisthenicsmemory.data.AppLanguage
+import io.github.gonbei774.calisthenicsmemory.data.TodoTask
 import io.github.gonbei774.calisthenicsmemory.data.AppTheme
 import io.github.gonbei774.calisthenicsmemory.data.LanguagePreferences
 import io.github.gonbei774.calisthenicsmemory.data.ThemePreferences
@@ -327,7 +328,12 @@ fun CalisthenicsMemoryApp(
                         programId = execScreen.programId,
                         resumeSavedState = execScreen.resumeSavedState,
                         onNavigateBack = { currentScreen = backDestination },
-                        onComplete = { currentScreen = backDestination }
+                        onComplete = {
+                            if (execScreen.fromToDo) {
+                                viewModel.deleteTodoTaskByReference(TodoTask.TYPE_PROGRAM, execScreen.programId)
+                            }
+                            currentScreen = backDestination
+                        }
                     )
                 }
                 is Screen.IntervalList -> {
@@ -359,7 +365,12 @@ fun CalisthenicsMemoryApp(
                         viewModel = viewModel,
                         programId = execScreen.programId,
                         onNavigateBack = { currentScreen = backDestination },
-                        onComplete = { currentScreen = backDestination }
+                        onComplete = {
+                            if (execScreen.fromToDo) {
+                                viewModel.deleteTodoTaskByReference(TodoTask.TYPE_INTERVAL, execScreen.programId)
+                            }
+                            currentScreen = backDestination
+                        }
                     )
                 }
             }

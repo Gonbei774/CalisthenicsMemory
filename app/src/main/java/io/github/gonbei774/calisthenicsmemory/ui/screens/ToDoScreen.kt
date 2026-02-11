@@ -410,7 +410,7 @@ private fun ProgramTaskCard(
                 Text(
                     text = stringResource(R.string.todo_tab_programs),
                     fontSize = 11.sp,
-                    color = Purple600,
+                    color = Orange600,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(top = 2.dp)
                 )
@@ -419,7 +419,7 @@ private fun ProgramTaskCard(
             // Navigate button
             Button(
                 onClick = onNavigate,
-                colors = ButtonDefaults.buttonColors(containerColor = Purple600),
+                colors = ButtonDefaults.buttonColors(containerColor = Orange600),
                 shape = RoundedCornerShape(8.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                 modifier = Modifier.height(32.dp)
