@@ -31,7 +31,7 @@
 </p>
 
 <p align="center">
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases"><img src="https://get-it-on.codeberg.org/get-it-on-blue-on-white.png" height="80" alt="在 Codeberg 下载"></a>
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases"><img src="https://get-it-on.codeberg.org/get-it-on-white-on-black.png" height="80" alt="在 Codeberg 下载"></a>
 </p>
 
 ## 关于
