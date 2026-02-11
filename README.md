@@ -30,19 +30,24 @@
   <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="Get it on F-Droid"></a>
 </p>
 
+<p align="center">
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases"><img src="https://get-it-on.codeberg.org/get-it-on-blue-on-white.png" height="80" alt="Get it on Codeberg"></a>
+</p>
+
 ## About
 
 A privacy-focused bodyweight training tracker. Customize everything to your liking.
 
 ## Features
 
-- **To Do** - Plan your workout, tap to jump directly
+- **To Do** - Plan your workout, tap to jump directly, schedule repeats by day of week
 - **Record Mode** - Quick manual input
 - **Workout Mode** - Auto-guided with timer, set completion notification
   - Single - Focus on one exercise
   - Program - Create and run multi-exercise routines, flexible navigation
+  - Interval - Timed work/rest cycles with customizable rounds
 - **Exercise Creation** - Configure dynamic/isometric, unilateral/bilateral, intervals and more
-- **Progress Tracking** - Lists, graphs, challenge status
+- **Progress Tracking** - Calendar, lists, graphs, challenge status
 - **Data Management** - Export/import in JSON/CSV
 
 ## Screenshots

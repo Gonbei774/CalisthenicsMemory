@@ -30,19 +30,24 @@
   <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="Disponibile su F-Droid"></a>
 </p>
 
+<p align="center">
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases"><img src="https://get-it-on.codeberg.org/get-it-on-blue-on-white.png" height="80" alt="Disponibile su Codeberg"></a>
+</p>
+
 ## Informazioni
 
 Un tracker per allenamenti a corpo libero incentrato sulla privacy. Personalizza tutto a tuo piacimento.
 
 ## Funzionalità
 
-- **To Do** - Pianifica il tuo allenamento, tocca per passare direttamente
+- **To Do** - Pianifica il tuo allenamento, tocca per passare direttamente, ripetizione per giorno della settimana
 - **Modalità Registrazione** - Inserimento manuale rapido
 - **Modalità Allenamento** - Guidato automatico con timer, notifica al completamento serie
   - Singolo - Concentrati su un esercizio
   - Programma - Crea ed esegui routine multi-esercizio, navigazione flessibile
+  - Intervallo - Cicli lavoro/riposo cronometrati con round personalizzabili
 - **Creazione Esercizi** - Configura dinamico/isometrico, unilaterale/bilaterale, intervalli e altro
-- **Monitoraggio Progressi** - Liste, grafici, stato sfide
+- **Monitoraggio Progressi** - Calendario, liste, grafici, stato sfide
 - **Gestione Dati** - Esporta/importa in JSON/CSV
 
 ## Screenshot
