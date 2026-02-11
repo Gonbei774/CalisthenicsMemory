@@ -42,19 +42,24 @@ Los issues se aceptan aquí por conveniencia.</p>
   <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="Disponible en F-Droid"></a>
 </p>
 
+<p align="center">
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases"><img src="https://get-it-on.codeberg.org/get-it-on-white-on-black.png" height="80" alt="Disponible en Codeberg"></a>
+</p>
+
 ## Acerca de
 
 Un rastreador de entrenamientos con peso corporal centrado en la privacidad. Personaliza todo a tu gusto.
 
 ## Características
 
-- **To Do** - Planifica tu entrenamiento, toca para saltar directamente
+- **To Do** - Planifica tu entrenamiento, toca para saltar directamente, repetición por día de la semana
 - **Modo Registro** - Entrada manual rápida
 - **Modo Entrenamiento** - Guiado automático con temporizador, notificación al completar serie
   - Individual - Concéntrate en un ejercicio
   - Programa - Crea y ejecuta rutinas de múltiples ejercicios, navegación flexible
+  - Intervalo - Ciclos de trabajo/descanso cronometrados con rondas personalizables
 - **Creación de Ejercicios** - Configura dinámico/isométrico, unilateral/bilateral, intervalos y más
-- **Seguimiento del Progreso** - Listas, gráficos, estado de desafíos
+- **Seguimiento del Progreso** - Calendario, listas, gráficos, estado de desafíos
 - **Gestión de Datos** - Exporta/importa en JSON/CSV
 
 ## Capturas de Pantalla
@@ -87,4 +92,4 @@ Este proyecto está licenciado bajo la Licencia Pública General de GNU v3.0. Ve
 
 ---
 
-**Última actualización**: 6 de diciembre de 2025
+**Última actualización**: 12 de febrero de 2026

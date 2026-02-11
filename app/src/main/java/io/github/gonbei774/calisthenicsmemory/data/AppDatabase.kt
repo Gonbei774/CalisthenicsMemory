@@ -9,8 +9,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [Exercise::class, TrainingRecord::class, ExerciseGroup::class, TodoTask::class, Program::class, ProgramExercise::class, ProgramLoop::class],
-    version = 16,
+    entities = [Exercise::class, TrainingRecord::class, ExerciseGroup::class, TodoTask::class, Program::class, ProgramExercise::class, ProgramLoop::class, IntervalProgram::class, IntervalProgramExercise::class, IntervalRecord::class],
+    version = 20,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -22,6 +22,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun programDao(): ProgramDao
     abstract fun programExerciseDao(): ProgramExerciseDao
     abstract fun programLoopDao(): ProgramLoopDao
+    abstract fun intervalProgramDao(): IntervalProgramDao
+    abstract fun intervalProgramExerciseDao(): IntervalProgramExerciseDao
+    abstract fun intervalRecordDao(): IntervalRecordDao
 
     companion object {
         @Volatile
@@ -34,7 +37,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "bodyweight_trainer_database"
                 )
-                    .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16)
+                    .addMigrations(MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
@@ -254,6 +257,99 @@ abstract class AppDatabase : RoomDatabase() {
                 // TrainingRecord テーブルにアシスト値を追加
                 database.execSQL(
                     "ALTER TABLE training_records ADD COLUMN assistanceG INTEGER"
+                )
+            }
+        }
+
+        // マイグレーション 16 → 17: 種目の説明文フィールドを追加
+        val MIGRATION_16_17 = object : Migration(16, 17) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    "ALTER TABLE exercises ADD COLUMN description TEXT"
+                )
+            }
+        }
+
+        // マイグレーション 17 → 18: インターバルモード用テーブル追加
+        val MIGRATION_17_18 = object : Migration(17, 18) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // IntervalProgram テーブル作成
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS interval_programs (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        name TEXT NOT NULL,
+                        workSeconds INTEGER NOT NULL,
+                        restSeconds INTEGER NOT NULL,
+                        rounds INTEGER NOT NULL,
+                        roundRestSeconds INTEGER NOT NULL
+                    )
+                """)
+
+                // IntervalProgramExercise テーブル作成
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS interval_program_exercises (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        programId INTEGER NOT NULL,
+                        exerciseId INTEGER NOT NULL,
+                        sortOrder INTEGER NOT NULL,
+                        FOREIGN KEY (programId) REFERENCES interval_programs(id) ON DELETE CASCADE,
+                        FOREIGN KEY (exerciseId) REFERENCES exercises(id) ON DELETE CASCADE
+                    )
+                """)
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_interval_program_exercises_programId ON interval_program_exercises(programId)")
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_interval_program_exercises_exerciseId ON interval_program_exercises(exerciseId)")
+
+                // IntervalRecord テーブル作成
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS interval_records (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        programName TEXT NOT NULL,
+                        date TEXT NOT NULL,
+                        time TEXT NOT NULL,
+                        workSeconds INTEGER NOT NULL,
+                        restSeconds INTEGER NOT NULL,
+                        rounds INTEGER NOT NULL,
+                        roundRestSeconds INTEGER NOT NULL,
+                        completedRounds INTEGER NOT NULL,
+                        completedExercisesInLastRound INTEGER NOT NULL,
+                        exercisesJson TEXT NOT NULL,
+                        comment TEXT
+                    )
+                """)
+            }
+        }
+        // マイグレーション 18 → 19: TodoTaskにtype/referenceIdカラム追加（プログラム・インターバル対応）
+        val MIGRATION_18_19 = object : Migration(18, 19) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // 新テーブル作成
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS todo_tasks_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        type TEXT NOT NULL DEFAULT 'EXERCISE',
+                        referenceId INTEGER NOT NULL,
+                        sortOrder INTEGER NOT NULL
+                    )
+                """)
+
+                // データ移行（既存はすべてEXERCISE型）
+                database.execSQL("""
+                    INSERT INTO todo_tasks_new (id, type, referenceId, sortOrder)
+                    SELECT id, 'EXERCISE', exerciseId, sortOrder FROM todo_tasks
+                """)
+
+                // 入れ替え
+                database.execSQL("DROP TABLE todo_tasks")
+                database.execSQL("ALTER TABLE todo_tasks_new RENAME TO todo_tasks")
+            }
+        }
+        // マイグレーション 19 → 20: TodoTaskに曜日リピート機能追加
+        val MIGRATION_19_20 = object : Migration(19, 20) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    "ALTER TABLE todo_tasks ADD COLUMN repeatDays TEXT NOT NULL DEFAULT ''"
+                )
+                database.execSQL(
+                    "ALTER TABLE todo_tasks ADD COLUMN lastCompletedDate TEXT"
                 )
             }
         }

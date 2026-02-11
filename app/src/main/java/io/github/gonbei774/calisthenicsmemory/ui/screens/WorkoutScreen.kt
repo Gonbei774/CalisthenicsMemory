@@ -44,6 +44,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
+import io.github.gonbei774.calisthenicsmemory.data.TodoTask
 import io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import androidx.compose.ui.platform.LocalContext
@@ -105,6 +106,7 @@ fun WorkoutScreen(
     viewModel: TrainingViewModel,
     onNavigateBack: () -> Unit,
     onNavigateToProgramList: () -> Unit = {},
+    onNavigateToIntervalList: () -> Unit = {},
     initialExerciseId: Long? = null,
     fromToDo: Boolean = false
 ) {
@@ -259,7 +261,8 @@ fun WorkoutScreen(
                         onSingleModeSelected = {
                             currentStep = WorkoutStep.ExerciseSelection
                         },
-                        onProgramModeSelected = onNavigateToProgramList
+                        onProgramModeSelected = onNavigateToProgramList,
+                        onIntervalModeSelected = onNavigateToIntervalList
                     )
                 }
                 is WorkoutStep.ExerciseSelection -> {
@@ -453,7 +456,7 @@ fun WorkoutScreen(
                             saveWorkoutRecords(viewModel, finalSession, workoutModeComment)
                             // Delete todo task if from ToDo
                             if (fromToDo) {
-                                viewModel.deleteTodoTaskByExerciseId(finalSession.exercise.id)
+                                viewModel.completeTodoTaskByReference(TodoTask.TYPE_EXERCISE, finalSession.exercise.id)
                             }
                             onNavigateBack()
                         },
@@ -1044,6 +1047,7 @@ fun SettingsStep(
                 placeholder = { Text("5", color = appColors.textSecondary) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
+                enabled = isDynamicCountSoundEnabled,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Orange600,
                     focusedLabelColor = Orange600
@@ -1182,7 +1186,7 @@ fun SettingsStep(
         Spacer(modifier = Modifier.height(24.dp))
 
         val isValid = sets.isNotEmpty() && targetValue.isNotEmpty() &&
-                (exercise.type != "Dynamic" || repDuration.toIntOrNull()?.let { it >= 1 } == true)
+                (exercise.type != "Dynamic" || !isDynamicCountSoundEnabled || repDuration.toIntOrNull()?.let { it >= 1 } == true)
 
         Button(
             onClick = {
@@ -2450,7 +2454,8 @@ fun SingleWorkoutSettingsSection(
 @Composable
 fun ModeSelectionStep(
     onSingleModeSelected: () -> Unit,
-    onProgramModeSelected: () -> Unit
+    onProgramModeSelected: () -> Unit,
+    onIntervalModeSelected: () -> Unit = {}
 ) {
     val appColors = LocalAppColors.current
     Column(
@@ -2508,7 +2513,9 @@ fun ModeSelectionStep(
 
         // プログラムモード
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
             colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
             shape = RoundedCornerShape(12.dp),
             onClick = onProgramModeSelected
@@ -2542,6 +2549,51 @@ fun ModeSelectionStep(
                 )
             }
         }
+
+        // インターバルモード
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
+            shape = RoundedCornerShape(12.dp),
+            onClick = onIntervalModeSelected
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.interval_mode),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = appColors.textPrimary
+                    )
+                    Text(
+                        text = stringResource(R.string.interval_mode_description),
+                        fontSize = 14.sp,
+                        color = appColors.textSecondary,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = Orange600,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+        }
+
+        // インターバルモードの注意書き
+        Text(
+            text = stringResource(R.string.interval_mode_note),
+            fontSize = 12.sp,
+            color = appColors.textTertiary,
+            modifier = Modifier.padding(top = 12.dp, start = 4.dp, end = 4.dp)
+        )
     }
 }
 

@@ -42,19 +42,24 @@ Issues werden hier der Einfachheit halber akzeptiert.</p>
   <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="Jetzt bei F-Droid"></a>
 </p>
 
+<p align="center">
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases"><img src="https://get-it-on.codeberg.org/get-it-on-white-on-black.png" height="80" alt="Jetzt bei Codeberg"></a>
+</p>
+
 ## Über die App
 
 Ein datenschutzorientierter Tracker für Eigengewichtstraining. Passe alles nach deinem Geschmack an.
 
 ## Funktionen
 
-- **To Do** - Plane dein Training, tippe zum direkten Springen
+- **To Do** - Plane dein Training, tippe zum direkten Springen, Wiederholung nach Wochentag
 - **Aufzeichnungsmodus** - Schnelle manuelle Eingabe
 - **Trainingsmodus** - Automatisch geführt mit Timer, Benachrichtigung bei Satzabschluss
   - Einzeln - Konzentriere dich auf eine Übung
   - Programm - Erstelle und führe Multi-Übungs-Routinen aus, flexible Navigation
+  - Intervall - Zeitgesteuerte Arbeit/Pause-Zyklen mit anpassbaren Runden
 - **Übungserstellung** - Konfiguriere dynamisch/isometrisch, unilateral/bilateral, Intervalle und mehr
-- **Fortschrittsverfolgung** - Listen, Grafiken, Herausforderungsstatus
+- **Fortschrittsverfolgung** - Kalender, Listen, Grafiken, Herausforderungsstatus
 - **Datenverwaltung** - Export/Import in JSON/CSV
 
 ## Screenshots
@@ -87,4 +92,4 @@ Dieses Projekt ist unter der GNU General Public License v3.0 lizenziert. Siehe [
 
 ---
 
-**Zuletzt aktualisiert**: 6. Dezember 2025
+**Zuletzt aktualisiert**: 12. Februar 2026

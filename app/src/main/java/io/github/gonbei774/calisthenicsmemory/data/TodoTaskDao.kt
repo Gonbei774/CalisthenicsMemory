@@ -18,8 +18,11 @@ interface TodoTaskDao {
     @Query("DELETE FROM todo_tasks WHERE id = :id")
     suspend fun deleteById(id: Long)
 
-    @Query("DELETE FROM todo_tasks WHERE exerciseId = :exerciseId")
-    suspend fun deleteByExerciseId(exerciseId: Long)
+    @Query("DELETE FROM todo_tasks WHERE type = :type AND referenceId = :referenceId")
+    suspend fun deleteByReference(type: String, referenceId: Long)
+
+    @Query("SELECT EXISTS(SELECT 1 FROM todo_tasks WHERE type = :type AND referenceId = :referenceId)")
+    suspend fun existsTask(type: String, referenceId: Long): Boolean
 
     @Query("SELECT COALESCE(MAX(sortOrder), 0) + 1 FROM todo_tasks")
     suspend fun getNextSortOrder(): Int
@@ -33,4 +36,13 @@ interface TodoTaskDao {
             updateSortOrder(id, index)
         }
     }
+
+    @Query("UPDATE todo_tasks SET repeatDays = :repeatDays WHERE id = :id")
+    suspend fun updateRepeatDays(id: Long, repeatDays: String)
+
+    @Query("UPDATE todo_tasks SET lastCompletedDate = :date WHERE type = :type AND referenceId = :referenceId")
+    suspend fun updateLastCompletedDate(type: String, referenceId: Long, date: String)
+
+    @Query("SELECT * FROM todo_tasks WHERE type = :type AND referenceId = :referenceId LIMIT 1")
+    suspend fun getTaskByReference(type: String, referenceId: Long): TodoTask?
 }

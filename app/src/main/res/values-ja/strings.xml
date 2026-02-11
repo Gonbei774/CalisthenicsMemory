@@ -96,6 +96,8 @@
     <string name="time_label">秒数</string>
     <string name="dynamic_type">回数制</string>
     <string name="isometric_type">時間制</string>
+    <string name="exercise_type_dynamic">動的</string>
+    <string name="exercise_type_isometric">静的</string>
     <!-- View Screen -->
     <string name="view_records">記録閲覧</string>
     <string name="list">一覧</string>
@@ -215,6 +217,8 @@
     <string name="workout_in_progress">ワークアウト中</string>
     <string name="set_format">セット %1$d/%2$d</string>
     <string name="set_format_with_side">セット %1$d/%2$d - %3$s</string>
+    <string name="set_progress">%1$d/%2$d</string>
+    <string name="set_progress_with_side">%1$d/%2$d - %3$s</string>
     <string name="side_right">右</string>
     <string name="side_left">左</string>
     <string name="reps_count">%d回</string>
@@ -252,7 +256,9 @@
     <string name="tab_list">一覧</string>
     <string name="tab_graph">グラフ</string>
     <string name="tab_challenge">課題</string>
+    <string name="tab_calendar">カレンダー</string>
     <string name="search_placeholder">検索</string>
+    <string name="no_results">結果が見つかりません</string>
     <string name="clear">クリア</string>
     <string name="value_label">値</string>
     <string name="right_with_unit">右 (%s)</string>
@@ -472,6 +478,19 @@
     <string name="todo_drag_to_reorder">ドラッグで並び替え</string>
     <string name="todo_rec_button">記録</string>
     <string name="todo_wo_button">WO</string>
+    <string name="todo_start_button">開始</string>
+    <string name="todo_choose_mode">モード選択</string>
+    <string name="todo_mode_record">記録</string>
+    <string name="todo_mode_workout">ワークアウト</string>
+    <string name="todo_tab_exercises">種目</string>
+    <string name="todo_tab_programs">プログラム</string>
+    <string name="todo_tab_intervals">インターバル</string>
+    <string name="todo_no_programs">プログラムがありません</string>
+    <string name="todo_no_intervals">インターバルがありません</string>
+    <string name="todo_add_items">追加</string>
+    <string name="todo_repeat_title">繰り返し設定</string>
+    <string name="todo_repeat_clear">解除</string>
+    <string name="todo_repeat_save">保存</string>
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">ワークアウトタイマー</string>
     <string name="notification_channel_workout_description">ワークアウトタイマー実行中の通知を表示</string>
@@ -552,7 +571,7 @@
     <!-- Sound Settings (Program Confirm) -->
     <string name="sound_settings_section">サウンド設定</string>
     <string name="dynamic_count_sound_label">カウント音</string>
-    <string name="dynamic_count_sound_description">回数系の種目</string>
+    <string name="dynamic_count_sound_description">回数系種目のカウントを補助</string>
     <string name="isometric_interval_sound_label">インターバル通知</string>
     <string name="isometric_interval_sound_description">静止系の種目</string>
     <string name="interval_seconds_short">%d秒</string>
@@ -596,7 +615,7 @@
     <string name="loop_rest_format">休憩: %d秒</string>
     <string name="loop_current_round">ラウンド %1$d/%2$d</string>
     <string name="loop_delete_confirm">このループを削除しますか？内部の種目も削除されます。</string>
-    <string name="loop_empty">種目をここにドラッグするか、+をタップして追加</string>
+    <string name="loop_empty">+をタップして種目を追加</string>
     <string name="add_exercise_to_loop">種目を追加</string>
     <string name="move_to_loop">ループに移動</string>
     <string name="loop_number_format">ループ %d</string>
@@ -609,4 +628,81 @@
     <string name="theme_system">システムに従う</string>
     <string name="theme_light">ライト</string>
     <string name="theme_dark">ダーク</string>
+
+    <!-- Exercise Description -->
+    <string name="description_optional">説明文（任意）</string>
+
+    <!-- Interval Mode -->
+    <string name="interval_mode">インターバル</string>
+    <string name="interval_mode_description">HIITやサーキット用</string>
+    <string name="interval_mode_note">インターバルモードではレップ数・保持時間は記録されません。記録が必要な場合はプログラムモードをご利用ください。</string>
+    <string name="interval_list_title">インターバル</string>
+    <string name="interval_empty">インターバルプログラムがありません\n+ をタップして作成</string>
+    <string name="interval_summary_format">%1$d種目 · %2$d秒/%3$d秒 · %4$d周</string>
+    <string name="new_interval_program">新規プログラム</string>
+    <string name="edit_interval_program">プログラムを編集</string>
+    <string name="interval_program_name">プログラム名</string>
+    <string name="interval_program_name_hint">例: HIITサーキットA</string>
+    <string name="interval_timer_settings">タイマー設定</string>
+    <string name="interval_work_seconds">ワーク時間</string>
+    <string name="interval_rest_seconds">レスト時間</string>
+    <string name="interval_rounds">周回数</string>
+    <string name="interval_round_rest_seconds">周間レスト</string>
+    <string name="interval_exercises">種目リスト</string>
+    <string name="interval_add_exercise">種目を追加</string>
+    <string name="interval_exercises_required">種目を1つ以上追加してください</string>
+    <string name="interval_no_record_note">※ このモードではレップ数・保持時間は記録されません</string>
+    <string name="interval_delete_program">プログラムを削除</string>
+    <string name="interval_delete_program_warning">「%s」を削除しますか？</string>
+    <string name="interval_start">開始</string>
+    <string name="interval_duplicate">複製</string>
+    <string name="interval_duplicated">プログラムを複製しました</string>
+    <string name="interval_seconds_suffix">秒</string>
+    <string name="interval_rounds_suffix">周</string>
+
+    <!-- Interval Execution -->
+    <string name="interval_confirm_title">確認</string>
+    <string name="interval_total_time">推定時間</string>
+    <string name="interval_total_time_format">約%1$d分%2$d秒</string>
+    <string name="interval_start_workout">ワークアウト開始</string>
+    <string name="interval_get_ready">準備</string>
+    <string name="interval_work_label">ワーク</string>
+    <string name="interval_rest_label">レスト</string>
+    <string name="interval_round_rest_label">周間レスト</string>
+    <string name="interval_round_format">周回 %1$d / %2$d</string>
+    <string name="interval_exercise_format">種目 %1$d / %2$d</string>
+    <string name="interval_next">NEXT</string>
+    <string name="interval_next_round">NEXT ROUND</string>
+    <string name="interval_round_complete_format">%d周目完了！</string>
+    <string name="interval_pause">一時停止</string>
+    <string name="interval_resume">再開</string>
+    <string name="interval_skip">スキップ</string>
+    <string name="interval_stop">終了</string>
+    <string name="interval_complete_title">完了</string>
+    <string name="interval_ended_title">終了</string>
+    <string name="interval_full_complete_format">%1$d / %2$d 周 完走</string>
+    <string name="interval_partial_format">%1$d / %2$d 周 + %3$d / %4$d 種目</string>
+    <string name="interval_partial_note">（途中終了）</string>
+    <string name="interval_exercises_done">実行した種目</string>
+    <string name="interval_round_header_format">%1$d周目</string>
+    <string name="interval_not_executed">（未実行）</string>
+    <string name="interval_skipped_label">（スキップ）</string>
+    <string name="interval_comment_label">コメント</string>
+    <string name="interval_comment_placeholder">ワークアウトはどうでしたか？</string>
+    <string name="interval_save_and_finish">保存して終了</string>
+    <string name="interval_discard_result">保存しない</string>
+    <string name="interval_exit_confirm_title">ワークアウトを終了しますか？</string>
+    <string name="interval_exit_confirm_message">現在のインターバルワークアウトを終了しますか？</string>
+    <string name="interval_unsaved_title">記録が保存されていません</string>
+    <string name="interval_unsaved_message">ワークアウトの記録が保存されていません。保存せずに戻りますか？</string>
+    <string name="interval_unsaved_leave">戻る</string>
+    <string name="interval_settings_format">%1$d秒 × %2$d種目 × %3$d周</string>
+    <string name="interval_record_saved">インターバル記録を保存しました</string>
+    <string name="interval_skipped_format">スキップ: %1$d種目</string>
+    <string name="interval_record_rounds_format">%1$d/%2$d周</string>
+    <string name="interval_record_complete">完走</string>
+    <string name="interval_record_partial">途中終了</string>
+    <string name="interval_record_settings_format">ワーク%1$d秒 / レスト%2$d秒 / 周間レスト%3$d秒</string>
+    <string name="interval_record_exercises_count">%1$d種目</string>
+    <string name="interval_delete_record_confirm">「%1$s」のインターバル記録（%2$s）を削除しますか？</string>
 </resources>

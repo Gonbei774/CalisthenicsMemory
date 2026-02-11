@@ -97,6 +97,8 @@
     <string name="time_label">时间</string>
     <string name="dynamic_type">次数</string>
     <string name="isometric_type">时间</string>
+    <string name="exercise_type_dynamic">动态</string>
+    <string name="exercise_type_isometric">静态</string>
     <!-- View Screen -->
     <string name="view_records">查看记录</string>
     <string name="list">列表</string>
@@ -216,6 +218,8 @@
     <string name="workout_in_progress">训练进行中</string>
     <string name="set_format">第%1$d/%2$d组</string>
     <string name="set_format_with_side">第%1$d/%2$d组 - %3$s</string>
+    <string name="set_progress">%1$d/%2$d</string>
+    <string name="set_progress_with_side">%1$d/%2$d - %3$s</string>
     <string name="side_right">右侧</string>
     <string name="side_left">左侧</string>
     <string name="reps_count">%d次</string>
@@ -251,7 +255,9 @@
     <string name="tab_list">列表</string>
     <string name="tab_graph">图表</string>
     <string name="tab_challenge">挑战</string>
+    <string name="tab_calendar">日历</string>
     <string name="search_placeholder">搜索</string>
+    <string name="no_results">未找到结果</string>
     <string name="clear">清除</string>
     <string name="value_label">数值</string>
     <string name="right_with_unit">右侧（%s）</string>
@@ -471,6 +477,19 @@
     <string name="todo_drag_to_reorder">拖动以重新排序</string>
     <string name="todo_rec_button">记录</string>
     <string name="todo_wo_button">训练</string>
+    <string name="todo_start_button">开始</string>
+    <string name="todo_choose_mode">选择模式</string>
+    <string name="todo_mode_record">记录</string>
+    <string name="todo_mode_workout">训练</string>
+    <string name="todo_tab_exercises">动作</string>
+    <string name="todo_tab_programs">计划</string>
+    <string name="todo_tab_intervals">间歇</string>
+    <string name="todo_no_programs">无计划</string>
+    <string name="todo_no_intervals">无间歇</string>
+    <string name="todo_add_items">添加项目</string>
+    <string name="todo_repeat_title">重复</string>
+    <string name="todo_repeat_clear">清除</string>
+    <string name="todo_repeat_save">保存</string>
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">训练计时器</string>
     <string name="notification_channel_workout_description">训练计时器运行时显示通知</string>
@@ -551,7 +570,7 @@
     <!-- Sound Settings (Program Confirm) -->
     <string name="sound_settings_section">声音设置</string>
     <string name="dynamic_count_sound_label">计数音效</string>
-    <string name="dynamic_count_sound_description">次数类动作</string>
+    <string name="dynamic_count_sound_description">辅助次数类动作的计数</string>
     <string name="isometric_interval_sound_label">间隔提醒</string>
     <string name="isometric_interval_sound_description">静态类动作</string>
     <string name="interval_seconds_short">%d秒</string>
@@ -595,8 +614,92 @@
     <string name="loop_rest_format">休息：%d秒</string>
     <string name="loop_current_round">回合 %1$d/%2$d</string>
     <string name="loop_delete_confirm">删除此循环？内部的动作也将被删除。</string>
-    <string name="loop_empty">将动作拖到这里或点击+添加</string>
+    <string name="loop_empty">点击+添加动作</string>
     <string name="add_exercise_to_loop">添加动作</string>
     <string name="move_to_loop">移动到循环</string>
     <string name="loop_number_format">循环 %d</string>
+
+    <!-- Exercise Description -->
+    <string name="description_optional">说明（可选）</string>
+
+    <!-- Theme Settings -->
+    <string name="section_theme">主题设置</string>
+    <string name="section_theme_description">更改应用外观。</string>
+    <string name="theme_setting">主题</string>
+    <string name="current_theme">当前：%s</string>
+    <string name="theme_system">跟随系统</string>
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
+
+    <!-- Interval Mode -->
+    <string name="interval_mode">间歇</string>
+    <string name="interval_mode_description">适用于HIIT和循环训练</string>
+    <string name="interval_mode_note">间歇模式不记录次数或保持时间。如需记录请使用程序模式。</string>
+    <string name="interval_no_record_note">此模式不记录次数或保持时间</string>
+    <string name="interval_list_title">间歇</string>
+    <string name="interval_empty">暂无间歇程序\n点击 + 创建一个</string>
+    <string name="new_interval_program">新建程序</string>
+    <string name="edit_interval_program">编辑程序</string>
+    <string name="interval_program_name">程序名称</string>
+    <string name="interval_program_name_hint">例如：HIIT循环A</string>
+    <string name="interval_timer_settings">计时器设置</string>
+    <string name="interval_work_seconds">训练时间</string>
+    <string name="interval_rest_seconds">休息时间</string>
+    <string name="interval_round_rest_seconds">轮间休息</string>
+    <string name="interval_rounds">轮数</string>
+    <string name="interval_rounds_suffix">轮</string>
+    <string name="interval_seconds_suffix">秒</string>
+    <string name="interval_exercises">动作</string>
+    <string name="interval_add_exercise">添加动作</string>
+    <string name="interval_exercises_required">请至少添加一个动作</string>
+    <string name="interval_duplicate">复制</string>
+    <string name="interval_duplicated">程序已复制</string>
+    <string name="interval_delete_program">删除程序</string>
+    <string name="interval_delete_program_warning">删除「%s」？</string>
+    <string name="interval_summary_format">%1$d个动作 · %2$d秒/%3$d秒 · %4$d轮</string>
+    <string name="interval_settings_format">%1$d秒 × %2$d个动作 × %3$d轮</string>
+    <string name="interval_total_time">预计时间</string>
+    <string name="interval_total_time_format">约%1$d分%2$d秒</string>
+    <string name="interval_confirm_title">确认</string>
+    <string name="interval_start_workout">开始训练</string>
+    <string name="interval_start">开始</string>
+    <string name="interval_get_ready">准备好</string>
+    <string name="interval_work_label">训练</string>
+    <string name="interval_rest_label">休息</string>
+    <string name="interval_round_rest_label">轮间休息</string>
+    <string name="interval_exercise_format">动作 %1$d / %2$d</string>
+    <string name="interval_round_format">第 %1$d / %2$d 轮</string>
+    <string name="interval_round_complete_format">第%d轮完成！</string>
+    <string name="interval_round_header_format">第%1$d轮</string>
+    <string name="interval_next">下一个</string>
+    <string name="interval_next_round">下一轮</string>
+    <string name="interval_skip">跳过</string>
+    <string name="interval_skipped_format">已跳过：%1$d个动作</string>
+    <string name="interval_skipped_label">（已跳过）</string>
+    <string name="interval_not_executed">（未执行）</string>
+    <string name="interval_pause">暂停</string>
+    <string name="interval_resume">继续</string>
+    <string name="interval_stop">停止</string>
+    <string name="interval_complete_title">已完成</string>
+    <string name="interval_ended_title">已结束</string>
+    <string name="interval_full_complete_format">已完成 %1$d / %2$d 轮</string>
+    <string name="interval_partial_format">%1$d / %2$d 轮 + %3$d / %4$d 个动作</string>
+    <string name="interval_partial_note">（提前结束）</string>
+    <string name="interval_exercises_done">动作</string>
+    <string name="interval_save_and_finish">保存并结束</string>
+    <string name="interval_discard_result">不保存</string>
+    <string name="interval_record_saved">间歇记录已保存</string>
+    <string name="interval_exit_confirm_title">停止训练？</string>
+    <string name="interval_exit_confirm_message">停止当前的间歇训练？</string>
+    <string name="interval_comment_label">备注</string>
+    <string name="interval_comment_placeholder">训练感觉如何？</string>
+    <string name="interval_unsaved_title">记录未保存</string>
+    <string name="interval_unsaved_message">训练记录尚未保存。不保存就离开吗？</string>
+    <string name="interval_unsaved_leave">离开</string>
+    <string name="interval_delete_record_confirm">删除「%1$s」(%2$s)的间歇记录？</string>
+    <string name="interval_record_rounds_format">%1$d/%2$d轮</string>
+    <string name="interval_record_settings_format">训练%1$d秒 / 休息%2$d秒 / 轮间休息%3$d秒</string>
+    <string name="interval_record_complete">已完成</string>
+    <string name="interval_record_partial">提前结束</string>
+    <string name="interval_record_exercises_count">%1$d个动作</string>
 </resources>

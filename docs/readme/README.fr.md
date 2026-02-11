@@ -42,19 +42,24 @@ Les issues sont acceptées ici par commodité.</p>
   <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="Télécharger sur F-Droid"></a>
 </p>
 
+<p align="center">
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases"><img src="https://get-it-on.codeberg.org/get-it-on-white-on-black.png" height="80" alt="Télécharger sur Codeberg"></a>
+</p>
+
 ## À propos
 
 Un tracker d'entraînement au poids du corps axé sur la confidentialité. Personnalisez tout selon vos préférences.
 
 ## Fonctionnalités
 
-- **To Do** - Planifiez votre entraînement, appuyez pour accéder directement
+- **To Do** - Planifiez votre entraînement, appuyez pour accéder directement, répétition par jour de la semaine
 - **Mode Enregistrement** - Saisie manuelle rapide
 - **Mode Entraînement** - Guidage automatique avec minuterie, notification à la fin de série
   - Simple - Concentrez-vous sur un exercice
   - Programme - Créez et exécutez des routines multi-exercices, navigation flexible
+  - Intervalle - Cycles travail/repos chronométrés avec rounds personnalisables
 - **Création d'Exercices** - Configurez dynamique/isométrique, unilatéral/bilatéral, intervalles et plus
-- **Suivi des Progrès** - Listes, graphiques, état des défis
+- **Suivi des Progrès** - Calendrier, listes, graphiques, état des défis
 - **Gestion des Données** - Export/import en JSON/CSV
 
 ## Captures d'écran
@@ -87,4 +92,4 @@ Ce projet est sous licence GNU General Public License v3.0. Voir [LICENSE](../..
 
 ---
 
-**Dernière mise à jour** : 6 décembre 2025
+**Dernière mise à jour** : 12 février 2026

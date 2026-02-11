@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
+import io.github.gonbei774.calisthenicsmemory.data.TodoTask
 import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
 import io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
@@ -1221,7 +1222,7 @@ fun WorkoutInputScreen(
                                 )
                                 // Delete todo task if from ToDo
                                 if (fromToDo) {
-                                    viewModel.deleteTodoTaskByExerciseId(exercise.id)
+                                    viewModel.completeTodoTaskByReference(TodoTask.TYPE_EXERCISE, exercise.id)
                                 }
                                 onNavigateBack()
                             }
@@ -1245,7 +1246,7 @@ fun WorkoutInputScreen(
                                 )
                                 // Delete todo task if from ToDo
                                 if (fromToDo) {
-                                    viewModel.deleteTodoTaskByExerciseId(exercise.id)
+                                    viewModel.completeTodoTaskByReference(TodoTask.TYPE_EXERCISE, exercise.id)
                                 }
                                 onNavigateBack()
                             }

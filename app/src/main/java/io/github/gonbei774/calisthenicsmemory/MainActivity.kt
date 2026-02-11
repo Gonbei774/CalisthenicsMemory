@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import io.github.gonbei774.calisthenicsmemory.data.AppLanguage
+import io.github.gonbei774.calisthenicsmemory.data.TodoTask
 import io.github.gonbei774.calisthenicsmemory.data.AppTheme
 import io.github.gonbei774.calisthenicsmemory.data.LanguagePreferences
 import io.github.gonbei774.calisthenicsmemory.data.ThemePreferences
@@ -51,6 +52,9 @@ import io.github.gonbei774.calisthenicsmemory.ui.screens.ToDoScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.ProgramListScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.ProgramEditScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.ProgramExecutionScreen
+import io.github.gonbei774.calisthenicsmemory.ui.screens.IntervalListScreen
+import io.github.gonbei774.calisthenicsmemory.ui.screens.IntervalEditScreen
+import io.github.gonbei774.calisthenicsmemory.ui.screens.IntervalExecutionScreen
 import io.github.gonbei774.calisthenicsmemory.ui.theme.CalisthenicsMemoryTheme
 import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
@@ -228,6 +232,12 @@ fun CalisthenicsMemoryApp(
                         },
                         onNavigateToWorkout = { exerciseId ->
                             currentScreen = Screen.Workout(exerciseId = exerciseId, fromToDo = true)
+                        },
+                        onNavigateToProgramPreview = { programId ->
+                            currentScreen = Screen.ProgramExecution(programId = programId, fromToDo = true)
+                        },
+                        onNavigateToIntervalPreview = { programId ->
+                            currentScreen = Screen.IntervalExecution(programId = programId, fromToDo = true)
                         }
                     )
                 }
@@ -280,6 +290,7 @@ fun CalisthenicsMemoryApp(
                         viewModel = viewModel,
                         onNavigateBack = { currentScreen = backDestination },
                         onNavigateToProgramList = { currentScreen = Screen.ProgramList },
+                        onNavigateToIntervalList = { currentScreen = Screen.IntervalList },
                         initialExerciseId = workoutScreen.exerciseId,
                         fromToDo = workoutScreen.fromToDo
                     )
@@ -310,13 +321,56 @@ fun CalisthenicsMemoryApp(
                 }
                 is Screen.ProgramExecution -> {
                     val execScreen = currentScreen as Screen.ProgramExecution
-                    BackHandler { currentScreen = Screen.ProgramList }
+                    val backDestination = if (execScreen.fromToDo) Screen.ToDo else Screen.ProgramList
+                    BackHandler { currentScreen = backDestination }
                     ProgramExecutionScreen(
                         viewModel = viewModel,
                         programId = execScreen.programId,
                         resumeSavedState = execScreen.resumeSavedState,
-                        onNavigateBack = { currentScreen = Screen.ProgramList },
-                        onComplete = { currentScreen = Screen.ProgramList }
+                        onNavigateBack = { currentScreen = backDestination },
+                        onComplete = {
+                            if (execScreen.fromToDo) {
+                                viewModel.completeTodoTaskByReference(TodoTask.TYPE_PROGRAM, execScreen.programId)
+                            }
+                            currentScreen = backDestination
+                        }
+                    )
+                }
+                is Screen.IntervalList -> {
+                    BackHandler { currentScreen = Screen.Workout() }
+                    IntervalListScreen(
+                        viewModel = viewModel,
+                        onNavigateBack = { currentScreen = Screen.Workout() },
+                        onNavigateToEdit = { programId -> currentScreen = Screen.IntervalEdit(programId) },
+                        onNavigateToExecute = { programId ->
+                            currentScreen = Screen.IntervalExecution(programId)
+                        }
+                    )
+                }
+                is Screen.IntervalEdit -> {
+                    val editScreen = currentScreen as Screen.IntervalEdit
+                    BackHandler { currentScreen = Screen.IntervalList }
+                    IntervalEditScreen(
+                        viewModel = viewModel,
+                        programId = editScreen.programId,
+                        onNavigateBack = { currentScreen = Screen.IntervalList },
+                        onSaved = { currentScreen = Screen.IntervalList }
+                    )
+                }
+                is Screen.IntervalExecution -> {
+                    val execScreen = currentScreen as Screen.IntervalExecution
+                    val backDestination = if (execScreen.fromToDo) Screen.ToDo else Screen.IntervalList
+                    BackHandler { currentScreen = backDestination }
+                    IntervalExecutionScreen(
+                        viewModel = viewModel,
+                        programId = execScreen.programId,
+                        onNavigateBack = { currentScreen = backDestination },
+                        onComplete = {
+                            if (execScreen.fromToDo) {
+                                viewModel.completeTodoTaskByReference(TodoTask.TYPE_INTERVAL, execScreen.programId)
+                            }
+                            currentScreen = backDestination
+                        }
                     )
                 }
             }
@@ -335,5 +389,8 @@ sealed class Screen {
     data class Workout(val exerciseId: Long? = null, val fromToDo: Boolean = false) : Screen()
     object ProgramList : Screen()
     data class ProgramEdit(val programId: Long?) : Screen()
-    data class ProgramExecution(val programId: Long, val resumeSavedState: Boolean = false) : Screen()
+    data class ProgramExecution(val programId: Long, val resumeSavedState: Boolean = false, val fromToDo: Boolean = false) : Screen()
+    object IntervalList : Screen()
+    data class IntervalEdit(val programId: Long?) : Screen()
+    data class IntervalExecution(val programId: Long, val fromToDo: Boolean = false) : Screen()
 }

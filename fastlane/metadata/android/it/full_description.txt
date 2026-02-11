@@ -1,44 +1,45 @@
-Un tracker semplice per allenamento a corpo libero che puoi personalizzare secondo le tue esigenze.
+Un tracker per allenamento a corpo libero incentrato sulla privacy. Personalizza tutto — esercizi, metodi di allenamento e flusso di lavoro — in base alle tue esigenze.
 
-Crea i tuoi esercizi, organizzali in gruppi e monitora i progressi a modo tuo. Nessun template rigido - adatta l'app al tuo metodo di allenamento.
+Nessun template rigido. Adatta l'app al tuo stile di allenamento.
 
-<b>FUNZIONALITÀ</b>
+<b>Da fare</b>
 
-<b>Personalizzazione Completa</b>
+• Pianifica il tuo allenamento come lista, tocca per avviare direttamente
+• Programma ripetizioni per giorno della settimana per automatizzare la tua routine settimanale
 
-• Crea qualsiasi esercizio con qualsiasi nome
-• Organizza gli esercizi in gruppi personalizzati
-• Scegli il monitoraggio basato su ripetizioni o tempo
-• Imposta progressioni a 10 livelli per adattare il tuo metodo
-• Supporto per esercizi unilaterali (un lato)
-• Esercizi preferiti per accesso rapido con icona stella (★)
+<b>Modalità Registrazione</b>
 
-<b>Due Modalità di Allenamento</b>
+• Registra rapidamente i tuoi allenamenti dopo l'allenamento
 
-• Modalità Registrazione: Registra rapidamente i tuoi allenamenti dopo l'allenamento
-• Modalità Allenamento: Allenamento guidato automaticamente con timer integrati per conto alla rovescia, esecuzione e intervalli di riposo
+<b>Modalità Allenamento</b>
 
-<b>Registrazioni di Allenamento</b>
+• Allenamento guidato automaticamente con timer integrati
+• Singolo: Timer per il conteggio delle ripetizioni e la misurazione degli esercizi isometrici
+• Programma: Crea ed esegui routine multi-esercizio in sequenza
+• Intervallo: Cicli lavoro/riposo cronometrati con round personalizzabili
+• I programmi e gli intervalli si creano combinando liberamente i tuoi esercizi
 
-• Registra data, ora, serie e ripetizioni/secondi
-• Aggiungi commenti per annotare note sulla forma e osservazioni
-• Modifica o elimina registrazioni passate
+<b>Creazione Esercizi</b>
+
+• Crea qualsiasi esercizio con qualsiasi nome, organizzali in gruppi
+• Scegli il monitoraggio per ripetizioni (dinamico) o per tempo (isometrico)
+• Supporto per esercizi unilaterali
+• Progressioni a 10 livelli per adattare il tuo metodo
+• Monitoraggio opzionale di distanza, peso e assistenza
+• Esercizi preferiti (★) per accesso rapido
+• Aggiungi note di descrizione opzionali a ogni esercizio
 
 <b>Monitoraggio Progressi</b>
 
-• Vista elenco: Sfoglia tutte le sessioni di allenamento
-• Vista grafico: Visualizza i progressi con statistiche media/massimo/totale
-• Vista obiettivo: Monitora il raggiungimento degli obiettivi
-
-<b>Sistema di Obiettivi</b>
-
-• Imposta obiettivi come "3 serie × 50 ripetizioni"
-• Indicatori di progresso con codici colore
+• Calendario: Visualizza l'attività di allenamento a colpo d'occhio
+• Lista: Sfoglia tutte le sessioni in ordine cronologico
+• Grafico: Visualizza le tendenze con statistiche media/massimo/totale
+• Sfida: Monitoraggio obiettivi con indicatori a colori
+• Filtri per periodo (1 settimana, 1 mese, 3 mesi)
 
 <b>Gestione Dati</b>
 
-• Esporta/importa in formato JSON
-• I tuoi dati rimangono sul tuo dispositivo
-• Internet non richiesto
+• Esporta/importa in formato JSON/CSV
+• I tuoi dati rimangono sul tuo dispositivo, internet non richiesto
 
-Che tu segua Convict Conditioning, StartBodyweight o il tuo programma personalizzato, questa app si adatta alla tua filosofia di allenamento.
+Convict Conditioning, StartBodyweight, RR (Recommended Routine), HIIT, allenamento a circuito — qualunque sia il tuo metodo, questa app si adatta a te.

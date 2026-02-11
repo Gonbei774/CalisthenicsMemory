@@ -97,6 +97,8 @@
     <string name="time_label">Temps</string>
     <string name="dynamic_type">Répétitions</string>
     <string name="isometric_type">Temps</string>
+    <string name="exercise_type_dynamic">Dynamique</string>
+    <string name="exercise_type_isometric">Isométrique</string>
     <!-- View Screen -->
     <string name="view_records">Consulter les Enregistrements</string>
     <string name="list">Liste</string>
@@ -216,6 +218,8 @@
     <string name="workout_in_progress">Entraînement en Cours</string>
     <string name="set_format">Série %1$d/%2$d</string>
     <string name="set_format_with_side">Série %1$d/%2$d - %3$s</string>
+    <string name="set_progress">%1$d/%2$d</string>
+    <string name="set_progress_with_side">%1$d/%2$d - %3$s</string>
     <string name="side_right">Droit</string>
     <string name="side_left">Gauche</string>
     <string name="reps_count">%d rép.</string>
@@ -251,7 +255,9 @@
     <string name="tab_list">Liste</string>
     <string name="tab_graph">Graphique</string>
     <string name="tab_challenge">Défi</string>
+    <string name="tab_calendar">Calendrier</string>
     <string name="search_placeholder">Rechercher</string>
+    <string name="no_results">Aucun résultat trouvé</string>
     <string name="clear">Effacer</string>
     <string name="value_label">Valeur</string>
     <string name="right_with_unit">Droit (%s)</string>
@@ -471,6 +477,19 @@
     <string name="todo_drag_to_reorder">Glisser pour réorganiser</string>
     <string name="todo_rec_button">Enr</string>
     <string name="todo_wo_button">WO</string>
+    <string name="todo_start_button">Démarrer</string>
+    <string name="todo_choose_mode">Choisir le mode</string>
+    <string name="todo_mode_record">Enregistrer</string>
+    <string name="todo_mode_workout">Entraînement</string>
+    <string name="todo_tab_exercises">Exercices</string>
+    <string name="todo_tab_programs">Programmes</string>
+    <string name="todo_tab_intervals">Intervalles</string>
+    <string name="todo_no_programs">Aucun programme</string>
+    <string name="todo_no_intervals">Aucun intervalle</string>
+    <string name="todo_add_items">Ajouter des éléments</string>
+    <string name="todo_repeat_title">Répéter</string>
+    <string name="todo_repeat_clear">Effacer</string>
+    <string name="todo_repeat_save">Enregistrer</string>
     <!-- Notification Channel for Workout Timer -->
     <string name="notification_channel_workout">Minuteur d\'entraînement</string>
     <string name="notification_channel_workout_description">Affiche une notification pendant que le minuteur d\'entraînement est actif</string>
@@ -551,7 +570,7 @@
     <!-- Sound Settings (Program Confirm) -->
     <string name="sound_settings_section">Paramètres sonores</string>
     <string name="dynamic_count_sound_label">Son de comptage</string>
-    <string name="dynamic_count_sound_description">Exercices dynamiques</string>
+    <string name="dynamic_count_sound_description">Aide au comptage des exercices dynamiques</string>
     <string name="isometric_interval_sound_label">Notification d\'intervalle</string>
     <string name="isometric_interval_sound_description">Exercices isométriques</string>
     <string name="interval_seconds_short">%d sec</string>
@@ -595,8 +614,92 @@
     <string name="loop_rest_format">Repos: %ds</string>
     <string name="loop_current_round">Tour %1$d/%2$d</string>
     <string name="loop_delete_confirm">Supprimer cette boucle ? Les exercices à l\'intérieur seront également supprimés.</string>
-    <string name="loop_empty">Faites glisser les exercices ici ou appuyez sur + pour ajouter</string>
+    <string name="loop_empty">Appuyez sur + pour ajouter des exercices</string>
     <string name="add_exercise_to_loop">Ajouter un exercice</string>
     <string name="move_to_loop">Déplacer vers la boucle</string>
     <string name="loop_number_format">Boucle %d</string>
+
+    <!-- Exercise Description -->
+    <string name="description_optional">Description (Optionnel)</string>
+
+    <!-- Theme Settings -->
+    <string name="section_theme">Paramètres du thème</string>
+    <string name="section_theme_description">Changer l\'apparence de l\'application.</string>
+    <string name="theme_setting">Thème</string>
+    <string name="current_theme">Actuel : %s</string>
+    <string name="theme_system">Suivre le système</string>
+    <string name="theme_light">Clair</string>
+    <string name="theme_dark">Sombre</string>
+
+    <!-- Interval Mode -->
+    <string name="interval_mode">Intervalle</string>
+    <string name="interval_mode_description">Pour HIIT et circuits</string>
+    <string name="interval_mode_note">Le mode intervalle n\'enregistre pas les répétitions ni le temps de maintien. Utilisez le mode Programme si vous avez besoin d\'enregistrements.</string>
+    <string name="interval_no_record_note">Ce mode n\'enregistre pas les répétitions ni le temps de maintien</string>
+    <string name="interval_list_title">Intervalle</string>
+    <string name="interval_empty">Pas encore de programmes d\'intervalle\nAppuyez sur + pour en créer un</string>
+    <string name="new_interval_program">Nouveau programme</string>
+    <string name="edit_interval_program">Modifier le programme</string>
+    <string name="interval_program_name">Nom du programme</string>
+    <string name="interval_program_name_hint">ex., Circuit HIIT A</string>
+    <string name="interval_timer_settings">Paramètres du minuteur</string>
+    <string name="interval_work_seconds">Temps de travail</string>
+    <string name="interval_rest_seconds">Temps de repos</string>
+    <string name="interval_round_rest_seconds">Repos entre les tours</string>
+    <string name="interval_rounds">Tours</string>
+    <string name="interval_rounds_suffix">tours</string>
+    <string name="interval_seconds_suffix">sec</string>
+    <string name="interval_exercises">Exercices</string>
+    <string name="interval_add_exercise">Ajouter un exercice</string>
+    <string name="interval_exercises_required">Ajoutez au moins un exercice</string>
+    <string name="interval_duplicate">Dupliquer</string>
+    <string name="interval_duplicated">Programme dupliqué</string>
+    <string name="interval_delete_program">Supprimer le programme</string>
+    <string name="interval_delete_program_warning">Supprimer \"%s\" ?</string>
+    <string name="interval_summary_format">%1$d exercices · %2$ds/%3$ds · %4$d tours</string>
+    <string name="interval_settings_format">%1$ds × %2$d exercices × %3$d tours</string>
+    <string name="interval_total_time">Temps estimé</string>
+    <string name="interval_total_time_format">~%1$d min %2$d sec</string>
+    <string name="interval_confirm_title">Confirmer</string>
+    <string name="interval_start_workout">Démarrer l\'entraînement</string>
+    <string name="interval_start">Démarrer</string>
+    <string name="interval_get_ready">Préparez-vous</string>
+    <string name="interval_work_label">TRAVAIL</string>
+    <string name="interval_rest_label">REPOS</string>
+    <string name="interval_round_rest_label">Repos entre les tours</string>
+    <string name="interval_exercise_format">Exercice %1$d / %2$d</string>
+    <string name="interval_round_format">Tour %1$d / %2$d</string>
+    <string name="interval_round_complete_format">Tour %d terminé !</string>
+    <string name="interval_round_header_format">Tour %1$d</string>
+    <string name="interval_next">SUIVANT</string>
+    <string name="interval_next_round">TOUR SUIVANT</string>
+    <string name="interval_skip">Passer</string>
+    <string name="interval_skipped_format">Passés : %1$d exercices</string>
+    <string name="interval_skipped_label">(passé)</string>
+    <string name="interval_not_executed">(non exécuté)</string>
+    <string name="interval_pause">Pause</string>
+    <string name="interval_resume">Reprendre</string>
+    <string name="interval_stop">Arrêter</string>
+    <string name="interval_complete_title">Terminé</string>
+    <string name="interval_ended_title">Terminé</string>
+    <string name="interval_full_complete_format">%1$d / %2$d tours terminés</string>
+    <string name="interval_partial_format">%1$d / %2$d tours + %3$d / %4$d exercices</string>
+    <string name="interval_partial_note">(Arrêté en avance)</string>
+    <string name="interval_exercises_done">Exercices</string>
+    <string name="interval_save_and_finish">Enregistrer et terminer</string>
+    <string name="interval_discard_result">Ne pas enregistrer</string>
+    <string name="interval_record_saved">Enregistrement d\'intervalle sauvegardé</string>
+    <string name="interval_exit_confirm_title">Arrêter l\'entraînement ?</string>
+    <string name="interval_exit_confirm_message">Arrêter l\'entraînement d\'intervalle en cours ?</string>
+    <string name="interval_comment_label">Commentaire</string>
+    <string name="interval_comment_placeholder">Comment s\'est passé votre entraînement ?</string>
+    <string name="interval_unsaved_title">Enregistrement non sauvegardé</string>
+    <string name="interval_unsaved_message">L\'enregistrement de l\'entraînement n\'a pas été sauvegardé. Quitter sans sauvegarder ?</string>
+    <string name="interval_unsaved_leave">Quitter</string>
+    <string name="interval_delete_record_confirm">Supprimer l\'enregistrement d\'intervalle pour \"%1$s\" (%2$s) ?</string>
+    <string name="interval_record_rounds_format">%1$d/%2$d tours</string>
+    <string name="interval_record_settings_format">Travail %1$ds / Repos %2$ds / Repos entre tours %3$ds</string>
+    <string name="interval_record_complete">Terminé</string>
+    <string name="interval_record_partial">Arrêté en avance</string>
+    <string name="interval_record_exercises_count">%1$d exercices</string>
 </resources>

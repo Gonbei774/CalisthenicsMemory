@@ -3,6 +3,8 @@ package io.github.gonbei774.calisthenicsmemory.ui.screens.view
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -16,6 +18,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +29,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
+import io.github.gonbei774.calisthenicsmemory.data.IntervalRecord
 import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.util.SearchUtils
@@ -33,6 +37,7 @@ import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 
 // ViewMode enum
 enum class ViewMode {
+    Calendar,   // カレンダーモード
     List,       // 一覧モード
     Graph,      // グラフモード
     Challenge   // 課題モード
@@ -47,6 +52,12 @@ data class SessionInfo(
     val records: List<TrainingRecord>
 )
 
+// 統一リスト用sealed class
+sealed class RecordItem(val date: String, val time: String) {
+    data class Session(val session: SessionInfo) : RecordItem(session.date, session.time)
+    data class Interval(val record: IntervalRecord) : RecordItem(record.date, record.time)
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ViewScreen(
@@ -56,10 +67,18 @@ fun ViewScreen(
     val appColors = LocalAppColors.current
     val exercises by viewModel.exercises.collectAsState()
     val records by viewModel.records.collectAsState()
+    val intervalRecords by viewModel.intervalRecords.collectAsState()
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
 
-    // ViewModeの状態
-    var currentMode by remember { mutableStateOf(ViewMode.List) }
+    // ViewModeの状態（HorizontalPager用）
+    val pagerState = rememberPagerState(pageCount = { 4 })
+    val coroutineScope = rememberCoroutineScope()
+    val currentMode = when (pagerState.currentPage) {
+        0 -> ViewMode.Calendar
+        1 -> ViewMode.List
+        2 -> ViewMode.Graph
+        else -> ViewMode.Challenge
+    }
 
     // フィルター関連の状態
     var selectedExerciseFilter by remember { mutableStateOf<Exercise?>(null) }
@@ -74,6 +93,8 @@ fun ViewScreen(
     var editValueLeft by remember { mutableStateOf("") }
     var showSessionEditDialog by remember { mutableStateOf<SessionInfo?>(null) }
     var showContextMenu by remember { mutableStateOf<SessionInfo?>(null) }
+    var showIntervalDeleteDialog by remember { mutableStateOf<IntervalRecord?>(null) }
+    var showIntervalEditDialog by remember { mutableStateOf<IntervalRecord?>(null) }
 
     // 一覧モード用のセッションデータ
     val sessions = remember(records, exercises) {
@@ -122,6 +143,34 @@ fun ViewScreen(
         filtered
     }
 
+    // インターバル記録のフィルター（期間のみ、種目フィルター時は非表示）
+    val filteredIntervalRecords = remember(intervalRecords, selectedExerciseFilter, selectedPeriod) {
+        if (selectedExerciseFilter != null) {
+            emptyList()
+        } else if (selectedPeriod != null) {
+            val today = java.time.LocalDate.now()
+            val cutoffDate = today.minusDays(selectedPeriod!!.days.toLong() - 1)
+            intervalRecords.filter { record ->
+                try {
+                    val recordDate = java.time.LocalDate.parse(record.date)
+                    recordDate >= cutoffDate && recordDate <= today
+                } catch (e: Exception) { false }
+            }
+        } else {
+            intervalRecords
+        }
+    }
+
+    // 統一リスト（セッション＋インターバル記録を日付順で混在）
+    val filteredItems = remember(filteredSessions, filteredIntervalRecords) {
+        val sessionItems = filteredSessions.map { RecordItem.Session(it) }
+        val intervalItems = filteredIntervalRecords.map { RecordItem.Interval(it) }
+        (sessionItems + intervalItems).sortedWith(
+            compareByDescending<RecordItem> { it.date }
+                .thenByDescending { it.time }
+        )
+    }
+
     Scaffold(
         topBar = {
             Surface(
@@ -161,44 +210,55 @@ fun ViewScreen(
         ) {
             // タブ
             TabRow(
-                selectedTabIndex = when (currentMode) {
-                    ViewMode.List -> 0
-                    ViewMode.Graph -> 1
-                    ViewMode.Challenge -> 2
-                },
+                selectedTabIndex = pagerState.currentPage,
                 containerColor = appColors.cardBackground,
                 contentColor = appColors.textPrimary
             ) {
                 Tab(
-                    selected = currentMode == ViewMode.List,
-                    onClick = { currentMode = ViewMode.List },
+                    selected = pagerState.currentPage == 0,
+                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } },
+                    text = {
+                        Text(
+                            stringResource(R.string.tab_calendar),
+                            fontSize = 16.sp,
+                            fontWeight = if (pagerState.currentPage == 0) FontWeight.Bold else FontWeight.Normal,
+                            maxLines = 1
+                        )
+                    }
+                )
+                Tab(
+                    selected = pagerState.currentPage == 1,
+                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } },
                     text = {
                         Text(
                             stringResource(R.string.tab_list),
                             fontSize = 16.sp,
-                            fontWeight = if (currentMode == ViewMode.List) FontWeight.Bold else FontWeight.Normal
+                            fontWeight = if (pagerState.currentPage == 1) FontWeight.Bold else FontWeight.Normal,
+                            maxLines = 1
                         )
                     }
                 )
                 Tab(
-                    selected = currentMode == ViewMode.Graph,
-                    onClick = { currentMode = ViewMode.Graph },
+                    selected = pagerState.currentPage == 2,
+                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
                     text = {
                         Text(
                             stringResource(R.string.tab_graph),
                             fontSize = 16.sp,
-                            fontWeight = if (currentMode == ViewMode.Graph) FontWeight.Bold else FontWeight.Normal
+                            fontWeight = if (pagerState.currentPage == 2) FontWeight.Bold else FontWeight.Normal,
+                            maxLines = 1
                         )
                     }
                 )
                 Tab(
-                    selected = currentMode == ViewMode.Challenge,
-                    onClick = { currentMode = ViewMode.Challenge },
+                    selected = pagerState.currentPage == 3,
+                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(3) } },
                     text = {
                         Text(
                             stringResource(R.string.tab_challenge),
                             fontSize = 16.sp,
-                            fontWeight = if (currentMode == ViewMode.Challenge) FontWeight.Bold else FontWeight.Normal
+                            fontWeight = if (pagerState.currentPage == 3) FontWeight.Bold else FontWeight.Normal,
+                            maxLines = 1
                         )
                     }
                 )
@@ -281,53 +341,75 @@ fun ViewScreen(
                 }
             }
 
-            // モードに応じた表示
-            when (currentMode) {
-                ViewMode.List -> {
-                    RecordListView(
-                        sessions = filteredSessions,
-                        exercises = exercises,
-                        selectedExerciseFilter = selectedExerciseFilter,
-                        onExerciseClick = { exercise ->
-                            selectedExerciseFilter = exercise
-                        },
-                        onRecordClick = { record ->
-                            editingRecord = record
-                            if (record.valueLeft != null) {
-                                // Unilateral
-                                editValueRight = record.valueRight.toString()
-                                editValueLeft = record.valueLeft.toString()
-                            } else {
-                                // Bilateral
-                                editValue = record.valueRight.toString()
+            // モードに応じた表示（スワイプ対応）
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { page ->
+                when (page) {
+                    0 -> {
+                        CalendarView(
+                            items = filteredItems,
+                            exercises = exercises,
+                            selectedExerciseFilter = selectedExerciseFilter,
+                            selectedPeriod = selectedPeriod,
+                            onExerciseClick = { exercise ->
+                                selectedExerciseFilter = exercise
                             }
-                        },
-                        onSessionLongPress = { session ->
-                            showSessionEditDialog = session
-                        },
-                        onDeleteClick = { session ->
-                            showDeleteDialog = session
-                        }
-                    )
-                }
-                ViewMode.Graph -> {
-                    GraphView(
-                        exercises = exercises,
-                        records = records,
-                        selectedExerciseFilter = selectedExerciseFilter,
-                        selectedPeriod = selectedPeriod
-                    )
-                }
-                ViewMode.Challenge -> {
-                    ChallengeView(
-                        exercises = exercises,
-                        records = records,
-                        selectedExerciseFilter = selectedExerciseFilter,
-                        selectedPeriod = selectedPeriod,
-                        onExerciseClick = { exercise ->
-                            selectedExerciseFilter = exercise
-                        }
-                    )
+                        )
+                    }
+                    1 -> {
+                        RecordListView(
+                            items = filteredItems,
+                            exercises = exercises,
+                            selectedExerciseFilter = selectedExerciseFilter,
+                            onExerciseClick = { exercise ->
+                                selectedExerciseFilter = exercise
+                            },
+                            onRecordClick = { record ->
+                                editingRecord = record
+                                if (record.valueLeft != null) {
+                                    // Unilateral
+                                    editValueRight = record.valueRight.toString()
+                                    editValueLeft = record.valueLeft.toString()
+                                } else {
+                                    // Bilateral
+                                    editValue = record.valueRight.toString()
+                                }
+                            },
+                            onSessionLongPress = { session ->
+                                showSessionEditDialog = session
+                            },
+                            onDeleteClick = { session ->
+                                showDeleteDialog = session
+                            },
+                            onIntervalEditClick = { record ->
+                                showIntervalEditDialog = record
+                            },
+                            onIntervalDeleteClick = { record ->
+                                showIntervalDeleteDialog = record
+                            }
+                        )
+                    }
+                    2 -> {
+                        GraphView(
+                            exercises = exercises,
+                            records = records,
+                            selectedExerciseFilter = selectedExerciseFilter,
+                            selectedPeriod = selectedPeriod
+                        )
+                    }
+                    3 -> {
+                        ChallengeView(
+                            exercises = exercises,
+                            records = records,
+                            selectedExerciseFilter = selectedExerciseFilter,
+                            selectedPeriod = selectedPeriod,
+                            onExerciseClick = { exercise ->
+                                selectedExerciseFilter = exercise
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -352,6 +434,57 @@ fun ViewScreen(
                 }
             )
         }
+    }
+
+    // Interval delete dialog
+    showIntervalDeleteDialog?.let { record ->
+        AlertDialog(
+            onDismissRequest = { showIntervalDeleteDialog = null },
+            containerColor = appColors.cardBackground,
+            title = {
+                Text(
+                    stringResource(R.string.delete_confirmation),
+                    color = appColors.textPrimary,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    stringResource(
+                        R.string.interval_delete_record_confirm,
+                        record.programName,
+                        record.date
+                    ),
+                    color = appColors.textTertiary
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.deleteIntervalRecord(record.id)
+                    showIntervalDeleteDialog = null
+                }) {
+                    Text(stringResource(R.string.delete), color = Red600)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showIntervalDeleteDialog = null }) {
+                    Text(stringResource(R.string.cancel), color = appColors.textSecondary)
+                }
+            }
+        )
+    }
+
+    // Interval edit dialog
+    showIntervalEditDialog?.let { record ->
+        IntervalRecordEditDialog(
+            record = record,
+            appColors = appColors,
+            onDismiss = { showIntervalEditDialog = null },
+            onConfirm = { updatedRecord ->
+                viewModel.updateIntervalRecordAsync(updatedRecord)
+                showIntervalEditDialog = null
+            }
+        )
     }
 
     // Edit Record Dialog

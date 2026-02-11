@@ -1,15 +1,18 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -21,21 +24,23 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.compose.ui.res.stringResource
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
+import io.github.gonbei774.calisthenicsmemory.data.IntervalProgram
+import io.github.gonbei774.calisthenicsmemory.data.Program
 import io.github.gonbei774.calisthenicsmemory.data.TodoTask
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.util.SearchUtils
@@ -47,16 +52,38 @@ fun ToDoScreen(
     viewModel: TrainingViewModel,
     onNavigateBack: () -> Unit,
     onNavigateToRecord: (Long) -> Unit,
-    onNavigateToWorkout: (Long) -> Unit
+    onNavigateToWorkout: (Long) -> Unit,
+    onNavigateToProgramPreview: (Long) -> Unit,
+    onNavigateToIntervalPreview: (Long) -> Unit
 ) {
     val appColors = LocalAppColors.current
     val todoTasks by viewModel.todoTasks.collectAsState()
     val exercises by viewModel.exercises.collectAsState()
+    val programs by viewModel.programs.collectAsState()
+    val intervalPrograms by viewModel.intervalPrograms.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
+    var repeatDialogTask by remember { mutableStateOf<TodoTask?>(null) }
 
-    // Map exerciseId to Exercise for display
+    // Map IDs to objects for display
     val exerciseMap = remember(exercises) {
         exercises.associateBy { it.id }
+    }
+    val programMap = remember(programs) {
+        programs.associateBy { it.id }
+    }
+    val intervalProgramMap = remember(intervalPrograms) {
+        intervalPrograms.associateBy { it.id }
+    }
+
+    // Load exercise counts for interval programs
+    val intervalExerciseCounts = remember { mutableStateMapOf<Long, Int>() }
+    LaunchedEffect(intervalPrograms) {
+        intervalPrograms.forEach { program ->
+            if (program.id !in intervalExerciseCounts) {
+                val exs = viewModel.getIntervalProgramExercisesSync(program.id)
+                intervalExerciseCounts[program.id] = exs.size
+            }
+        }
     }
 
     Scaffold(
@@ -109,6 +136,24 @@ fun ToDoScreen(
             }
         }
     ) { paddingValues ->
+        // Split tasks into active and inactive
+        val today = remember { java.time.LocalDate.now() }
+        val todayDayNumber = remember { today.dayOfWeek.value }
+        val todayStr = remember { today.toString() }
+
+        val activeTasks = remember(todoTasks, todayDayNumber, todayStr) {
+            todoTasks.filter { task ->
+                if (!task.isRepeating()) true
+                else todayDayNumber in task.getRepeatDayNumbers() && task.lastCompletedDate != todayStr
+            }
+        }
+        val inactiveTasks = remember(todoTasks, todayDayNumber, todayStr) {
+            todoTasks.filter { task ->
+                task.isRepeating() &&
+                    (todayDayNumber !in task.getRepeatDayNumbers() || task.lastCompletedDate == todayStr)
+            }
+        }
+
         if (todoTasks.isEmpty()) {
             // Empty state
             Box(
@@ -125,28 +170,99 @@ fun ToDoScreen(
                 )
             }
         } else {
-            // Task list with drag-and-drop reordering
             val scrollState = rememberScrollState()
-            ReorderableColumn(
-                list = todoTasks,
-                onSettle = { fromIndex, toIndex ->
-                    viewModel.reorderTodoTasks(fromIndex, toIndex)
-                },
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(16.dp)
                     .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) { index, task, isDragging ->
-                val exercise = exerciseMap[task.exerciseId]
-                if (exercise != null) {
-                    key(task.id) {
-                        ReorderableItem {
-                            val elevation by animateDpAsState(
-                                targetValue = if (isDragging) 4.dp else 0.dp,
-                                label = "elevation"
-                            )
+            ) {
+                // Active tasks with drag-and-drop reordering
+                if (activeTasks.isNotEmpty()) {
+                    ReorderableColumn(
+                        list = activeTasks,
+                        onSettle = { fromIndex, toIndex ->
+                            val reorderedActive = activeTasks.toMutableList()
+                            val item = reorderedActive.removeAt(fromIndex)
+                            reorderedActive.add(toIndex, item)
+                            val allIds = reorderedActive.map { it.id } + inactiveTasks.map { it.id }
+                            viewModel.reorderTodoTasks(allIds)
+                        },
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) { index, task, isDragging ->
+                        key(task.id) {
+                            ReorderableItem {
+                                val elevation by animateDpAsState(
+                                    targetValue = if (isDragging) 4.dp else 0.dp,
+                                    label = "elevation"
+                                )
+                                val dismissState = rememberSwipeToDismissBoxState(
+                                    confirmValueChange = { value ->
+                                        if (value == SwipeToDismissBoxValue.EndToStart) {
+                                            viewModel.deleteTodoTask(task.id)
+                                            true
+                                        } else {
+                                            false
+                                        }
+                                    }
+                                )
+                                val dragHandleModifier = Modifier.longPressDraggableHandle()
+                                SwipeToDismissBox(
+                                    state = dismissState,
+                                    backgroundContent = {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .background(
+                                                    color = Red600,
+                                                    shape = RoundedCornerShape(12.dp)
+                                                )
+                                                .padding(horizontal = 16.dp),
+                                            contentAlignment = Alignment.CenterEnd
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Delete,
+                                                contentDescription = stringResource(R.string.delete),
+                                                tint = appColors.textPrimary
+                                            )
+                                        }
+                                    },
+                                    enableDismissFromStartToEnd = false,
+                                    enableDismissFromEndToStart = true
+                                ) {
+                                    ActiveTaskContent(
+                                        task = task,
+                                        exerciseMap = exerciseMap,
+                                        programMap = programMap,
+                                        intervalProgramMap = intervalProgramMap,
+                                        intervalExerciseCounts = intervalExerciseCounts,
+                                        isDragging = isDragging,
+                                        elevation = elevation,
+                                        dragHandleModifier = dragHandleModifier,
+                                        onNavigateToRecord = onNavigateToRecord,
+                                        onNavigateToWorkout = onNavigateToWorkout,
+                                        onNavigateToProgramPreview = onNavigateToProgramPreview,
+                                        onNavigateToIntervalPreview = onNavigateToIntervalPreview,
+                                        onLongClick = { repeatDialogTask = task }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Inactive tasks (grayed out, no start button)
+                if (inactiveTasks.isNotEmpty()) {
+                    if (activeTasks.isNotEmpty()) {
+                        HorizontalDivider(
+                            color = appColors.border,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+                    inactiveTasks.forEach { task ->
+                        key(task.id) {
                             val dismissState = rememberSwipeToDismissBoxState(
                                 confirmValueChange = { value ->
                                     if (value == SwipeToDismissBoxValue.EndToStart) {
@@ -180,138 +296,14 @@ fun ToDoScreen(
                                 enableDismissFromStartToEnd = false,
                                 enableDismissFromEndToStart = true
                             ) {
-                                Card(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = if (isDragging) appColors.cardBackgroundSecondary.copy(alpha = 0.9f) else appColors.cardBackground
-                                    ),
-                                    shape = RoundedCornerShape(12.dp),
-                                    elevation = CardDefaults.cardElevation(defaultElevation = elevation)
-                                ) {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(12.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        // Drag handle
-                                        Icon(
-                                            Icons.Default.Menu,
-                                            contentDescription = stringResource(R.string.todo_drag_to_reorder),
-                                            tint = if (isDragging) appColors.textPrimary else appColors.textSecondary,
-                                            modifier = Modifier
-                                                .size(24.dp)
-                                                .longPressDraggableHandle()
-                                        )
-
-                                        // Exercise info
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            // Exercise name
-                                            Text(
-                                                text = exercise.name,
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.Medium,
-                                                color = appColors.textPrimary
-                                            )
-
-                                            // Badges row
-                                            Row(
-                                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                modifier = Modifier.padding(top = 2.dp)
-                                            ) {
-                                                // Favorite
-                                                if (exercise.isFavorite) {
-                                                    Text(
-                                                        text = "★",
-                                                        fontSize = 11.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        color = Color(0xFFFFD700)
-                                                    )
-                                                }
-
-                                                // Level
-                                                if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
-                                                    Text(
-                                                        text = "Lv.${exercise.sortOrder}",
-                                                        fontSize = 11.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        color = Blue600
-                                                    )
-                                                }
-
-                                                // Type
-                                                Text(
-                                                    text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
-                                                    fontSize = 11.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    color = appColors.textSecondary
-                                                )
-
-                                                // Unilateral
-                                                if (exercise.laterality == "Unilateral") {
-                                                    Text(
-                                                        text = stringResource(R.string.one_sided),
-                                                        fontSize = 11.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        color = Purple600
-                                                    )
-                                                }
-                                            }
-
-                                            // Target (separate row)
-                                            if (exercise.targetSets != null && exercise.targetValue != null) {
-                                                Text(
-                                                    text = stringResource(
-                                                        if (exercise.laterality == "Unilateral") R.string.target_format_unilateral else R.string.target_format,
-                                                        exercise.targetSets!!,
-                                                        exercise.targetValue!!,
-                                                        stringResource(if (exercise.type == "Dynamic") R.string.unit_reps else R.string.unit_seconds)
-                                                    ),
-                                                    fontSize = 11.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    color = Green400,
-                                                    modifier = Modifier.padding(top = 2.dp)
-                                                )
-                                            }
-                                        }
-
-                                        // Record button
-                                        Button(
-                                            onClick = {
-                                                onNavigateToRecord(task.exerciseId)
-                                            },
-                                            colors = ButtonDefaults.buttonColors(containerColor = Green600),
-                                            shape = RoundedCornerShape(8.dp),
-                                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                                            modifier = Modifier.height(32.dp)
-                                        ) {
-                                            Text(
-                                                text = stringResource(R.string.todo_rec_button),
-                                                fontSize = 12.sp,
-                                                color = appColors.textPrimary
-                                            )
-                                        }
-
-                                        // Workout button
-                                        Button(
-                                            onClick = {
-                                                onNavigateToWorkout(task.exerciseId)
-                                            },
-                                            colors = ButtonDefaults.buttonColors(containerColor = Orange600),
-                                            shape = RoundedCornerShape(8.dp),
-                                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                                            modifier = Modifier.height(32.dp)
-                                        ) {
-                                            Text(
-                                                text = stringResource(R.string.todo_wo_button),
-                                                fontSize = 12.sp,
-                                                color = appColors.textPrimary
-                                            )
-                                        }
-                                    }
-                                }
+                                InactiveTaskContent(
+                                    task = task,
+                                    exerciseMap = exerciseMap,
+                                    programMap = programMap,
+                                    intervalProgramMap = intervalProgramMap,
+                                    intervalExerciseCounts = intervalExerciseCounts,
+                                    onLongClick = { repeatDialogTask = task }
+                                )
                             }
                         }
                     }
@@ -320,212 +312,867 @@ fun ToDoScreen(
         }
     }
 
-    // Add exercises dialog
+    // Repeat days dialog
+    repeatDialogTask?.let { task ->
+        RepeatDaysDialog(
+            currentRepeatDays = task.repeatDays,
+            onSave = { newRepeatDays ->
+                viewModel.updateTodoRepeatDays(task.id, newRepeatDays)
+                repeatDialogTask = null
+            },
+            onDismiss = { repeatDialogTask = null }
+        )
+    }
+
+    // Add items dialog (tabbed)
     if (showAddDialog) {
-        AddExercisesDialog(
+        AddItemsDialog(
+            viewModel = viewModel,
+            todoTasks = todoTasks,
             exercises = exercises,
-            existingTaskExerciseIds = todoTasks.map { it.exerciseId }.toSet(),
-            onDismiss = { showAddDialog = false },
-            onAdd = { selectedExercises ->
-                viewModel.addTodoTasks(selectedExercises.map { it.id })
-                showAddDialog = false
-            }
+            programs = programs,
+            intervalPrograms = intervalPrograms,
+            intervalExerciseCounts = intervalExerciseCounts,
+            onDismiss = { showAddDialog = false }
         )
     }
 }
 
 @Composable
-fun AddExercisesDialog(
-    exercises: List<Exercise>,
-    existingTaskExerciseIds: Set<Long>,
-    onDismiss: () -> Unit,
-    onAdd: (List<Exercise>) -> Unit
+private fun ActiveTaskContent(
+    task: TodoTask,
+    exerciseMap: Map<Long, Exercise>,
+    programMap: Map<Long, Program>,
+    intervalProgramMap: Map<Long, IntervalProgram>,
+    intervalExerciseCounts: Map<Long, Int>,
+    isDragging: Boolean,
+    elevation: androidx.compose.ui.unit.Dp,
+    dragHandleModifier: Modifier,
+    onNavigateToRecord: (Long) -> Unit,
+    onNavigateToWorkout: (Long) -> Unit,
+    onNavigateToProgramPreview: (Long) -> Unit,
+    onNavigateToIntervalPreview: (Long) -> Unit,
+    onLongClick: () -> Unit
 ) {
     val appColors = LocalAppColors.current
-    val viewModel: TrainingViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    when (task.type) {
+        TodoTask.TYPE_EXERCISE -> {
+            val exercise = exerciseMap[task.referenceId]
+            if (exercise != null) {
+                var showModeDialog by remember { mutableStateOf(false) }
+                ExerciseTaskCard(
+                    exercise = exercise,
+                    task = task,
+                    isDragging = isDragging,
+                    elevation = elevation,
+                    dragHandleModifier = dragHandleModifier,
+                    onStart = { showModeDialog = true },
+                    onLongClick = onLongClick
+                )
+                if (showModeDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showModeDialog = false },
+                        containerColor = appColors.cardBackground,
+                        title = {
+                            Text(
+                                text = stringResource(R.string.todo_choose_mode),
+                                color = appColors.textPrimary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        text = {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Button(
+                                    onClick = {
+                                        showModeDialog = false
+                                        onNavigateToRecord(task.referenceId)
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Green600),
+                                    shape = RoundedCornerShape(8.dp),
+                                    modifier = Modifier.fillMaxWidth().height(48.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.todo_mode_record),
+                                        fontSize = 16.sp,
+                                        color = appColors.textPrimary
+                                    )
+                                }
+                                Button(
+                                    onClick = {
+                                        showModeDialog = false
+                                        onNavigateToWorkout(task.referenceId)
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Orange600),
+                                    shape = RoundedCornerShape(8.dp),
+                                    modifier = Modifier.fillMaxWidth().height(48.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.todo_mode_workout),
+                                        fontSize = 16.sp,
+                                        color = appColors.textPrimary
+                                    )
+                                }
+                            }
+                        },
+                        confirmButton = {},
+                        dismissButton = {
+                            TextButton(onClick = { showModeDialog = false }) {
+                                Text(
+                                    text = stringResource(R.string.cancel),
+                                    color = appColors.textSecondary
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        TodoTask.TYPE_PROGRAM -> {
+            val program = programMap[task.referenceId]
+            if (program != null) {
+                ProgramTaskCard(
+                    program = program,
+                    repeatDays = task.repeatDays,
+                    isDragging = isDragging,
+                    elevation = elevation,
+                    dragHandleModifier = dragHandleModifier,
+                    onNavigate = { onNavigateToProgramPreview(program.id) },
+                    onLongClick = onLongClick
+                )
+            }
+        }
+        TodoTask.TYPE_INTERVAL -> {
+            val intervalProgram = intervalProgramMap[task.referenceId]
+            if (intervalProgram != null) {
+                IntervalTaskCard(
+                    intervalProgram = intervalProgram,
+                    exerciseCount = intervalExerciseCounts[intervalProgram.id] ?: 0,
+                    repeatDays = task.repeatDays,
+                    isDragging = isDragging,
+                    elevation = elevation,
+                    dragHandleModifier = dragHandleModifier,
+                    onNavigate = { onNavigateToIntervalPreview(intervalProgram.id) },
+                    onLongClick = onLongClick
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun InactiveTaskContent(
+    task: TodoTask,
+    exerciseMap: Map<Long, Exercise>,
+    programMap: Map<Long, Program>,
+    intervalProgramMap: Map<Long, IntervalProgram>,
+    intervalExerciseCounts: Map<Long, Int>,
+    onLongClick: () -> Unit
+) {
+    val appColors = LocalAppColors.current
+    when (task.type) {
+            TodoTask.TYPE_EXERCISE -> {
+                val exercise = exerciseMap[task.referenceId]
+                if (exercise != null) {
+                    ExerciseTaskCard(
+                        exercise = exercise,
+                        task = task,
+                        isDragging = false,
+                        elevation = 0.dp,
+                        dragHandleModifier = Modifier,
+                        onStart = {},
+                        onLongClick = onLongClick,
+                        showStartButton = false
+                    )
+                }
+            }
+            TodoTask.TYPE_PROGRAM -> {
+                val program = programMap[task.referenceId]
+                if (program != null) {
+                    ProgramTaskCard(
+                        program = program,
+                        repeatDays = task.repeatDays,
+                        isDragging = false,
+                        elevation = 0.dp,
+                        dragHandleModifier = Modifier,
+                        onNavigate = {},
+                        onLongClick = onLongClick,
+                        showStartButton = false
+                    )
+                }
+            }
+            TodoTask.TYPE_INTERVAL -> {
+                val intervalProgram = intervalProgramMap[task.referenceId]
+                if (intervalProgram != null) {
+                    IntervalTaskCard(
+                        intervalProgram = intervalProgram,
+                        exerciseCount = intervalExerciseCounts[intervalProgram.id] ?: 0,
+                        repeatDays = task.repeatDays,
+                        isDragging = false,
+                        elevation = 0.dp,
+                        dragHandleModifier = Modifier,
+                        onNavigate = {},
+                        onLongClick = onLongClick,
+                        showStartButton = false
+                    )
+                }
+            }
+        }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun ExerciseTaskCard(
+    exercise: Exercise,
+    task: TodoTask,
+    isDragging: Boolean,
+    elevation: androidx.compose.ui.unit.Dp,
+    dragHandleModifier: Modifier,
+    onStart: () -> Unit,
+    onLongClick: () -> Unit,
+    showStartButton: Boolean = true
+) {
+    val appColors = LocalAppColors.current
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDragging) appColors.cardBackgroundSecondary.copy(alpha = 0.9f) else appColors.cardBackground
+        ),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+                .alpha(if (showStartButton) 1f else 0.4f),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Drag handle
+            Icon(
+                Icons.Default.Menu,
+                contentDescription = stringResource(R.string.todo_drag_to_reorder),
+                tint = if (isDragging) appColors.textPrimary else appColors.textSecondary,
+                modifier = Modifier
+                    .size(24.dp)
+                    .then(dragHandleModifier)
+            )
+
+            // Exercise info
+            Column(modifier = Modifier.weight(1f).combinedClickable(onClick = {}, onLongClick = onLongClick)) {
+                Text(
+                    text = exercise.name,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = appColors.textPrimary
+                )
+                // Badges row
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 2.dp)
+                ) {
+                    if (exercise.isFavorite) {
+                        Text(text = "★", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFFD700))
+                    }
+                    if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
+                        Text(text = "Lv.${exercise.sortOrder}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Blue600)
+                    }
+                    Text(
+                        text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
+                        fontSize = 11.sp, fontWeight = FontWeight.Bold, color = appColors.textSecondary
+                    )
+                    if (exercise.laterality == "Unilateral") {
+                        Text(text = stringResource(R.string.one_sided), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Purple600)
+                    }
+                }
+                if (exercise.targetSets != null && exercise.targetValue != null) {
+                    Text(
+                        text = stringResource(
+                            if (exercise.laterality == "Unilateral") R.string.target_format_unilateral else R.string.target_format,
+                            exercise.targetSets!!,
+                            exercise.targetValue!!,
+                            stringResource(if (exercise.type == "Dynamic") R.string.unit_reps else R.string.unit_seconds)
+                        ),
+                        fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Green400,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
+                RepeatDaysLabel(repeatDays = task.repeatDays)
+            }
+
+            // Start button
+            if (showStartButton) {
+                Button(
+                    onClick = onStart,
+                    colors = ButtonDefaults.buttonColors(containerColor = Amber500),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text(text = stringResource(R.string.todo_start_button), fontSize = 12.sp, color = appColors.textPrimary)
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun ProgramTaskCard(
+    program: Program,
+    repeatDays: String,
+    isDragging: Boolean,
+    elevation: androidx.compose.ui.unit.Dp,
+    dragHandleModifier: Modifier,
+    onNavigate: () -> Unit,
+    onLongClick: () -> Unit,
+    showStartButton: Boolean = true
+) {
+    val appColors = LocalAppColors.current
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDragging) appColors.cardBackgroundSecondary.copy(alpha = 0.9f) else appColors.cardBackground
+        ),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+                .alpha(if (showStartButton) 1f else 0.4f),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Drag handle
+            Icon(
+                Icons.Default.Menu,
+                contentDescription = stringResource(R.string.todo_drag_to_reorder),
+                tint = if (isDragging) appColors.textPrimary else appColors.textSecondary,
+                modifier = Modifier
+                    .size(24.dp)
+                    .then(dragHandleModifier)
+            )
+
+            // Program info
+            Column(modifier = Modifier.weight(1f).combinedClickable(onClick = {}, onLongClick = onLongClick)) {
+                Text(
+                    text = program.name,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = appColors.textPrimary
+                )
+                Text(
+                    text = stringResource(R.string.todo_tab_programs),
+                    fontSize = 11.sp,
+                    color = Orange600,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+                RepeatDaysLabel(repeatDays = repeatDays)
+            }
+
+            // Start button
+            if (showStartButton) {
+                Button(
+                    onClick = onNavigate,
+                    colors = ButtonDefaults.buttonColors(containerColor = Amber500),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text(text = stringResource(R.string.todo_start_button), fontSize = 12.sp, color = appColors.textPrimary)
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun IntervalTaskCard(
+    intervalProgram: IntervalProgram,
+    exerciseCount: Int,
+    repeatDays: String,
+    isDragging: Boolean,
+    elevation: androidx.compose.ui.unit.Dp,
+    dragHandleModifier: Modifier,
+    onNavigate: () -> Unit,
+    onLongClick: () -> Unit,
+    showStartButton: Boolean = true
+) {
+    val appColors = LocalAppColors.current
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDragging) appColors.cardBackgroundSecondary.copy(alpha = 0.9f) else appColors.cardBackground
+        ),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+                .alpha(if (showStartButton) 1f else 0.4f),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Drag handle
+            Icon(
+                Icons.Default.Menu,
+                contentDescription = stringResource(R.string.todo_drag_to_reorder),
+                tint = if (isDragging) appColors.textPrimary else appColors.textSecondary,
+                modifier = Modifier
+                    .size(24.dp)
+                    .then(dragHandleModifier)
+            )
+
+            // Interval program info
+            Column(modifier = Modifier.weight(1f).combinedClickable(onClick = {}, onLongClick = onLongClick)) {
+                Text(
+                    text = intervalProgram.name,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = appColors.textPrimary
+                )
+                Text(
+                    text = stringResource(
+                        R.string.interval_summary_format,
+                        exerciseCount,
+                        intervalProgram.workSeconds,
+                        intervalProgram.restSeconds,
+                        intervalProgram.rounds
+                    ),
+                    fontSize = 12.sp,
+                    color = appColors.textSecondary,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+                RepeatDaysLabel(repeatDays = repeatDays)
+            }
+
+            // Start button
+            if (showStartButton) {
+                Button(
+                    onClick = onNavigate,
+                    colors = ButtonDefaults.buttonColors(containerColor = Amber500),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text(text = stringResource(R.string.todo_start_button), fontSize = 12.sp, color = appColors.textPrimary)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AddItemsDialog(
+    viewModel: TrainingViewModel,
+    todoTasks: List<TodoTask>,
+    exercises: List<Exercise>,
+    programs: List<Program>,
+    intervalPrograms: List<IntervalProgram>,
+    intervalExerciseCounts: Map<Long, Int>,
+    onDismiss: () -> Unit
+) {
+    val appColors = LocalAppColors.current
+    var selectedTab by remember { mutableIntStateOf(0) }
+    val tabTitles = listOf(
+        stringResource(R.string.todo_tab_exercises),
+        stringResource(R.string.todo_tab_programs),
+        stringResource(R.string.todo_tab_intervals)
+    )
+
+    // Existing IDs by type
+    val existingExerciseIds = remember(todoTasks) {
+        todoTasks.filter { it.type == TodoTask.TYPE_EXERCISE }.map { it.referenceId }.toSet()
+    }
+    val existingProgramIds = remember(todoTasks) {
+        todoTasks.filter { it.type == TodoTask.TYPE_PROGRAM }.map { it.referenceId }.toSet()
+    }
+    val existingIntervalIds = remember(todoTasks) {
+        todoTasks.filter { it.type == TodoTask.TYPE_INTERVAL }.map { it.referenceId }.toSet()
+    }
+
+    // Selection state
+    var selectedExercises by remember { mutableStateOf(setOf<Long>()) }
+    var selectedPrograms by remember { mutableStateOf(setOf<Long>()) }
+    var selectedIntervals by remember { mutableStateOf(setOf<Long>()) }
+
+    val hasSelection = selectedExercises.isNotEmpty() || selectedPrograms.isNotEmpty() || selectedIntervals.isNotEmpty()
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(appColors.cardBackground)
+                .systemBarsPadding()
+        ) {
+            // Top bar
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(onClick = onDismiss) {
+                    Text(text = stringResource(R.string.cancel), color = appColors.textSecondary)
+                }
+                Text(
+                    text = stringResource(R.string.todo_add_items),
+                    color = appColors.textPrimary,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+                TextButton(
+                    onClick = {
+                        if (selectedExercises.isNotEmpty()) {
+                            viewModel.addTodoTasks(selectedExercises.toList())
+                        }
+                        if (selectedPrograms.isNotEmpty()) {
+                            viewModel.addTodoTaskPrograms(selectedPrograms.toList())
+                        }
+                        if (selectedIntervals.isNotEmpty()) {
+                            viewModel.addTodoTaskIntervals(selectedIntervals.toList())
+                        }
+                        onDismiss()
+                    },
+                    enabled = hasSelection
+                ) {
+                    Text(
+                        text = stringResource(R.string.add),
+                        color = if (hasSelection) Amber500 else appColors.textSecondary
+                    )
+                }
+            }
+
+            // Tabs
+            TabRow(
+                selectedTabIndex = selectedTab,
+                containerColor = appColors.cardBackground,
+                contentColor = Amber500
+            ) {
+                tabTitles.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
+                        text = {
+                            Text(
+                                text = title,
+                                fontSize = 13.sp,
+                                color = if (selectedTab == index) Amber500 else appColors.textSecondary
+                            )
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Tab content
+            when (selectedTab) {
+                0 -> ExercisesTabContent(
+                    viewModel = viewModel,
+                    exercises = exercises,
+                    existingIds = existingExerciseIds,
+                    selectedIds = selectedExercises,
+                    onToggle = { id ->
+                        selectedExercises = if (id in selectedExercises) selectedExercises - id else selectedExercises + id
+                    }
+                )
+                1 -> ProgramsTabContent(
+                    programs = programs,
+                    existingIds = existingProgramIds,
+                    selectedIds = selectedPrograms,
+                    onToggle = { id ->
+                        selectedPrograms = if (id in selectedPrograms) selectedPrograms - id else selectedPrograms + id
+                    }
+                )
+                2 -> IntervalsTabContent(
+                    intervalPrograms = intervalPrograms,
+                    existingIds = existingIntervalIds,
+                    selectedIds = selectedIntervals,
+                    exerciseCounts = intervalExerciseCounts,
+                    onToggle = { id ->
+                        selectedIntervals = if (id in selectedIntervals) selectedIntervals - id else selectedIntervals + id
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExercisesTabContent(
+    viewModel: TrainingViewModel,
+    exercises: List<Exercise>,
+    existingIds: Set<Long>,
+    selectedIds: Set<Long>,
+    onToggle: (Long) -> Unit
+) {
+    val appColors = LocalAppColors.current
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
     val expandedGroups by viewModel.expandedGroups.collectAsState()
 
-    // Track selected exercises
-    var selectedExercises by remember { mutableStateOf(setOf<Long>()) }
-
-    // Search query state
     var searchQuery by remember { mutableStateOf("") }
 
-    // Filter out already added exercises
-    val availableExercises = remember(exercises, existingTaskExerciseIds) {
-        exercises.filter { it.id !in existingTaskExerciseIds }
+    val availableExercises = remember(exercises, existingIds) {
+        exercises.filter { it.id !in existingIds }
     }
 
-    // Filter exercises by search query
     val searchResults = remember(availableExercises, searchQuery) {
         SearchUtils.searchExercises(availableExercises, searchQuery)
     }
 
-    // List state for controlling scroll position
     val listState = rememberLazyListState()
 
-    // Scroll to top when search results change
     LaunchedEffect(searchQuery, searchResults) {
         if (searchQuery.isNotBlank() && searchResults.isNotEmpty()) {
             listState.scrollToItem(0)
         }
     }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = appColors.cardBackground,
-        title = {
-            Text(
-                text = stringResource(R.string.todo_add_exercises),
-                color = appColors.textPrimary,
-                fontWeight = FontWeight.Bold
+    if (availableExercises.isEmpty()) {
+        Text(
+            text = stringResource(R.string.todo_all_added),
+            color = appColors.textSecondary,
+            modifier = Modifier.padding(16.dp)
+        )
+    } else {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Search field
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                placeholder = {
+                    Text(text = stringResource(R.string.search_placeholder), color = appColors.textSecondary)
+                },
+                leadingIcon = {
+                    Icon(Icons.Default.Search, contentDescription = null, tint = appColors.textSecondary)
+                },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.clear), tint = appColors.textSecondary)
+                        }
+                    }
+                },
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = appColors.textPrimary,
+                    unfocusedTextColor = appColors.textPrimary,
+                    focusedContainerColor = appColors.cardBackgroundSecondary,
+                    unfocusedContainerColor = appColors.cardBackgroundSecondary,
+                    focusedBorderColor = Amber500,
+                    unfocusedBorderColor = appColors.border,
+                    cursorColor = Amber500
+                ),
+                shape = RoundedCornerShape(8.dp)
             )
-        },
-        text = {
-            if (availableExercises.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.todo_all_added),
-                    color = appColors.textSecondary
-                )
-            } else {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.7f)
-                ) {
-                    // Search field
-                    OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp),
-                        placeholder = {
-                            Text(
-                                text = stringResource(R.string.search_placeholder),
-                                color = appColors.textSecondary
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = null,
-                                tint = appColors.textSecondary
-                            )
-                        },
-                        trailingIcon = {
-                            if (searchQuery.isNotEmpty()) {
-                                IconButton(onClick = { searchQuery = "" }) {
-                                    Icon(
-                                        Icons.Default.Clear,
-                                        contentDescription = stringResource(R.string.clear),
-                                        tint = appColors.textSecondary
-                                    )
-                                }
-                            }
-                        },
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = appColors.textPrimary,
-                            unfocusedTextColor = appColors.textPrimary,
-                            focusedContainerColor = appColors.cardBackgroundSecondary,
-                            unfocusedContainerColor = appColors.cardBackgroundSecondary,
-                            focusedBorderColor = Amber500,
-                            unfocusedBorderColor = appColors.border,
-                            cursorColor = Amber500
-                        ),
-                        shape = RoundedCornerShape(8.dp)
-                    )
 
-                    // Exercise list
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        if (searchQuery.isNotBlank()) {
-                            // Flat search results
-                            if (searchResults.isEmpty()) {
-                                item {
-                                    Text(
-                                        text = stringResource(R.string.no_results),
-                                        color = appColors.textSecondary,
-                                        modifier = Modifier.padding(16.dp)
-                                    )
-                                }
-                            } else {
-                                items(
-                                    count = searchResults.size,
-                                    key = { index -> searchResults[index].id }
-                                ) { index ->
-                                    val exercise = searchResults[index]
-                                    SearchResultExerciseItem(
-                                        exercise = exercise,
-                                        isSelected = exercise.id in selectedExercises,
-                                        onToggle = { exerciseId ->
-                                            selectedExercises = if (exerciseId in selectedExercises) {
-                                                selectedExercises - exerciseId
-                                            } else {
-                                                selectedExercises + exerciseId
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                        } else {
-                            // Hierarchical group view
-                            items(
-                                count = hierarchicalData.size,
-                                key = { index -> hierarchicalData[index].groupName ?: "ungrouped" }
-                            ) { index ->
-                                val group = hierarchicalData[index]
-                                // Filter exercises in this group
-                                val availableInGroup = group.exercises.filter { it.id !in existingTaskExerciseIds }
-                                if (availableInGroup.isNotEmpty()) {
-                                    AddExerciseGroup(
-                                        groupName = group.groupName,
-                                        exercises = availableInGroup,
-                                        selectedExercises = selectedExercises,
-                                        isExpanded = (group.groupName ?: "ungrouped") in expandedGroups,
-                                        onExpandToggle = {
-                                            viewModel.toggleGroupExpansion(group.groupName ?: "ungrouped")
-                                        },
-                                        onExerciseToggle = { exerciseId ->
-                                            selectedExercises = if (exerciseId in selectedExercises) {
-                                                selectedExercises - exerciseId
-                                            } else {
-                                                selectedExercises + exerciseId
-                                            }
-                                        }
-                                    )
-                                }
-                            }
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (searchQuery.isNotBlank()) {
+                    if (searchResults.isEmpty()) {
+                        item {
+                            Text(
+                                text = stringResource(R.string.no_results),
+                                color = appColors.textSecondary,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                    } else {
+                        items(
+                            count = searchResults.size,
+                            key = { index -> searchResults[index].id }
+                        ) { index ->
+                            val exercise = searchResults[index]
+                            SearchResultExerciseItem(
+                                exercise = exercise,
+                                isSelected = exercise.id in selectedIds,
+                                onToggle = onToggle
+                            )
+                        }
+                    }
+                } else {
+                    items(
+                        count = hierarchicalData.size,
+                        key = { index -> hierarchicalData[index].groupName ?: "ungrouped" }
+                    ) { index ->
+                        val group = hierarchicalData[index]
+                        val availableInGroup = group.exercises.filter { it.id !in existingIds }
+                        if (availableInGroup.isNotEmpty()) {
+                            AddExerciseGroup(
+                                groupName = group.groupName,
+                                exercises = availableInGroup,
+                                selectedExercises = selectedIds,
+                                isExpanded = (group.groupName ?: "ungrouped") in expandedGroups,
+                                onExpandToggle = {
+                                    viewModel.toggleGroupExpansion(group.groupName ?: "ungrouped")
+                                },
+                                onExerciseToggle = onToggle
+                            )
                         }
                     }
                 }
             }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    val selected = availableExercises.filter { it.id in selectedExercises }
-                    onAdd(selected)
-                },
-                enabled = selectedExercises.isNotEmpty()
-            ) {
-                Text(
-                    text = stringResource(R.string.add),
-                    color = if (selectedExercises.isNotEmpty()) Amber500 else appColors.textSecondary
-                )
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.cancel), color = appColors.textSecondary)
+        }
+    }
+}
+
+@Composable
+private fun ProgramsTabContent(
+    programs: List<Program>,
+    existingIds: Set<Long>,
+    selectedIds: Set<Long>,
+    onToggle: (Long) -> Unit
+) {
+    val appColors = LocalAppColors.current
+    val availablePrograms = remember(programs, existingIds) {
+        programs.filter { it.id !in existingIds }
+    }
+
+    if (availablePrograms.isEmpty()) {
+        Text(
+            text = stringResource(R.string.todo_no_programs),
+            color = appColors.textSecondary,
+            modifier = Modifier.padding(16.dp)
+        )
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            items(
+                items = availablePrograms,
+                key = { it.id }
+            ) { program ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = appColors.cardBackgroundSecondary),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = program.id in selectedIds,
+                            onCheckedChange = { onToggle(program.id) },
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = Amber500,
+                                uncheckedColor = appColors.textSecondary
+                            )
+                        )
+                        Text(
+                            text = program.name,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = appColors.textPrimary,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+                }
             }
         }
-    )
+    }
+}
+
+@Composable
+private fun IntervalsTabContent(
+    intervalPrograms: List<IntervalProgram>,
+    existingIds: Set<Long>,
+    selectedIds: Set<Long>,
+    exerciseCounts: Map<Long, Int>,
+    onToggle: (Long) -> Unit
+) {
+    val appColors = LocalAppColors.current
+    val availableIntervals = remember(intervalPrograms, existingIds) {
+        intervalPrograms.filter { it.id !in existingIds }
+    }
+
+    if (availableIntervals.isEmpty()) {
+        Text(
+            text = stringResource(R.string.todo_no_intervals),
+            color = appColors.textSecondary,
+            modifier = Modifier.padding(16.dp)
+        )
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            items(
+                items = availableIntervals,
+                key = { it.id }
+            ) { program ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = appColors.cardBackgroundSecondary),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = program.id in selectedIds,
+                            onCheckedChange = { onToggle(program.id) },
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = Amber500,
+                                uncheckedColor = appColors.textSecondary
+                            )
+                        )
+                        Column(modifier = Modifier.padding(start = 4.dp)) {
+                            Text(
+                                text = program.name,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = appColors.textPrimary
+                            )
+                            Text(
+                                text = stringResource(
+                                    R.string.interval_summary_format,
+                                    exerciseCounts[program.id] ?: 0,
+                                    program.workSeconds,
+                                    program.restSeconds,
+                                    program.rounds
+                                ),
+                                fontSize = 11.sp,
+                                color = appColors.textSecondary,
+                                modifier = Modifier.padding(top = 2.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -585,10 +1232,10 @@ fun AddExerciseGroup(
             }
 
             // Exercise list
-            androidx.compose.animation.AnimatedVisibility(
+            AnimatedVisibility(
                 visible = isExpanded,
-                enter = androidx.compose.animation.expandVertically(),
-                exit = androidx.compose.animation.shrinkVertically()
+                enter = expandVertically(),
+                exit = shrinkVertically()
             ) {
                 Column(
                     modifier = Modifier.padding(start = 8.dp, end = 16.dp, bottom = 12.dp),
@@ -622,45 +1269,20 @@ fun AddExerciseGroup(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.padding(top = 2.dp)
                                 ) {
-                                    // Favorite
                                     if (exercise.isFavorite) {
-                                        Text(
-                                            text = "★",
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color(0xFFFFD700)
-                                        )
+                                        Text(text = "★", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFFD700))
                                     }
-
-                                    // Level
                                     if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
-                                        Text(
-                                            text = "Lv.${exercise.sortOrder}",
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Blue600
-                                        )
+                                        Text(text = "Lv.${exercise.sortOrder}", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Blue600)
                                     }
-
-                                    // Type
                                     Text(
                                         text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = appColors.textSecondary
+                                        fontSize = 10.sp, fontWeight = FontWeight.Bold, color = appColors.textSecondary
                                     )
-
-                                    // Unilateral
                                     if (exercise.laterality == "Unilateral") {
-                                        Text(
-                                            text = stringResource(R.string.one_sided),
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Purple600
-                                        )
+                                        Text(text = stringResource(R.string.one_sided), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Purple600)
                                     }
                                 }
-                                // Target
                                 if (exercise.targetSets != null && exercise.targetValue != null) {
                                     Text(
                                         text = stringResource(
@@ -669,9 +1291,7 @@ fun AddExerciseGroup(
                                             exercise.targetValue!!,
                                             stringResource(if (exercise.type == "Dynamic") R.string.unit_reps else R.string.unit_seconds)
                                         ),
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Green400,
+                                        fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Green400,
                                         modifier = Modifier.padding(top = 2.dp)
                                     )
                                 }
@@ -717,51 +1337,25 @@ fun SearchResultExerciseItem(
                     fontWeight = FontWeight.Bold,
                     color = appColors.textPrimary
                 )
-                // Badges row
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(top = 2.dp)
                 ) {
-                    // Favorite
                     if (exercise.isFavorite) {
-                        Text(
-                            text = "★",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFFFFD700)
-                        )
+                        Text(text = "★", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFFD700))
                     }
-
-                    // Level
                     if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
-                        Text(
-                            text = "Lv.${exercise.sortOrder}",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Blue600
-                        )
+                        Text(text = "Lv.${exercise.sortOrder}", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Blue600)
                     }
-
-                    // Type
                     Text(
                         text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = appColors.textSecondary
+                        fontSize = 10.sp, fontWeight = FontWeight.Bold, color = appColors.textSecondary
                     )
-
-                    // Unilateral
                     if (exercise.laterality == "Unilateral") {
-                        Text(
-                            text = stringResource(R.string.one_sided),
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Purple600
-                        )
+                        Text(text = stringResource(R.string.one_sided), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Purple600)
                     }
                 }
-                // Target
                 if (exercise.targetSets != null && exercise.targetValue != null) {
                     Text(
                         text = stringResource(
@@ -770,13 +1364,100 @@ fun SearchResultExerciseItem(
                             exercise.targetValue!!,
                             stringResource(if (exercise.type == "Dynamic") R.string.unit_reps else R.string.unit_seconds)
                         ),
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Green400,
+                        fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Green400,
                         modifier = Modifier.padding(top = 2.dp)
                     )
                 }
             }
         }
     }
+}
+
+@Composable
+private fun RepeatDaysLabel(repeatDays: String) {
+    if (repeatDays.isEmpty()) return
+    val dayNumbers = repeatDays.split(",").map { it.trim().toInt() }
+    val locale = java.util.Locale.getDefault()
+    val dayNames = dayNumbers.map { dayNum ->
+        java.time.DayOfWeek.of(dayNum).getDisplayName(java.time.format.TextStyle.SHORT, locale)
+    }
+    Text(
+        text = dayNames.joinToString(" "),
+        fontSize = 10.sp,
+        color = Amber500,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(top = 2.dp)
+    )
+}
+
+@Composable
+private fun RepeatDaysDialog(
+    currentRepeatDays: String,
+    onSave: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val appColors = LocalAppColors.current
+    val locale = java.util.Locale.getDefault()
+    var selectedDays by remember(currentRepeatDays) {
+        val initial = if (currentRepeatDays.isEmpty()) emptySet()
+        else currentRepeatDays.split(",").map { it.trim().toInt() }.toSet()
+        mutableStateOf(initial)
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = appColors.cardBackground,
+        title = {
+            Text(
+                text = stringResource(R.string.todo_repeat_title),
+                color = appColors.textPrimary,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                (1..7).forEach { dayNum ->
+                    val dayOfWeek = java.time.DayOfWeek.of(dayNum)
+                    val dayName = dayOfWeek.getDisplayName(java.time.format.TextStyle.NARROW, locale)
+                    val isSelected = dayNum in selectedDays
+
+                    Surface(
+                        modifier = Modifier.size(40.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        color = if (isSelected) Amber500 else appColors.cardBackgroundSecondary,
+                        onClick = {
+                            selectedDays = if (isSelected) selectedDays - dayNum else selectedDays + dayNum
+                        }
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = dayName,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isSelected) Color.White else appColors.textSecondary
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                val result = selectedDays.sorted().joinToString(",")
+                onSave(result)
+            }) {
+                Text(stringResource(R.string.todo_repeat_save), color = Amber500)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = {
+                onSave("")
+            }) {
+                Text(stringResource(R.string.todo_repeat_clear), color = appColors.textSecondary)
+            }
+        }
+    )
 }

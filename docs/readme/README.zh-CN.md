@@ -42,19 +42,24 @@
   <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="在 F-Droid 下载"></a>
 </p>
 
+<p align="center">
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases"><img src="https://get-it-on.codeberg.org/get-it-on-white-on-black.png" height="80" alt="在 Codeberg 下载"></a>
+</p>
+
 ## 关于
 
 注重隐私的自重训练记录应用。一切皆可自定义。
 
 ## 功能
 
-- **待办** - 规划锻炼，点击直接跳转
+- **待办** - 规划锻炼，点击直接跳转，按星期设置重复
 - **记录模式** - 快速手动输入
 - **训练模式** - 计时器自动引导，组完成通知
   - 单项 - 专注于一个动作
   - 程序 - 创建并执行多动作训练计划，灵活导航
+  - 间歇 - 可自定义轮次的计时训练/休息循环
 - **动作创建** - 配置动态/静态、单侧/双侧、间隔等
-- **进度跟踪** - 列表、图表、挑战状态
+- **进度跟踪** - 日历、列表、图表、挑战状态
 - **数据管理** - JSON/CSV 导出/导入
 
 ## 截图
@@ -87,4 +92,4 @@
 
 ---
 
-**最后更新**: 2025年12月6日
+**最后更新**: 2026年2月12日

@@ -8,6 +8,9 @@ import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.ExerciseGroup
 import io.github.gonbei774.calisthenicsmemory.data.Program
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
+import io.github.gonbei774.calisthenicsmemory.data.IntervalProgram
+import io.github.gonbei774.calisthenicsmemory.data.IntervalProgramExercise
+import io.github.gonbei774.calisthenicsmemory.data.IntervalRecord
 import io.github.gonbei774.calisthenicsmemory.data.ProgramLoop
 import io.github.gonbei774.calisthenicsmemory.data.TodoTask
 import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
@@ -20,6 +23,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import android.database.sqlite.SQLiteConstraintException
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -39,7 +43,11 @@ data class BackupData(
     val records: List<ExportRecord>,
     val programs: List<ExportProgram> = emptyList(),           // v4で追加
     val programExercises: List<ExportProgramExercise> = emptyList(),  // v4で追加
-    val programLoops: List<ExportProgramLoop> = emptyList()    // v5で追加（後方互換性のためデフォルト空）
+    val programLoops: List<ExportProgramLoop> = emptyList(),    // v5で追加（後方互換性のためデフォルト空）
+    val intervalPrograms: List<ExportIntervalProgram> = emptyList(),              // v7で追加
+    val intervalProgramExercises: List<ExportIntervalProgramExercise> = emptyList(), // v7で追加
+    val intervalRecords: List<ExportIntervalRecord> = emptyList(),                 // v7で追加
+    val todoTasks: List<ExportTodoTask> = emptyList()                             // v8で追加
 )
 
 @Serializable
@@ -64,7 +72,8 @@ data class ExportExercise(
     val repDuration: Int? = null,    // 種目固有の1レップ時間（デフォルト値で後方互換）
     val distanceTrackingEnabled: Boolean = false,  // 距離入力を有効化（v3で追加）
     val weightTrackingEnabled: Boolean = false,    // 荷重入力を有効化（v3で追加）
-    val assistanceTrackingEnabled: Boolean = false // アシスト入力を有効化（v6で追加）
+    val assistanceTrackingEnabled: Boolean = false, // アシスト入力を有効化（v6で追加）
+    val description: String? = null                // 種目の説明文（v6で追加）
 )
 
 @Serializable
@@ -111,6 +120,50 @@ data class ExportProgramLoop(
     val restBetweenRounds: Int
 )
 
+@Serializable
+data class ExportIntervalProgram(
+    val id: Long,
+    val name: String,
+    val workSeconds: Int,
+    val restSeconds: Int,
+    val rounds: Int,
+    val roundRestSeconds: Int
+)
+
+@Serializable
+data class ExportIntervalProgramExercise(
+    val id: Long,
+    val programId: Long,
+    val exerciseId: Long,
+    val sortOrder: Int
+)
+
+@Serializable
+data class ExportIntervalRecord(
+    val id: Long,
+    val programName: String,
+    val date: String,
+    val time: String,
+    val workSeconds: Int,
+    val restSeconds: Int,
+    val rounds: Int,
+    val roundRestSeconds: Int,
+    val completedRounds: Int,
+    val completedExercisesInLastRound: Int,
+    val exercisesJson: String,
+    val comment: String? = null
+)
+
+@Serializable
+data class ExportTodoTask(
+    val id: Long,
+    val type: String,
+    val referenceId: Long,
+    val sortOrder: Int,
+    val repeatDays: String = "",
+    val lastCompletedDate: String? = null
+)
+
 class TrainingViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database = AppDatabase.getDatabase(application)
@@ -121,6 +174,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     private val programDao = database.programDao()
     private val programExerciseDao = database.programExerciseDao()
     private val programLoopDao = database.programLoopDao()
+    private val intervalProgramDao = database.intervalProgramDao()
+    private val intervalProgramExerciseDao = database.intervalProgramExerciseDao()
+    private val intervalRecordDao = database.intervalRecordDao()
 
     companion object {
         // お気に入りグループの固定キー（UI側で翻訳される）
@@ -185,7 +241,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         repDuration: Int? = null,        // 種目固有の1レップ時間（秒）
         distanceTrackingEnabled: Boolean = false,  // 距離トラッキング有効
         weightTrackingEnabled: Boolean = false,    // 荷重トラッキング有効
-        assistanceTrackingEnabled: Boolean = false // アシストトラッキング有効
+        assistanceTrackingEnabled: Boolean = false, // アシストトラッキング有効
+        description: String? = null                // 種目の説明文
     ) {
         viewModelScope.launch {
             try {
@@ -212,7 +269,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     repDuration = repDuration,
                     distanceTrackingEnabled = distanceTrackingEnabled,
                     weightTrackingEnabled = weightTrackingEnabled,
-                    assistanceTrackingEnabled = assistanceTrackingEnabled
+                    assistanceTrackingEnabled = assistanceTrackingEnabled,
+                    description = description
                 )
                 exerciseDao.insertExercise(exercise)
                 _snackbarMessage.value = UiMessage.ExerciseAdded
@@ -585,7 +643,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     repDuration = exercise.repDuration,
                     distanceTrackingEnabled = exercise.distanceTrackingEnabled,
                     weightTrackingEnabled = exercise.weightTrackingEnabled,
-                    assistanceTrackingEnabled = exercise.assistanceTrackingEnabled
+                    assistanceTrackingEnabled = exercise.assistanceTrackingEnabled,
+                    description = exercise.description
                 )
             }
 
@@ -651,8 +710,69 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 }
             }
 
+            // インターバルプログラムをエクスポート（v7で追加）
+            val currentIntervalPrograms = intervalPrograms.value
+            val exportIntervalPrograms = currentIntervalPrograms.map { program ->
+                ExportIntervalProgram(
+                    id = program.id,
+                    name = program.name,
+                    workSeconds = program.workSeconds,
+                    restSeconds = program.restSeconds,
+                    rounds = program.rounds,
+                    roundRestSeconds = program.roundRestSeconds
+                )
+            }
+
+            // インターバルプログラム内種目をエクスポート（v7で追加）
+            val allIntervalProgramExercises = mutableListOf<ExportIntervalProgramExercise>()
+            currentIntervalPrograms.forEach { program ->
+                val exercises = intervalProgramExerciseDao.getExercisesForProgramSync(program.id)
+                exercises.forEach { pe ->
+                    allIntervalProgramExercises.add(
+                        ExportIntervalProgramExercise(
+                            id = pe.id,
+                            programId = pe.programId,
+                            exerciseId = pe.exerciseId,
+                            sortOrder = pe.sortOrder
+                        )
+                    )
+                }
+            }
+
+            // インターバル記録をエクスポート（v7で追加）
+            val currentIntervalRecords = intervalRecords.value
+            val exportIntervalRecords = currentIntervalRecords.map { record ->
+                ExportIntervalRecord(
+                    id = record.id,
+                    programName = record.programName,
+                    date = record.date,
+                    time = record.time,
+                    workSeconds = record.workSeconds,
+                    restSeconds = record.restSeconds,
+                    rounds = record.rounds,
+                    roundRestSeconds = record.roundRestSeconds,
+                    completedRounds = record.completedRounds,
+                    completedExercisesInLastRound = record.completedExercisesInLastRound,
+                    exercisesJson = record.exercisesJson,
+                    comment = record.comment
+                )
+            }
+
+            // ToDoタスクをエクスポート（v8で追加）
+            val currentTodoTasks = todoTasks.value
+            val exportTodoTasks = currentTodoTasks.map { task ->
+                ExportTodoTask(
+                    id = task.id,
+                    type = task.type,
+                    referenceId = task.referenceId,
+                    sortOrder = task.sortOrder,
+                    repeatDays = task.repeatDays,
+                    lastCompletedDate = task.lastCompletedDate
+                )
+            }
+
             val backupData = BackupData(
-                version = 5,  // v5: ループ機能追加
+                version = 8,  // v8: ToDoタスク追加
                 exportDate = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 app = "CalisthenicsMemory",
                 groups = exportGroups,
@@ -660,7 +780,11 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 records = exportRecords,
                 programs = exportPrograms,
                 programExercises = allProgramExercises,
-                programLoops = allProgramLoops  // v5で追加
+                programLoops = allProgramLoops,
+                intervalPrograms = exportIntervalPrograms,
+                intervalProgramExercises = allIntervalProgramExercises,
+                intervalRecords = exportIntervalRecords,
+                todoTasks = exportTodoTasks
             )
 
             withContext(Dispatchers.Main) {
@@ -715,7 +839,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         repDuration = exportExercise.repDuration,
                         distanceTrackingEnabled = exportExercise.distanceTrackingEnabled,
                         weightTrackingEnabled = exportExercise.weightTrackingEnabled,
-                        assistanceTrackingEnabled = exportExercise.assistanceTrackingEnabled
+                        assistanceTrackingEnabled = exportExercise.assistanceTrackingEnabled,
+                        description = exportExercise.description
                     )
                     exerciseDao.insertExercise(exercise)
                 }
@@ -776,6 +901,62 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     programExerciseDao.insert(programExercise)
                 }
 
+                // 8. インターバルプログラムをインポート（v7で追加）
+                backupData.intervalPrograms.forEach { exportIp ->
+                    val intervalProgram = IntervalProgram(
+                        id = exportIp.id,
+                        name = exportIp.name,
+                        workSeconds = exportIp.workSeconds,
+                        restSeconds = exportIp.restSeconds,
+                        rounds = exportIp.rounds,
+                        roundRestSeconds = exportIp.roundRestSeconds
+                    )
+                    intervalProgramDao.insert(intervalProgram)
+                }
+
+                // 9. インターバルプログラム内種目をインポート（v7で追加）
+                backupData.intervalProgramExercises.forEach { exportIpe ->
+                    val intervalProgramExercise = IntervalProgramExercise(
+                        id = exportIpe.id,
+                        programId = exportIpe.programId,
+                        exerciseId = exportIpe.exerciseId,
+                        sortOrder = exportIpe.sortOrder
+                    )
+                    intervalProgramExerciseDao.insert(intervalProgramExercise)
+                }
+
+                // 10. インターバル記録をインポート（v7で追加）
+                backupData.intervalRecords.forEach { exportIr ->
+                    val intervalRecord = IntervalRecord(
+                        id = exportIr.id,
+                        programName = exportIr.programName,
+                        date = exportIr.date,
+                        time = exportIr.time,
+                        workSeconds = exportIr.workSeconds,
+                        restSeconds = exportIr.restSeconds,
+                        rounds = exportIr.rounds,
+                        roundRestSeconds = exportIr.roundRestSeconds,
+                        completedRounds = exportIr.completedRounds,
+                        completedExercisesInLastRound = exportIr.completedExercisesInLastRound,
+                        exercisesJson = exportIr.exercisesJson,
+                        comment = exportIr.comment
+                    )
+                    intervalRecordDao.insert(intervalRecord)
+                }
+
+                // 11. ToDoタスクをインポート（v8で追加）
+                backupData.todoTasks.forEach { exportTask ->
+                    val task = TodoTask(
+                        id = exportTask.id,
+                        type = exportTask.type,
+                        referenceId = exportTask.referenceId,
+                        sortOrder = exportTask.sortOrder,
+                        repeatDays = exportTask.repeatDays,
+                        lastCompletedDate = exportTask.lastCompletedDate
+                    )
+                    todoTaskDao.insert(task)
+                }
+
                 withContext(Dispatchers.Main) {
                     _snackbarMessage.value = UiMessage.ImportComplete(backupData.groups.size, backupData.exercises.size, backupData.records.size)
                 }
@@ -826,7 +1007,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             val currentExercises = exercises.value
 
             val csvBuilder = StringBuilder()
-            csvBuilder.appendLine("name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration,distanceTrackingEnabled,weightTrackingEnabled,assistanceTrackingEnabled")
+            csvBuilder.appendLine("name,type,group,sortOrder,laterality,targetSets,targetValue,isFavorite,displayOrder,restInterval,repDuration,distanceTrackingEnabled,weightTrackingEnabled,assistanceTrackingEnabled,description")
 
             currentExercises.forEach { exercise ->
                 csvBuilder.appendLine(
@@ -834,7 +1015,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     "${exercise.sortOrder},${exercise.laterality}," +
                     "${exercise.targetSets ?: ""},${exercise.targetValue ?: ""},${exercise.isFavorite}," +
                     "${exercise.displayOrder},${exercise.restInterval ?: ""},${exercise.repDuration ?: ""}," +
-                    "${exercise.distanceTrackingEnabled},${exercise.weightTrackingEnabled},${exercise.assistanceTrackingEnabled}"
+                    "${exercise.distanceTrackingEnabled},${exercise.weightTrackingEnabled},${exercise.assistanceTrackingEnabled}," +
+                    (exercise.description ?: "")
                 )
             }
 
@@ -1057,6 +1239,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     val distanceTrackingEnabledStr = columns.getOrNull(11)?.trim() ?: ""
                     val weightTrackingEnabledStr = columns.getOrNull(12)?.trim() ?: ""
                     val assistanceTrackingEnabledStr = columns.getOrNull(13)?.trim() ?: ""
+                    val descriptionStr = columns.getOrNull(14)?.trim() ?: ""
 
                     // 必須フィールドチェック
                     if (name.isEmpty() || type.isEmpty() || laterality.isEmpty()) {
@@ -1100,6 +1283,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     val distanceTrackingEnabled = distanceTrackingEnabledStr.toBooleanStrictOrNull() ?: false
                     val weightTrackingEnabled = weightTrackingEnabledStr.toBooleanStrictOrNull() ?: false
                     val assistanceTrackingEnabled = assistanceTrackingEnabledStr.toBooleanStrictOrNull() ?: false
+                    val description = descriptionStr.ifEmpty { null }
 
                     // 重複チェック
                     val existing = exercises.value.find {
@@ -1132,7 +1316,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         repDuration = repDuration,
                         distanceTrackingEnabled = distanceTrackingEnabled,
                         weightTrackingEnabled = weightTrackingEnabled,
-                        assistanceTrackingEnabled = assistanceTrackingEnabled
+                        assistanceTrackingEnabled = assistanceTrackingEnabled,
+                        description = description
                     )
                     exerciseDao.insertExercise(exercise)
                     successCount++
@@ -1303,7 +1488,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             try {
                 val sortOrder = todoTaskDao.getNextSortOrder()
                 val task = TodoTask(
-                    exerciseId = exerciseId,
+                    type = TodoTask.TYPE_EXERCISE,
+                    referenceId = exerciseId,
                     sortOrder = sortOrder
                 )
                 todoTaskDao.insert(task)
@@ -1319,7 +1505,76 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 var sortOrder = todoTaskDao.getNextSortOrder()
                 exerciseIds.forEach { exerciseId ->
                     val task = TodoTask(
-                        exerciseId = exerciseId,
+                        type = TodoTask.TYPE_EXERCISE,
+                        referenceId = exerciseId,
+                        sortOrder = sortOrder++
+                    )
+                    todoTaskDao.insert(task)
+                }
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun addTodoTaskProgram(programId: Long) {
+        viewModelScope.launch {
+            try {
+                val sortOrder = todoTaskDao.getNextSortOrder()
+                val task = TodoTask(
+                    type = TodoTask.TYPE_PROGRAM,
+                    referenceId = programId,
+                    sortOrder = sortOrder
+                )
+                todoTaskDao.insert(task)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun addTodoTaskPrograms(programIds: List<Long>) {
+        viewModelScope.launch {
+            try {
+                var sortOrder = todoTaskDao.getNextSortOrder()
+                programIds.forEach { programId ->
+                    val task = TodoTask(
+                        type = TodoTask.TYPE_PROGRAM,
+                        referenceId = programId,
+                        sortOrder = sortOrder++
+                    )
+                    todoTaskDao.insert(task)
+                }
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun addTodoTaskInterval(intervalProgramId: Long) {
+        viewModelScope.launch {
+            try {
+                val sortOrder = todoTaskDao.getNextSortOrder()
+                val task = TodoTask(
+                    type = TodoTask.TYPE_INTERVAL,
+                    referenceId = intervalProgramId,
+                    sortOrder = sortOrder
+                )
+                todoTaskDao.insert(task)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun addTodoTaskIntervals(intervalProgramIds: List<Long>) {
+        viewModelScope.launch {
+            try {
+                var sortOrder = todoTaskDao.getNextSortOrder()
+                intervalProgramIds.forEach { intervalProgramId ->
+                    val task = TodoTask(
+                        type = TodoTask.TYPE_INTERVAL,
+                        referenceId = intervalProgramId,
                         sortOrder = sortOrder++
                     )
                     todoTaskDao.insert(task)
@@ -1340,10 +1595,36 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun deleteTodoTaskByExerciseId(exerciseId: Long) {
+    fun deleteTodoTaskByReference(type: String, referenceId: Long) {
         viewModelScope.launch {
             try {
-                todoTaskDao.deleteByExerciseId(exerciseId)
+                todoTaskDao.deleteByReference(type, referenceId)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun completeTodoTaskByReference(type: String, referenceId: Long) {
+        viewModelScope.launch {
+            try {
+                val task = todoTaskDao.getTaskByReference(type, referenceId)
+                if (task != null && task.isRepeating()) {
+                    val todayStr = java.time.LocalDate.now().toString()
+                    todoTaskDao.updateLastCompletedDate(type, referenceId, todayStr)
+                } else {
+                    todoTaskDao.deleteByReference(type, referenceId)
+                }
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    fun updateTodoRepeatDays(taskId: Long, repeatDays: String) {
+        viewModelScope.launch {
+            try {
+                todoTaskDao.updateRepeatDays(taskId, repeatDays)
             } catch (e: Exception) {
                 _snackbarMessage.value = UiMessage.ErrorOccurred
             }
@@ -1668,6 +1949,192 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             programExerciseDao.update(programExercise.copy(loopId = loopId))
         } catch (e: Exception) {
             _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
+    // ========================================
+    // IntervalProgram 操作
+    // ========================================
+
+    val intervalPrograms: StateFlow<List<IntervalProgram>> = intervalProgramDao.getAllPrograms()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptyList()
+        )
+
+    suspend fun createIntervalProgramAndGetId(
+        name: String,
+        workSeconds: Int,
+        restSeconds: Int,
+        rounds: Int,
+        roundRestSeconds: Int
+    ): Long? {
+        return try {
+            val program = IntervalProgram(
+                name = name,
+                workSeconds = workSeconds,
+                restSeconds = restSeconds,
+                rounds = rounds,
+                roundRestSeconds = roundRestSeconds
+            )
+            intervalProgramDao.insert(program)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+            null
+        }
+    }
+
+    suspend fun updateIntervalProgram(program: IntervalProgram) {
+        try {
+            intervalProgramDao.update(program)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
+    fun deleteIntervalProgram(programId: Long) {
+        viewModelScope.launch {
+            try {
+                intervalProgramDao.deleteById(programId)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    suspend fun getIntervalProgramById(programId: Long): IntervalProgram? {
+        return intervalProgramDao.getProgramById(programId)
+    }
+
+    fun duplicateIntervalProgram(programId: Long, copySuffix: String) {
+        viewModelScope.launch {
+            try {
+                val source = intervalProgramDao.getProgramById(programId) ?: return@launch
+                val sourceExercises = intervalProgramExerciseDao.getExercisesForProgramSync(programId)
+
+                val newId = intervalProgramDao.insert(
+                    IntervalProgram(
+                        name = "${source.name} $copySuffix",
+                        workSeconds = source.workSeconds,
+                        restSeconds = source.restSeconds,
+                        rounds = source.rounds,
+                        roundRestSeconds = source.roundRestSeconds
+                    )
+                )
+
+                sourceExercises.forEach { exercise ->
+                    intervalProgramExerciseDao.insert(
+                        IntervalProgramExercise(
+                            programId = newId,
+                            exerciseId = exercise.exerciseId,
+                            sortOrder = exercise.sortOrder
+                        )
+                    )
+                }
+
+                _snackbarMessage.value = UiMessage.ProgramDuplicated
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
+    // ========================================
+    // IntervalProgramExercise 操作
+    // ========================================
+
+    fun getIntervalProgramExercisesFlow(programId: Long) =
+        intervalProgramExerciseDao.getExercisesForProgram(programId)
+
+    suspend fun getIntervalProgramExercisesSync(programId: Long): List<IntervalProgramExercise> {
+        return intervalProgramExerciseDao.getExercisesForProgramSync(programId)
+    }
+
+    suspend fun addIntervalProgramExerciseSync(
+        programId: Long,
+        exerciseId: Long,
+        sortOrder: Int? = null
+    ): Long? {
+        return try {
+            val finalSortOrder = sortOrder ?: intervalProgramExerciseDao.getNextSortOrder(programId)
+            val exercise = IntervalProgramExercise(
+                programId = programId,
+                exerciseId = exerciseId,
+                sortOrder = finalSortOrder
+            )
+            intervalProgramExerciseDao.insert(exercise)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+            null
+        }
+    }
+
+    suspend fun deleteIntervalProgramExercise(exercise: IntervalProgramExercise) {
+        try {
+            intervalProgramExerciseDao.delete(exercise)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
+    suspend fun updateIntervalProgramExercise(exercise: IntervalProgramExercise) {
+        try {
+            intervalProgramExerciseDao.update(exercise)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
+    suspend fun reorderIntervalProgramExercises(exerciseIds: List<Long>) {
+        try {
+            intervalProgramExerciseDao.reorderExercises(exerciseIds)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
+    // ========================================
+    // IntervalRecord 操作
+    // ========================================
+
+    val intervalRecords: StateFlow<List<IntervalRecord>> = intervalRecordDao.getAllRecords()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptyList()
+        )
+
+    suspend fun saveIntervalRecord(record: IntervalRecord): Long? {
+        return try {
+            intervalRecordDao.insert(record)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+            null
+        }
+    }
+
+    suspend fun updateIntervalRecord(record: IntervalRecord) {
+        try {
+            intervalRecordDao.update(record)
+        } catch (e: Exception) {
+            _snackbarMessage.value = UiMessage.ErrorOccurred
+        }
+    }
+
+    fun updateIntervalRecordAsync(record: IntervalRecord) {
+        viewModelScope.launch {
+            updateIntervalRecord(record)
+        }
+    }
+
+    fun deleteIntervalRecord(recordId: Long) {
+        viewModelScope.launch {
+            try {
+                intervalRecordDao.deleteById(recordId)
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
         }
     }
 

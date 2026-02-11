@@ -7,9 +7,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,8 +25,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
+import io.github.gonbei774.calisthenicsmemory.data.IntervalRecord
 import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import org.json.JSONArray
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -32,16 +36,18 @@ import java.time.format.DateTimeFormatter
 // 一覧表示コンポーネント
 @Composable
 fun RecordListView(
-    sessions: List<SessionInfo>,
+    items: List<RecordItem>,
     exercises: List<Exercise>,
-    selectedExerciseFilter: Exercise?, // フィルター状態の確認用（空メッセージ表示に使用）
+    selectedExerciseFilter: Exercise?,
     onExerciseClick: (Exercise) -> Unit,
     onRecordClick: (TrainingRecord) -> Unit,
     onSessionLongPress: (SessionInfo) -> Unit,
-    onDeleteClick: (SessionInfo) -> Unit
+    onDeleteClick: (SessionInfo) -> Unit,
+    onIntervalEditClick: (IntervalRecord) -> Unit,
+    onIntervalDeleteClick: (IntervalRecord) -> Unit
 ) {
     val appColors = LocalAppColors.current
-    if (sessions.isEmpty() && selectedExerciseFilter == null) {
+    if (items.isEmpty() && selectedExerciseFilter == null) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -59,7 +65,7 @@ fun RecordListView(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            if (sessions.isEmpty()) {
+            if (items.isEmpty()) {
                 item {
                     Box(
                         modifier = Modifier
@@ -76,20 +82,36 @@ fun RecordListView(
                 }
             } else {
                 items(
-                    items = sessions,
-                    key = { session -> "${session.exerciseId}-${session.date}-${session.time}" }
-                ) { session ->
-                    SessionCard(
-                        session = session,
-                        exercise = exercises.find { it.id == session.exerciseId },
-                        isSelected = selectedExerciseFilter?.id == session.exerciseId,
-                        onExerciseClick = { exercise ->
-                            onExerciseClick(exercise)
-                        },
-                        onRecordClick = onRecordClick,
-                        onSessionLongPress = { onSessionLongPress(session) },
-                        onDeleteClick = { onDeleteClick(session) }
-                    )
+                    items = items,
+                    key = { item ->
+                        when (item) {
+                            is RecordItem.Session -> "s-${item.session.exerciseId}-${item.session.date}-${item.session.time}"
+                            is RecordItem.Interval -> "i-${item.record.id}"
+                        }
+                    }
+                ) { item ->
+                    when (item) {
+                        is RecordItem.Session -> {
+                            SessionCard(
+                                session = item.session,
+                                exercise = exercises.find { it.id == item.session.exerciseId },
+                                isSelected = selectedExerciseFilter?.id == item.session.exerciseId,
+                                onExerciseClick = { exercise ->
+                                    onExerciseClick(exercise)
+                                },
+                                onRecordClick = onRecordClick,
+                                onSessionLongPress = { onSessionLongPress(item.session) },
+                                onDeleteClick = { onDeleteClick(item.session) }
+                            )
+                        }
+                        is RecordItem.Interval -> {
+                            IntervalRecordCard(
+                                record = item.record,
+                                onEditClick = { onIntervalEditClick(item.record) },
+                                onDeleteClick = { onIntervalDeleteClick(item.record) }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -420,6 +442,351 @@ fun SessionEditDialog(
         dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+
+    // Date Picker
+    if (showDatePicker) {
+        val currentDate = try {
+            LocalDate.parse(editDate, dateFormatter)
+        } catch (e: Exception) {
+            LocalDate.now()
+        }
+
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = currentDate.toEpochDay() * 86400000
+        )
+
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        val newDate = LocalDate.ofEpochDay(millis / 86400000)
+                        editDate = newDate.format(dateFormatter)
+                    }
+                    showDatePicker = false
+                }) {
+                    Text(stringResource(R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    // Time Picker
+    if (showTimePicker) {
+        val currentTime = try {
+            LocalTime.parse(editTime, timeFormatter)
+        } catch (e: Exception) {
+            LocalTime.now()
+        }
+
+        val timePickerState = rememberTimePickerState(
+            initialHour = currentTime.hour,
+            initialMinute = currentTime.minute,
+            is24Hour = true
+        )
+
+        AlertDialog(
+            onDismissRequest = { showTimePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    val newTime = LocalTime.of(timePickerState.hour, timePickerState.minute)
+                    editTime = newTime.format(timeFormatter)
+                    showTimePicker = false
+                }) {
+                    Text(stringResource(R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTimePicker = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+            text = {
+                TimePicker(state = timePickerState)
+            }
+        )
+    }
+}
+
+// ========================================
+// Interval Record Card
+// ========================================
+
+@Composable
+fun IntervalRecordCard(
+    record: IntervalRecord,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    val appColors = LocalAppColors.current
+    var exercisesExpanded by remember { mutableStateOf(false) }
+
+    val exercises = remember(record.exercisesJson) {
+        try {
+            val arr = JSONArray(record.exercisesJson)
+            (0 until arr.length()).map { arr.getString(it) }
+        } catch (e: Exception) { emptyList() }
+    }
+
+    val isFullCompletion = record.completedRounds == record.rounds
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            // Header: program name + action buttons
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = record.programName,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Orange600
+                    )
+                    Text(
+                        text = "${record.date} ${record.time}",
+                        fontSize = 14.sp,
+                        color = appColors.textSecondary
+                    )
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    IconButton(onClick = onEditClick) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.edit),
+                            tint = Blue600
+                        )
+                    }
+                    IconButton(onClick = onDeleteClick) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = stringResource(R.string.delete),
+                            tint = Red600
+                        )
+                    }
+                }
+            }
+
+            // Comment
+            if (!record.comment.isNullOrBlank()) {
+                Row(
+                    modifier = Modifier.padding(bottom = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(text = "\uD83D\uDCAC", fontSize = 14.sp)
+                    Text(
+                        text = record.comment!!,
+                        fontSize = 14.sp,
+                        color = appColors.textTertiary,
+                        fontStyle = FontStyle.Italic
+                    )
+                }
+            }
+
+            // Settings & completion
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = appColors.cardBackgroundSecondary),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    // Completion status
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(
+                                R.string.interval_record_rounds_format,
+                                record.completedRounds,
+                                record.rounds
+                            ),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isFullCompletion) Orange600 else appColors.textTertiary
+                        )
+                        if (isFullCompletion) {
+                            Text(
+                                text = stringResource(R.string.interval_record_complete),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Orange600
+                            )
+                        } else {
+                            Text(
+                                text = stringResource(R.string.interval_record_partial),
+                                fontSize = 12.sp,
+                                color = appColors.textTertiary
+                            )
+                        }
+                    }
+
+                    // Settings summary
+                    Text(
+                        text = stringResource(
+                            R.string.interval_record_settings_format,
+                            record.workSeconds,
+                            record.restSeconds,
+                            record.roundRestSeconds
+                        ),
+                        fontSize = 13.sp,
+                        color = appColors.textSecondary
+                    )
+                }
+            }
+
+            // Expandable exercise list
+            if (exercises.isNotEmpty()) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    onClick = { exercisesExpanded = !exercisesExpanded },
+                    color = Color.Transparent
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.interval_record_exercises_count, exercises.size),
+                            fontSize = 14.sp,
+                            color = appColors.textSecondary
+                        )
+                        Icon(
+                            if (exercisesExpanded) Icons.Default.KeyboardArrowDown
+                            else Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = appColors.textSecondary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+
+                if (exercisesExpanded) {
+                    Column(
+                        modifier = Modifier.padding(start = 12.dp, top = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        exercises.forEach { name ->
+                            Text(
+                                text = "\u2022 $name",
+                                fontSize = 13.sp,
+                                color = appColors.textSecondary
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ========================================
+// Interval Record Edit Dialog
+// ========================================
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun IntervalRecordEditDialog(
+    record: IntervalRecord,
+    appColors: AppColors,
+    onDismiss: () -> Unit,
+    onConfirm: (IntervalRecord) -> Unit
+) {
+    var editDate by remember { mutableStateOf(record.date) }
+    var editTime by remember { mutableStateOf(record.time) }
+    var editComment by remember { mutableStateOf(record.comment ?: "") }
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
+
+    val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = appColors.cardBackground,
+        title = {
+            Text(
+                stringResource(R.string.edit_session_info),
+                color = appColors.textPrimary
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedButton(
+                    onClick = { showDatePicker = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.date_format, editDate))
+                }
+
+                OutlinedButton(
+                    onClick = { showTimePicker = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.time_format, editTime))
+                }
+
+                OutlinedTextField(
+                    value = editComment,
+                    onValueChange = { editComment = it },
+                    label = { Text(stringResource(R.string.interval_comment_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 3,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = appColors.textPrimary,
+                        unfocusedTextColor = appColors.textPrimary,
+                        focusedBorderColor = Orange600,
+                        unfocusedBorderColor = appColors.textTertiary,
+                        focusedLabelColor = Orange600,
+                        unfocusedLabelColor = appColors.textTertiary,
+                        cursorColor = Orange600
+                    )
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                onConfirm(
+                    record.copy(
+                        date = editDate,
+                        time = editTime,
+                        comment = editComment.ifBlank { null }
+                    )
+                )
+            }) {
+                Text(stringResource(R.string.save), color = Orange600)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel), color = appColors.textSecondary)
             }
         }
     )

@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -522,6 +523,9 @@ fun UnifiedAddDialog(
     var repDuration by remember { mutableStateOf(exercise?.repDuration?.toString() ?: "") }
     var restInterval by remember { mutableStateOf(exercise?.restInterval?.toString() ?: "") }
 
+    // 説明文の状態
+    var description by remember { mutableStateOf(exercise?.description ?: "") }
+
     // トラッキング設定用の状態
     var distanceTrackingEnabled by remember { mutableStateOf(exercise?.distanceTrackingEnabled ?: false) }
     var weightTrackingEnabled by remember { mutableStateOf(exercise?.weightTrackingEnabled ?: false) }
@@ -595,7 +599,8 @@ fun UnifiedAddDialog(
                         restInterval = finalRestInterval,
                         distanceTrackingEnabled = distanceTrackingEnabled,
                         weightTrackingEnabled = weightTrackingEnabled,
-                        assistanceTrackingEnabled = assistanceTrackingEnabled
+                        assistanceTrackingEnabled = assistanceTrackingEnabled,
+                        description = description.ifBlank { null }
                     )
                 )
                 onDismiss()
@@ -628,7 +633,8 @@ fun UnifiedAddDialog(
                     finalRepDuration,
                     distanceTrackingEnabled,
                     weightTrackingEnabled,
-                    assistanceTrackingEnabled
+                    assistanceTrackingEnabled,
+                    description.ifBlank { null }
                 )
                 onDismiss()
             }
@@ -738,18 +744,42 @@ fun UnifiedAddDialog(
                                 )
                                 Row(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    modifier = Modifier.padding(top = 8.dp)
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 8.dp)
                                 ) {
-                                    FilterChip(
-                                        selected = creationType == "exercise",
+                                    val isExercise = creationType == "exercise"
+                                    val isGroup = creationType == "group"
+                                    OutlinedButton(
                                         onClick = { creationType = "exercise" },
-                                        label = { Text(stringResource(R.string.exercise)) }
-                                    )
-                                    FilterChip(
-                                        selected = creationType == "group",
+                                        modifier = Modifier.weight(1f),
+                                        colors = ButtonDefaults.outlinedButtonColors(
+                                            containerColor = if (isExercise) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                            contentColor = if (isExercise) Color.White else appColors.textTertiary
+                                        ),
+                                        border = BorderStroke(
+                                            1.dp,
+                                            if (isExercise) MaterialTheme.colorScheme.primary else appColors.border
+                                        ),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text(stringResource(R.string.exercise))
+                                    }
+                                    OutlinedButton(
                                         onClick = { creationType = "group" },
-                                        label = { Text(stringResource(R.string.group)) }
-                                    )
+                                        modifier = Modifier.weight(1f),
+                                        colors = ButtonDefaults.outlinedButtonColors(
+                                            containerColor = if (isGroup) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                            contentColor = if (isGroup) Color.White else appColors.textTertiary
+                                        ),
+                                        border = BorderStroke(
+                                            1.dp,
+                                            if (isGroup) MaterialTheme.colorScheme.primary else appColors.border
+                                        ),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text(stringResource(R.string.group))
+                                    }
                                 }
                             }
                         }
@@ -818,18 +848,42 @@ fun UnifiedAddDialog(
                                     )
                                     Row(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        modifier = Modifier.padding(top = 8.dp)
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 8.dp)
                                     ) {
-                                        FilterChip(
-                                            selected = selectedType == "Dynamic",
+                                        val isDynamic = selectedType == "Dynamic"
+                                        val isIsometric = selectedType == "Isometric"
+                                        OutlinedButton(
                                             onClick = { selectedType = "Dynamic" },
-                                            label = { Text(stringResource(R.string.exercise_type_dynamic)) }
-                                        )
-                                        FilterChip(
-                                            selected = selectedType == "Isometric",
+                                            modifier = Modifier.weight(1f),
+                                            colors = ButtonDefaults.outlinedButtonColors(
+                                                containerColor = if (isDynamic) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                                contentColor = if (isDynamic) Color.White else appColors.textTertiary
+                                            ),
+                                            border = BorderStroke(
+                                                1.dp,
+                                                if (isDynamic) MaterialTheme.colorScheme.primary else appColors.border
+                                            ),
+                                            shape = RoundedCornerShape(8.dp)
+                                        ) {
+                                            Text(stringResource(R.string.exercise_type_dynamic))
+                                        }
+                                        OutlinedButton(
                                             onClick = { selectedType = "Isometric" },
-                                            label = { Text(stringResource(R.string.exercise_type_isometric)) }
-                                        )
+                                            modifier = Modifier.weight(1f),
+                                            colors = ButtonDefaults.outlinedButtonColors(
+                                                containerColor = if (isIsometric) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                                contentColor = if (isIsometric) Color.White else appColors.textTertiary
+                                            ),
+                                            border = BorderStroke(
+                                                1.dp,
+                                                if (isIsometric) MaterialTheme.colorScheme.primary else appColors.border
+                                            ),
+                                            shape = RoundedCornerShape(8.dp)
+                                        ) {
+                                            Text(stringResource(R.string.exercise_type_isometric))
+                                        }
                                     }
                                 }
 
@@ -843,30 +897,42 @@ fun UnifiedAddDialog(
                                     )
                                     Row(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        modifier = Modifier.padding(top = 8.dp)
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 8.dp)
                                     ) {
-                                        FilterChip(
-                                            selected = selectedLaterality == "Bilateral",
+                                        val isBilateral = selectedLaterality == "Bilateral"
+                                        val isUnilateral = selectedLaterality == "Unilateral"
+                                        OutlinedButton(
                                             onClick = { selectedLaterality = "Bilateral" },
-                                            label = { Text(stringResource(R.string.bilateral_with_parenthesis)) },
-                                            colors = FilterChipDefaults.filterChipColors(
-                                                selectedContainerColor = Blue600,
-                                                selectedLabelColor = Color.White,
-                                                containerColor = appColors.cardBackgroundSecondary,
-                                                labelColor = appColors.textTertiary
-                                            )
-                                        )
-                                        FilterChip(
-                                            selected = selectedLaterality == "Unilateral",
+                                            modifier = Modifier.weight(1f),
+                                            colors = ButtonDefaults.outlinedButtonColors(
+                                                containerColor = if (isBilateral) Blue600 else Color.Transparent,
+                                                contentColor = if (isBilateral) Color.White else appColors.textTertiary
+                                            ),
+                                            border = BorderStroke(
+                                                1.dp,
+                                                if (isBilateral) Blue600 else appColors.border
+                                            ),
+                                            shape = RoundedCornerShape(8.dp)
+                                        ) {
+                                            Text(stringResource(R.string.bilateral_with_parenthesis))
+                                        }
+                                        OutlinedButton(
                                             onClick = { selectedLaterality = "Unilateral" },
-                                            label = { Text(stringResource(R.string.unilateral_with_parenthesis)) },
-                                            colors = FilterChipDefaults.filterChipColors(
-                                                selectedContainerColor = Purple600,
-                                                selectedLabelColor = Color.White,
-                                                containerColor = appColors.cardBackgroundSecondary,
-                                                labelColor = appColors.textTertiary
-                                            )
-                                        )
+                                            modifier = Modifier.weight(1f),
+                                            colors = ButtonDefaults.outlinedButtonColors(
+                                                containerColor = if (isUnilateral) Blue600 else Color.Transparent,
+                                                contentColor = if (isUnilateral) Color.White else appColors.textTertiary
+                                            ),
+                                            border = BorderStroke(
+                                                1.dp,
+                                                if (isUnilateral) Blue600 else appColors.border
+                                            ),
+                                            shape = RoundedCornerShape(8.dp)
+                                        ) {
+                                            Text(stringResource(R.string.unilateral_with_parenthesis))
+                                        }
                                     }
                                     Text(
                                         text = stringResource(
@@ -1140,7 +1206,7 @@ fun UnifiedAddDialog(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Column(modifier = Modifier.weight(1f)) {
+                                    Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
                                         Text(
                                             text = stringResource(R.string.track_distance),
                                             fontSize = 14.sp,
@@ -1164,7 +1230,7 @@ fun UnifiedAddDialog(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Column(modifier = Modifier.weight(1f)) {
+                                    Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
                                         Text(
                                             text = stringResource(R.string.track_weight),
                                             fontSize = 14.sp,
@@ -1188,7 +1254,7 @@ fun UnifiedAddDialog(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Column(modifier = Modifier.weight(1f)) {
+                                    Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
                                         Text(
                                             text = stringResource(R.string.track_assistance),
                                             fontSize = 14.sp,
@@ -1205,6 +1271,37 @@ fun UnifiedAddDialog(
                                         onCheckedChange = { assistanceTrackingEnabled = it }
                                     )
                                 }
+                            }
+                        }
+                        // 説明文カード
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.description_optional),
+                                    fontSize = 14.sp,
+                                    color = appColors.textSecondary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                OutlinedTextField(
+                                    value = description,
+                                    onValueChange = { if (it.length <= 60) description = it },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    minLines = 2,
+                                    maxLines = 3,
+                                    supportingText = {
+                                        Text(
+                                            stringResource(R.string.character_count, description.length, 60),
+                                            color = appColors.textSecondary
+                                        )
+                                    }
+                                )
                             }
                         }
                     }

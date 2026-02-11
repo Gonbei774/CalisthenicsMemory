@@ -42,19 +42,24 @@
   <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="F-Droidで入手"></a>
 </p>
 
+<p align="center">
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases"><img src="https://get-it-on.codeberg.org/get-it-on-white-on-black.png" height="80" alt="Codebergで入手"></a>
+</p>
+
 ## 概要
 
 プライバシー重視の自重トレーニング記録アプリ。すべてを自分好みにカスタマイズ。
 
 ## 機能
 
-- **To Do** - ワークアウトを計画、タップで直接ジャンプ
+- **To Do** - ワークアウトを計画、タップで直接ジャンプ、曜日リピート設定
 - **記録モード** - 手動でサクッと記録
 - **ワークアウトモード** - タイマーで自動ガイド、セット完了通知
   - シングル - 1種目に集中してトレーニング
   - プログラム - 複数種目のルーティンを作成・実行、柔軟なナビゲーション
+  - インターバル - ワーク/レストのタイマーサイクル、ラウンド数カスタマイズ
 - **種目作成** - 動的/静的、片側/両側、インターバルなど細かく設定
-- **進捗追跡** - 一覧、グラフ、課題達成状況
+- **進捗追跡** - カレンダー、一覧、グラフ、課題達成状況
 - **データ管理** - JSON/CSVでエクスポート・インポート
 
 ## スクリーンショット
@@ -87,4 +92,4 @@
 
 ---
 
-**最終更新**: 2025年12月6日
+**最終更新**: 2026年2月12日

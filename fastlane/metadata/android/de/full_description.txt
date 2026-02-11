@@ -1,44 +1,45 @@
-Ein einfacher Tracker für Eigengewichtstraining, den du an deine Bedürfnisse anpassen kannst.
+Ein Tracker für Eigengewichtstraining mit Fokus auf Datenschutz. Passe alles an — Übungen, Trainingsmethoden und Ablauf — ganz nach deinen Bedürfnissen.
 
-Erstelle eigene Übungen, organisiere sie in Gruppen und verfolge deinen Fortschritt auf deine Weise. Keine starren Vorlagen - passe die App an deine Trainingsmethode an.
+Keine starren Vorlagen. Passe die App an deinen Trainingsstil an.
 
-<b>FUNKTIONEN</b>
+<b>To Do</b>
 
-<b>Vollständige Anpassung</b>
+• Stelle dein Training als Liste zusammen, tippe zum direkten Starten
+• Plane Wiederholungen nach Wochentag für automatisierte wöchentliche Routinen
 
-• Erstelle beliebige Übungen mit beliebigen Namen
-• Organisiere Übungen in individuellen Gruppen
-• Wähle zwischen wiederholungsbasierter oder zeitbasierter Aufzeichnung
-• Setze 10 Progressionsstufen passend zu deiner Methode
-• Unterstützung für einseitige (einarmige/einbeinige) Übungen
-• Favoriten-Übungen für schnellen Zugriff mit Stern-Symbol (★)
+<b>Aufzeichnungsmodus</b>
 
-<b>Zwei Trainingsmodi</b>
+• Schnelles Protokollieren nach dem Training
 
-• Aufzeichnungsmodus: Schnelles Protokollieren deines Workouts nach dem Training
-• Trainingsmodus: Automatisch gesteuertes Training mit integrierten Timern für Countdown, Ausführung und Pausen
+<b>Trainingsmodus</b>
 
-<b>Trainingsaufzeichnungen</b>
+• Automatisch gesteuertes Training mit integrierten Timern
+• Einzeln: Timer-unterstütztes Zählen von Wiederholungen und Zeitmessung für isometrische Übungen
+• Programm: Erstelle und führe Multi-Übungs-Routinen nacheinander aus
+• Intervall: Zeitgesteuerte Arbeit/Pause-Zyklen mit anpassbaren Runden
+• Programme und Intervalle werden aus eigenen Übungen frei zusammengestellt
 
-• Protokolliere Datum, Zeit, Sätze und Wiederholungen/Sekunden
-• Füge Kommentare hinzu, um Formnotizen und Beobachtungen zu verfolgen
-• Bearbeite oder lösche vergangene Aufzeichnungen
+<b>Übungserstellung</b>
+
+• Erstelle beliebige Übungen mit beliebigen Namen, organisiere sie in Gruppen
+• Wähle zwischen wiederholungsbasierter (dynamisch) oder zeitbasierter (isometrisch) Aufzeichnung
+• Unterstützung für einseitige Übungen
+• 10 Progressionsstufen passend zu deiner Methode
+• Optionale Aufzeichnung von Distanz, Gewicht und Unterstützung
+• Favoriten (★) für schnellen Zugriff
+• Optionale Beschreibung zu jeder Übung hinzufügen
 
 <b>Fortschrittsverfolgung</b>
 
-• Listenansicht: Durchsuche alle Trainingseinheiten
-• Diagrammansicht: Visualisiere den Fortschritt mit Durchschnitts-/Max-/Gesamtstatistiken
-• Zielansicht: Verfolge die Zielerreichung
-
-<b>Zielsystem</b>
-
-• Setze Ziele wie "3 Sätze × 50 Wiederholungen"
-• Farbcodierte Fortschrittsindikatoren
+• Kalender: Trainingsaktivität auf einen Blick
+• Liste: Alle Einheiten chronologisch durchsuchen
+• Grafik: Fortschritt mit Durchschnitts-/Max-/Gesamtstatistiken visualisieren
+• Herausforderung: Farbcodierte Zielerreichung
+• Zeitfilter (1 Woche, 1 Monat, 3 Monate)
 
 <b>Datenverwaltung</b>
 
-• Exportieren/Importieren im JSON-Format
-• Deine Daten bleiben auf deinem Gerät
-• Keine Internetverbindung erforderlich
+• Export/Import im JSON/CSV-Format
+• Deine Daten bleiben auf deinem Gerät, keine Internetverbindung erforderlich
 
-Egal, ob du Convict Conditioning, StartBodyweight oder dein eigenes individuelles Programm befolgst, diese App passt sich deiner Trainingsphilosophie an.
+Convict Conditioning, StartBodyweight, RR (Recommended Routine), HIIT, Zirkeltraining — egal welche Methode, diese App passt sich dir an.
