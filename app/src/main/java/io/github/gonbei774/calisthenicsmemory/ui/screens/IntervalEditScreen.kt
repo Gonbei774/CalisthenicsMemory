@@ -293,7 +293,6 @@ fun IntervalEditScreen(
                         value = name,
                         onValueChange = { name = it },
                         label = { Text(stringResource(R.string.interval_program_name)) },
-                        placeholder = { Text(stringResource(R.string.interval_program_name_hint)) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Orange600,
