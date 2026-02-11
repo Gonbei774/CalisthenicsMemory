@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.18.0] - 2026-02-12
+
+### Added
+- **Interval mode** - Create timed work/rest cycles with customizable rounds
+  - Batch exercise selection, prepare countdown, skip, sound notifications
+  - Swipe-to-delete, round grouping, completion screen with comments
+  - Interval records integrated into record list view
+- **Calendar view tab** for browsing records
+  - Sunday-start, chronological order, grid borders, weekly view
+  - Period filter with out-of-range date graying and full record display
+- **Programs and intervals in ToDo list**
+  - Auto-remove on completion, mode selection dialog
+- **Day-of-week repeat for ToDo tasks**
+- **ToDo tasks in JSON backup and import** (v8)
+- **Interval data in JSON backup and import** (v7)
+- **Exercise description field** (max 60 chars)
+- **Swipe navigation between record view tabs**
+
+### Improved
+- Calendar period filter: gray out out-of-range dates, show all records below
+- Unified "Start" button translations and ToDo translations for all languages
+- Various UI refinements (toggle buttons, timer layout, prepare timer, etc.)
+
+### Fixed
+- Long-press on drag handle triggering repeat dialog
+
+This release includes contributions from @SomeTr.
+
 ## [1.17.1] - 2026-02-08
 
 ### Improved
@@ -373,6 +401,7 @@ This release includes contributions from @unsealed211, @SomeTr, and @balaraz.
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.18.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.18.0
 [1.17.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.17.1
 [1.17.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.17.0
 [1.16.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.16.1

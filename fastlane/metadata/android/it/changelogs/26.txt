@@ -1,0 +1,17 @@
+Aggiunto:
+- Modalità intervallo: crea cicli lavoro/riposo cronometrati con round personalizzabili
+- Scheda vista calendario per consultare i record
+- Programmi e intervalli nella lista delle attività
+- Ripetizione per giorno della settimana per le attività
+- Campo descrizione esercizi (max 60 caratteri)
+- Navigazione a scorrimento tra le schede di visualizzazione record
+- Dati intervalli e attività nel backup JSON (v7/v8)
+
+Migliorato:
+- Filtro periodo calendario: date fuori intervallo in grigio, mostra tutti i record
+- Vari miglioramenti dell'interfaccia (pulsanti toggle, layout timer, ecc.)
+
+Corretto:
+- La pressione prolungata sulla maniglia di trascinamento attivava il dialogo di ripetizione
+
+Contributors: SomeTr

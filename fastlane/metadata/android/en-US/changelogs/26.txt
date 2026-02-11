@@ -1,0 +1,17 @@
+Added:
+- Interval mode: create timed work/rest cycles with customizable rounds
+- Calendar view tab for browsing records
+- Programs and intervals in ToDo list
+- Day-of-week repeat for ToDo tasks
+- Exercise description field (max 60 chars)
+- Swipe navigation between record view tabs
+- Interval and ToDo data in JSON backup (v7/v8)
+
+Improved:
+- Calendar period filter: gray out out-of-range dates, show all records
+- Various UI refinements (toggle buttons, timer layout, etc.)
+
+Fixed:
+- Long-press on drag handle triggering repeat dialog
+
+Contributors: SomeTr
