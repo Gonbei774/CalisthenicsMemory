@@ -60,21 +60,33 @@ import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 
 class MainActivity : ComponentActivity() {
+    private val systemDarkMode = mutableStateOf(false)
+
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(updateBaseContextLocale(newBase))
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        systemDarkMode.value =
+            (newConfig.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        systemDarkMode.value =
+            (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+
         val themePrefs = ThemePreferences(this)
 
         setContent {
+            val isSystemDark by systemDarkMode
             val savedTheme = remember { themePrefs.getTheme() }
             var currentTheme by remember { mutableStateOf(savedTheme) }
 
             val darkTheme = when (currentTheme) {
-                AppTheme.SYSTEM -> isSystemInDarkTheme()
+                AppTheme.SYSTEM -> isSystemDark
                 AppTheme.LIGHT -> false
                 AppTheme.DARK -> true
             }
