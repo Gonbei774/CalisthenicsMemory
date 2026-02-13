@@ -391,11 +391,11 @@
     <string name="settings_autofill_section">Automatisches Ausfüllen</string>
     <string name="settings_autofill_section_description">Automatische Eingabeunterstützung konfigurieren.</string>
     <string name="settings_prefill_previous">Vorherigen Eintrag vorausfüllen</string>
-    <string name="settings_prefill_previous_description">Werte der letzten Einheit automatisch in Aufnahme- und Workout-Bildschirmen ausfüllen</string>
+    <string name="settings_prefill_previous_description">Werte der letzten Einheit automatisch in Aufnahme- und Traninigsfeldern ausfüllen</string>
     <!-- Workout Settings -->
-    <string name="section_workout_settings">Workout-Einstellungen</string>
-    <string name="section_workout_settings_description">Standard-Timer-Einstellungen für Workouts konfigurieren.</string>
-    <string name="workout_settings">Workout-Einstellungen</string>
+    <string name="section_workout_settings">Trainingseinstellungen</string>
+    <string name="section_workout_settings_description">Standard-Einstellungen für den Trainingstimer konfigurieren.</string>
+    <string name="workout_settings">Trainingseinstellungen</string>
     <string name="start_countdown_setting">Start-Countdown</string>
     <string name="set_interval_setting">Satzpause</string>
     <string name="current_start_countdown">Aktuell: %d Sekunden</string>
@@ -475,7 +475,7 @@
     <string name="todo_start_button">Start</string>
     <string name="todo_choose_mode">Modus wählen</string>
     <string name="todo_mode_record">Aufzeichnen</string>
-    <string name="todo_mode_workout">Workout</string>
+    <string name="todo_mode_workout">Training</string>
     <string name="todo_tab_exercises">Übungen</string>
     <string name="todo_tab_programs">Programme</string>
     <string name="todo_tab_intervals">Intervalle</string>
@@ -490,9 +490,9 @@
     <string name="todo_repeat_clear">Löschen</string>
     <string name="todo_repeat_save">Speichern</string>
     <!-- Notification Channel for Workout Timer -->
-    <string name="notification_channel_workout">Workout-Timer</string>
-    <string name="notification_channel_workout_description">Zeigt Benachrichtigung während der Workout-Timer läuft</string>
-    <string name="notification_workout_title">Workout läuft</string>
+    <string name="notification_channel_workout">Trainingstimer</string>
+    <string name="notification_channel_workout_description">Zeigt Benachrichtigung, während der Trainingstimer läuft</string>
+    <string name="notification_workout_title">Training läuft</string>
     <string name="notification_workout_text">Timer ist aktiv</string>
     <!-- Program Feature -->
     <string name="program_mode">Programm</string>
@@ -538,7 +538,7 @@
     <string name="program_set_label">Satz %d:</string>
     <!-- Exit Workout Confirmation -->
     <string name="exit_workout_title">Training abbrechen?</string>
-    <string name="exit_workout_message">Der Fortschritt wird nicht gespeichert.</string>
+    <string name="exit_workout_message">Fortschritt wird nicht gespeichert.</string>
     <string name="exit_workout_confirm">Abbrechen</string>
     <!-- Discard Result Confirmation -->
     <string name="discard_result_title">Ergebnisse verwerfen?</string>
@@ -629,10 +629,8 @@
     <string name="theme_system">Systemeinstellung folgen</string>
     <string name="theme_light">Hell</string>
     <string name="theme_dark">Dunkel</string>
-
     <!-- Exercise Description -->
     <string name="description_optional">Beschreibung (optional)</string>
-
     <!-- Interval Mode -->
     <string name="interval_mode">Intervall</string>
     <string name="interval_mode_description">Für HIIT und Zirkeltraining</string>
