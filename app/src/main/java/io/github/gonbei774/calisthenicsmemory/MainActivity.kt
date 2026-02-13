@@ -33,6 +33,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.mapSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -189,7 +191,7 @@ fun CalisthenicsMemoryApp(
     onThemeChange: (AppTheme) -> Unit = {}
 ) {
     val viewModel: TrainingViewModel = viewModel()
-    var currentScreen by remember { mutableStateOf<Screen>(Screen.Home) }
+    var currentScreen by rememberSaveable(stateSaver = ScreenSaver) { mutableStateOf<Screen>(Screen.Home) }
     val snackbarHostState = remember { SnackbarHostState() }
     val appColors = LocalAppColors.current
 
@@ -406,3 +408,84 @@ sealed class Screen {
     data class IntervalEdit(val programId: Long?) : Screen()
     data class IntervalExecution(val programId: Long, val fromToDo: Boolean = false) : Screen()
 }
+
+private val ScreenSaver = mapSaver(
+    save = { screen: Screen ->
+        buildMap {
+            when (screen) {
+                Screen.Home -> put("type", "Home")
+                Screen.ToDo -> put("type", "ToDo")
+                Screen.Create -> put("type", "Create")
+                Screen.Settings -> put("type", "Settings")
+                Screen.Licenses -> put("type", "Licenses")
+                Screen.View -> put("type", "View")
+                Screen.ProgramList -> put("type", "ProgramList")
+                Screen.IntervalList -> put("type", "IntervalList")
+                is Screen.Record -> {
+                    put("type", "Record")
+                    put("exerciseId", screen.exerciseId ?: -1L)
+                    put("fromToDo", screen.fromToDo)
+                }
+                is Screen.Workout -> {
+                    put("type", "Workout")
+                    put("exerciseId", screen.exerciseId ?: -1L)
+                    put("fromToDo", screen.fromToDo)
+                }
+                is Screen.ProgramEdit -> {
+                    put("type", "ProgramEdit")
+                    put("programId", screen.programId ?: -1L)
+                }
+                is Screen.ProgramExecution -> {
+                    put("type", "ProgramExecution")
+                    put("programId", screen.programId)
+                    put("resumeSavedState", screen.resumeSavedState)
+                    put("fromToDo", screen.fromToDo)
+                }
+                is Screen.IntervalEdit -> {
+                    put("type", "IntervalEdit")
+                    put("programId", screen.programId ?: -1L)
+                }
+                is Screen.IntervalExecution -> {
+                    put("type", "IntervalExecution")
+                    put("programId", screen.programId)
+                    put("fromToDo", screen.fromToDo)
+                }
+            }
+        }
+    },
+    restore = { map ->
+        when (map["type"] as String) {
+            "ToDo" -> Screen.ToDo
+            "Create" -> Screen.Create
+            "Settings" -> Screen.Settings
+            "Licenses" -> Screen.Licenses
+            "View" -> Screen.View
+            "ProgramList" -> Screen.ProgramList
+            "IntervalList" -> Screen.IntervalList
+            "Record" -> Screen.Record(
+                exerciseId = (map["exerciseId"] as Long).takeIf { it != -1L },
+                fromToDo = map["fromToDo"] as Boolean
+            )
+            "Workout" -> Screen.Workout(
+                exerciseId = (map["exerciseId"] as Long).takeIf { it != -1L },
+                fromToDo = map["fromToDo"] as Boolean
+            )
+            "ProgramEdit" -> Screen.ProgramEdit(
+                programId = (map["programId"] as Long).takeIf { it != -1L }
+            )
+            "ProgramExecution" -> Screen.ProgramExecution(
+                programId = map["programId"] as Long,
+                resumeSavedState = map["resumeSavedState"] as Boolean,
+                fromToDo = map["fromToDo"] as Boolean
+            )
+            "IntervalEdit" -> Screen.IntervalEdit(
+                programId = (map["programId"] as Long).takeIf { it != -1L }
+            )
+            "IntervalExecution" -> Screen.IntervalExecution(
+                programId = map["programId"] as Long,
+                fromToDo = map["fromToDo"] as Boolean
+            )
+            else -> Screen.Home
+        }
+    }
+)
