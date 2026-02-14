@@ -32,6 +32,8 @@ import io.github.gonbei774.calisthenicsmemory.data.LanguagePreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import io.github.gonbei774.calisthenicsmemory.viewmodel.BackupData
+import io.github.gonbei774.calisthenicsmemory.viewmodel.CommunityShareData
+import io.github.gonbei774.calisthenicsmemory.viewmodel.CommunityShareImportReport
 import io.github.gonbei774.calisthenicsmemory.viewmodel.CsvImportReport
 import io.github.gonbei774.calisthenicsmemory.viewmodel.CsvType
 import kotlinx.coroutines.Dispatchers
@@ -76,6 +78,15 @@ fun SettingsScreenNew(
     var csvFileName by remember { mutableStateOf<String?>(null) }
     var showImportResult by remember { mutableStateOf(false) }
     var importReport by remember { mutableStateOf<CsvImportReport?>(null) }
+
+    // Share インポート関連
+    var showShareImportPreview by remember { mutableStateOf(false) }
+    var showShareImportResult by remember { mutableStateOf(false) }
+    var pendingShareImportJson by remember { mutableStateOf<String?>(null) }
+    var shareImportFileName by remember { mutableStateOf<String?>(null) }
+    var shareImportPreviewData by remember { mutableStateOf<CommunityShareData?>(null) }
+    var shareImportPreviewReport by remember { mutableStateOf<CommunityShareImportReport?>(null) }
+    var shareImportReport by remember { mutableStateOf<CommunityShareImportReport?>(null) }
 
     // JSONエクスポート用ランチャー
     val exportLauncher = rememberLauncherForActivityResult(
@@ -318,6 +329,64 @@ fun SettingsScreenNew(
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
                         android.util.Log.e("SettingsScreen", "CSV import error", e)
+                    }
+                } finally {
+                    isLoading = false
+                }
+            }
+        }
+    }
+
+    // Share インポート用ランチャー
+    val shareImportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        uri?.let {
+            scope.launch {
+                isLoading = true
+                try {
+                    withContext(Dispatchers.IO) {
+                        // ファイル名を取得
+                        val fileName = context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                            val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                            cursor.moveToFirst()
+                            cursor.getString(nameIndex)
+                        } ?: "unknown.json"
+
+                        // JSONを読み込む
+                        val jsonData = context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                            inputStream.readBytes().decodeToString()
+                        } ?: ""
+
+                        if (jsonData.isNotEmpty()) {
+                            // ファイル種別チェック: バックアップJSONが渡された場合はエラー
+                            val fileType = viewModel.detectJsonFileType(jsonData)
+                            if (fileType == "backup") {
+                                withContext(Dispatchers.Main) {
+                                    viewModel.showWrongFileTypeMessage(
+                                        detected = "backup",
+                                        expected = "share"
+                                    )
+                                }
+                                return@withContext
+                            }
+
+                            val json = Json { ignoreUnknownKeys = true }
+                            val shareData = json.decodeFromString<CommunityShareData>(jsonData)
+                            val preview = viewModel.previewCommunityShareImport(shareData)
+
+                            withContext(Dispatchers.Main) {
+                                pendingShareImportJson = jsonData
+                                shareImportFileName = fileName
+                                shareImportPreviewData = shareData
+                                shareImportPreviewReport = preview
+                                showShareImportPreview = true
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        android.util.Log.e("SettingsScreen", "Failed to read share import file", e)
                     }
                 } finally {
                     isLoading = false
@@ -699,6 +768,49 @@ fun SettingsScreenNew(
                             )
                             Text(
                                 text = "Select programs and exercises to share",
+                                fontSize = 14.sp,
+                                color = appColors.textSecondary,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Community Share インポートボタン
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = appColors.cardBackground
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    onClick = {
+                        if (!isLoading) {
+                            shareImportLauncher.launch(arrayOf("application/json"))
+                        }
+                    }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "📥",
+                            fontSize = 32.sp
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Import shared file",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = appColors.textPrimary
+                            )
+                            Text(
+                                text = "Import programs and exercises from a share file",
                                 fontSize = 14.sp,
                                 color = appColors.textSecondary,
                                 modifier = Modifier.padding(top = 4.dp)
@@ -1964,6 +2076,17 @@ fun SettingsScreenNew(
                                                 }
                                             }
                                         }
+                                    } else if (backupImportType == "Share") {
+                                        // Shareインポート実行
+                                        pendingShareImportJson?.let { jsonData ->
+                                            val report = withContext(Dispatchers.IO) {
+                                                viewModel.importCommunityShare(jsonData)
+                                            }
+                                            withContext(Dispatchers.Main) {
+                                                shareImportReport = report
+                                                showShareImportResult = true
+                                            }
+                                        }
                                     }
                                 } catch (e: Exception) {
                                     android.util.Log.e("SettingsScreen", "Import error after backup", e)
@@ -1971,6 +2094,7 @@ fun SettingsScreenNew(
                                     withContext(Dispatchers.Main) {
                                         isLoading = false
                                         pendingCsvString = null
+                                        pendingShareImportJson = null
                                         backupImportType = null
                                     }
                                 }
@@ -2017,6 +2141,25 @@ fun SettingsScreenNew(
                                         }
                                     }
                                 }
+                            } else if (backupImportType == "Share") {
+                                // Shareインポート実行
+                                pendingShareImportJson?.let { jsonData ->
+                                    scope.launch {
+                                        isLoading = true
+                                        try {
+                                            val report = withContext(Dispatchers.IO) {
+                                                viewModel.importCommunityShare(jsonData)
+                                            }
+                                            shareImportReport = report
+                                            showShareImportResult = true
+                                        } catch (e: Exception) {
+                                            android.util.Log.e("SettingsScreen", "Share import error", e)
+                                        } finally {
+                                            isLoading = false
+                                            pendingShareImportJson = null
+                                        }
+                                    }
+                                }
                             }
                             backupImportType = null
                         },
@@ -2041,6 +2184,7 @@ fun SettingsScreenNew(
                         showBackupConfirmation = false
                         pendingImportUri = null
                         pendingCsvString = null
+                        pendingShareImportJson = null
                         backupImportType = null
                     }
                 ) {
@@ -2548,6 +2692,396 @@ fun SettingsScreenNew(
                     onClick = {
                         showImportResult = false
                         importReport = null
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = Purple600
+                    )
+                ) {
+                    Text(stringResource(R.string.ok))
+                }
+            }
+        )
+    }
+
+    // Share インポートプレビューダイアログ
+    if (showShareImportPreview && shareImportPreviewReport != null) {
+        val preview = shareImportPreviewReport!!
+        AlertDialog(
+            onDismissRequest = {
+                showShareImportPreview = false
+                pendingShareImportJson = null
+                shareImportPreviewData = null
+                shareImportPreviewReport = null
+            },
+            title = {
+                Text(
+                    text = "Import Shared File",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // ファイル名
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = appColors.cardBackgroundSecondary
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.file_name),
+                                fontSize = 14.sp,
+                                color = appColors.textSecondary,
+                                modifier = Modifier.padding(bottom = 6.dp)
+                            )
+                            Text(
+                                text = shareImportFileName ?: "unknown.json",
+                                fontSize = 16.sp,
+                                color = appColors.textPrimary,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+
+                    // 新規追加
+                    val hasNewItems = preview.groupsAdded > 0 || preview.exercisesAdded > 0 ||
+                            preview.programsAdded > 0 || preview.intervalProgramsAdded > 0
+                    if (hasNewItems) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Green400.copy(alpha = 0.1f)
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = "New (will be added)",
+                                    fontSize = 14.sp,
+                                    color = Green400,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                                if (preview.groupsAdded > 0) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(text = stringResource(R.string.groups), fontSize = 14.sp, color = appColors.textTertiary)
+                                        Text(text = "${preview.groupsAdded}", fontSize = 14.sp, color = appColors.textPrimary, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                                if (preview.exercisesAdded > 0) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(text = stringResource(R.string.exercises), fontSize = 14.sp, color = appColors.textTertiary)
+                                        Text(text = "${preview.exercisesAdded}", fontSize = 14.sp, color = appColors.textPrimary, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                                if (preview.programsAdded > 0) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(text = "Programs", fontSize = 14.sp, color = appColors.textTertiary)
+                                        Text(text = "${preview.programsAdded}", fontSize = 14.sp, color = appColors.textPrimary, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                                if (preview.intervalProgramsAdded > 0) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(text = "Intervals", fontSize = 14.sp, color = appColors.textTertiary)
+                                        Text(text = "${preview.intervalProgramsAdded}", fontSize = 14.sp, color = appColors.textPrimary, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // スキップ/再利用
+                    val hasSkippedItems = preview.groupsReused > 0 || preview.exercisesSkipped > 0 ||
+                            preview.programsSkipped > 0 || preview.intervalProgramsSkipped > 0
+                    if (hasSkippedItems) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = appColors.cardBackgroundSecondary
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = "Already exists (will be skipped)",
+                                    fontSize = 14.sp,
+                                    color = appColors.textSecondary,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                                if (preview.groupsReused > 0) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(text = stringResource(R.string.groups), fontSize = 14.sp, color = appColors.textTertiary)
+                                        Text(text = "${preview.groupsReused} reused", fontSize = 14.sp, color = appColors.textSecondary)
+                                    }
+                                }
+                                if (preview.exercisesSkipped > 0) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(text = stringResource(R.string.exercises), fontSize = 14.sp, color = appColors.textTertiary)
+                                        Text(text = "${preview.exercisesSkipped} skipped", fontSize = 14.sp, color = appColors.textSecondary)
+                                    }
+                                }
+                                if (preview.programsSkipped > 0) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(text = "Programs", fontSize = 14.sp, color = appColors.textTertiary)
+                                        Text(text = "${preview.programsSkipped} skipped", fontSize = 14.sp, color = appColors.textSecondary)
+                                    }
+                                }
+                                if (preview.intervalProgramsSkipped > 0) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(text = "Intervals", fontSize = 14.sp, color = appColors.textTertiary)
+                                        Text(text = "${preview.intervalProgramsSkipped} skipped", fontSize = 14.sp, color = appColors.textSecondary)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // すべて既存の場合
+                    if (!hasNewItems) {
+                        Text(
+                            text = "All items already exist. Nothing will be added.",
+                            fontSize = 14.sp,
+                            color = appColors.textSecondary,
+                            lineHeight = 20.sp
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showShareImportPreview = false
+                        shareImportPreviewData = null
+                        shareImportPreviewReport = null
+                        backupImportType = "Share"
+                        showBackupConfirmation = true
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = Purple600
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.import_action),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showShareImportPreview = false
+                        pendingShareImportJson = null
+                        shareImportPreviewData = null
+                        shareImportPreviewReport = null
+                    }
+                ) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    // Share インポート結果ダイアログ
+    if (showShareImportResult && shareImportReport != null) {
+        val report = shareImportReport!!
+        AlertDialog(
+            onDismissRequest = {
+                showShareImportResult = false
+                shareImportReport = null
+            },
+            title = {
+                Text(
+                    text = "Import Complete",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // サマリー
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = appColors.cardBackgroundSecondary
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            // Groups
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.groups),
+                                    fontSize = 14.sp,
+                                    color = appColors.textTertiary
+                                )
+                                Text(
+                                    text = "${report.groupsAdded} added, ${report.groupsReused} reused",
+                                    fontSize = 14.sp,
+                                    color = appColors.textPrimary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            // Exercises
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.exercises),
+                                    fontSize = 14.sp,
+                                    color = appColors.textTertiary
+                                )
+                                Text(
+                                    text = "${report.exercisesAdded} added, ${report.exercisesSkipped} skipped",
+                                    fontSize = 14.sp,
+                                    color = appColors.textPrimary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            // Programs
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Programs",
+                                    fontSize = 14.sp,
+                                    color = appColors.textTertiary
+                                )
+                                Text(
+                                    text = "${report.programsAdded} added, ${report.programsSkipped} skipped",
+                                    fontSize = 14.sp,
+                                    color = appColors.textPrimary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            // Intervals
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Intervals",
+                                    fontSize = 14.sp,
+                                    color = appColors.textTertiary
+                                )
+                                Text(
+                                    text = "${report.intervalProgramsAdded} added, ${report.intervalProgramsSkipped} skipped",
+                                    fontSize = 14.sp,
+                                    color = appColors.textPrimary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+
+                    // エラーがあれば表示
+                    if (report.errors.isNotEmpty()) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Red600.copy(alpha = 0.1f)
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = "Errors (${report.errors.size})",
+                                    fontSize = 14.sp,
+                                    color = Red600,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                                report.errors.take(10).forEach { error ->
+                                    Text(
+                                        text = "• $error",
+                                        fontSize = 12.sp,
+                                        color = Red600.copy(alpha = 0.8f),
+                                        lineHeight = 16.sp
+                                    )
+                                }
+                                if (report.errors.size > 10) {
+                                    Text(
+                                        text = "... and ${report.errors.size - 10} more",
+                                        fontSize = 12.sp,
+                                        color = Red600.copy(alpha = 0.8f)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showShareImportResult = false
+                        shareImportReport = null
                     },
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = Purple600

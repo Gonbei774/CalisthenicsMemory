@@ -2466,6 +2466,56 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     /**
      * コミュニティ共有JSONをインポート
      */
+    suspend fun previewCommunityShareImport(data: CommunityShareData): CommunityShareImportReport = withContext(Dispatchers.IO) {
+        val content = data.data
+        var groupsAdded = 0
+        var groupsReused = 0
+        var exercisesAdded = 0
+        var exercisesSkipped = 0
+        var programsAdded = 0
+        var programsSkipped = 0
+        var intervalProgramsAdded = 0
+        var intervalProgramsSkipped = 0
+
+        // グループ
+        for (shareGroup in content.groups) {
+            val existing = groupDao.getGroupByName(shareGroup.name)
+            if (existing != null) groupsReused++ else groupsAdded++
+        }
+
+        // 種目
+        val seenExerciseKeys = mutableSetOf<String>()
+        for (shareExercise in content.exercises) {
+            val key = "${shareExercise.name}|${shareExercise.type}"
+            if (!seenExerciseKeys.add(key)) continue
+            val existing = exerciseDao.getExerciseByNameAndType(shareExercise.name, shareExercise.type)
+            if (existing != null) exercisesSkipped++ else exercisesAdded++
+        }
+
+        // プログラム
+        for (shareProgram in content.programs) {
+            val existing = programDao.getProgramByName(shareProgram.name)
+            if (existing != null) programsSkipped++ else programsAdded++
+        }
+
+        // インターバル
+        for (shareInterval in content.intervalPrograms) {
+            val existing = intervalProgramDao.getProgramByName(shareInterval.name)
+            if (existing != null) intervalProgramsSkipped++ else intervalProgramsAdded++
+        }
+
+        CommunityShareImportReport(
+            groupsAdded = groupsAdded,
+            groupsReused = groupsReused,
+            exercisesAdded = exercisesAdded,
+            exercisesSkipped = exercisesSkipped,
+            programsAdded = programsAdded,
+            programsSkipped = programsSkipped,
+            intervalProgramsAdded = intervalProgramsAdded,
+            intervalProgramsSkipped = intervalProgramsSkipped
+        )
+    }
+
     suspend fun importCommunityShare(jsonString: String): CommunityShareImportReport = withContext(Dispatchers.IO) {
         try {
             // ファイル種別チェック: バックアップJSONが渡された場合はエラー
