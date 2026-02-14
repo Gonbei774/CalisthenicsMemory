@@ -650,4 +650,43 @@
     <string name="interval_record_complete">Завершено</string>
     <string name="interval_record_partial">Припинено раніше</string>
     <string name="interval_record_exercises_count">%1$d вправ</string>
+
+    <!-- Share export/import -->
+    <string name="share_section_title">Поширення</string>
+    <string name="share_section_description">Діліться програмами та вправами з іншими</string>
+    <string name="share_export_title">Експорт для поширення</string>
+    <string name="share_export_description">Оберіть програми та вправи для поширення</string>
+    <string name="share_import_title">Імпорт спільного JSON-файлу</string>
+    <string name="share_import_description">Імпортуйте програми та вправи зі спільного JSON-файлу</string>
+    <string name="share_export_screen_title">Експорт для поширення</string>
+    <string name="share_export_preview_title">Попередній перегляд експорту</string>
+    <string name="share_export_button">Експортувати</string>
+    <string name="share_export_button_with_count">Експортувати (%1$d)</string>
+    <string name="share_exporting">Експортування…</string>
+    <string name="share_tab_programs">Програми</string>
+    <string name="share_tab_intervals">Інтервали</string>
+    <string name="share_tab_exercises">Вправи</string>
+    <string name="share_preview_programs">Програми (%1$d)</string>
+    <string name="share_preview_intervals">Інтервали (%1$d)</string>
+    <string name="share_preview_total_exercises">Всього вправ: %1$d</string>
+    <string name="share_preview_auto_included"> (%1$d додано автоматично)</string>
+    <string name="share_preview_groups">Групи: %1$d</string>
+    <string name="share_no_programs">Немає програм</string>
+    <string name="share_no_intervals">Немає інтервальних програм</string>
+    <string name="share_no_exercises">Немає вправ</string>
+    <string name="share_exercise_auto_included">Автоматично додано з програми/інтервалу</string>
+    <string name="share_ungrouped">Без групи</string>
+    <string name="share_program_exercises_format">%1$d вправ</string>
+    <string name="share_program_loops_format">, %1$d циклів</string>
+    <string name="share_import_dialog_title">Імпорт спільного JSON-файлу</string>
+    <string name="share_import_preview_new">Нове (буде додано)</string>
+    <string name="share_import_preview_exists">Вже існує (буде пропущено)</string>
+    <string name="share_import_preview_nothing">Всі елементи вже існують. Нічого не буде додано.</string>
+    <string name="share_import_complete">Імпорт завершено</string>
+    <string name="share_import_added_reused">%1$d додано, %2$d повторно використано</string>
+    <string name="share_import_added_skipped">%1$d додано, %2$d пропущено</string>
+    <string name="share_import_errors">Помилки (%1$d)</string>
+    <string name="share_import_count_reused">%1$d повторно використано</string>
+    <string name="share_import_count_skipped">%1$d пропущено</string>
+
 </resources>

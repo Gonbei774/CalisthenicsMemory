@@ -709,4 +709,43 @@
     <string name="interval_record_settings_format">ワーク%1$d秒 / レスト%2$d秒 / 周間レスト%3$d秒</string>
     <string name="interval_record_exercises_count">%1$d種目</string>
     <string name="interval_delete_record_confirm">「%1$s」のインターバル記録（%2$s）を削除しますか？</string>
+
+    <!-- Share export/import -->
+    <string name="share_section_title">共有</string>
+    <string name="share_section_description">プログラムや種目を他の人と共有</string>
+    <string name="share_export_title">共有用にエクスポート</string>
+    <string name="share_export_description">共有するプログラムや種目を選択</string>
+    <string name="share_import_title">共有JSONファイルをインポート</string>
+    <string name="share_import_description">共有JSONファイルからプログラムや種目をインポート</string>
+    <string name="share_export_screen_title">共有エクスポート</string>
+    <string name="share_export_preview_title">エクスポートプレビュー</string>
+    <string name="share_export_button">エクスポート</string>
+    <string name="share_export_button_with_count">エクスポート (%1$d)</string>
+    <string name="share_exporting">エクスポート中…</string>
+    <string name="share_tab_programs">プログラム</string>
+    <string name="share_tab_intervals">インターバル</string>
+    <string name="share_tab_exercises">種目</string>
+    <string name="share_preview_programs">プログラム (%1$d)</string>
+    <string name="share_preview_intervals">インターバル (%1$d)</string>
+    <string name="share_preview_total_exercises">種目合計: %1$d</string>
+    <string name="share_preview_auto_included"> (%1$d 自動追加)</string>
+    <string name="share_preview_groups">グループ: %1$d</string>
+    <string name="share_no_programs">プログラムなし</string>
+    <string name="share_no_intervals">インターバルプログラムなし</string>
+    <string name="share_no_exercises">種目なし</string>
+    <string name="share_exercise_auto_included">プログラム/インターバルから自動追加</string>
+    <string name="share_ungrouped">グループなし</string>
+    <string name="share_program_exercises_format">%1$d 種目</string>
+    <string name="share_program_loops_format">、%1$d ループ</string>
+    <string name="share_import_dialog_title">共有JSONファイルのインポート</string>
+    <string name="share_import_preview_new">新規（追加されます）</string>
+    <string name="share_import_preview_exists">既存（スキップされます）</string>
+    <string name="share_import_preview_nothing">すべてのデータが既に存在します。追加されるものはありません。</string>
+    <string name="share_import_complete">インポート完了</string>
+    <string name="share_import_added_reused">%1$d 追加、%2$d 再利用</string>
+    <string name="share_import_added_skipped">%1$d 追加、%2$d スキップ</string>
+    <string name="share_import_errors">エラー (%1$d)</string>
+    <string name="share_import_count_reused">%1$d 再利用</string>
+    <string name="share_import_count_skipped">%1$d スキップ</string>
+
 </resources>

@@ -723,14 +723,14 @@ fun SettingsScreenNew(
                         .padding(vertical = 8.dp)
                 ) {
                     Text(
-                        text = "Share",
+                        text = stringResource(R.string.share_section_title),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = appColors.textPrimary,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
                     Text(
-                        text = "Share your programs and exercises with others",
+                        text = stringResource(R.string.share_section_description),
                         fontSize = 14.sp,
                         color = appColors.textSecondary,
                         lineHeight = 20.sp
@@ -761,13 +761,13 @@ fun SettingsScreenNew(
                         )
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Export for sharing",
+                                text = stringResource(R.string.share_export_title),
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = appColors.textPrimary
                             )
                             Text(
-                                text = "Select programs and exercises to share",
+                                text = stringResource(R.string.share_export_description),
                                 fontSize = 14.sp,
                                 color = appColors.textSecondary,
                                 modifier = Modifier.padding(top = 4.dp)
@@ -804,13 +804,13 @@ fun SettingsScreenNew(
                         )
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Import shared JSON file",
+                                text = stringResource(R.string.share_import_title),
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = appColors.textPrimary
                             )
                             Text(
-                                text = "Import programs and exercises from a shared JSON file",
+                                text = stringResource(R.string.share_import_description),
                                 fontSize = 14.sp,
                                 color = appColors.textSecondary,
                                 modifier = Modifier.padding(top = 4.dp)
@@ -2715,7 +2715,7 @@ fun SettingsScreenNew(
             },
             title = {
                 Text(
-                    text = "Import Shared JSON File",
+                    text = stringResource(R.string.share_import_dialog_title),
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )
@@ -2773,7 +2773,7 @@ fun SettingsScreenNew(
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Text(
-                                    text = "New (will be added)",
+                                    text = stringResource(R.string.share_import_preview_new),
                                     fontSize = 14.sp,
                                     color = Green400,
                                     fontWeight = FontWeight.Bold,
@@ -2802,7 +2802,7 @@ fun SettingsScreenNew(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        Text(text = "Programs", fontSize = 14.sp, color = appColors.textTertiary)
+                                        Text(text = stringResource(R.string.share_tab_programs), fontSize = 14.sp, color = appColors.textTertiary)
                                         Text(text = "${preview.programsAdded}", fontSize = 14.sp, color = appColors.textPrimary, fontWeight = FontWeight.Bold)
                                     }
                                 }
@@ -2811,7 +2811,7 @@ fun SettingsScreenNew(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        Text(text = "Intervals", fontSize = 14.sp, color = appColors.textTertiary)
+                                        Text(text = stringResource(R.string.share_tab_intervals), fontSize = 14.sp, color = appColors.textTertiary)
                                         Text(text = "${preview.intervalProgramsAdded}", fontSize = 14.sp, color = appColors.textPrimary, fontWeight = FontWeight.Bold)
                                     }
                                 }
@@ -2837,7 +2837,7 @@ fun SettingsScreenNew(
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Text(
-                                    text = "Already exists (will be skipped)",
+                                    text = stringResource(R.string.share_import_preview_exists),
                                     fontSize = 14.sp,
                                     color = appColors.textSecondary,
                                     fontWeight = FontWeight.Bold,
@@ -2849,7 +2849,7 @@ fun SettingsScreenNew(
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
                                         Text(text = stringResource(R.string.groups), fontSize = 14.sp, color = appColors.textTertiary)
-                                        Text(text = "${preview.groupsReused} reused", fontSize = 14.sp, color = appColors.textSecondary)
+                                        Text(text = stringResource(R.string.share_import_count_reused, preview.groupsReused), fontSize = 14.sp, color = appColors.textSecondary)
                                     }
                                 }
                                 if (preview.exercisesSkipped > 0) {
@@ -2858,7 +2858,7 @@ fun SettingsScreenNew(
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
                                         Text(text = stringResource(R.string.exercises), fontSize = 14.sp, color = appColors.textTertiary)
-                                        Text(text = "${preview.exercisesSkipped} skipped", fontSize = 14.sp, color = appColors.textSecondary)
+                                        Text(text = stringResource(R.string.share_import_count_skipped, preview.exercisesSkipped), fontSize = 14.sp, color = appColors.textSecondary)
                                     }
                                 }
                                 if (preview.programsSkipped > 0) {
@@ -2866,8 +2866,8 @@ fun SettingsScreenNew(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        Text(text = "Programs", fontSize = 14.sp, color = appColors.textTertiary)
-                                        Text(text = "${preview.programsSkipped} skipped", fontSize = 14.sp, color = appColors.textSecondary)
+                                        Text(text = stringResource(R.string.share_tab_programs), fontSize = 14.sp, color = appColors.textTertiary)
+                                        Text(text = stringResource(R.string.share_import_count_skipped, preview.programsSkipped), fontSize = 14.sp, color = appColors.textSecondary)
                                     }
                                 }
                                 if (preview.intervalProgramsSkipped > 0) {
@@ -2875,8 +2875,8 @@ fun SettingsScreenNew(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        Text(text = "Intervals", fontSize = 14.sp, color = appColors.textTertiary)
-                                        Text(text = "${preview.intervalProgramsSkipped} skipped", fontSize = 14.sp, color = appColors.textSecondary)
+                                        Text(text = stringResource(R.string.share_tab_intervals), fontSize = 14.sp, color = appColors.textTertiary)
+                                        Text(text = stringResource(R.string.share_import_count_skipped, preview.intervalProgramsSkipped), fontSize = 14.sp, color = appColors.textSecondary)
                                     }
                                 }
                             }
@@ -2886,7 +2886,7 @@ fun SettingsScreenNew(
                     // すべて既存の場合
                     if (!hasNewItems) {
                         Text(
-                            text = "All items already exist. Nothing will be added.",
+                            text = stringResource(R.string.share_import_preview_nothing),
                             fontSize = 14.sp,
                             color = appColors.textSecondary,
                             lineHeight = 20.sp
@@ -2938,7 +2938,7 @@ fun SettingsScreenNew(
             },
             title = {
                 Text(
-                    text = "Import Complete",
+                    text = stringResource(R.string.share_import_complete),
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )
@@ -2975,7 +2975,7 @@ fun SettingsScreenNew(
                                     color = appColors.textTertiary
                                 )
                                 Text(
-                                    text = "${report.groupsAdded} added, ${report.groupsReused} reused",
+                                    text = stringResource(R.string.share_import_added_reused, report.groupsAdded, report.groupsReused),
                                     fontSize = 14.sp,
                                     color = appColors.textPrimary,
                                     fontWeight = FontWeight.Bold
@@ -2992,7 +2992,7 @@ fun SettingsScreenNew(
                                     color = appColors.textTertiary
                                 )
                                 Text(
-                                    text = "${report.exercisesAdded} added, ${report.exercisesSkipped} skipped",
+                                    text = stringResource(R.string.share_import_added_skipped, report.exercisesAdded, report.exercisesSkipped),
                                     fontSize = 14.sp,
                                     color = appColors.textPrimary,
                                     fontWeight = FontWeight.Bold
@@ -3004,12 +3004,12 @@ fun SettingsScreenNew(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = "Programs",
+                                    text = stringResource(R.string.share_tab_programs),
                                     fontSize = 14.sp,
                                     color = appColors.textTertiary
                                 )
                                 Text(
-                                    text = "${report.programsAdded} added, ${report.programsSkipped} skipped",
+                                    text = stringResource(R.string.share_import_added_skipped, report.programsAdded, report.programsSkipped),
                                     fontSize = 14.sp,
                                     color = appColors.textPrimary,
                                     fontWeight = FontWeight.Bold
@@ -3021,12 +3021,12 @@ fun SettingsScreenNew(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = "Intervals",
+                                    text = stringResource(R.string.share_tab_intervals),
                                     fontSize = 14.sp,
                                     color = appColors.textTertiary
                                 )
                                 Text(
-                                    text = "${report.intervalProgramsAdded} added, ${report.intervalProgramsSkipped} skipped",
+                                    text = stringResource(R.string.share_import_added_skipped, report.intervalProgramsAdded, report.intervalProgramsSkipped),
                                     fontSize = 14.sp,
                                     color = appColors.textPrimary,
                                     fontWeight = FontWeight.Bold
@@ -3051,7 +3051,7 @@ fun SettingsScreenNew(
                                 verticalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
                                 Text(
-                                    text = "Errors (${report.errors.size})",
+                                    text = stringResource(R.string.share_import_errors, report.errors.size),
                                     fontSize = 14.sp,
                                     color = Red600,
                                     fontWeight = FontWeight.Medium,

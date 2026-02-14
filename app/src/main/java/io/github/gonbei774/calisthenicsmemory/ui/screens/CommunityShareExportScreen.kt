@@ -53,7 +53,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.ExerciseGroup
 import io.github.gonbei774.calisthenicsmemory.data.IntervalProgram
@@ -170,7 +172,11 @@ fun CommunityShareExportScreen(
         }
     }
 
-    val tabTitles = listOf("Programs", "Intervals", "Exercises")
+    val tabTitles = listOf(
+        stringResource(R.string.share_tab_programs),
+        stringResource(R.string.share_tab_intervals),
+        stringResource(R.string.share_tab_exercises)
+    )
     val pagerState = rememberPagerState(pageCount = { tabTitles.size })
     val coroutineScope = rememberCoroutineScope()
 
@@ -191,12 +197,12 @@ fun CommunityShareExportScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.back),
                             tint = Color.White
                         )
                     }
                     Text(
-                        text = "Share Export",
+                        text = stringResource(R.string.share_export_screen_title),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -225,7 +231,7 @@ fun CommunityShareExportScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = if (totalSelected > 0) "Export ($totalSelected)" else "Export",
+                            text = if (totalSelected > 0) stringResource(R.string.share_export_button_with_count, totalSelected) else stringResource(R.string.share_export_button),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (totalSelected > 0) Color.White else appColors.textSecondary
@@ -331,7 +337,7 @@ fun CommunityShareExportScreen(
             containerColor = appColors.cardBackground,
             title = {
                 Text(
-                    text = "Export Preview",
+                    text = stringResource(R.string.share_export_preview_title),
                     fontWeight = FontWeight.Bold,
                     color = appColors.textPrimary
                 )
@@ -340,7 +346,7 @@ fun CommunityShareExportScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (selectedPrograms.isNotEmpty()) {
                         Text(
-                            text = "Programs (${selectedPrograms.size})",
+                            text = stringResource(R.string.share_preview_programs, selectedPrograms.size),
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
                             color = appColors.textPrimary
@@ -355,7 +361,7 @@ fun CommunityShareExportScreen(
                     }
                     if (selectedIntervals.isNotEmpty()) {
                         Text(
-                            text = "Intervals (${selectedIntervals.size})",
+                            text = stringResource(R.string.share_preview_intervals, selectedIntervals.size),
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
                             color = appColors.textPrimary
@@ -370,13 +376,13 @@ fun CommunityShareExportScreen(
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Total exercises: $totalExerciseCount" +
-                                if (autoIncludedExerciseCount > 0) " ($autoIncludedExerciseCount auto-included)" else "",
+                        text = stringResource(R.string.share_preview_total_exercises, totalExerciseCount) +
+                                if (autoIncludedExerciseCount > 0) stringResource(R.string.share_preview_auto_included, autoIncludedExerciseCount) else "",
                         fontSize = 13.sp,
                         color = appColors.textSecondary
                     )
                     Text(
-                        text = "Groups: $groupCount",
+                        text = stringResource(R.string.share_preview_groups, groupCount),
                         fontSize = 13.sp,
                         color = appColors.textSecondary
                     )
@@ -394,7 +400,7 @@ fun CommunityShareExportScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = Amber500)
                 ) {
                     Text(
-                        text = if (isExporting) "Exporting..." else "Export",
+                        text = if (isExporting) stringResource(R.string.share_exporting) else stringResource(R.string.share_export_button),
                         color = Color.White
                     )
                 }
@@ -404,7 +410,7 @@ fun CommunityShareExportScreen(
                     onClick = { showPreviewDialog = false },
                     enabled = !isExporting
                 ) {
-                    Text(text = "Cancel", color = appColors.textSecondary)
+                    Text(text = stringResource(R.string.cancel), color = appColors.textSecondary)
                 }
             }
         )
@@ -424,7 +430,7 @@ private fun ProgramsExportTab(
     if (programs.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
             Text(
-                text = "No programs",
+                text = stringResource(R.string.share_no_programs),
                 color = appColors.textSecondary,
                 modifier = Modifier.padding(16.dp)
             )
@@ -467,10 +473,9 @@ private fun ProgramsExportTab(
                             )
                             val exCount = exerciseCounts[program.id] ?: 0
                             val lpCount = loopCounts[program.id] ?: 0
-                            val subtitle = buildString {
-                                append("$exCount exercises")
-                                if (lpCount > 0) append(", $lpCount loops")
-                            }
+                            val exercisesText = stringResource(R.string.share_program_exercises_format, exCount)
+                            val loopsText = if (lpCount > 0) stringResource(R.string.share_program_loops_format, lpCount) else ""
+                            val subtitle = exercisesText + loopsText
                             Text(
                                 text = subtitle,
                                 fontSize = 11.sp,
@@ -497,7 +502,7 @@ private fun IntervalsExportTab(
     if (intervalPrograms.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
             Text(
-                text = "No interval programs",
+                text = stringResource(R.string.share_no_intervals),
                 color = appColors.textSecondary,
                 modifier = Modifier.padding(16.dp)
             )
@@ -576,7 +581,7 @@ private fun ExercisesExportTab(
     if (exercises.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
             Text(
-                text = "No exercises",
+                text = stringResource(R.string.share_no_exercises),
                 color = appColors.textSecondary,
                 modifier = Modifier.padding(16.dp)
             )
@@ -590,7 +595,7 @@ private fun ExercisesExportTab(
             groupedExercises.forEach { (groupName, groupExercises) ->
                 item(key = "group_header_$groupName") {
                     Text(
-                        text = groupName.ifEmpty { "Ungrouped" },
+                        text = groupName.ifEmpty { stringResource(R.string.share_ungrouped) },
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = Amber500,
@@ -631,7 +636,7 @@ private fun ExercisesExportTab(
                                     color = if (isIncluded) appColors.textSecondary else appColors.textPrimary
                                 )
                                 Text(
-                                    text = if (isIncluded) "Auto-included from program/interval"
+                                    text = if (isIncluded) stringResource(R.string.share_exercise_auto_included)
                                            else exercise.type,
                                     fontSize = 11.sp,
                                     color = appColors.textSecondary,

@@ -703,4 +703,42 @@
     <string name="interval_record_settings_format">Work %1$ds / Rest %2$ds / Round rest %3$ds</string>
     <string name="interval_record_exercises_count">%1$d exercises</string>
     <string name="interval_delete_record_confirm">Delete interval record for \"%1$s\" (%2$s)?</string>
+
+    <!-- Share export/import -->
+    <string name="share_section_title">Share</string>
+    <string name="share_section_description">Share your programs and exercises with others</string>
+    <string name="share_export_title">Export for sharing</string>
+    <string name="share_export_description">Select programs and exercises to share</string>
+    <string name="share_import_title">Import shared JSON file</string>
+    <string name="share_import_description">Import programs and exercises from a shared JSON file</string>
+    <string name="share_export_screen_title">Share Export</string>
+    <string name="share_export_preview_title">Export Preview</string>
+    <string name="share_export_button">Export</string>
+    <string name="share_export_button_with_count">Export (%1$d)</string>
+    <string name="share_exporting">Exporting…</string>
+    <string name="share_tab_programs">Programs</string>
+    <string name="share_tab_intervals">Intervals</string>
+    <string name="share_tab_exercises">Exercises</string>
+    <string name="share_preview_programs">Programs (%1$d)</string>
+    <string name="share_preview_intervals">Intervals (%1$d)</string>
+    <string name="share_preview_total_exercises">Total exercises: %1$d</string>
+    <string name="share_preview_auto_included"> (%1$d auto-included)</string>
+    <string name="share_preview_groups">Groups: %1$d</string>
+    <string name="share_no_programs">No programs</string>
+    <string name="share_no_intervals">No interval programs</string>
+    <string name="share_no_exercises">No exercises</string>
+    <string name="share_exercise_auto_included">Auto-included from program/interval</string>
+    <string name="share_ungrouped">Ungrouped</string>
+    <string name="share_program_exercises_format">%1$d exercises</string>
+    <string name="share_program_loops_format">, %1$d loops</string>
+    <string name="share_import_dialog_title">Import Shared JSON File</string>
+    <string name="share_import_preview_new">New (will be added)</string>
+    <string name="share_import_preview_exists">Already exists (will be skipped)</string>
+    <string name="share_import_preview_nothing">All items already exist. Nothing will be added.</string>
+    <string name="share_import_complete">Import Complete</string>
+    <string name="share_import_added_reused">%1$d added, %2$d reused</string>
+    <string name="share_import_added_skipped">%1$d added, %2$d skipped</string>
+    <string name="share_import_errors">Errors (%1$d)</string>
+    <string name="share_import_count_reused">%1$d reused</string>
+    <string name="share_import_count_skipped">%1$d skipped</string>
 </resources>

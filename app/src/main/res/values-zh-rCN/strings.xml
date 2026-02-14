@@ -706,4 +706,43 @@
     <string name="interval_record_complete">已完成</string>
     <string name="interval_record_partial">提前结束</string>
     <string name="interval_record_exercises_count">%1$d个动作</string>
+
+    <!-- Share export/import -->
+    <string name="share_section_title">分享</string>
+    <string name="share_section_description">与他人分享你的训练计划和动作</string>
+    <string name="share_export_title">导出用于分享</string>
+    <string name="share_export_description">选择要分享的训练计划和动作</string>
+    <string name="share_import_title">导入分享的JSON文件</string>
+    <string name="share_import_description">从分享的JSON文件导入训练计划和动作</string>
+    <string name="share_export_screen_title">分享导出</string>
+    <string name="share_export_preview_title">导出预览</string>
+    <string name="share_export_button">导出</string>
+    <string name="share_export_button_with_count">导出 (%1$d)</string>
+    <string name="share_exporting">正在导出…</string>
+    <string name="share_tab_programs">计划</string>
+    <string name="share_tab_intervals">间歇</string>
+    <string name="share_tab_exercises">动作</string>
+    <string name="share_preview_programs">计划 (%1$d)</string>
+    <string name="share_preview_intervals">间歇 (%1$d)</string>
+    <string name="share_preview_total_exercises">动作总数：%1$d</string>
+    <string name="share_preview_auto_included">（%1$d 自动包含）</string>
+    <string name="share_preview_groups">分组：%1$d</string>
+    <string name="share_no_programs">无训练计划</string>
+    <string name="share_no_intervals">无间歇训练计划</string>
+    <string name="share_no_exercises">无动作</string>
+    <string name="share_exercise_auto_included">从训练计划/间歇训练自动包含</string>
+    <string name="share_ungrouped">无分组</string>
+    <string name="share_program_exercises_format">%1$d 个动作</string>
+    <string name="share_program_loops_format">，%1$d 个循环</string>
+    <string name="share_import_dialog_title">导入分享的JSON文件</string>
+    <string name="share_import_preview_new">新增（将被添加）</string>
+    <string name="share_import_preview_exists">已存在（将被跳过）</string>
+    <string name="share_import_preview_nothing">所有项目已存在，不会添加任何内容。</string>
+    <string name="share_import_complete">导入完成</string>
+    <string name="share_import_added_reused">%1$d 已添加，%2$d 已复用</string>
+    <string name="share_import_added_skipped">%1$d 已添加，%2$d 已跳过</string>
+    <string name="share_import_errors">错误 (%1$d)</string>
+    <string name="share_import_count_reused">%1$d 已复用</string>
+    <string name="share_import_count_skipped">%1$d 已跳过</string>
+
 </resources>
