@@ -1,0 +1,18 @@
+Aggiunto:
+- Condivisione: esporta/importa esercizi, programmi, intervalli
+- Tipo GRUPPO in ToDo
+- Riordinamento gruppi (trascinamento)
+- Selezione gruppo intero in ToDo
+- Conferma eliminazione con scorrimento
+- Info round per esercizio in record intervallo
+- Limite importazione 50MB
+
+Migliorato:
+- Impostazioni riorganizzate in sezioni
+- Selettore SAF per backup pre-importazione
+
+Corretto:
+- Cambio tema perdeva stato schermo
+- Flash/beep quando intervallo è 0s
+
+Contributors: SomeTr, nautilusx

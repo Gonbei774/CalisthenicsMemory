@@ -1,0 +1,18 @@
+Ajouté:
+- Partage: exporter/importer exercices, programmes, intervalles
+- Type GROUPE dans ToDo
+- Réorganisation des groupes (glisser-déposer)
+- Sélection du groupe entier dans ToDo
+- Confirmation de suppression par balayage
+- Info des tours par exercice
+- Limite d'importation 50Mo
+
+Amélioré:
+- Paramètres réorganisés en sections
+- Sélecteur SAF pour backup pré-import
+
+Corrigé:
+- Changement de thème perdant l'état de l'écran
+- Flash/bip quand intervalle est 0s
+
+Contributors: SomeTr, nautilusx
