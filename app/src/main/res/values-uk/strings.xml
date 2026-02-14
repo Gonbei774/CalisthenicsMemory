@@ -650,7 +650,6 @@
     <string name="interval_record_complete">Завершено</string>
     <string name="interval_record_partial">Припинено раніше</string>
     <string name="interval_record_exercises_count">%1$d вправ</string>
-
     <!-- Share export/import -->
     <string name="share_section_title">Поширення</string>
     <string name="share_section_description">Діліться програмами та вправами з іншими</string>
@@ -681,12 +680,11 @@
     <string name="share_import_dialog_title">Імпорт спільного JSON-файлу</string>
     <string name="share_import_preview_new">Нове (буде додано)</string>
     <string name="share_import_preview_exists">Вже існує (буде пропущено)</string>
-    <string name="share_import_preview_nothing">Всі елементи вже існують. Нічого не буде додано.</string>
+    <string name="share_import_preview_nothing">Усі елементи вже існують. Нічого не буде додано.</string>
     <string name="share_import_complete">Імпорт завершено</string>
     <string name="share_import_added_reused">%1$d додано, %2$d повторно використано</string>
     <string name="share_import_added_skipped">%1$d додано, %2$d пропущено</string>
     <string name="share_import_errors">Помилки (%1$d)</string>
     <string name="share_import_count_reused">%1$d повторно використано</string>
     <string name="share_import_count_skipped">%1$d пропущено</string>
-
 </resources>
