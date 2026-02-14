@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
@@ -1154,12 +1155,11 @@ private fun AddItemsDialog(
                 }
             }
 
-            // Tabs（スクロール可能）
-            ScrollableTabRow(
+            // Tabs
+            TabRow(
                 selectedTabIndex = pagerState.currentPage,
                 containerColor = appColors.cardBackground,
-                contentColor = Amber500,
-                edgePadding = 0.dp
+                contentColor = Amber500
             ) {
                 tabTitles.forEachIndexed { index, title ->
                     Tab(
@@ -1168,9 +1168,10 @@ private fun AddItemsDialog(
                         text = {
                             Text(
                                 text = title,
-                                fontSize = 13.sp,
+                                fontSize = 12.sp,
                                 color = if (pagerState.currentPage == index) Amber500 else appColors.textSecondary,
-                                maxLines = 1
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     )
@@ -1257,13 +1258,15 @@ private fun ExercisesTabContent(
     }
 
     if (availableExercises.isEmpty()) {
-        Text(
-            text = stringResource(R.string.todo_all_added),
-            color = appColors.textSecondary,
-            modifier = Modifier.padding(16.dp)
-        )
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
+            Text(
+                text = stringResource(R.string.todo_all_added),
+                color = appColors.textSecondary,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
     } else {
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.fillMaxSize()) {
             // Search field
             OutlinedTextField(
                 value = searchQuery,
@@ -1373,14 +1376,16 @@ private fun GroupsTabContent(
     var expandedGroupIds by remember { mutableStateOf(setOf<Long>()) }
 
     if (availableGroups.isEmpty()) {
-        Text(
-            text = stringResource(R.string.todo_no_groups),
-            color = appColors.textSecondary,
-            modifier = Modifier.padding(16.dp)
-        )
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
+            Text(
+                text = stringResource(R.string.todo_no_groups),
+                color = appColors.textSecondary,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
     } else {
         LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             items(
@@ -1472,14 +1477,16 @@ private fun ProgramsTabContent(
     }
 
     if (availablePrograms.isEmpty()) {
-        Text(
-            text = stringResource(R.string.todo_no_programs),
-            color = appColors.textSecondary,
-            modifier = Modifier.padding(16.dp)
-        )
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
+            Text(
+                text = stringResource(R.string.todo_no_programs),
+                color = appColors.textSecondary,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
     } else {
         LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             items(
@@ -1533,14 +1540,16 @@ private fun IntervalsTabContent(
     }
 
     if (availableIntervals.isEmpty()) {
-        Text(
-            text = stringResource(R.string.todo_no_intervals),
-            color = appColors.textSecondary,
-            modifier = Modifier.padding(16.dp)
-        )
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
+            Text(
+                text = stringResource(R.string.todo_no_intervals),
+                color = appColors.textSecondary,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
     } else {
         LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             items(
