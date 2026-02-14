@@ -115,6 +115,73 @@ fun SettingsScreenNew(
         }
     }
 
+    // インポート前バックアップ用ランチャー（SAFでユーザーが保存先を選択）
+    val backupBeforeImportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri: Uri? ->
+        if (uri != null) {
+            scope.launch {
+                isLoading = true
+                // バックアップを保存
+                val backupSuccess = try {
+                    withContext(Dispatchers.IO) {
+                        val jsonData = viewModel.exportData()
+                        context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                            outputStream.write(jsonData.toByteArray())
+                        }
+                        true
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("SettingsScreen", "Backup before import failed", e)
+                    false
+                }
+
+                viewModel.showBackupResult(backupSuccess)
+
+                // バックアップ後、インポートを続行
+                try {
+                    if (backupImportType == "JSON") {
+                        withContext(Dispatchers.Main) {
+                            showImportWarning = true
+                        }
+                    } else if (backupImportType == "CSV") {
+                        pendingCsvString?.let { csvData ->
+                            val report = executeCsvImport(viewModel, csvData, csvImportType)
+                            withContext(Dispatchers.Main) {
+                                if (report != null) {
+                                    importReport = report
+                                    showImportResult = true
+                                }
+                            }
+                        }
+                    } else if (backupImportType == "Share") {
+                        pendingShareImportJson?.let { jsonData ->
+                            val report = withContext(Dispatchers.IO) {
+                                viewModel.importCommunityShare(jsonData)
+                            }
+                            withContext(Dispatchers.Main) {
+                                shareImportReport = report
+                                showShareImportResult = true
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("SettingsScreen", "Import error after backup", e)
+                } finally {
+                    withContext(Dispatchers.Main) {
+                        isLoading = false
+                        pendingCsvString = null
+                        pendingShareImportJson = null
+                        backupImportType = null
+                    }
+                }
+            }
+        } else {
+            // ユーザーがファイルピッカーをキャンセル → バックアップ確認ダイアログに戻す
+            showBackupConfirmation = true
+        }
+    }
+
     // JSONインポート用ランチャー
     val importLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
@@ -2046,59 +2113,14 @@ fun SettingsScreenNew(
                         lineHeight = 22.sp
                     )
 
-                    // バックアップして続行（推奨）
+                    // バックアップして続行（推奨）— SAFファイルピッカーで保存先を選択
                     Button(
                         onClick = {
-                            scope.launch {
-                                isLoading = true
-                                showBackupConfirmation = false
-
-                                // バックアップを実行
-                                val backupSuccess = saveAutoBackup(context, viewModel)
-
-                                // バックアップ結果をSnackbarで通知
-                                viewModel.showBackupResult(backupSuccess)
-
-                                // バックアップが失敗してもインポートは続行
-                                try {
-                                    if (backupImportType == "JSON") {
-                                        withContext(Dispatchers.Main) {
-                                            showImportWarning = true
-                                        }
-                                    } else if (backupImportType == "CSV") {
-                                        // CSVインポート実行（ヘルパー関数使用）
-                                        pendingCsvString?.let { csvData ->
-                                            val report = executeCsvImport(viewModel, csvData, csvImportType)
-                                            withContext(Dispatchers.Main) {
-                                                if (report != null) {
-                                                    importReport = report
-                                                    showImportResult = true
-                                                }
-                                            }
-                                        }
-                                    } else if (backupImportType == "Share") {
-                                        // Shareインポート実行
-                                        pendingShareImportJson?.let { jsonData ->
-                                            val report = withContext(Dispatchers.IO) {
-                                                viewModel.importCommunityShare(jsonData)
-                                            }
-                                            withContext(Dispatchers.Main) {
-                                                shareImportReport = report
-                                                showShareImportResult = true
-                                            }
-                                        }
-                                    }
-                                } catch (e: Exception) {
-                                    android.util.Log.e("SettingsScreen", "Import error after backup", e)
-                                } finally {
-                                    withContext(Dispatchers.Main) {
-                                        isLoading = false
-                                        pendingCsvString = null
-                                        pendingShareImportJson = null
-                                        backupImportType = null
-                                    }
-                                }
-                            }
+                            showBackupConfirmation = false
+                            val dateTime = LocalDateTime.now()
+                            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")
+                            val fileName = "calisthenics_memory_backup_${dateTime.format(formatter)}.json"
+                            backupBeforeImportLauncher.launch(fileName)
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -3120,47 +3142,6 @@ fun detectCsvType(csvString: String): CsvType? {
         firstLine.startsWith("name,type,group,sortOrder") -> CsvType.EXERCISES
         firstLine.startsWith("exerciseName,exerciseType") -> CsvType.RECORDS
         else -> null
-    }
-}
-
-/**
- * バックアップを自動保存する関数
- * @return 成功: true, 失敗: false
- */
-suspend fun saveAutoBackup(
-    context: android.content.Context,
-    viewModel: TrainingViewModel
-): Boolean {
-    return try {
-        withContext(Dispatchers.IO) {
-            val jsonData = viewModel.exportData()
-            val dateTime = LocalDateTime.now()
-            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")
-            val fileName = "backup_${dateTime.format(formatter)}.json"
-
-            // MediaStoreを使ってDownloadsフォルダに保存
-            val contentValues = android.content.ContentValues().apply {
-                put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-                put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "application/json")
-                put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, android.os.Environment.DIRECTORY_DOWNLOADS)
-            }
-
-            val uri = context.contentResolver.insert(
-                android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI,
-                contentValues
-            )
-
-            uri?.let {
-                context.contentResolver.openOutputStream(it)?.use { outputStream ->
-                    outputStream.write(jsonData.toByteArray())
-                }
-            }
-
-            uri != null
-        }
-    } catch (e: Exception) {
-        android.util.Log.e("SettingsScreen", "Auto backup failed", e)
-        false
     }
 }
 
