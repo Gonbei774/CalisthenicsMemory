@@ -1376,7 +1376,15 @@ private fun ExercisesTabContent(
                                 onExpandToggle = {
                                     viewModel.toggleGroupExpansion(group.groupName ?: "ungrouped")
                                 },
-                                onExerciseToggle = onToggle
+                                onExerciseToggle = onToggle,
+                                onGroupToggle = { ids ->
+                                    val allSelected = ids.all { it in selectedIds }
+                                    ids.forEach { id ->
+                                        if (allSelected || id !in selectedIds) {
+                                            onToggle(id)
+                                        }
+                                    }
+                                }
                             )
                         }
                     }
@@ -1642,9 +1650,12 @@ fun AddExerciseGroup(
     selectedExercises: Set<Long>,
     isExpanded: Boolean,
     onExpandToggle: () -> Unit,
-    onExerciseToggle: (Long) -> Unit
+    onExerciseToggle: (Long) -> Unit,
+    onGroupToggle: (List<Long>) -> Unit = {}
 ) {
     val appColors = LocalAppColors.current
+    val exerciseIds = exercises.map { it.id }
+    val allSelected = exerciseIds.isNotEmpty() && exerciseIds.all { it in selectedExercises }
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = appColors.cardBackgroundSecondary),
@@ -1666,7 +1677,8 @@ fun AddExerciseGroup(
                 ) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
                     ) {
                         Icon(
                             imageVector = if (isExpanded)
@@ -1688,6 +1700,14 @@ fun AddExerciseGroup(
                             color = appColors.textSecondary
                         )
                     }
+                    Checkbox(
+                        checked = allSelected,
+                        onCheckedChange = { onGroupToggle(exerciseIds) },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = Amber500,
+                            uncheckedColor = appColors.textSecondary
+                        )
+                    )
                 }
             }
 
