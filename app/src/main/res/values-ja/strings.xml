@@ -365,7 +365,7 @@
     <string name="section_full_backup">完全バックアップ (JSON)</string>
     <string name="section_full_backup_description">全データの保存・復元。端末移行時に使用。</string>
     <string name="section_partial_data_management">部分データ管理 (CSV)</string>
-    <string name="section_partial_data_management_description">グループ、種目、記録を個別にエクスポート・インポート。\nJSONバックアップと異なり、必要なデータだけを管理できます。</string>
+    <string name="section_partial_data_management_description">他アプリや表計算ソフトとのデータ連携に。\nグループ、種目、記録をCSVで個別にやり取りできます。</string>
     <!-- Legacy key for compatibility -->
     <string name="section_add_records">記録の追加 (CSV)</string>
     <string name="section_add_records_description">既存データに記録を追加。他アプリからの移行に使用。</string>
@@ -400,7 +400,7 @@
     <string name="settings_prefill_previous_description">記録・ワークアウト画面で前回の値を自動入力</string>
     <!-- Workout Settings -->
     <string name="section_workout_settings">ワークアウト設定</string>
-    <string name="section_workout_settings_description">ワークアウトのタイマーのデフォルト値を設定できます。</string>
+    <string name="section_workout_settings_description">ワークアウト画面の動作をカスタマイズできます。</string>
     <string name="workout_settings">ワークアウト設定</string>
     <string name="start_countdown_setting">開始カウントダウン</string>
     <string name="set_interval_setting">セット間インターバル</string>

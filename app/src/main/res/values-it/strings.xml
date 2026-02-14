@@ -364,7 +364,7 @@
     <string name="section_full_backup">Backup Completo (JSON)</string>
     <string name="section_full_backup_description">Salva e ripristina tutti i dati (esercizi, registrazioni, gruppi).\nUtilizza quando cambi dispositivo.</string>
     <string name="section_partial_data_management">Gestione Dati Parziale (CSV)</string>
-    <string name="section_partial_data_management_description">Esporta e importa gruppi, esercizi o registrazioni individualmente.\nA differenza del backup JSON, puoi gestire solo i dati di cui hai bisogno.</string>
+    <string name="section_partial_data_management_description">Per lo scambio di dati con altre app e fogli di calcolo.\nEsporta e importa gruppi, esercizi e registrazioni individualmente tramite CSV.</string>
     <!-- Legacy key for compatibility -->
     <string name="section_add_records">Aggiungi Registrazioni (CSV)</string>
     <string name="section_add_records_description">Aggiungi registrazioni ai dati esistenti.\nUtilizza per importare registrazioni analogiche o dati da altre app.</string>
@@ -399,7 +399,7 @@
     <string name="settings_prefill_previous_description">Compila automaticamente i valori dell\'ultima sessione nelle schermate Registra e Allenamento</string>
     <!-- Workout Settings -->
     <string name="section_workout_settings">Impostazioni Allenamento</string>
-    <string name="section_workout_settings_description">Configura le impostazioni predefinite del timer di allenamento.</string>
+    <string name="section_workout_settings_description">Personalizza il comportamento della schermata di allenamento.</string>
     <string name="workout_settings">Impostazioni Allenamento</string>
     <string name="start_countdown_setting">Conto alla Rovescia Inizio</string>
     <string name="set_interval_setting">Intervallo Serie</string>

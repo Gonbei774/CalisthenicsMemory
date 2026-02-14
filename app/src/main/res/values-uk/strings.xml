@@ -305,7 +305,7 @@
     <string name="notification_workout_title">Триває тренування</string>
     <string name="workout_in_progress">Триває тренування</string>
     <string name="todo_empty">Щоб додати вправу, натисніть +</string>
-    <string name="section_workout_settings_description">Параметри таймера тренування за замовчуванням.</string>
+    <string name="section_workout_settings_description">Налаштувати поведінку екрана тренування.</string>
     <string name="timer_settings_description">Налаштуйте таймери для цієї вправи. Залиште порожнім, щоб використовувати значення за замовчуванням.</string>
     <string name="nav_save_and_exit">Зберегти і вийти</string>
     <string name="graph_total">Разом</string>
@@ -462,7 +462,7 @@
     <string name="section_add_records">Додати записи (CSV)</string>
     <string name="section_add_records_description">Додавання записів до існуючих даних.\nВикористовуйте для імпорту даних з інших додатків.</string>
     <string name="section_full_backup_description">Збереження та відновлення всіх даних (вправ, записів, груп).\nВикористовуйте для перенесення даних на інший пристрій.</string>
-    <string name="section_partial_data_management_description">Експорт та імпорт груп, вправ або записів окремо.\nНа відміну від резервного копіювання, для експорту/імпорту можна вибрати лише ті дані, які вам потрібні.</string>
+    <string name="section_partial_data_management_description">Для обміну даними з іншими програмами та електронними таблицями.\nЕкспортуйте та імпортуйте групи, вправи та записи окремо через CSV.</string>
     <string name="edit_session_info">Редагувати інформацію про заняття</string>
     <string name="edit_session_title">Редагувати інформацію про заняття</string>
     <string name="legend_distance_inverted">Відстань (обернена)</string>

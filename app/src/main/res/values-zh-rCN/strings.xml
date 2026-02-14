@@ -364,7 +364,7 @@
     <string name="section_full_backup">完整备份（JSON）</string>
     <string name="section_full_backup_description">保存和恢复所有数据（动作、记录、分组）。\n更换设备时使用。</string>
     <string name="section_partial_data_management">部分数据管理（CSV）</string>
-    <string name="section_partial_data_management_description">单独导出和导入分组、动作或记录。\n与JSON备份不同，您可以只管理所需的数据。</string>
+    <string name="section_partial_data_management_description">用于与其他应用和电子表格交换数据。\n通过CSV单独导出和导入分组、动作和记录。</string>
     <!-- Legacy key for compatibility -->
     <string name="section_add_records">添加记录（CSV）</string>
     <string name="section_add_records_description">向现有数据添加记录。\n用于导入纸质记录或其他应用的数据。</string>
@@ -399,7 +399,7 @@
     <string name="settings_prefill_previous_description">在记录和训练画面自动填充上次的值</string>
     <!-- Workout Settings -->
     <string name="section_workout_settings">训练设置</string>
-    <string name="section_workout_settings_description">配置训练计时器的默认值。</string>
+    <string name="section_workout_settings_description">自定义训练界面的行为。</string>
     <string name="workout_settings">训练设置</string>
     <string name="start_countdown_setting">开始倒计时</string>
     <string name="set_interval_setting">组间间歇</string>

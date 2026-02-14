@@ -364,7 +364,7 @@
     <string name="section_full_backup">Sauvegarde Complète (JSON)</string>
     <string name="section_full_backup_description">Sauvegarder et restaurer toutes les données (exercices, enregistrements, groupes).\nUtilisez cette option lors du changement d\'appareil.</string>
     <string name="section_partial_data_management">Gestion Partielle des Données (CSV)</string>
-    <string name="section_partial_data_management_description">Exporter et importer des groupes, exercices ou enregistrements individuellement.\nContrairement à la sauvegarde JSON, vous pouvez gérer uniquement les données dont vous avez besoin.</string>
+    <string name="section_partial_data_management_description">Pour l\'échange de données avec d\'autres applications et tableurs.\nExportez et importez des groupes, exercices et enregistrements individuellement via CSV.</string>
     <!-- Legacy key for compatibility -->
     <string name="section_add_records">Ajouter des Enregistrements (CSV)</string>
     <string name="section_add_records_description">Ajouter des enregistrements aux données existantes.\nUtilisez cette option pour importer des enregistrements papier ou des données d\'autres applications.</string>
@@ -399,7 +399,7 @@
     <string name="settings_prefill_previous_description">Remplir automatiquement les valeurs de la dernière séance dans les écrans Enregistrement et Entraînement</string>
     <!-- Workout Settings -->
     <string name="section_workout_settings">Paramètres d\'Entraînement</string>
-    <string name="section_workout_settings_description">Configurer les valeurs par défaut du minuteur d\'entraînement.</string>
+    <string name="section_workout_settings_description">Personnaliser le comportement de l\'écran d\'entraînement.</string>
     <string name="workout_settings">Paramètres d\'Entraînement</string>
     <string name="start_countdown_setting">Compte à Rebours de Départ</string>
     <string name="set_interval_setting">Intervalle entre Séries</string>

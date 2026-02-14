@@ -359,7 +359,7 @@
     <string name="section_full_backup">Vollständige Sicherung (JSON)</string>
     <string name="section_full_backup_description">Alle Daten speichern und wiederherstellen (Übungen, Aufzeichnungen, Gruppen).\nVerwende dies beim Gerätewechsel.</string>
     <string name="section_partial_data_management">Teilweise Datenverwaltung (CSV)</string>
-    <string name="section_partial_data_management_description">Gruppen, Übungen oder Aufzeichnungen einzeln exportieren und importieren.\nIm Gegensatz zu einer JSON-Sicherung kannst du nur die Daten verwalten, die du brauchst.</string>
+    <string name="section_partial_data_management_description">Für den Datenaustausch mit anderen Apps und Tabellenkalkulationen.\nGruppen, Übungen und Aufzeichnungen einzeln per CSV austauschen.</string>
     <!-- Legacy key for compatibility -->
     <string name="section_add_records">Aufzeichnungen hinzufügen (CSV)</string>
     <string name="section_add_records_description">Aufzeichnungen zu vorhandenen Daten hinzufügen.\nVerwende dies zum Importieren analoger Aufzeichnungen oder Daten aus anderen Apps.</string>
@@ -394,7 +394,7 @@
     <string name="settings_prefill_previous_description">Werte der letzten Einheit automatisch in Aufnahme- und Workout-Bildschirmen ausfüllen</string>
     <!-- Workout Settings -->
     <string name="section_workout_settings">Workout-Einstellungen</string>
-    <string name="section_workout_settings_description">Standard-Timer-Einstellungen für Workouts konfigurieren.</string>
+    <string name="section_workout_settings_description">Verhalten des Workout-Bildschirms anpassen.</string>
     <string name="workout_settings">Workout-Einstellungen</string>
     <string name="start_countdown_setting">Start-Countdown</string>
     <string name="set_interval_setting">Satzpause</string>

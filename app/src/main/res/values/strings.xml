@@ -383,7 +383,7 @@
     <string name="section_full_backup">Complete Backup (JSON)</string>
     <string name="section_full_backup_description">Save and restore all data (exercises, records, groups).\nUse when changing devices.</string>
     <string name="section_partial_data_management">Partial Data Management (CSV)</string>
-    <string name="section_partial_data_management_description">Export and import groups, exercises, or records individually.\nUnlike JSON backup, you can manage only the data you need.</string>
+    <string name="section_partial_data_management_description">For data exchange with other apps and spreadsheets.\nExport and import groups, exercises, and records individually via CSV.</string>
     <!-- Legacy key for compatibility -->
     <string name="section_add_records">Add Records (CSV)</string>
     <string name="section_add_records_description">Add records to existing data.\nUse for importing analog records or data from other apps.</string>
@@ -426,7 +426,7 @@
     <string name="settings_prefill_previous_description">Auto-fill values from the last session in Record and Workout screens</string>
     <!-- Workout Settings -->
     <string name="section_workout_settings">Workout Settings</string>
-    <string name="section_workout_settings_description">Configure default workout timer settings.</string>
+    <string name="section_workout_settings_description">Customize workout screen behavior.</string>
     <string name="workout_settings">Workout Settings</string>
     <string name="start_countdown_setting">Start Countdown</string>
     <string name="set_interval_setting">Set Interval</string>
