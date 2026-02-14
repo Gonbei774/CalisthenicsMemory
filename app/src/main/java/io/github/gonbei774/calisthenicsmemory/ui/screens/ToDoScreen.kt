@@ -1183,25 +1183,30 @@ private fun AddItemsDialog(
             }
 
             // Tabs
-            TabRow(
-                selectedTabIndex = pagerState.currentPage,
-                containerColor = appColors.cardBackground,
-                contentColor = Amber500
-            ) {
-                tabTitles.forEachIndexed { index, title ->
-                    Tab(
-                        selected = pagerState.currentPage == index,
-                        onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
-                        text = {
-                            Text(
-                                text = title,
-                                fontSize = 12.sp,
-                                color = if (pagerState.currentPage == index) Amber500 else appColors.textSecondary,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    )
+            BoxWithConstraints {
+                val minTabWidth = maxWidth / tabTitles.size
+                ScrollableTabRow(
+                    selectedTabIndex = pagerState.currentPage,
+                    containerColor = appColors.cardBackground,
+                    contentColor = Amber500,
+                    edgePadding = 0.dp
+                ) {
+                    tabTitles.forEachIndexed { index, title ->
+                        Tab(
+                            selected = pagerState.currentPage == index,
+                            onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
+                            modifier = Modifier.widthIn(min = minTabWidth),
+                            text = {
+                                Text(
+                                    text = title,
+                                    fontSize = 13.sp,
+                                    color = if (pagerState.currentPage == index) Amber500 else appColors.textSecondary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        )
+                    }
                 }
             }
 
