@@ -219,6 +219,10 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         _snackbarMessage.value = null
     }
 
+    fun showWrongFileTypeMessage(detected: String, expected: String) {
+        _snackbarMessage.value = UiMessage.WrongFileType(detected = detected, expected = expected)
+    }
+
     fun showSnackbar(message: UiMessage) {
         _snackbarMessage.value = message
     }
@@ -871,10 +875,10 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         withContext(Dispatchers.IO) {
             try {
                 // ファイル種別チェック: コミュニティ共有JSONが渡された場合はエラー
-                if (detectJsonFileType(jsonString) == "community_share") {
+                if (detectJsonFileType(jsonString) == "share") {
                     withContext(Dispatchers.Main) {
                         _snackbarMessage.value = UiMessage.WrongFileType(
-                            detected = "community_share",
+                            detected = "share",
                             expected = "backup"
                         )
                     }
@@ -2279,7 +2283,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
     /**
      * JSON文字列のファイル種別を判定する
-     * @return "backup", "community_share", "unknown"
+     * @return "backup", "share", "unknown"
      */
     fun detectJsonFileType(jsonString: String): String {
         return try {
@@ -2290,8 +2294,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             when {
                 jsonObject.containsKey("exportType") -> {
                     val exportType = jsonObject["exportType"]
-                    if (exportType is JsonPrimitive && exportType.content == "community_share") {
-                        "community_share"
+                    if (exportType is JsonPrimitive && exportType.content == "share") {
+                        "share"
                     } else {
                         "unknown"
                     }
@@ -2429,7 +2433,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
             val shareData = CommunityShareData(
                 formatVersion = 1,
-                exportType = "community_share",
+                exportType = "share",
                 exportDate = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 exportId = java.util.UUID.randomUUID().toString(),
                 appVersion = appVersion,
@@ -2469,7 +2473,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 withContext(Dispatchers.Main) {
                     _snackbarMessage.value = UiMessage.WrongFileType(
                         detected = "backup",
-                        expected = "community_share"
+                        expected = "share"
                     )
                 }
                 return@withContext CommunityShareImportReport(

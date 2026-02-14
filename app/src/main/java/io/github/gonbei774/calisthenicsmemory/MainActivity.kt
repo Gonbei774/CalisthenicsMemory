@@ -57,6 +57,7 @@ import io.github.gonbei774.calisthenicsmemory.ui.screens.ProgramExecutionScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.IntervalListScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.IntervalEditScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.IntervalExecutionScreen
+import io.github.gonbei774.calisthenicsmemory.ui.screens.CommunityShareExportScreen
 import io.github.gonbei774.calisthenicsmemory.ui.theme.CalisthenicsMemoryTheme
 import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
@@ -282,6 +283,7 @@ fun CalisthenicsMemoryApp(
                         viewModel = viewModel,
                         onNavigateBack = { currentScreen = Screen.Home },
                         onNavigateToLicenses = { currentScreen = Screen.Licenses },
+                        onNavigateToCommunityShareExport = { currentScreen = Screen.CommunityShareExport },
                         currentTheme = currentTheme,
                         onThemeChange = onThemeChange
                     )
@@ -401,6 +403,13 @@ fun CalisthenicsMemoryApp(
                         }
                     )
                 }
+                is Screen.CommunityShareExport -> {
+                    BackHandler { currentScreen = Screen.Settings }
+                    CommunityShareExportScreen(
+                        viewModel = viewModel,
+                        onNavigateBack = { currentScreen = Screen.Settings }
+                    )
+                }
             }
         }
     }
@@ -421,6 +430,7 @@ sealed class Screen {
     object IntervalList : Screen()
     data class IntervalEdit(val programId: Long?) : Screen()
     data class IntervalExecution(val programId: Long, val fromToDo: Boolean = false) : Screen()
+    object CommunityShareExport : Screen()
 }
 
 private val ScreenSaver = mapSaver(
@@ -464,6 +474,7 @@ private val ScreenSaver = mapSaver(
                     put("programId", screen.programId)
                     put("fromToDo", screen.fromToDo)
                 }
+                Screen.CommunityShareExport -> put("type", "CommunityShareExport")
             }
         }
     },
@@ -499,6 +510,7 @@ private val ScreenSaver = mapSaver(
                 programId = map["programId"] as Long,
                 fromToDo = map["fromToDo"] as Boolean
             )
+            "CommunityShareExport" -> Screen.CommunityShareExport
             else -> Screen.Home
         }
     }

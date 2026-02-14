@@ -120,7 +120,7 @@ fun validateCommunityShareContent(data: CommunityShareData): List<String> {
     }
 
     // exportType チェック
-    if (data.exportType != "community_share") {
+    if (data.exportType != "share") {
         errors.add("Invalid exportType: ${data.exportType}")
         return errors
     }

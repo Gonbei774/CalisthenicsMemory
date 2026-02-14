@@ -48,6 +48,7 @@ fun SettingsScreenNew(
     viewModel: TrainingViewModel,
     onNavigateBack: () -> Unit,
     onNavigateToLicenses: () -> Unit = {},
+    onNavigateToCommunityShareExport: () -> Unit = {},
     currentTheme: AppTheme = AppTheme.SYSTEM,
     onThemeChange: (AppTheme) -> Unit = {}
 ) {
@@ -125,6 +126,18 @@ fun SettingsScreenNew(
                         } ?: ""
 
                         if (jsonData.isNotEmpty()) {
+                            // ファイル種別チェック: コミュニティ共有JSONが渡された場合はエラー
+                            val fileType = viewModel.detectJsonFileType(jsonData)
+                            if (fileType == "share") {
+                                withContext(Dispatchers.Main) {
+                                    viewModel.showWrongFileTypeMessage(
+                                        detected = "share",
+                                        expected = "backup"
+                                    )
+                                }
+                                return@withContext
+                            }
+
                             val json = Json { ignoreUnknownKeys = true }
                             val backupData = json.decodeFromString<BackupData>(jsonData)
 
@@ -620,6 +633,72 @@ fun SettingsScreenNew(
                             )
                             Text(
                                 text = stringResource(R.string.csv_import_description),
+                                fontSize = 14.sp,
+                                color = appColors.textSecondary,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            // ========================================
+            // セクション: Share
+            // ========================================
+
+            // セクションタイトルと説明
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Text(
+                        text = "Share",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = appColors.textPrimary,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    Text(
+                        text = "Share your programs and exercises with others",
+                        fontSize = 14.sp,
+                        color = appColors.textSecondary,
+                        lineHeight = 20.sp
+                    )
+                }
+            }
+
+            // Community Share エクスポートボタン
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = appColors.cardBackground
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    onClick = { onNavigateToCommunityShareExport() }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "📤",
+                            fontSize = 32.sp
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Export for sharing",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = appColors.textPrimary
+                            )
+                            Text(
+                                text = "Select programs and exercises to share",
                                 fontSize = 14.sp,
                                 color = appColors.textSecondary,
                                 modifier = Modifier.padding(top = 4.dp)
