@@ -99,6 +99,8 @@
     <string name="isometric_type">Time</string>
     <string name="exercise_type_dynamic">Dynamic</string>
     <string name="exercise_type_isometric">Isometric</string>
+    <string name="exercise_type_dynamic_description">e.g. Push-ups, Pull-ups. Recorded by reps.</string>
+    <string name="exercise_type_isometric_description">e.g. Plank, L-sit. Recorded by hold time.</string>
     <!-- View Screen -->
     <string name="view_records">View Records</string>
     <string name="list">List</string>

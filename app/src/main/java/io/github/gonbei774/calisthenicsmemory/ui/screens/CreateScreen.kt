@@ -985,6 +985,15 @@ fun UnifiedAddDialog(
                                             Text(stringResource(R.string.exercise_type_isometric))
                                         }
                                     }
+                                    Text(
+                                        text = if (selectedType == "Isometric")
+                                            stringResource(R.string.exercise_type_isometric_description)
+                                        else
+                                            stringResource(R.string.exercise_type_dynamic_description),
+                                        fontSize = 12.sp,
+                                        color = appColors.textSecondary,
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
                                 }
 
                                 // 左右種別選択

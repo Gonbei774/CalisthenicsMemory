@@ -98,6 +98,8 @@
     <string name="isometric_type">時間制</string>
     <string name="exercise_type_dynamic">動的</string>
     <string name="exercise_type_isometric">静的</string>
+    <string name="exercise_type_dynamic_description">例：腕立て伏せ、懸垂など。回数で記録します。</string>
+    <string name="exercise_type_isometric_description">例：プランク、Lシットなど。保持時間で記録します。</string>
     <!-- View Screen -->
     <string name="view_records">記録閲覧</string>
     <string name="list">一覧</string>
