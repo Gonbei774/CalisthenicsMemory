@@ -192,6 +192,7 @@ fun UiMessage.toMessageString(): String {
             "Import complete: ${r.exercisesAdded} added, ${r.exercisesSkipped} skipped, ${r.programsAdded} programs, ${r.intervalProgramsAdded} intervals"
         }
         is UiMessage.CommunityShareImportError -> "Import error: $errorMessage"
+        is UiMessage.FileTooLarge -> "File too large: ${sizeMb}MB (limit: ${limitMb}MB)"
         is UiMessage.WrongFileType -> "Wrong file type: $detected (expected: $expected)"
         is UiMessage.ErrorOccurred -> stringResource(R.string.error_occurred)
     }

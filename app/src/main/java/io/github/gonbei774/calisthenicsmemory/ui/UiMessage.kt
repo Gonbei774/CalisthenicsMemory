@@ -134,6 +134,9 @@ sealed class UiMessage {
     /** コミュニティシェア インポートエラー */
     data class CommunityShareImportError(val errorMessage: String) : UiMessage()
 
+    /** ファイルサイズ超過 */
+    data class FileTooLarge(val sizeMb: Int, val limitMb: Int) : UiMessage()
+
     /** ファイル種別の誤り */
     data class WrongFileType(val detected: String, val expected: String) : UiMessage()
 

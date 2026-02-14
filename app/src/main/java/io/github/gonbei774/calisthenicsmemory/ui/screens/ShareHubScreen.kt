@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
+import io.github.gonbei774.calisthenicsmemory.ui.UiMessage
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
@@ -66,8 +67,16 @@ fun ShareHubScreen(
                             cursor.getString(nameIndex)
                         } ?: "unknown.json"
 
+                        val maxSize = 50 * 1024 * 1024 // 50MB
                         val jsonData = context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                            inputStream.readBytes().decodeToString()
+                            val bytes = inputStream.readBytes()
+                            if (bytes.size > maxSize) {
+                                withContext(Dispatchers.Main) {
+                                    viewModel.showSnackbar(UiMessage.FileTooLarge(bytes.size / (1024 * 1024), 50))
+                                }
+                                return@withContext
+                            }
+                            bytes.decodeToString()
                         } ?: ""
 
                         if (jsonData.isNotEmpty()) {
