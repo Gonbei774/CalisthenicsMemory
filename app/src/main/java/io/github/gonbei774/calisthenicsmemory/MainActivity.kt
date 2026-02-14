@@ -58,6 +58,9 @@ import io.github.gonbei774.calisthenicsmemory.ui.screens.IntervalListScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.IntervalEditScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.IntervalExecutionScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.CommunityShareExportScreen
+import io.github.gonbei774.calisthenicsmemory.ui.screens.BackupScreen
+import io.github.gonbei774.calisthenicsmemory.ui.screens.CsvDataManagementScreen
+import io.github.gonbei774.calisthenicsmemory.ui.screens.ShareHubScreen
 import io.github.gonbei774.calisthenicsmemory.ui.theme.CalisthenicsMemoryTheme
 import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
@@ -283,7 +286,9 @@ fun CalisthenicsMemoryApp(
                         viewModel = viewModel,
                         onNavigateBack = { currentScreen = Screen.Home },
                         onNavigateToLicenses = { currentScreen = Screen.Licenses },
-                        onNavigateToCommunityShareExport = { currentScreen = Screen.CommunityShareExport },
+                        onNavigateToBackup = { currentScreen = Screen.Backup },
+                        onNavigateToCsvDataManagement = { currentScreen = Screen.CsvDataManagement },
+                        onNavigateToShareHub = { currentScreen = Screen.ShareHub },
                         currentTheme = currentTheme,
                         onThemeChange = onThemeChange
                     )
@@ -404,10 +409,32 @@ fun CalisthenicsMemoryApp(
                     )
                 }
                 is Screen.CommunityShareExport -> {
-                    BackHandler { currentScreen = Screen.Settings }
+                    BackHandler { currentScreen = Screen.ShareHub }
                     CommunityShareExportScreen(
                         viewModel = viewModel,
+                        onNavigateBack = { currentScreen = Screen.ShareHub }
+                    )
+                }
+                is Screen.Backup -> {
+                    BackHandler { currentScreen = Screen.Settings }
+                    BackupScreen(
+                        viewModel = viewModel,
                         onNavigateBack = { currentScreen = Screen.Settings }
+                    )
+                }
+                is Screen.CsvDataManagement -> {
+                    BackHandler { currentScreen = Screen.Settings }
+                    CsvDataManagementScreen(
+                        viewModel = viewModel,
+                        onNavigateBack = { currentScreen = Screen.Settings }
+                    )
+                }
+                is Screen.ShareHub -> {
+                    BackHandler { currentScreen = Screen.Settings }
+                    ShareHubScreen(
+                        viewModel = viewModel,
+                        onNavigateBack = { currentScreen = Screen.Settings },
+                        onNavigateToCommunityShareExport = { currentScreen = Screen.CommunityShareExport }
                     )
                 }
             }
@@ -431,6 +458,9 @@ sealed class Screen {
     data class IntervalEdit(val programId: Long?) : Screen()
     data class IntervalExecution(val programId: Long, val fromToDo: Boolean = false) : Screen()
     object CommunityShareExport : Screen()
+    object Backup : Screen()
+    object CsvDataManagement : Screen()
+    object ShareHub : Screen()
 }
 
 private val ScreenSaver = mapSaver(
@@ -475,6 +505,9 @@ private val ScreenSaver = mapSaver(
                     put("fromToDo", screen.fromToDo)
                 }
                 Screen.CommunityShareExport -> put("type", "CommunityShareExport")
+                Screen.Backup -> put("type", "Backup")
+                Screen.CsvDataManagement -> put("type", "CsvDataManagement")
+                Screen.ShareHub -> put("type", "ShareHub")
             }
         }
     },
@@ -511,6 +544,9 @@ private val ScreenSaver = mapSaver(
                 fromToDo = map["fromToDo"] as Boolean
             )
             "CommunityShareExport" -> Screen.CommunityShareExport
+            "Backup" -> Screen.Backup
+            "CsvDataManagement" -> Screen.CsvDataManagement
+            "ShareHub" -> Screen.ShareHub
             else -> Screen.Home
         }
     }
