@@ -6,8 +6,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ExerciseGroupDao {
 
-    @Query("SELECT * FROM exercise_groups ORDER BY name ASC")
+    @Query("SELECT * FROM exercise_groups ORDER BY displayOrder ASC")
     fun getAllGroups(): Flow<List<ExerciseGroup>>
+
+    @Query("SELECT * FROM exercise_groups ORDER BY displayOrder ASC")
+    suspend fun getAllGroupsSync(): List<ExerciseGroup>
 
     @Query("SELECT * FROM exercise_groups WHERE name = :name")
     suspend fun getGroupByName(name: String): ExerciseGroup?

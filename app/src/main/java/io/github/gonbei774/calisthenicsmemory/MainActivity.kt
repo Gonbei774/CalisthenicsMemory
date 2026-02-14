@@ -256,10 +256,16 @@ fun CalisthenicsMemoryApp(
                     )
                 }
                 is Screen.Create -> {
-                    BackHandler { currentScreen = Screen.Home }
+                    BackHandler {
+                        viewModel.saveGroupOrder()
+                        currentScreen = Screen.Home
+                    }
                     CreateScreen(
                         viewModel = viewModel,
-                        onNavigateBack = { currentScreen = Screen.Home }
+                        onNavigateBack = {
+                            viewModel.saveGroupOrder()
+                            currentScreen = Screen.Home
+                        }
                     )
                 }
                 is Screen.Settings -> {

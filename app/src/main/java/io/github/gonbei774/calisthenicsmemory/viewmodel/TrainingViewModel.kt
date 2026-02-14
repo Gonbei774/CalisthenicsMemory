@@ -53,7 +53,8 @@ data class BackupData(
 @Serializable
 data class ExportGroup(
     val id: Long,
-    val name: String
+    val name: String,
+    val displayOrder: Int = 0
 )
 
 @Serializable
@@ -433,8 +434,10 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
     fun createGroup(name: String) {
         viewModelScope.launch {
+            flushGroupOrder()
             try {
-                val group = ExerciseGroup(name = name)
+                val existingGroups = groupDao.getAllGroupsSync()
+                val group = ExerciseGroup(name = name, displayOrder = existingGroups.size)
                 groupDao.insertGroup(group)
                 _snackbarMessage.value = UiMessage.GroupCreated
             } catch (e: Exception) {
@@ -445,6 +448,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
     fun renameGroup(oldName: String, newName: String) {
         viewModelScope.launch {
+            flushGroupOrder()
             try {
                 // 1. グループテーブルを更新
                 val group = groupDao.getGroupByName(oldName)
@@ -467,6 +471,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
     fun deleteGroup(groupName: String) {
         viewModelScope.launch {
+            flushGroupOrder()
             try {
                 // 1. グループテーブルから削除
                 groupDao.deleteGroupByName(groupName)
@@ -505,10 +510,13 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    // グループ並び替え用ローカルステート（画面離脱時にDBに保存）
+    private val _localGroupOrder = MutableStateFlow<List<ExerciseGroup>?>(null)
+
     // 階層データ準備
     val hierarchicalExercises: StateFlow<List<GroupWithExercises>> =
-        combine(groups, exercises, expandedGroups) { groups, exercises, expanded ->
-            prepareHierarchicalData(groups, exercises, expanded)
+        combine(groups, exercises, expandedGroups, _localGroupOrder) { dbGroups, exercises, expanded, localOrder ->
+            prepareHierarchicalData(localOrder ?: dbGroups, exercises, expanded)
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
@@ -533,6 +541,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         )
 
         // 1. groupsテーブルを基準にグループを表示（0件でも表示）
+        // groups は既に displayOrder 順で取得されている
         val groupedExercises = groups.map { group ->
             val groupExercises = exercises.filter { it.group == group.name }
             GroupWithExercises(
@@ -540,7 +549,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 exercises = groupExercises.sortedBy { it.displayOrder },
                 isExpanded = group.name in expandedGroups  // 全て閉じた状態も可能
             )
-        }.sortedBy { it.groupName }
+        }
 
         // 2. グループなし種目
         val ungroupedExercises = exercises.filter { it.group == null }
@@ -607,6 +616,49 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    /**
+     * グループの並び順を変更する（ローカルステートのみ更新）
+     * DBへの保存は saveGroupOrder() で行う
+     */
+    fun reorderGroups(fromIndex: Int, toIndex: Int) {
+        val current = (_localGroupOrder.value ?: groups.value).toList()
+
+        if (fromIndex < 0 || toIndex < 0 ||
+            fromIndex >= current.size ||
+            toIndex >= current.size) {
+            return
+        }
+
+        val reordered = current.toMutableList()
+        val item = reordered.removeAt(fromIndex)
+        reordered.add(toIndex, item)
+        _localGroupOrder.value = reordered
+    }
+
+    /**
+     * 保留中のグループ並び順をDBに保存する
+     */
+    fun saveGroupOrder() {
+        val order = _localGroupOrder.value ?: return
+        _localGroupOrder.value = null
+        viewModelScope.launch {
+            order.forEachIndexed { index, group ->
+                groupDao.updateGroup(group.copy(displayOrder = index))
+            }
+        }
+    }
+
+    /**
+     * 保留中のグループ並び順をDBに保存する（suspend版・内部用）
+     */
+    private suspend fun flushGroupOrder() {
+        val order = _localGroupOrder.value ?: return
+        _localGroupOrder.value = null
+        order.forEachIndexed { index, group ->
+            groupDao.updateGroup(group.copy(displayOrder = index))
+        }
+    }
+
     // ========================================
     // エクスポート・インポート機能
     // ========================================
@@ -623,7 +675,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             val exportGroups = currentGroups.map { group ->
                 ExportGroup(
                     id = group.id,
-                    name = group.name
+                    name = group.name,
+                    displayOrder = group.displayOrder
                 )
             }
 
@@ -817,7 +870,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 backupData.groups.forEach { exportGroup ->
                     val group = ExerciseGroup(
                         id = exportGroup.id,
-                        name = exportGroup.name
+                        name = exportGroup.name,
+                        displayOrder = exportGroup.displayOrder
                     )
                     groupDao.insertGroup(group)
                 }
