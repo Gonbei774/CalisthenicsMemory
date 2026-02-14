@@ -71,6 +71,7 @@ fun ToDoScreen(
     val intervalPrograms by viewModel.intervalPrograms.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
     var repeatDialogTask by remember { mutableStateOf<TodoTask?>(null) }
+    var deleteConfirmTask by remember { mutableStateOf<TodoTask?>(null) }
 
     // Map IDs to objects for display
     val exerciseMap = remember(exercises) {
@@ -234,11 +235,9 @@ fun ToDoScreen(
                                 val dismissState = rememberSwipeToDismissBoxState(
                                     confirmValueChange = { value ->
                                         if (value == SwipeToDismissBoxValue.EndToStart) {
-                                            viewModel.deleteTodoTask(task.id)
-                                            true
-                                        } else {
-                                            false
+                                            deleteConfirmTask = task
                                         }
+                                        false
                                     }
                                 )
                                 val dragHandleModifier = Modifier.longPressDraggableHandle()
@@ -302,11 +301,9 @@ fun ToDoScreen(
                             val dismissState = rememberSwipeToDismissBoxState(
                                 confirmValueChange = { value ->
                                     if (value == SwipeToDismissBoxValue.EndToStart) {
-                                        viewModel.deleteTodoTask(task.id)
-                                        true
-                                    } else {
-                                        false
+                                        deleteConfirmTask = task
                                     }
+                                    false
                                 }
                             )
                             SwipeToDismissBox(
@@ -349,6 +346,36 @@ fun ToDoScreen(
                 }
             }
         }
+    }
+
+    // Delete confirmation dialog
+    deleteConfirmTask?.let { task ->
+        val taskName = when (task.type) {
+            TodoTask.TYPE_EXERCISE -> exerciseMap[task.referenceId]?.name
+            TodoTask.TYPE_GROUP -> groupMap[task.referenceId]?.name
+            TodoTask.TYPE_PROGRAM -> programMap[task.referenceId]?.name
+            TodoTask.TYPE_INTERVAL -> intervalProgramMap[task.referenceId]?.name
+            else -> null
+        } ?: "?"
+        AlertDialog(
+            onDismissRequest = { deleteConfirmTask = null },
+            title = { Text(stringResource(R.string.delete_confirmation), color = appColors.textPrimary) },
+            text = { Text(stringResource(R.string.todo_delete_confirm_message, taskName), color = appColors.textPrimary) },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.deleteTodoTask(task.id)
+                    deleteConfirmTask = null
+                }) {
+                    Text(stringResource(R.string.delete), color = Red600)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { deleteConfirmTask = null }) {
+                    Text(stringResource(R.string.cancel), color = appColors.textSecondary)
+                }
+            },
+            containerColor = appColors.cardBackground
+        )
     }
 
     // Repeat days dialog
@@ -1303,7 +1330,8 @@ private fun ExercisesTabContent(
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(bottom = 80.dp)
             ) {
                 if (searchQuery.isNotBlank()) {
                     if (searchResults.isEmpty()) {

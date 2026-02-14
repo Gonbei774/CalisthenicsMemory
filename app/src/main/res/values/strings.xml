@@ -499,6 +499,7 @@
     <string name="todo_tab_programs">Programs</string>
     <string name="todo_tab_intervals">Intervals</string>
     <string name="todo_no_groups">No groups</string>
+    <string name="todo_delete_confirm_message">Remove \"%s\" from ToDo?</string>
     <string name="todo_no_programs">No programs</string>
     <string name="todo_no_intervals">No intervals</string>
     <string name="todo_group_exercise_count">%d exercises</string>
