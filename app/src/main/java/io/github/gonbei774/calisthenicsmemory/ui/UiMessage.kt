@@ -117,6 +117,26 @@ sealed class UiMessage {
     /** プログラムが複製された */
     object ProgramDuplicated : UiMessage()
 
+    // ===== コミュニティシェア関連 =====
+
+    /** コミュニティシェア エクスポート完了 */
+    data class CommunityShareExportComplete(
+        val exerciseCount: Int,
+        val programCount: Int,
+        val intervalProgramCount: Int
+    ) : UiMessage()
+
+    /** コミュニティシェア インポート完了 */
+    data class CommunityShareImportComplete(
+        val report: io.github.gonbei774.calisthenicsmemory.viewmodel.CommunityShareImportReport
+    ) : UiMessage()
+
+    /** コミュニティシェア インポートエラー */
+    data class CommunityShareImportError(val errorMessage: String) : UiMessage()
+
+    /** ファイル種別の誤り */
+    data class WrongFileType(val detected: String, val expected: String) : UiMessage()
+
     // ===== エラー =====
 
     /** 一般的なエラー */

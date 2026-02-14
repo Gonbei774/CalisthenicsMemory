@@ -181,6 +181,14 @@ fun UiMessage.toMessageString(): String {
         is UiMessage.BackupFailed -> stringResource(R.string.backup_failed)
         is UiMessage.CopiedToClipboard -> stringResource(R.string.copied_to_clipboard)
         is UiMessage.ProgramDuplicated -> stringResource(R.string.program_duplicated)
+        is UiMessage.CommunityShareExportComplete ->
+            "Export complete: $exerciseCount exercises, $programCount programs, $intervalProgramCount interval programs"
+        is UiMessage.CommunityShareImportComplete -> {
+            val r = report
+            "Import complete: ${r.exercisesAdded} added, ${r.exercisesSkipped} skipped, ${r.programsAdded} programs, ${r.intervalProgramsAdded} intervals"
+        }
+        is UiMessage.CommunityShareImportError -> "Import error: $errorMessage"
+        is UiMessage.WrongFileType -> "Wrong file type: $detected (expected: $expected)"
         is UiMessage.ErrorOccurred -> stringResource(R.string.error_occurred)
     }
 }

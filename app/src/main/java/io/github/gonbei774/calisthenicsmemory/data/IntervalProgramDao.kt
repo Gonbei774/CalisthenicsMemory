@@ -23,4 +23,7 @@ interface IntervalProgramDao {
 
     @Query("DELETE FROM interval_programs WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("SELECT * FROM interval_programs WHERE name = :name LIMIT 1")
+    suspend fun getProgramByName(name: String): IntervalProgram?
 }
