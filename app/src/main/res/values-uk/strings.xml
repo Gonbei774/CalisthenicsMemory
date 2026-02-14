@@ -528,7 +528,7 @@
     <string name="todo_tab_intervals">Інтервали</string>
     <string name="todo_tab_groups">Групи</string>
     <string name="todo_no_groups">Немає груп</string>
-    <string name="todo_delete_confirm_message">Видалити \"%s\" з ToDo?</string>
+    <string name="todo_delete_confirm_message">Видалити «%s» зі списку завдань?</string>
     <string name="todo_no_programs">Немає програм</string>
     <string name="todo_no_intervals">Немає інтервалів</string>
     <string name="todo_group_exercise_count">%d вправ</string>
