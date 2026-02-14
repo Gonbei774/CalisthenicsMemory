@@ -6,7 +6,10 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,12 +24,14 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.runtime.*
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -39,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
+import io.github.gonbei774.calisthenicsmemory.data.ExerciseGroup
 import io.github.gonbei774.calisthenicsmemory.data.IntervalProgram
 import io.github.gonbei774.calisthenicsmemory.data.Program
 import io.github.gonbei774.calisthenicsmemory.data.TodoTask
@@ -59,6 +65,7 @@ fun ToDoScreen(
     val appColors = LocalAppColors.current
     val todoTasks by viewModel.todoTasks.collectAsState()
     val exercises by viewModel.exercises.collectAsState()
+    val groups by viewModel.groups.collectAsState()
     val programs by viewModel.programs.collectAsState()
     val intervalPrograms by viewModel.intervalPrograms.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
@@ -68,11 +75,36 @@ fun ToDoScreen(
     val exerciseMap = remember(exercises) {
         exercises.associateBy { it.id }
     }
+    val groupMap = remember(groups) {
+        groups.associateBy { it.id }
+    }
     val programMap = remember(programs) {
         programs.associateBy { it.id }
     }
     val intervalProgramMap = remember(intervalPrograms) {
         intervalPrograms.associateBy { it.id }
+    }
+
+    // グループごとの所属種目
+    val groupExercisesMap = remember(groups, exercises) {
+        groups.associate { group ->
+            group.id to exercises.filter { it.group == group.name }.sortedBy { it.displayOrder }
+        }
+    }
+
+    // グループ内種目の今日の記録状態
+    val todayStr = remember { java.time.LocalDate.now().toString() }
+    val groupExerciseCompletions = remember { mutableStateMapOf<Long, Set<Long>>() }
+    LaunchedEffect(todoTasks, exercises, groups) {
+        val groupTodoTasks = todoTasks.filter { it.type == TodoTask.TYPE_GROUP }
+        groupTodoTasks.forEach { task ->
+            val group = groupMap[task.referenceId] ?: return@forEach
+            val groupExercises = exercises.filter { it.group == group.name }
+            val completedIds = groupExercises.filter { ex ->
+                viewModel.hasRecordOnDate(ex.id, todayStr)
+            }.map { it.id }.toSet()
+            groupExerciseCompletions[task.referenceId] = completedIds
+        }
     }
 
     // Load exercise counts for interval programs
@@ -235,6 +267,9 @@ fun ToDoScreen(
                                     ActiveTaskContent(
                                         task = task,
                                         exerciseMap = exerciseMap,
+                                        groupMap = groupMap,
+                                        groupExercisesMap = groupExercisesMap,
+                                        groupExerciseCompletions = groupExerciseCompletions,
                                         programMap = programMap,
                                         intervalProgramMap = intervalProgramMap,
                                         intervalExerciseCounts = intervalExerciseCounts,
@@ -299,6 +334,9 @@ fun ToDoScreen(
                                 InactiveTaskContent(
                                     task = task,
                                     exerciseMap = exerciseMap,
+                                    groupMap = groupMap,
+                                    groupExercisesMap = groupExercisesMap,
+                                    groupExerciseCompletions = groupExerciseCompletions,
                                     programMap = programMap,
                                     intervalProgramMap = intervalProgramMap,
                                     intervalExerciseCounts = intervalExerciseCounts,
@@ -330,6 +368,7 @@ fun ToDoScreen(
             viewModel = viewModel,
             todoTasks = todoTasks,
             exercises = exercises,
+            groups = groups,
             programs = programs,
             intervalPrograms = intervalPrograms,
             intervalExerciseCounts = intervalExerciseCounts,
@@ -342,6 +381,9 @@ fun ToDoScreen(
 private fun ActiveTaskContent(
     task: TodoTask,
     exerciseMap: Map<Long, Exercise>,
+    groupMap: Map<Long, ExerciseGroup>,
+    groupExercisesMap: Map<Long, List<Exercise>>,
+    groupExerciseCompletions: Map<Long, Set<Long>>,
     programMap: Map<Long, Program>,
     intervalProgramMap: Map<Long, IntervalProgram>,
     intervalExerciseCounts: Map<Long, Int>,
@@ -430,6 +472,23 @@ private fun ActiveTaskContent(
                 }
             }
         }
+        TodoTask.TYPE_GROUP -> {
+            val group = groupMap[task.referenceId]
+            if (group != null) {
+                GroupTaskCard(
+                    group = group,
+                    groupExercises = groupExercisesMap[group.id] ?: emptyList(),
+                    completedExerciseIds = groupExerciseCompletions[group.id] ?: emptySet(),
+                    repeatDays = task.repeatDays,
+                    isDragging = isDragging,
+                    elevation = elevation,
+                    dragHandleModifier = dragHandleModifier,
+                    onNavigateToRecord = onNavigateToRecord,
+                    onNavigateToWorkout = onNavigateToWorkout,
+                    onLongClick = onLongClick
+                )
+            }
+        }
         TodoTask.TYPE_PROGRAM -> {
             val program = programMap[task.referenceId]
             if (program != null) {
@@ -467,6 +526,9 @@ private fun ActiveTaskContent(
 private fun InactiveTaskContent(
     task: TodoTask,
     exerciseMap: Map<Long, Exercise>,
+    groupMap: Map<Long, ExerciseGroup>,
+    groupExercisesMap: Map<Long, List<Exercise>>,
+    groupExerciseCompletions: Map<Long, Set<Long>>,
     programMap: Map<Long, Program>,
     intervalProgramMap: Map<Long, IntervalProgram>,
     intervalExerciseCounts: Map<Long, Int>,
@@ -484,6 +546,24 @@ private fun InactiveTaskContent(
                         elevation = 0.dp,
                         dragHandleModifier = Modifier,
                         onStart = {},
+                        onLongClick = onLongClick,
+                        showStartButton = false
+                    )
+                }
+            }
+            TodoTask.TYPE_GROUP -> {
+                val group = groupMap[task.referenceId]
+                if (group != null) {
+                    GroupTaskCard(
+                        group = group,
+                        groupExercises = groupExercisesMap[group.id] ?: emptyList(),
+                        completedExerciseIds = groupExerciseCompletions[group.id] ?: emptySet(),
+                        repeatDays = task.repeatDays,
+                        isDragging = false,
+                        elevation = 0.dp,
+                        dragHandleModifier = Modifier,
+                        onNavigateToRecord = {},
+                        onNavigateToWorkout = {},
                         onLongClick = onLongClick,
                         showStartButton = false
                     )
@@ -521,6 +601,208 @@ private fun InactiveTaskContent(
                 }
             }
         }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun GroupTaskCard(
+    group: ExerciseGroup,
+    groupExercises: List<Exercise>,
+    completedExerciseIds: Set<Long>,
+    repeatDays: String,
+    isDragging: Boolean,
+    elevation: androidx.compose.ui.unit.Dp,
+    dragHandleModifier: Modifier,
+    onNavigateToRecord: (Long) -> Unit,
+    onNavigateToWorkout: (Long) -> Unit,
+    onLongClick: () -> Unit,
+    showStartButton: Boolean = true
+) {
+    val appColors = LocalAppColors.current
+    var isExpanded by remember { mutableStateOf(true) }
+    val completedCount = completedExerciseIds.size
+    val totalCount = groupExercises.size
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDragging) appColors.cardBackgroundSecondary.copy(alpha = 0.9f) else appColors.cardBackground
+        ),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation)
+    ) {
+        Column(modifier = Modifier.alpha(if (showStartButton) 1f else 0.4f)) {
+            // グループヘッダー（既存カードと同じレイアウト）
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // ドラッグハンドル
+                Icon(
+                    Icons.Default.Menu,
+                    contentDescription = stringResource(R.string.todo_drag_to_reorder),
+                    tint = if (isDragging) appColors.textPrimary else appColors.textSecondary,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .then(dragHandleModifier)
+                )
+
+                // グループ情報
+                Column(modifier = Modifier.weight(1f).combinedClickable(onClick = { isExpanded = !isExpanded }, onLongClick = onLongClick)) {
+                    Text(
+                        text = group.name,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = appColors.textPrimary
+                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(top = 2.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.todo_tab_groups),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Blue600
+                        )
+                        Text(
+                            text = "$completedCount/$totalCount",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (completedCount == totalCount && totalCount > 0) Green600 else appColors.textSecondary
+                        )
+                    }
+                    RepeatDaysLabel(repeatDays = repeatDays)
+                }
+
+                // 展開ボタン
+                IconButton(onClick = { isExpanded = !isExpanded }) {
+                    Icon(
+                        imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp
+                            else Icons.Default.KeyboardArrowDown,
+                        contentDescription = null,
+                        tint = appColors.textSecondary
+                    )
+                }
+            }
+
+            // 展開時: 所属種目リスト
+            if (isExpanded && groupExercises.isNotEmpty()) {
+                HorizontalDivider(color = appColors.border)
+                Column(
+                    modifier = Modifier.padding(start = 48.dp, end = 12.dp, top = 4.dp, bottom = 8.dp)
+                ) {
+                    groupExercises.forEach { exercise ->
+                        val isCompleted = exercise.id in completedExerciseIds
+                        var showModeDialog by remember { mutableStateOf(false) }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .let { mod ->
+                                    if (showStartButton && !isCompleted) {
+                                        mod.clickable { showModeDialog = true }
+                                    } else mod
+                                }
+                                .padding(vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = exercise.name,
+                                fontSize = 14.sp,
+                                color = if (isCompleted) appColors.textSecondary else appColors.textPrimary,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .alpha(if (isCompleted) 0.4f else 1f)
+                            )
+                            if (isCompleted) {
+                                Text(
+                                    text = "\u2713",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Green600.copy(alpha = 0.6f)
+                                )
+                            } else if (showStartButton) {
+                                Button(
+                                    onClick = { showModeDialog = true },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Amber500),
+                                    shape = RoundedCornerShape(8.dp),
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                                    modifier = Modifier.height(32.dp)
+                                ) {
+                                    Text(text = stringResource(R.string.todo_start_button), fontSize = 12.sp, color = appColors.textPrimary)
+                                }
+                            }
+                        }
+
+                        if (showModeDialog) {
+                            AlertDialog(
+                                onDismissRequest = { showModeDialog = false },
+                                containerColor = appColors.cardBackground,
+                                title = {
+                                    Text(
+                                        text = exercise.name,
+                                        color = appColors.textPrimary,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                },
+                                text = {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Button(
+                                            onClick = {
+                                                showModeDialog = false
+                                                onNavigateToRecord(exercise.id)
+                                            },
+                                            colors = ButtonDefaults.buttonColors(containerColor = Green600),
+                                            shape = RoundedCornerShape(8.dp),
+                                            modifier = Modifier.fillMaxWidth().height(48.dp)
+                                        ) {
+                                            Text(
+                                                text = stringResource(R.string.todo_mode_record),
+                                                fontSize = 16.sp,
+                                                color = appColors.textPrimary
+                                            )
+                                        }
+                                        Button(
+                                            onClick = {
+                                                showModeDialog = false
+                                                onNavigateToWorkout(exercise.id)
+                                            },
+                                            colors = ButtonDefaults.buttonColors(containerColor = Orange600),
+                                            shape = RoundedCornerShape(8.dp),
+                                            modifier = Modifier.fillMaxWidth().height(48.dp)
+                                        ) {
+                                            Text(
+                                                text = stringResource(R.string.todo_mode_workout),
+                                                fontSize = 16.sp,
+                                                color = appColors.textPrimary
+                                            )
+                                        }
+                                    }
+                                },
+                                confirmButton = {},
+                                dismissButton = {
+                                    TextButton(onClick = { showModeDialog = false }) {
+                                        Text(
+                                            text = stringResource(R.string.cancel),
+                                            color = appColors.textSecondary
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -781,15 +1063,16 @@ private fun AddItemsDialog(
     viewModel: TrainingViewModel,
     todoTasks: List<TodoTask>,
     exercises: List<Exercise>,
+    groups: List<ExerciseGroup>,
     programs: List<Program>,
     intervalPrograms: List<IntervalProgram>,
     intervalExerciseCounts: Map<Long, Int>,
     onDismiss: () -> Unit
 ) {
     val appColors = LocalAppColors.current
-    var selectedTab by remember { mutableIntStateOf(0) }
     val tabTitles = listOf(
         stringResource(R.string.todo_tab_exercises),
+        stringResource(R.string.todo_tab_groups),
         stringResource(R.string.todo_tab_programs),
         stringResource(R.string.todo_tab_intervals)
     )
@@ -797,6 +1080,9 @@ private fun AddItemsDialog(
     // Existing IDs by type
     val existingExerciseIds = remember(todoTasks) {
         todoTasks.filter { it.type == TodoTask.TYPE_EXERCISE }.map { it.referenceId }.toSet()
+    }
+    val existingGroupIds = remember(todoTasks) {
+        todoTasks.filter { it.type == TodoTask.TYPE_GROUP }.map { it.referenceId }.toSet()
     }
     val existingProgramIds = remember(todoTasks) {
         todoTasks.filter { it.type == TodoTask.TYPE_PROGRAM }.map { it.referenceId }.toSet()
@@ -807,10 +1093,14 @@ private fun AddItemsDialog(
 
     // Selection state
     var selectedExercises by remember { mutableStateOf(setOf<Long>()) }
+    var selectedGroups by remember { mutableStateOf(setOf<Long>()) }
     var selectedPrograms by remember { mutableStateOf(setOf<Long>()) }
     var selectedIntervals by remember { mutableStateOf(setOf<Long>()) }
 
-    val hasSelection = selectedExercises.isNotEmpty() || selectedPrograms.isNotEmpty() || selectedIntervals.isNotEmpty()
+    val hasSelection = selectedExercises.isNotEmpty() || selectedGroups.isNotEmpty() || selectedPrograms.isNotEmpty() || selectedIntervals.isNotEmpty()
+
+    val pagerState = rememberPagerState(pageCount = { tabTitles.size })
+    val coroutineScope = rememberCoroutineScope()
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -844,6 +1134,9 @@ private fun AddItemsDialog(
                         if (selectedExercises.isNotEmpty()) {
                             viewModel.addTodoTasks(selectedExercises.toList())
                         }
+                        if (selectedGroups.isNotEmpty()) {
+                            viewModel.addTodoTaskGroups(selectedGroups.toList())
+                        }
                         if (selectedPrograms.isNotEmpty()) {
                             viewModel.addTodoTaskPrograms(selectedPrograms.toList())
                         }
@@ -861,21 +1154,23 @@ private fun AddItemsDialog(
                 }
             }
 
-            // Tabs
-            TabRow(
-                selectedTabIndex = selectedTab,
+            // Tabs（スクロール可能）
+            ScrollableTabRow(
+                selectedTabIndex = pagerState.currentPage,
                 containerColor = appColors.cardBackground,
-                contentColor = Amber500
+                contentColor = Amber500,
+                edgePadding = 0.dp
             ) {
                 tabTitles.forEachIndexed { index, title ->
                     Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
+                        selected = pagerState.currentPage == index,
+                        onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
                         text = {
                             Text(
                                 text = title,
                                 fontSize = 13.sp,
-                                color = if (selectedTab == index) Amber500 else appColors.textSecondary
+                                color = if (pagerState.currentPage == index) Amber500 else appColors.textSecondary,
+                                maxLines = 1
                             )
                         }
                     )
@@ -884,34 +1179,48 @@ private fun AddItemsDialog(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Tab content
-            when (selectedTab) {
-                0 -> ExercisesTabContent(
-                    viewModel = viewModel,
-                    exercises = exercises,
-                    existingIds = existingExerciseIds,
-                    selectedIds = selectedExercises,
-                    onToggle = { id ->
-                        selectedExercises = if (id in selectedExercises) selectedExercises - id else selectedExercises + id
-                    }
-                )
-                1 -> ProgramsTabContent(
-                    programs = programs,
-                    existingIds = existingProgramIds,
-                    selectedIds = selectedPrograms,
-                    onToggle = { id ->
-                        selectedPrograms = if (id in selectedPrograms) selectedPrograms - id else selectedPrograms + id
-                    }
-                )
-                2 -> IntervalsTabContent(
-                    intervalPrograms = intervalPrograms,
-                    existingIds = existingIntervalIds,
-                    selectedIds = selectedIntervals,
-                    exerciseCounts = intervalExerciseCounts,
-                    onToggle = { id ->
-                        selectedIntervals = if (id in selectedIntervals) selectedIntervals - id else selectedIntervals + id
-                    }
-                )
+            // Tab content（スワイプ対応）
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { page ->
+                when (page) {
+                    0 -> ExercisesTabContent(
+                        viewModel = viewModel,
+                        exercises = exercises,
+                        existingIds = existingExerciseIds,
+                        selectedIds = selectedExercises,
+                        onToggle = { id ->
+                            selectedExercises = if (id in selectedExercises) selectedExercises - id else selectedExercises + id
+                        }
+                    )
+                    1 -> GroupsTabContent(
+                        groups = groups,
+                        exercises = exercises,
+                        existingIds = existingGroupIds,
+                        selectedIds = selectedGroups,
+                        onToggle = { id ->
+                            selectedGroups = if (id in selectedGroups) selectedGroups - id else selectedGroups + id
+                        }
+                    )
+                    2 -> ProgramsTabContent(
+                        programs = programs,
+                        existingIds = existingProgramIds,
+                        selectedIds = selectedPrograms,
+                        onToggle = { id ->
+                            selectedPrograms = if (id in selectedPrograms) selectedPrograms - id else selectedPrograms + id
+                        }
+                    )
+                    3 -> IntervalsTabContent(
+                        intervalPrograms = intervalPrograms,
+                        existingIds = existingIntervalIds,
+                        selectedIds = selectedIntervals,
+                        exerciseCounts = intervalExerciseCounts,
+                        onToggle = { id ->
+                            selectedIntervals = if (id in selectedIntervals) selectedIntervals - id else selectedIntervals + id
+                        }
+                    )
+                }
             }
         }
     }
@@ -1033,6 +1342,115 @@ private fun ExercisesTabContent(
                                 },
                                 onExerciseToggle = onToggle
                             )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GroupsTabContent(
+    groups: List<ExerciseGroup>,
+    exercises: List<Exercise>,
+    existingIds: Set<Long>,
+    selectedIds: Set<Long>,
+    onToggle: (Long) -> Unit
+) {
+    val appColors = LocalAppColors.current
+    val availableGroups = remember(groups, existingIds) {
+        groups.filter { it.id !in existingIds }
+    }
+
+    // グループごとの所属種目を事前計算
+    val groupExercisesMap = remember(groups, exercises) {
+        groups.associate { group ->
+            group.id to exercises.filter { it.group == group.name }.sortedBy { it.displayOrder }
+        }
+    }
+
+    var expandedGroupIds by remember { mutableStateOf(setOf<Long>()) }
+
+    if (availableGroups.isEmpty()) {
+        Text(
+            text = stringResource(R.string.todo_no_groups),
+            color = appColors.textSecondary,
+            modifier = Modifier.padding(16.dp)
+        )
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            items(
+                items = availableGroups,
+                key = { it.id }
+            ) { group ->
+                val groupExercises = groupExercisesMap[group.id] ?: emptyList()
+                val isExpanded = group.id in expandedGroupIds
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = appColors.cardBackgroundSecondary),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Column {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    expandedGroupIds = if (isExpanded) expandedGroupIds - group.id
+                                        else expandedGroupIds + group.id
+                                }
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(
+                                checked = group.id in selectedIds,
+                                onCheckedChange = { onToggle(group.id) },
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = Amber500,
+                                    uncheckedColor = appColors.textSecondary
+                                )
+                            )
+                            Column(modifier = Modifier.weight(1f).padding(start = 4.dp)) {
+                                Text(
+                                    text = group.name,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = appColors.textPrimary
+                                )
+                                Text(
+                                    text = stringResource(R.string.todo_group_exercise_count, groupExercises.size),
+                                    fontSize = 11.sp,
+                                    color = appColors.textSecondary,
+                                    modifier = Modifier.padding(top = 2.dp)
+                                )
+                            }
+                            Icon(
+                                imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp
+                                    else Icons.Default.KeyboardArrowDown,
+                                contentDescription = null,
+                                tint = appColors.textSecondary
+                            )
+                        }
+
+                        // 展開時: 所属種目のプレビュー
+                        if (isExpanded && groupExercises.isNotEmpty()) {
+                            HorizontalDivider(color = appColors.border)
+                            Column(
+                                modifier = Modifier.padding(start = 48.dp, end = 16.dp, top = 4.dp, bottom = 8.dp)
+                            ) {
+                                groupExercises.forEach { exercise ->
+                                    Text(
+                                        text = exercise.name,
+                                        fontSize = 12.sp,
+                                        color = appColors.textSecondary,
+                                        modifier = Modifier.padding(vertical = 2.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }

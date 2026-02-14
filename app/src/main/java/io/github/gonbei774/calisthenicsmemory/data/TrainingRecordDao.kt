@@ -51,6 +51,9 @@ interface TrainingRecordDao {
     """)
     suspend fun getLatestSessionByExercise(exerciseId: Long): List<TrainingRecord>
 
+    @Query("SELECT EXISTS(SELECT 1 FROM training_records WHERE exerciseId = :exerciseId AND date = :date LIMIT 1)")
+    suspend fun hasRecordOnDate(exerciseId: Long, date: String): Boolean
+
     @Query("DELETE FROM training_records")
     suspend fun deleteAll()
 }

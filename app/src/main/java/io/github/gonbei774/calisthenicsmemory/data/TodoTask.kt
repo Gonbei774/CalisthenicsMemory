@@ -15,6 +15,7 @@ data class TodoTask(
 ) {
     companion object {
         const val TYPE_EXERCISE = "EXERCISE"
+        const val TYPE_GROUP = "GROUP"
         const val TYPE_PROGRAM = "PROGRAM"
         const val TYPE_INTERVAL = "INTERVAL"
     }

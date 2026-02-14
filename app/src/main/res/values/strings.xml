@@ -495,10 +495,13 @@
     <string name="todo_mode_record">Record</string>
     <string name="todo_mode_workout">Workout</string>
     <string name="todo_tab_exercises">Exercises</string>
+    <string name="todo_tab_groups">Groups</string>
     <string name="todo_tab_programs">Programs</string>
     <string name="todo_tab_intervals">Intervals</string>
+    <string name="todo_no_groups">No groups</string>
     <string name="todo_no_programs">No programs</string>
     <string name="todo_no_intervals">No intervals</string>
+    <string name="todo_group_exercise_count">%d exercises</string>
     <string name="todo_add_items">Add Items</string>
     <string name="todo_repeat_title">Repeat</string>
     <string name="todo_repeat_clear">Clear</string>

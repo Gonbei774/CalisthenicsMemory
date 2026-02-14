@@ -312,6 +312,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             try {
                 exerciseDao.deleteExercise(exercise)
+                todoTaskDao.deleteByReference(TodoTask.TYPE_EXERCISE, exercise.id)
                 _snackbarMessage.value = UiMessage.ExerciseDeleted
             } catch (e: Exception) {
                 _snackbarMessage.value = UiMessage.ErrorOccurred
@@ -473,6 +474,12 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             flushGroupOrder()
             try {
+                // ToDoの連動削除（グループ削除前にIDを取得）
+                val group = groupDao.getGroupByName(groupName)
+                if (group != null) {
+                    todoTaskDao.deleteByReference(TodoTask.TYPE_GROUP, group.id)
+                }
+
                 // 1. グループテーブルから削除
                 groupDao.deleteGroupByName(groupName)
 
@@ -1605,6 +1612,24 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun addTodoTaskGroups(groupIds: List<Long>) {
+        viewModelScope.launch {
+            try {
+                var sortOrder = todoTaskDao.getNextSortOrder()
+                groupIds.forEach { groupId ->
+                    val task = TodoTask(
+                        type = TodoTask.TYPE_GROUP,
+                        referenceId = groupId,
+                        sortOrder = sortOrder++
+                    )
+                    todoTaskDao.insert(task)
+                }
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
     fun addTodoTaskInterval(intervalProgramId: Long) {
         viewModelScope.launch {
             try {
@@ -1669,10 +1694,50 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 } else {
                     todoTaskDao.deleteByReference(type, referenceId)
                 }
+
+                // 種目完了時にグループToDoの完了もチェック
+                if (type == TodoTask.TYPE_EXERCISE) {
+                    checkGroupTodoCompletion(referenceId)
+                }
             } catch (e: Exception) {
                 _snackbarMessage.value = UiMessage.ErrorOccurred
             }
         }
+    }
+
+    private suspend fun checkGroupTodoCompletion(exerciseId: Long) {
+        val exercise = exercises.value.find { it.id == exerciseId } ?: return
+        val groupName = exercise.group ?: return
+        val group = groupDao.getGroupByName(groupName) ?: return
+
+        // このグループがToDoに登録されているか
+        val groupTask = todoTaskDao.getTaskByReference(TodoTask.TYPE_GROUP, group.id) ?: return
+
+        // 今日のアクティブなタスクかチェック
+        val todayStr = java.time.LocalDate.now().toString()
+        if (groupTask.isRepeating()) {
+            val todayDayNumber = java.time.LocalDate.now().dayOfWeek.value
+            if (todayDayNumber !in groupTask.getRepeatDayNumbers()) return
+            if (groupTask.lastCompletedDate == todayStr) return
+        }
+
+        // グループ内の全種目に今日の記録があるか確認
+        val groupExercises = exercises.value.filter { it.group == groupName }
+        val allCompleted = groupExercises.all { ex ->
+            recordDao.hasRecordOnDate(ex.id, todayStr)
+        }
+
+        if (allCompleted) {
+            if (groupTask.isRepeating()) {
+                todoTaskDao.updateLastCompletedDate(TodoTask.TYPE_GROUP, group.id, todayStr)
+            } else {
+                todoTaskDao.deleteByReference(TodoTask.TYPE_GROUP, group.id)
+            }
+        }
+    }
+
+    suspend fun hasRecordOnDate(exerciseId: Long, date: String): Boolean {
+        return recordDao.hasRecordOnDate(exerciseId, date)
     }
 
     fun updateTodoRepeatDays(taskId: Long, repeatDays: String) {
@@ -1763,6 +1828,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             try {
                 programDao.deleteById(programId)
+                todoTaskDao.deleteByReference(TodoTask.TYPE_PROGRAM, programId)
             } catch (e: Exception) {
                 _snackbarMessage.value = UiMessage.ErrorOccurred
             }
@@ -2051,6 +2117,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             try {
                 intervalProgramDao.deleteById(programId)
+                todoTaskDao.deleteByReference(TodoTask.TYPE_INTERVAL, programId)
             } catch (e: Exception) {
                 _snackbarMessage.value = UiMessage.ErrorOccurred
             }
