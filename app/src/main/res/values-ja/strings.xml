@@ -485,8 +485,12 @@
     <string name="todo_tab_exercises">種目</string>
     <string name="todo_tab_programs">プログラム</string>
     <string name="todo_tab_intervals">インターバル</string>
+    <string name="todo_tab_groups">グループ</string>
+    <string name="todo_no_groups">グループがありません</string>
+    <string name="todo_delete_confirm_message">\"%s\" をToDoから削除しますか？</string>
     <string name="todo_no_programs">プログラムがありません</string>
     <string name="todo_no_intervals">インターバルがありません</string>
+    <string name="todo_group_exercise_count">%d 種目</string>
     <string name="todo_add_items">追加</string>
     <string name="todo_repeat_title">繰り返し設定</string>
     <string name="todo_repeat_clear">解除</string>

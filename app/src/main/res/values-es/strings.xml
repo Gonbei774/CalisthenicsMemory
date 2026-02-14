@@ -484,8 +484,12 @@
     <string name="todo_tab_exercises">Ejercicios</string>
     <string name="todo_tab_programs">Programas</string>
     <string name="todo_tab_intervals">Intervalos</string>
+    <string name="todo_tab_groups">Grupos</string>
+    <string name="todo_no_groups">Sin grupos</string>
+    <string name="todo_delete_confirm_message">¿Eliminar \"%s\" de ToDo?</string>
     <string name="todo_no_programs">Sin programas</string>
     <string name="todo_no_intervals">Sin intervalos</string>
+    <string name="todo_group_exercise_count">%d ejercicios</string>
     <string name="todo_add_items">Añadir elementos</string>
     <string name="todo_repeat_title">Repetir</string>
     <string name="todo_repeat_clear">Borrar</string>

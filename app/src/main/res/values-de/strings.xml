@@ -479,8 +479,12 @@
     <string name="todo_tab_exercises">Übungen</string>
     <string name="todo_tab_programs">Programme</string>
     <string name="todo_tab_intervals">Intervalle</string>
+    <string name="todo_tab_groups">Gruppen</string>
+    <string name="todo_no_groups">Keine Gruppen</string>
+    <string name="todo_delete_confirm_message">\"%s\" aus ToDo entfernen?</string>
     <string name="todo_no_programs">Keine Programme</string>
     <string name="todo_no_intervals">Keine Intervalle</string>
+    <string name="todo_group_exercise_count">%d Übungen</string>
     <string name="todo_add_items">Einträge hinzufügen</string>
     <string name="todo_repeat_title">Wiederholen</string>
     <string name="todo_repeat_clear">Löschen</string>

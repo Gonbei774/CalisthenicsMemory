@@ -484,8 +484,12 @@
     <string name="todo_tab_exercises">动作</string>
     <string name="todo_tab_programs">计划</string>
     <string name="todo_tab_intervals">间歇</string>
+    <string name="todo_tab_groups">分组</string>
+    <string name="todo_no_groups">无分组</string>
+    <string name="todo_delete_confirm_message">从ToDo中移除"%s"？</string>
     <string name="todo_no_programs">无计划</string>
     <string name="todo_no_intervals">无间歇</string>
+    <string name="todo_group_exercise_count">%d 个动作</string>
     <string name="todo_add_items">添加项目</string>
     <string name="todo_repeat_title">重复</string>
     <string name="todo_repeat_clear">清除</string>

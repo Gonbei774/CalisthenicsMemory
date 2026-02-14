@@ -526,8 +526,12 @@
     <string name="todo_tab_exercises">Вправи</string>
     <string name="todo_tab_programs">Програми</string>
     <string name="todo_tab_intervals">Інтервали</string>
+    <string name="todo_tab_groups">Групи</string>
+    <string name="todo_no_groups">Немає груп</string>
+    <string name="todo_delete_confirm_message">Видалити \"%s\" з ToDo?</string>
     <string name="todo_no_programs">Немає програм</string>
     <string name="todo_no_intervals">Немає інтервалів</string>
+    <string name="todo_group_exercise_count">%d вправ</string>
     <string name="todo_add_items">Додати елементи</string>
     <string name="todo_repeat_title">Повтор</string>
     <string name="todo_repeat_clear">Очистити</string>
