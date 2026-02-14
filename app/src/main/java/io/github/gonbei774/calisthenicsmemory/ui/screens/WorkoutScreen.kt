@@ -308,21 +308,27 @@ fun WorkoutScreen(
                 is WorkoutStep.Executing -> {
                     // 設定に基づいて適切なExecutingコンポーネントを選択
                     val exercise = step.session.exercise
+                    val nextStepAfterSet: (WorkoutSession, Int) -> WorkoutStep = { updatedSession, nextIndex ->
+                        if (nextIndex >= updatedSession.sets.size) {
+                            WorkoutStep.Confirmation(updatedSession)
+                        } else if (updatedSession.intervalDuration <= 0) {
+                            // インターバル0秒ならスキップ
+                            if (updatedSession.startInterval > 0) {
+                                WorkoutStep.StartInterval(updatedSession, nextIndex)
+                            } else {
+                                WorkoutStep.Executing(updatedSession, nextIndex)
+                            }
+                        } else {
+                            WorkoutStep.Interval(updatedSession, nextIndex)
+                        }
+                    }
                     val onSetComplete: (WorkoutSession) -> Unit = { updatedSession ->
                         val nextIndex = step.currentSetIndex + 1
-                        currentStep = if (nextIndex < updatedSession.sets.size) {
-                            WorkoutStep.Interval(updatedSession, nextIndex)
-                        } else {
-                            WorkoutStep.Confirmation(updatedSession)
-                        }
+                        currentStep = nextStepAfterSet(updatedSession, nextIndex)
                     }
                     val onSkip: (WorkoutSession) -> Unit = { updatedSession ->
                         val nextIndex = step.currentSetIndex + 1
-                        currentStep = if (nextIndex < updatedSession.sets.size) {
-                            WorkoutStep.Interval(updatedSession, nextIndex)
-                        } else {
-                            WorkoutStep.Confirmation(updatedSession)
-                        }
+                        currentStep = nextStepAfterSet(updatedSession, nextIndex)
                     }
                     val onAbort: (WorkoutSession) -> Unit = { updatedSession ->
                         for (i in step.currentSetIndex + 1 until updatedSession.sets.size) {

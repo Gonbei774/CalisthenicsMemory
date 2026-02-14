@@ -11,5 +11,6 @@ import androidx.room.PrimaryKey
 data class ExerciseGroup(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val name: String  // グループ名（ユニーク）
+    val name: String,  // グループ名（ユニーク）
+    val displayOrder: Int = 0  // 表示順（並び替え機能用）
 )

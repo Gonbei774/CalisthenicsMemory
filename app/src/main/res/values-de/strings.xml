@@ -359,7 +359,7 @@
     <string name="section_full_backup">Vollständige Sicherung (JSON)</string>
     <string name="section_full_backup_description">Alle Daten speichern und wiederherstellen (Übungen, Aufzeichnungen, Gruppen).\nVerwende dies beim Gerätewechsel.</string>
     <string name="section_partial_data_management">Teilweise Datenverwaltung (CSV)</string>
-    <string name="section_partial_data_management_description">Gruppen, Übungen oder Aufzeichnungen einzeln exportieren und importieren.\nIm Gegensatz zu einer JSON-Sicherung kannst du nur die Daten verwalten, die du brauchst.</string>
+    <string name="section_partial_data_management_description">Für den Datenaustausch mit anderen Apps und Tabellenkalkulationen.\nGruppen, Übungen und Aufzeichnungen einzeln per CSV austauschen.</string>
     <!-- Legacy key for compatibility -->
     <string name="section_add_records">Aufzeichnungen hinzufügen (CSV)</string>
     <string name="section_add_records_description">Aufzeichnungen zu vorhandenen Daten hinzufügen.\nVerwende dies zum Importieren analoger Aufzeichnungen oder Daten aus anderen Apps.</string>
@@ -391,11 +391,11 @@
     <string name="settings_autofill_section">Automatisches Ausfüllen</string>
     <string name="settings_autofill_section_description">Automatische Eingabeunterstützung konfigurieren.</string>
     <string name="settings_prefill_previous">Vorherigen Eintrag vorausfüllen</string>
-    <string name="settings_prefill_previous_description">Werte der letzten Einheit automatisch in Aufnahme- und Workout-Bildschirmen ausfüllen</string>
+    <string name="settings_prefill_previous_description">Werte der letzten Einheit automatisch in Aufnahme- und Traninigsfeldern ausfüllen</string>
     <!-- Workout Settings -->
-    <string name="section_workout_settings">Workout-Einstellungen</string>
-    <string name="section_workout_settings_description">Standard-Timer-Einstellungen für Workouts konfigurieren.</string>
-    <string name="workout_settings">Workout-Einstellungen</string>
+    <string name="section_workout_settings">Trainingseinstellungen</string>
+    <string name="section_workout_settings_description">Verhalten des Trainingsbildschirms anpassen.</string>
+    <string name="workout_settings">Trainingseinstellungen</string>
     <string name="start_countdown_setting">Start-Countdown</string>
     <string name="set_interval_setting">Satzpause</string>
     <string name="current_start_countdown">Aktuell: %d Sekunden</string>
@@ -475,20 +475,24 @@
     <string name="todo_start_button">Start</string>
     <string name="todo_choose_mode">Modus wählen</string>
     <string name="todo_mode_record">Aufzeichnen</string>
-    <string name="todo_mode_workout">Workout</string>
+    <string name="todo_mode_workout">Training</string>
     <string name="todo_tab_exercises">Übungen</string>
     <string name="todo_tab_programs">Programme</string>
     <string name="todo_tab_intervals">Intervalle</string>
+    <string name="todo_tab_groups">Gruppen</string>
+    <string name="todo_no_groups">Keine Gruppen</string>
+    <string name="todo_delete_confirm_message">\"%s\" aus ToDo entfernen?</string>
     <string name="todo_no_programs">Keine Programme</string>
     <string name="todo_no_intervals">Keine Intervalle</string>
+    <string name="todo_group_exercise_count">%d Übungen</string>
     <string name="todo_add_items">Einträge hinzufügen</string>
     <string name="todo_repeat_title">Wiederholen</string>
     <string name="todo_repeat_clear">Löschen</string>
     <string name="todo_repeat_save">Speichern</string>
     <!-- Notification Channel for Workout Timer -->
-    <string name="notification_channel_workout">Workout-Timer</string>
-    <string name="notification_channel_workout_description">Zeigt Benachrichtigung während der Workout-Timer läuft</string>
-    <string name="notification_workout_title">Workout läuft</string>
+    <string name="notification_channel_workout">Trainingstimer</string>
+    <string name="notification_channel_workout_description">Zeigt Benachrichtigung, während der Trainingstimer läuft</string>
+    <string name="notification_workout_title">Training läuft</string>
     <string name="notification_workout_text">Timer ist aktiv</string>
     <!-- Program Feature -->
     <string name="program_mode">Programm</string>
@@ -534,7 +538,7 @@
     <string name="program_set_label">Satz %d:</string>
     <!-- Exit Workout Confirmation -->
     <string name="exit_workout_title">Training abbrechen?</string>
-    <string name="exit_workout_message">Der Fortschritt wird nicht gespeichert.</string>
+    <string name="exit_workout_message">Fortschritt wird nicht gespeichert.</string>
     <string name="exit_workout_confirm">Abbrechen</string>
     <!-- Discard Result Confirmation -->
     <string name="discard_result_title">Ergebnisse verwerfen?</string>
@@ -625,10 +629,8 @@
     <string name="theme_system">Systemeinstellung folgen</string>
     <string name="theme_light">Hell</string>
     <string name="theme_dark">Dunkel</string>
-
     <!-- Exercise Description -->
     <string name="description_optional">Beschreibung (optional)</string>
-
     <!-- Interval Mode -->
     <string name="interval_mode">Intervall</string>
     <string name="interval_mode_description">Für HIIT und Zirkeltraining</string>
@@ -700,4 +702,43 @@
     <string name="interval_record_complete">Abgeschlossen</string>
     <string name="interval_record_partial">Vorzeitig beendet</string>
     <string name="interval_record_exercises_count">%1$d Übungen</string>
+
+    <!-- Share export/import -->
+    <string name="share_section_title">Teilen</string>
+    <string name="share_section_description">Programme und Übungen mit anderen teilen</string>
+    <string name="share_export_title">Zum Teilen exportieren</string>
+    <string name="share_export_description">Programme und Übungen zum Teilen auswählen</string>
+    <string name="share_import_title">Geteilte JSON-Datei importieren</string>
+    <string name="share_import_description">Programme und Übungen aus einer geteilten JSON-Datei importieren</string>
+    <string name="share_export_screen_title">Export zum Teilen</string>
+    <string name="share_export_preview_title">Export-Vorschau</string>
+    <string name="share_export_button">Exportieren</string>
+    <string name="share_export_button_with_count">Exportieren (%1$d)</string>
+    <string name="share_exporting">Wird exportiert…</string>
+    <string name="share_tab_programs">Programme</string>
+    <string name="share_tab_intervals">Intervalle</string>
+    <string name="share_tab_exercises">Übungen</string>
+    <string name="share_preview_programs">Programme (%1$d)</string>
+    <string name="share_preview_intervals">Intervalle (%1$d)</string>
+    <string name="share_preview_total_exercises">Übungen gesamt: %1$d</string>
+    <string name="share_preview_auto_included"> (%1$d automatisch einbezogen)</string>
+    <string name="share_preview_groups">Gruppen: %1$d</string>
+    <string name="share_no_programs">Keine Programme</string>
+    <string name="share_no_intervals">Keine Intervallprogramme</string>
+    <string name="share_no_exercises">Keine Übungen</string>
+    <string name="share_exercise_auto_included">Automatisch aus Programm/Intervall einbezogen</string>
+    <string name="share_ungrouped">Ohne Gruppe</string>
+    <string name="share_program_exercises_format">%1$d Übungen</string>
+    <string name="share_program_loops_format">, %1$d Schleifen</string>
+    <string name="share_import_dialog_title">Geteilte JSON-Datei importieren</string>
+    <string name="share_import_preview_new">Neu (wird hinzugefügt)</string>
+    <string name="share_import_preview_exists">Bereits vorhanden (wird übersprungen)</string>
+    <string name="share_import_preview_nothing">Alle Elemente sind bereits vorhanden. Es wird nichts hinzugefügt.</string>
+    <string name="share_import_complete">Import abgeschlossen</string>
+    <string name="share_import_added_reused">%1$d hinzugefügt, %2$d wiederverwendet</string>
+    <string name="share_import_added_skipped">%1$d hinzugefügt, %2$d übersprungen</string>
+    <string name="share_import_errors">Fehler (%1$d)</string>
+    <string name="share_import_count_reused">%1$d wiederverwendet</string>
+    <string name="share_import_count_skipped">%1$d übersprungen</string>
+
 </resources>

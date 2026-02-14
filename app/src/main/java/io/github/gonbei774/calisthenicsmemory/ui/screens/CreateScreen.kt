@@ -8,6 +8,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
@@ -32,6 +34,8 @@ import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import sh.calvin.reorderable.ReorderableColumn
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,37 +111,116 @@ fun CreateScreen(
                 )
             }
         } else {
+            // 階層データを3つに分離
+            val favoriteGroup = hierarchicalData.firstOrNull {
+                it.groupName == TrainingViewModel.FAVORITE_GROUP_KEY
+            }
+            val regularGroups = hierarchicalData.filter {
+                it.groupName != null && it.groupName != TrainingViewModel.FAVORITE_GROUP_KEY
+            }
+            val ungroupedGroup = hierarchicalData.firstOrNull { it.groupName == null }
+
+            val lazyListState = rememberLazyListState()
+            val headerCount = if (favoriteGroup != null) 1 else 0
+
+            val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+                val fromIndex = from.index - headerCount
+                val toIndex = to.index - headerCount
+                if (fromIndex >= 0 && toIndex >= 0 &&
+                    fromIndex < regularGroups.size && toIndex < regularGroups.size) {
+                    viewModel.reorderGroups(fromIndex, toIndex)
+                }
+            }
+
             LazyColumn(
+                state = lazyListState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(hierarchicalData) { group ->
-                    ExpandableGroupCard(
-                        group = group,
-                        isExpanded = if (group.groupName != null) {
-                            group.groupName in expandedGroups
-                        } else {
-                            "ungrouped" in expandedGroups
-                        },
-                        onExpandToggle = {
-                            val key = group.groupName ?: "ungrouped"
-                            viewModel.toggleGroupExpansion(key)
-                        },
-                        onGroupMenuClick = {
-                            showGroupMenu = group.groupName
-                        },
-                        onExerciseEdit = { exercise ->
-                            editingExercise = exercise
-                            showAddDialog = true
-                        },
-                        onExerciseDelete = { exercise ->
-                            showDeleteDialog = exercise
-                        },
-                        viewModel = viewModel
-                    )
+                // お気に入りグループ（固定位置）
+                if (favoriteGroup != null) {
+                    item(key = "favorite") {
+                        ExpandableGroupCard(
+                            group = favoriteGroup,
+                            isExpanded = TrainingViewModel.FAVORITE_GROUP_KEY in expandedGroups,
+                            onExpandToggle = {
+                                viewModel.toggleGroupExpansion(TrainingViewModel.FAVORITE_GROUP_KEY)
+                            },
+                            onGroupMenuClick = {
+                                showGroupMenu = favoriteGroup.groupName
+                            },
+                            onExerciseEdit = { exercise ->
+                                editingExercise = exercise
+                                showAddDialog = true
+                            },
+                            onExerciseDelete = { exercise ->
+                                showDeleteDialog = exercise
+                            },
+                            viewModel = viewModel
+                        )
+                    }
+                }
+
+                // 通常グループ（並び替え可能）
+                items(
+                    count = regularGroups.size,
+                    key = { index -> "group_${regularGroups[index].groupName}" }
+                ) { index ->
+                    val group = regularGroups[index]
+                    ReorderableItem(reorderableLazyListState, key = "group_${group.groupName}") { isDragging ->
+                        val elevation by animateDpAsState(
+                            targetValue = if (isDragging) 4.dp else 0.dp,
+                            label = "elevation"
+                        )
+                        ExpandableGroupCard(
+                            group = group,
+                            isExpanded = group.groupName!! in expandedGroups,
+                            onExpandToggle = {
+                                viewModel.toggleGroupExpansion(group.groupName!!)
+                            },
+                            onGroupMenuClick = {
+                                showGroupMenu = group.groupName
+                            },
+                            onExerciseEdit = { exercise ->
+                                editingExercise = exercise
+                                showAddDialog = true
+                            },
+                            onExerciseDelete = { exercise ->
+                                showDeleteDialog = exercise
+                            },
+                            viewModel = viewModel,
+                            isDragging = isDragging,
+                            elevation = elevation,
+                            dragHandle = { Modifier.longPressDraggableHandle() }
+                        )
+                    }
+                }
+
+                // グループなし（固定位置）
+                if (ungroupedGroup != null) {
+                    item(key = "ungrouped") {
+                        ExpandableGroupCard(
+                            group = ungroupedGroup,
+                            isExpanded = "ungrouped" in expandedGroups,
+                            onExpandToggle = {
+                                viewModel.toggleGroupExpansion("ungrouped")
+                            },
+                            onGroupMenuClick = {
+                                showGroupMenu = ungroupedGroup.groupName
+                            },
+                            onExerciseEdit = { exercise ->
+                                editingExercise = exercise
+                                showAddDialog = true
+                            },
+                            onExerciseDelete = { exercise ->
+                                showDeleteDialog = exercise
+                            },
+                            viewModel = viewModel
+                        )
+                    }
                 }
             }
         }
@@ -250,13 +333,19 @@ fun ExpandableGroupCard(
     onGroupMenuClick: () -> Unit,
     onExerciseEdit: (Exercise) -> Unit,
     onExerciseDelete: (Exercise) -> Unit,
-    viewModel: TrainingViewModel
+    viewModel: TrainingViewModel,
+    isDragging: Boolean = false,
+    elevation: Dp = 0.dp,
+    dragHandle: (@Composable () -> Modifier)? = null
 ) {
     val appColors = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
-        shape = RoundedCornerShape(12.dp)
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDragging) appColors.cardBackground.copy(alpha = 0.9f) else appColors.cardBackground
+        ),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation)
     ) {
         Column {
             // グループヘッダー
@@ -277,6 +366,17 @@ fun ExpandableGroupCard(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.weight(1f)
                     ) {
+                        // ドラッグハンドル（通常グループのみ）
+                        if (dragHandle != null) {
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = stringResource(R.string.todo_drag_to_reorder),
+                                tint = if (isDragging) appColors.textPrimary else appColors.textSecondary,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .then(dragHandle())
+                            )
+                        }
                         Icon(
                             imageVector = if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = null,
@@ -885,6 +985,15 @@ fun UnifiedAddDialog(
                                             Text(stringResource(R.string.exercise_type_isometric))
                                         }
                                     }
+                                    Text(
+                                        text = if (selectedType == "Isometric")
+                                            stringResource(R.string.exercise_type_isometric_description)
+                                        else
+                                            stringResource(R.string.exercise_type_dynamic_description),
+                                        fontSize = 12.sp,
+                                        color = appColors.textSecondary,
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
                                 }
 
                                 // 左右種別選択

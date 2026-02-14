@@ -27,6 +27,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonPrimitive
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.Dispatchers
@@ -53,7 +56,8 @@ data class BackupData(
 @Serializable
 data class ExportGroup(
     val id: Long,
-    val name: String
+    val name: String,
+    val displayOrder: Int = 0
 )
 
 @Serializable
@@ -215,6 +219,10 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         _snackbarMessage.value = null
     }
 
+    fun showWrongFileTypeMessage(detected: String, expected: String) {
+        _snackbarMessage.value = UiMessage.WrongFileType(detected = detected, expected = expected)
+    }
+
     fun showSnackbar(message: UiMessage) {
         _snackbarMessage.value = message
     }
@@ -311,6 +319,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             try {
                 exerciseDao.deleteExercise(exercise)
+                todoTaskDao.deleteByReference(TodoTask.TYPE_EXERCISE, exercise.id)
                 _snackbarMessage.value = UiMessage.ExerciseDeleted
             } catch (e: Exception) {
                 _snackbarMessage.value = UiMessage.ErrorOccurred
@@ -433,8 +442,10 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
     fun createGroup(name: String) {
         viewModelScope.launch {
+            flushGroupOrder()
             try {
-                val group = ExerciseGroup(name = name)
+                val existingGroups = groupDao.getAllGroupsSync()
+                val group = ExerciseGroup(name = name, displayOrder = existingGroups.size)
                 groupDao.insertGroup(group)
                 _snackbarMessage.value = UiMessage.GroupCreated
             } catch (e: Exception) {
@@ -445,6 +456,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
     fun renameGroup(oldName: String, newName: String) {
         viewModelScope.launch {
+            flushGroupOrder()
             try {
                 // 1. グループテーブルを更新
                 val group = groupDao.getGroupByName(oldName)
@@ -467,7 +479,14 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
     fun deleteGroup(groupName: String) {
         viewModelScope.launch {
+            flushGroupOrder()
             try {
+                // ToDoの連動削除（グループ削除前にIDを取得）
+                val group = groupDao.getGroupByName(groupName)
+                if (group != null) {
+                    todoTaskDao.deleteByReference(TodoTask.TYPE_GROUP, group.id)
+                }
+
                 // 1. グループテーブルから削除
                 groupDao.deleteGroupByName(groupName)
 
@@ -505,10 +524,13 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    // グループ並び替え用ローカルステート（画面離脱時にDBに保存）
+    private val _localGroupOrder = MutableStateFlow<List<ExerciseGroup>?>(null)
+
     // 階層データ準備
     val hierarchicalExercises: StateFlow<List<GroupWithExercises>> =
-        combine(groups, exercises, expandedGroups) { groups, exercises, expanded ->
-            prepareHierarchicalData(groups, exercises, expanded)
+        combine(groups, exercises, expandedGroups, _localGroupOrder) { dbGroups, exercises, expanded, localOrder ->
+            prepareHierarchicalData(localOrder ?: dbGroups, exercises, expanded)
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
@@ -533,6 +555,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         )
 
         // 1. groupsテーブルを基準にグループを表示（0件でも表示）
+        // groups は既に displayOrder 順で取得されている
         val groupedExercises = groups.map { group ->
             val groupExercises = exercises.filter { it.group == group.name }
             GroupWithExercises(
@@ -540,7 +563,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 exercises = groupExercises.sortedBy { it.displayOrder },
                 isExpanded = group.name in expandedGroups  // 全て閉じた状態も可能
             )
-        }.sortedBy { it.groupName }
+        }
 
         // 2. グループなし種目
         val ungroupedExercises = exercises.filter { it.group == null }
@@ -607,6 +630,49 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    /**
+     * グループの並び順を変更する（ローカルステートのみ更新）
+     * DBへの保存は saveGroupOrder() で行う
+     */
+    fun reorderGroups(fromIndex: Int, toIndex: Int) {
+        val current = (_localGroupOrder.value ?: groups.value).toList()
+
+        if (fromIndex < 0 || toIndex < 0 ||
+            fromIndex >= current.size ||
+            toIndex >= current.size) {
+            return
+        }
+
+        val reordered = current.toMutableList()
+        val item = reordered.removeAt(fromIndex)
+        reordered.add(toIndex, item)
+        _localGroupOrder.value = reordered
+    }
+
+    /**
+     * 保留中のグループ並び順をDBに保存する
+     */
+    fun saveGroupOrder() {
+        val order = _localGroupOrder.value ?: return
+        _localGroupOrder.value = null
+        viewModelScope.launch {
+            order.forEachIndexed { index, group ->
+                groupDao.updateGroup(group.copy(displayOrder = index))
+            }
+        }
+    }
+
+    /**
+     * 保留中のグループ並び順をDBに保存する（suspend版・内部用）
+     */
+    private suspend fun flushGroupOrder() {
+        val order = _localGroupOrder.value ?: return
+        _localGroupOrder.value = null
+        order.forEachIndexed { index, group ->
+            groupDao.updateGroup(group.copy(displayOrder = index))
+        }
+    }
+
     // ========================================
     // エクスポート・インポート機能
     // ========================================
@@ -623,7 +689,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             val exportGroups = currentGroups.map { group ->
                 ExportGroup(
                     id = group.id,
-                    name = group.name
+                    name = group.name,
+                    displayOrder = group.displayOrder
                 )
             }
 
@@ -807,6 +874,17 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     suspend fun importData(jsonString: String) {
         withContext(Dispatchers.IO) {
             try {
+                // ファイル種別チェック: コミュニティ共有JSONが渡された場合はエラー
+                if (detectJsonFileType(jsonString) == "share") {
+                    withContext(Dispatchers.Main) {
+                        _snackbarMessage.value = UiMessage.WrongFileType(
+                            detected = "share",
+                            expected = "backup"
+                        )
+                    }
+                    return@withContext
+                }
+
                 val json = Json { ignoreUnknownKeys = true }
                 val backupData = json.decodeFromString<BackupData>(jsonString)
 
@@ -817,7 +895,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 backupData.groups.forEach { exportGroup ->
                     val group = ExerciseGroup(
                         id = exportGroup.id,
-                        name = exportGroup.name
+                        name = exportGroup.name,
+                        displayOrder = exportGroup.displayOrder
                     )
                     groupDao.insertGroup(group)
                 }
@@ -1551,6 +1630,24 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun addTodoTaskGroups(groupIds: List<Long>) {
+        viewModelScope.launch {
+            try {
+                var sortOrder = todoTaskDao.getNextSortOrder()
+                groupIds.forEach { groupId ->
+                    val task = TodoTask(
+                        type = TodoTask.TYPE_GROUP,
+                        referenceId = groupId,
+                        sortOrder = sortOrder++
+                    )
+                    todoTaskDao.insert(task)
+                }
+            } catch (e: Exception) {
+                _snackbarMessage.value = UiMessage.ErrorOccurred
+            }
+        }
+    }
+
     fun addTodoTaskInterval(intervalProgramId: Long) {
         viewModelScope.launch {
             try {
@@ -1615,10 +1712,50 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 } else {
                     todoTaskDao.deleteByReference(type, referenceId)
                 }
+
+                // 種目完了時にグループToDoの完了もチェック
+                if (type == TodoTask.TYPE_EXERCISE) {
+                    checkGroupTodoCompletion(referenceId)
+                }
             } catch (e: Exception) {
                 _snackbarMessage.value = UiMessage.ErrorOccurred
             }
         }
+    }
+
+    private suspend fun checkGroupTodoCompletion(exerciseId: Long) {
+        val exercise = exercises.value.find { it.id == exerciseId } ?: return
+        val groupName = exercise.group ?: return
+        val group = groupDao.getGroupByName(groupName) ?: return
+
+        // このグループがToDoに登録されているか
+        val groupTask = todoTaskDao.getTaskByReference(TodoTask.TYPE_GROUP, group.id) ?: return
+
+        // 今日のアクティブなタスクかチェック
+        val todayStr = java.time.LocalDate.now().toString()
+        if (groupTask.isRepeating()) {
+            val todayDayNumber = java.time.LocalDate.now().dayOfWeek.value
+            if (todayDayNumber !in groupTask.getRepeatDayNumbers()) return
+            if (groupTask.lastCompletedDate == todayStr) return
+        }
+
+        // グループ内の全種目に今日の記録があるか確認
+        val groupExercises = exercises.value.filter { it.group == groupName }
+        val allCompleted = groupExercises.all { ex ->
+            recordDao.hasRecordOnDate(ex.id, todayStr)
+        }
+
+        if (allCompleted) {
+            if (groupTask.isRepeating()) {
+                todoTaskDao.updateLastCompletedDate(TodoTask.TYPE_GROUP, group.id, todayStr)
+            } else {
+                todoTaskDao.deleteByReference(TodoTask.TYPE_GROUP, group.id)
+            }
+        }
+    }
+
+    suspend fun hasRecordOnDate(exerciseId: Long, date: String): Boolean {
+        return recordDao.hasRecordOnDate(exerciseId, date)
     }
 
     fun updateTodoRepeatDays(taskId: Long, repeatDays: String) {
@@ -1709,6 +1846,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             try {
                 programDao.deleteById(programId)
+                todoTaskDao.deleteByReference(TodoTask.TYPE_PROGRAM, programId)
             } catch (e: Exception) {
                 _snackbarMessage.value = UiMessage.ErrorOccurred
             }
@@ -1997,6 +2135,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             try {
                 intervalProgramDao.deleteById(programId)
+                todoTaskDao.deleteByReference(TodoTask.TYPE_INTERVAL, programId)
             } catch (e: Exception) {
                 _snackbarMessage.value = UiMessage.ErrorOccurred
             }
@@ -2135,6 +2274,447 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             } catch (e: Exception) {
                 _snackbarMessage.value = UiMessage.ErrorOccurred
             }
+        }
+    }
+
+    // ========================================
+    // コミュニティシェア エクスポート・インポート機能
+    // ========================================
+
+    /**
+     * JSON文字列のファイル種別を判定する
+     * @return "backup", "share", "unknown"
+     */
+    fun detectJsonFileType(jsonString: String): String {
+        return try {
+            val json = Json { ignoreUnknownKeys = true }
+            val jsonElement = json.parseToJsonElement(jsonString)
+            val jsonObject = jsonElement as? JsonObject ?: return "unknown"
+
+            when {
+                jsonObject.containsKey("exportType") -> {
+                    val exportType = jsonObject["exportType"]
+                    if (exportType is JsonPrimitive && exportType.content == "share") {
+                        "share"
+                    } else {
+                        "unknown"
+                    }
+                }
+                jsonObject.containsKey("version") && jsonObject.containsKey("app") -> "backup"
+                else -> "unknown"
+            }
+        } catch (_: Exception) {
+            "unknown"
+        }
+    }
+
+    /**
+     * 選択されたプログラム・インターバル・種目をコミュニティ共有用JSONにエクスポート
+     */
+    suspend fun exportCommunityShare(
+        selectedProgramIds: Set<Long>,
+        selectedIntervalProgramIds: Set<Long>,
+        selectedExerciseIds: Set<Long>
+    ): String = withContext(Dispatchers.IO) {
+        try {
+            // 全種目IDを集約（直接選択 + 依存種目）
+            val allExerciseIds = selectedExerciseIds.toMutableSet()
+
+            // プログラムの依存種目を収集
+            val sharePrograms = mutableListOf<ShareProgram>()
+            for (programId in selectedProgramIds) {
+                val program = programDao.getProgramById(programId) ?: continue
+                val programExercises = programExerciseDao.getExercisesForProgramSync(programId)
+                val programLoops = programLoopDao.getLoopsForProgramSync(programId)
+
+                // 依存種目IDを追加
+                programExercises.forEach { pe -> allExerciseIds.add(pe.exerciseId) }
+
+                // ループIDをローカル連番にマッピング
+                val loopIdMap = mutableMapOf<Long, Int>()
+                programLoops.forEachIndexed { index, loop ->
+                    loopIdMap[loop.id] = index + 1
+                }
+
+                val shareLoops = programLoops.mapIndexed { index, loop ->
+                    ShareProgramLoop(
+                        id = index + 1,
+                        sortOrder = loop.sortOrder,
+                        rounds = loop.rounds,
+                        restBetweenRounds = loop.restBetweenRounds
+                    )
+                }
+
+                val shareProgramExercises = programExercises.map { pe ->
+                    val exercise = exerciseDao.getExerciseById(pe.exerciseId)
+                    ShareProgramExercise(
+                        exerciseName = exercise?.name ?: "",
+                        exerciseType = exercise?.type ?: "",
+                        sortOrder = pe.sortOrder,
+                        sets = pe.sets,
+                        targetValue = pe.targetValue,
+                        intervalSeconds = pe.intervalSeconds,
+                        loopId = pe.loopId?.let { loopIdMap[it] }
+                    )
+                }
+
+                sharePrograms.add(
+                    ShareProgram(
+                        name = program.name,
+                        exercises = shareProgramExercises,
+                        loops = shareLoops
+                    )
+                )
+            }
+
+            // インターバルプログラムの依存種目を収集
+            val shareIntervalPrograms = mutableListOf<ShareIntervalProgram>()
+            for (intervalId in selectedIntervalProgramIds) {
+                val interval = intervalProgramDao.getProgramById(intervalId) ?: continue
+                val intervalExercises = intervalProgramExerciseDao.getExercisesForProgramSync(intervalId)
+
+                // 依存種目IDを追加
+                intervalExercises.forEach { ie -> allExerciseIds.add(ie.exerciseId) }
+
+                val shareIntervalExercises = intervalExercises.map { ie ->
+                    val exercise = exerciseDao.getExerciseById(ie.exerciseId)
+                    ShareIntervalProgramExercise(
+                        exerciseName = exercise?.name ?: "",
+                        exerciseType = exercise?.type ?: "",
+                        sortOrder = ie.sortOrder
+                    )
+                }
+
+                shareIntervalPrograms.add(
+                    ShareIntervalProgram(
+                        name = interval.name,
+                        workSeconds = interval.workSeconds,
+                        restSeconds = interval.restSeconds,
+                        rounds = interval.rounds,
+                        roundRestSeconds = interval.roundRestSeconds,
+                        exercises = shareIntervalExercises
+                    )
+                )
+            }
+
+            // 種目を収集、重複排除
+            val exerciseMap = mutableMapOf<Long, ShareExercise>()
+            val groupNames = mutableSetOf<String>()
+            for (exerciseId in allExerciseIds) {
+                val exercise = exerciseDao.getExerciseById(exerciseId) ?: continue
+                exerciseMap[exerciseId] = ShareExercise(
+                    name = exercise.name,
+                    type = exercise.type,
+                    group = exercise.group,
+                    sortOrder = exercise.sortOrder,
+                    laterality = exercise.laterality,
+                    targetSets = exercise.targetSets,
+                    targetValue = exercise.targetValue,
+                    restInterval = exercise.restInterval,
+                    repDuration = exercise.repDuration,
+                    distanceTrackingEnabled = exercise.distanceTrackingEnabled,
+                    weightTrackingEnabled = exercise.weightTrackingEnabled,
+                    assistanceTrackingEnabled = exercise.assistanceTrackingEnabled,
+                    description = exercise.description
+                )
+                exercise.group?.let { groupNames.add(it) }
+            }
+
+            val shareGroups = groupNames.sorted().map { ShareGroup(name = it) }
+
+            // アプリバージョン取得
+            val appVersion = try {
+                val packageInfo = getApplication<android.app.Application>().packageManager
+                    .getPackageInfo(getApplication<android.app.Application>().packageName, 0)
+                packageInfo.versionName ?: "unknown"
+            } catch (_: Exception) {
+                "unknown"
+            }
+
+            val shareData = CommunityShareData(
+                formatVersion = 1,
+                exportType = "share",
+                exportDate = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                exportId = java.util.UUID.randomUUID().toString(),
+                appVersion = appVersion,
+                data = CommunityShareContent(
+                    groups = shareGroups,
+                    exercises = exerciseMap.values.toList(),
+                    programs = sharePrograms,
+                    intervalPrograms = shareIntervalPrograms
+                )
+            )
+
+            withContext(Dispatchers.Main) {
+                _snackbarMessage.value = UiMessage.CommunityShareExportComplete(
+                    exerciseCount = exerciseMap.size,
+                    programCount = sharePrograms.size,
+                    intervalProgramCount = shareIntervalPrograms.size
+                )
+            }
+
+            val json = Json { ignoreUnknownKeys = true }
+            json.encodeToString(shareData)
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                _snackbarMessage.value = UiMessage.ExportError(e.message ?: "")
+            }
+            throw e
+        }
+    }
+
+    /**
+     * コミュニティ共有JSONをインポート
+     */
+    suspend fun previewCommunityShareImport(data: CommunityShareData): CommunityShareImportReport = withContext(Dispatchers.IO) {
+        val content = data.data
+        var groupsAdded = 0
+        var groupsReused = 0
+        var exercisesAdded = 0
+        var exercisesSkipped = 0
+        var programsAdded = 0
+        var programsSkipped = 0
+        var intervalProgramsAdded = 0
+        var intervalProgramsSkipped = 0
+
+        // グループ
+        for (shareGroup in content.groups) {
+            val existing = groupDao.getGroupByName(shareGroup.name)
+            if (existing != null) groupsReused++ else groupsAdded++
+        }
+
+        // 種目
+        val seenExerciseKeys = mutableSetOf<String>()
+        for (shareExercise in content.exercises) {
+            val key = "${shareExercise.name}|${shareExercise.type}"
+            if (!seenExerciseKeys.add(key)) continue
+            val existing = exerciseDao.getExerciseByNameAndType(shareExercise.name, shareExercise.type)
+            if (existing != null) exercisesSkipped++ else exercisesAdded++
+        }
+
+        // プログラム
+        for (shareProgram in content.programs) {
+            val existing = programDao.getProgramByName(shareProgram.name)
+            if (existing != null) programsSkipped++ else programsAdded++
+        }
+
+        // インターバル
+        for (shareInterval in content.intervalPrograms) {
+            val existing = intervalProgramDao.getProgramByName(shareInterval.name)
+            if (existing != null) intervalProgramsSkipped++ else intervalProgramsAdded++
+        }
+
+        CommunityShareImportReport(
+            groupsAdded = groupsAdded,
+            groupsReused = groupsReused,
+            exercisesAdded = exercisesAdded,
+            exercisesSkipped = exercisesSkipped,
+            programsAdded = programsAdded,
+            programsSkipped = programsSkipped,
+            intervalProgramsAdded = intervalProgramsAdded,
+            intervalProgramsSkipped = intervalProgramsSkipped
+        )
+    }
+
+    suspend fun importCommunityShare(jsonString: String): CommunityShareImportReport = withContext(Dispatchers.IO) {
+        try {
+            // ファイル種別チェック: バックアップJSONが渡された場合はエラー
+            if (detectJsonFileType(jsonString) == "backup") {
+                withContext(Dispatchers.Main) {
+                    _snackbarMessage.value = UiMessage.WrongFileType(
+                        detected = "backup",
+                        expected = "share"
+                    )
+                }
+                return@withContext CommunityShareImportReport(
+                    errors = listOf("Wrong file type: backup")
+                )
+            }
+
+            val json = Json { ignoreUnknownKeys = true }
+            val shareData = json.decodeFromString<CommunityShareData>(jsonString)
+
+            // バリデーション
+            val validationErrors = validateCommunityShareContent(shareData)
+            if (validationErrors.isNotEmpty()) {
+                withContext(Dispatchers.Main) {
+                    _snackbarMessage.value = UiMessage.CommunityShareImportError(
+                        validationErrors.first()
+                    )
+                }
+                return@withContext CommunityShareImportReport(errors = validationErrors)
+            }
+
+            val content = shareData.data
+            var groupsAdded = 0
+            var groupsReused = 0
+            var exercisesAdded = 0
+            var exercisesSkipped = 0
+            var programsAdded = 0
+            var programsSkipped = 0
+            var intervalProgramsAdded = 0
+            var intervalProgramsSkipped = 0
+
+            // displayOrder の現在最大値を取得
+            var nextDisplayOrder = exerciseDao.getMaxDisplayOrder() + 1
+
+            // 1. グループをインポート
+            for (shareGroup in content.groups) {
+                val existing = groupDao.getGroupByName(shareGroup.name)
+                if (existing != null) {
+                    groupsReused++
+                } else {
+                    groupDao.insertGroup(ExerciseGroup(name = shareGroup.name))
+                    groupsAdded++
+                }
+            }
+
+            // 2. 種目をインポート（名前+タイプでマッチ、重複はスキップ）
+            // exerciseIdMap: "name|type" -> DB ID
+            val exerciseIdMap = mutableMapOf<String, Long>()
+            val seenExerciseKeys = mutableSetOf<String>()
+            for (shareExercise in content.exercises) {
+                val key = "${shareExercise.name}|${shareExercise.type}"
+                // JSON内重複は先勝ち
+                if (!seenExerciseKeys.add(key)) continue
+
+                val existing = exerciseDao.getExerciseByNameAndType(shareExercise.name, shareExercise.type)
+                if (existing != null) {
+                    exerciseIdMap[key] = existing.id
+                    exercisesSkipped++
+                } else {
+                    val newExercise = Exercise(
+                        name = shareExercise.name,
+                        type = shareExercise.type,
+                        group = shareExercise.group,
+                        sortOrder = shareExercise.sortOrder,
+                        displayOrder = nextDisplayOrder++,
+                        laterality = shareExercise.laterality,
+                        targetSets = shareExercise.targetSets,
+                        targetValue = shareExercise.targetValue,
+                        restInterval = shareExercise.restInterval,
+                        repDuration = shareExercise.repDuration,
+                        distanceTrackingEnabled = shareExercise.distanceTrackingEnabled,
+                        weightTrackingEnabled = shareExercise.weightTrackingEnabled,
+                        assistanceTrackingEnabled = shareExercise.assistanceTrackingEnabled,
+                        description = shareExercise.description?.take(60)
+                    )
+                    val newId = exerciseDao.insertExercise(newExercise)
+                    exerciseIdMap[key] = newId
+                    exercisesAdded++
+                }
+            }
+
+            // 3. プログラムをインポート
+            for (shareProgram in content.programs) {
+                val existing = programDao.getProgramByName(shareProgram.name)
+                if (existing != null) {
+                    programsSkipped++
+                    continue
+                }
+
+                // プログラム作成
+                val newProgramId = programDao.insert(Program(name = shareProgram.name))
+
+                // ループ作成（ローカルID → DB IDマッピング）
+                val loopIdMap = mutableMapOf<Int, Long>()
+                for (shareLoop in shareProgram.loops) {
+                    val newLoopId = programLoopDao.insert(
+                        ProgramLoop(
+                            programId = newProgramId,
+                            sortOrder = shareLoop.sortOrder,
+                            rounds = shareLoop.rounds,
+                            restBetweenRounds = shareLoop.restBetweenRounds
+                        )
+                    )
+                    loopIdMap[shareLoop.id] = newLoopId
+                }
+
+                // ProgramExercise作成
+                for (sharePe in shareProgram.exercises) {
+                    val exerciseKey = "${sharePe.exerciseName}|${sharePe.exerciseType}"
+                    val exerciseId = exerciseIdMap[exerciseKey] ?: continue
+                    programExerciseDao.insert(
+                        ProgramExercise(
+                            programId = newProgramId,
+                            exerciseId = exerciseId,
+                            sortOrder = sharePe.sortOrder,
+                            sets = sharePe.sets,
+                            targetValue = sharePe.targetValue,
+                            intervalSeconds = sharePe.intervalSeconds,
+                            loopId = sharePe.loopId?.let { loopIdMap[it] }
+                        )
+                    )
+                }
+
+                programsAdded++
+            }
+
+            // 4. インターバルプログラムをインポート
+            for (shareInterval in content.intervalPrograms) {
+                val existing = intervalProgramDao.getProgramByName(shareInterval.name)
+                if (existing != null) {
+                    intervalProgramsSkipped++
+                    continue
+                }
+
+                // インターバルプログラム作成
+                val newIntervalId = intervalProgramDao.insert(
+                    IntervalProgram(
+                        name = shareInterval.name,
+                        workSeconds = shareInterval.workSeconds,
+                        restSeconds = shareInterval.restSeconds,
+                        rounds = shareInterval.rounds,
+                        roundRestSeconds = shareInterval.roundRestSeconds
+                    )
+                )
+
+                // IntervalProgramExercise作成
+                for (shareIe in shareInterval.exercises) {
+                    val exerciseKey = "${shareIe.exerciseName}|${shareIe.exerciseType}"
+                    val exerciseId = exerciseIdMap[exerciseKey] ?: continue
+                    intervalProgramExerciseDao.insert(
+                        IntervalProgramExercise(
+                            programId = newIntervalId,
+                            exerciseId = exerciseId,
+                            sortOrder = shareIe.sortOrder
+                        )
+                    )
+                }
+
+                intervalProgramsAdded++
+            }
+
+            val report = CommunityShareImportReport(
+                groupsAdded = groupsAdded,
+                groupsReused = groupsReused,
+                exercisesAdded = exercisesAdded,
+                exercisesSkipped = exercisesSkipped,
+                programsAdded = programsAdded,
+                programsSkipped = programsSkipped,
+                intervalProgramsAdded = intervalProgramsAdded,
+                intervalProgramsSkipped = intervalProgramsSkipped
+            )
+
+            withContext(Dispatchers.Main) {
+                _snackbarMessage.value = UiMessage.CommunityShareImportComplete(report)
+            }
+
+            report
+        } catch (e: kotlinx.serialization.SerializationException) {
+            withContext(Dispatchers.Main) {
+                _snackbarMessage.value = UiMessage.CommunityShareImportError(
+                    e.message ?: "Invalid JSON format"
+                )
+            }
+            CommunityShareImportReport(errors = listOf(e.message ?: "Invalid JSON format"))
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                _snackbarMessage.value = UiMessage.CommunityShareImportError(
+                    e.message ?: "Import failed"
+                )
+            }
+            CommunityShareImportReport(errors = listOf(e.message ?: "Import failed"))
         }
     }
 

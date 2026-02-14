@@ -25,6 +25,7 @@ keystore.properties
 
 # プロジェクト設定（Claude Code用、非公開）
 CLAUDE.md
+.claude/
 
 # 開発用ドキュメント・テストデータ（非公開）
 dev-docs/

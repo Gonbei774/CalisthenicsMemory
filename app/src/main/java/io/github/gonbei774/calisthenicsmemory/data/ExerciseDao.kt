@@ -35,4 +35,7 @@ interface ExerciseDao {
 
     @Query("DELETE FROM exercises")
     suspend fun deleteAll()
+
+    @Query("SELECT COALESCE(MAX(displayOrder), -1) FROM exercises")
+    suspend fun getMaxDisplayOrder(): Int
 }

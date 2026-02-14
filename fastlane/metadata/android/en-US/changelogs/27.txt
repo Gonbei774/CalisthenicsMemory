@@ -1,0 +1,18 @@
+Added:
+- Community Share: export/import exercises, programs, intervals
+- GROUP type in ToDo for group-based tasks
+- Group reordering (drag-and-drop)
+- Group-level select all in ToDo
+- ToDo swipe-to-delete confirmation
+- Per-exercise round info in interval records
+- 50MB import size limit
+
+Improved:
+- Settings reorganized into sections
+- SAF file picker for pre-import backup
+
+Fixed:
+- Theme switch losing screen state
+- Interval flash/beep when interval is 0s
+
+Contributors: SomeTr, nautilusx

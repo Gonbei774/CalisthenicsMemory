@@ -99,6 +99,8 @@
     <string name="isometric_type">Time</string>
     <string name="exercise_type_dynamic">Dynamic</string>
     <string name="exercise_type_isometric">Isometric</string>
+    <string name="exercise_type_dynamic_description">e.g. Push-ups, Pull-ups. Recorded by reps.</string>
+    <string name="exercise_type_isometric_description">e.g. Plank, L-sit. Recorded by hold time.</string>
     <!-- View Screen -->
     <string name="view_records">View Records</string>
     <string name="list">List</string>
@@ -383,7 +385,7 @@
     <string name="section_full_backup">Complete Backup (JSON)</string>
     <string name="section_full_backup_description">Save and restore all data (exercises, records, groups).\nUse when changing devices.</string>
     <string name="section_partial_data_management">Partial Data Management (CSV)</string>
-    <string name="section_partial_data_management_description">Export and import groups, exercises, or records individually.\nUnlike JSON backup, you can manage only the data you need.</string>
+    <string name="section_partial_data_management_description">For data exchange with other apps and spreadsheets.\nExport and import groups, exercises, and records individually via CSV.</string>
     <!-- Legacy key for compatibility -->
     <string name="section_add_records">Add Records (CSV)</string>
     <string name="section_add_records_description">Add records to existing data.\nUse for importing analog records or data from other apps.</string>
@@ -426,7 +428,7 @@
     <string name="settings_prefill_previous_description">Auto-fill values from the last session in Record and Workout screens</string>
     <!-- Workout Settings -->
     <string name="section_workout_settings">Workout Settings</string>
-    <string name="section_workout_settings_description">Configure default workout timer settings.</string>
+    <string name="section_workout_settings_description">Customize workout screen behavior.</string>
     <string name="workout_settings">Workout Settings</string>
     <string name="start_countdown_setting">Start Countdown</string>
     <string name="set_interval_setting">Set Interval</string>
@@ -495,10 +497,14 @@
     <string name="todo_mode_record">Record</string>
     <string name="todo_mode_workout">Workout</string>
     <string name="todo_tab_exercises">Exercises</string>
+    <string name="todo_tab_groups">Groups</string>
     <string name="todo_tab_programs">Programs</string>
     <string name="todo_tab_intervals">Intervals</string>
+    <string name="todo_no_groups">No groups</string>
+    <string name="todo_delete_confirm_message">Remove \"%s\" from ToDo?</string>
     <string name="todo_no_programs">No programs</string>
     <string name="todo_no_intervals">No intervals</string>
+    <string name="todo_group_exercise_count">%d exercises</string>
     <string name="todo_add_items">Add Items</string>
     <string name="todo_repeat_title">Repeat</string>
     <string name="todo_repeat_clear">Clear</string>
@@ -699,4 +705,42 @@
     <string name="interval_record_settings_format">Work %1$ds / Rest %2$ds / Round rest %3$ds</string>
     <string name="interval_record_exercises_count">%1$d exercises</string>
     <string name="interval_delete_record_confirm">Delete interval record for \"%1$s\" (%2$s)?</string>
+
+    <!-- Share export/import -->
+    <string name="share_section_title">Share</string>
+    <string name="share_section_description">Share your programs and exercises with others</string>
+    <string name="share_export_title">Export for sharing</string>
+    <string name="share_export_description">Select programs and exercises to share</string>
+    <string name="share_import_title">Import shared JSON file</string>
+    <string name="share_import_description">Import programs and exercises from a shared JSON file</string>
+    <string name="share_export_screen_title">Share Export</string>
+    <string name="share_export_preview_title">Export Preview</string>
+    <string name="share_export_button">Export</string>
+    <string name="share_export_button_with_count">Export (%1$d)</string>
+    <string name="share_exporting">Exporting…</string>
+    <string name="share_tab_programs">Programs</string>
+    <string name="share_tab_intervals">Intervals</string>
+    <string name="share_tab_exercises">Exercises</string>
+    <string name="share_preview_programs">Programs (%1$d)</string>
+    <string name="share_preview_intervals">Intervals (%1$d)</string>
+    <string name="share_preview_total_exercises">Total exercises: %1$d</string>
+    <string name="share_preview_auto_included"> (%1$d auto-included)</string>
+    <string name="share_preview_groups">Groups: %1$d</string>
+    <string name="share_no_programs">No programs</string>
+    <string name="share_no_intervals">No interval programs</string>
+    <string name="share_no_exercises">No exercises</string>
+    <string name="share_exercise_auto_included">Auto-included from program/interval</string>
+    <string name="share_ungrouped">Ungrouped</string>
+    <string name="share_program_exercises_format">%1$d exercises</string>
+    <string name="share_program_loops_format">, %1$d loops</string>
+    <string name="share_import_dialog_title">Import Shared JSON File</string>
+    <string name="share_import_preview_new">New (will be added)</string>
+    <string name="share_import_preview_exists">Already exists (will be skipped)</string>
+    <string name="share_import_preview_nothing">All items already exist. Nothing will be added.</string>
+    <string name="share_import_complete">Import Complete</string>
+    <string name="share_import_added_reused">%1$d added, %2$d reused</string>
+    <string name="share_import_added_skipped">%1$d added, %2$d skipped</string>
+    <string name="share_import_errors">Errors (%1$d)</string>
+    <string name="share_import_count_reused">%1$d reused</string>
+    <string name="share_import_count_skipped">%1$d skipped</string>
 </resources>

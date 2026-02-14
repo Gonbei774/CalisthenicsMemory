@@ -209,59 +209,36 @@ fun ViewScreen(
                 .padding(paddingValues)
         ) {
             // タブ
-            TabRow(
-                selectedTabIndex = pagerState.currentPage,
-                containerColor = appColors.cardBackground,
-                contentColor = appColors.textPrimary
-            ) {
-                Tab(
-                    selected = pagerState.currentPage == 0,
-                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } },
-                    text = {
-                        Text(
-                            stringResource(R.string.tab_calendar),
-                            fontSize = 16.sp,
-                            fontWeight = if (pagerState.currentPage == 0) FontWeight.Bold else FontWeight.Normal,
-                            maxLines = 1
+            val tabTitles = listOf(
+                stringResource(R.string.tab_calendar),
+                stringResource(R.string.tab_list),
+                stringResource(R.string.tab_graph),
+                stringResource(R.string.tab_challenge)
+            )
+            BoxWithConstraints {
+                val minTabWidth = maxWidth / tabTitles.size
+                ScrollableTabRow(
+                    selectedTabIndex = pagerState.currentPage,
+                    containerColor = appColors.cardBackground,
+                    contentColor = appColors.textPrimary,
+                    edgePadding = 0.dp
+                ) {
+                    tabTitles.forEachIndexed { index, title ->
+                        Tab(
+                            selected = pagerState.currentPage == index,
+                            onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
+                            modifier = Modifier.widthIn(min = minTabWidth),
+                            text = {
+                                Text(
+                                    title,
+                                    fontSize = 16.sp,
+                                    fontWeight = if (pagerState.currentPage == index) FontWeight.Bold else FontWeight.Normal,
+                                    maxLines = 1
+                                )
+                            }
                         )
                     }
-                )
-                Tab(
-                    selected = pagerState.currentPage == 1,
-                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } },
-                    text = {
-                        Text(
-                            stringResource(R.string.tab_list),
-                            fontSize = 16.sp,
-                            fontWeight = if (pagerState.currentPage == 1) FontWeight.Bold else FontWeight.Normal,
-                            maxLines = 1
-                        )
-                    }
-                )
-                Tab(
-                    selected = pagerState.currentPage == 2,
-                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
-                    text = {
-                        Text(
-                            stringResource(R.string.tab_graph),
-                            fontSize = 16.sp,
-                            fontWeight = if (pagerState.currentPage == 2) FontWeight.Bold else FontWeight.Normal,
-                            maxLines = 1
-                        )
-                    }
-                )
-                Tab(
-                    selected = pagerState.currentPage == 3,
-                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(3) } },
-                    text = {
-                        Text(
-                            stringResource(R.string.tab_challenge),
-                            fontSize = 16.sp,
-                            fontWeight = if (pagerState.currentPage == 3) FontWeight.Bold else FontWeight.Normal,
-                            maxLines = 1
-                        )
-                    }
-                )
+                }
             }
 
             // フィルターチップ（全タブで表示、一行に並べる）

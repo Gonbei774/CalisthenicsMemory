@@ -33,6 +33,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.mapSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -55,26 +57,42 @@ import io.github.gonbei774.calisthenicsmemory.ui.screens.ProgramExecutionScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.IntervalListScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.IntervalEditScreen
 import io.github.gonbei774.calisthenicsmemory.ui.screens.IntervalExecutionScreen
+import io.github.gonbei774.calisthenicsmemory.ui.screens.CommunityShareExportScreen
+import io.github.gonbei774.calisthenicsmemory.ui.screens.BackupScreen
+import io.github.gonbei774.calisthenicsmemory.ui.screens.CsvDataManagementScreen
+import io.github.gonbei774.calisthenicsmemory.ui.screens.ShareHubScreen
 import io.github.gonbei774.calisthenicsmemory.ui.theme.CalisthenicsMemoryTheme
 import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 
 class MainActivity : ComponentActivity() {
+    private val systemDarkMode = mutableStateOf(false)
+
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(updateBaseContextLocale(newBase))
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        systemDarkMode.value =
+            (newConfig.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        systemDarkMode.value =
+            (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+
         val themePrefs = ThemePreferences(this)
 
         setContent {
+            val isSystemDark by systemDarkMode
             val savedTheme = remember { themePrefs.getTheme() }
             var currentTheme by remember { mutableStateOf(savedTheme) }
 
             val darkTheme = when (currentTheme) {
-                AppTheme.SYSTEM -> isSystemInDarkTheme()
+                AppTheme.SYSTEM -> isSystemDark
                 AppTheme.LIGHT -> false
                 AppTheme.DARK -> true
             }
@@ -167,6 +185,15 @@ fun UiMessage.toMessageString(): String {
         is UiMessage.BackupFailed -> stringResource(R.string.backup_failed)
         is UiMessage.CopiedToClipboard -> stringResource(R.string.copied_to_clipboard)
         is UiMessage.ProgramDuplicated -> stringResource(R.string.program_duplicated)
+        is UiMessage.CommunityShareExportComplete ->
+            "Export complete: $exerciseCount exercises, $programCount programs, $intervalProgramCount interval programs"
+        is UiMessage.CommunityShareImportComplete -> {
+            val r = report
+            "Import complete: ${r.exercisesAdded} added, ${r.exercisesSkipped} skipped, ${r.programsAdded} programs, ${r.intervalProgramsAdded} intervals"
+        }
+        is UiMessage.CommunityShareImportError -> "Import error: $errorMessage"
+        is UiMessage.FileTooLarge -> "File too large: ${sizeMb}MB (limit: ${limitMb}MB)"
+        is UiMessage.WrongFileType -> "Wrong file type: $detected (expected: $expected)"
         is UiMessage.ErrorOccurred -> stringResource(R.string.error_occurred)
     }
 }
@@ -177,7 +204,7 @@ fun CalisthenicsMemoryApp(
     onThemeChange: (AppTheme) -> Unit = {}
 ) {
     val viewModel: TrainingViewModel = viewModel()
-    var currentScreen by remember { mutableStateOf<Screen>(Screen.Home) }
+    var currentScreen by rememberSaveable(stateSaver = ScreenSaver) { mutableStateOf<Screen>(Screen.Home) }
     val snackbarHostState = remember { SnackbarHostState() }
     val appColors = LocalAppColors.current
 
@@ -242,10 +269,16 @@ fun CalisthenicsMemoryApp(
                     )
                 }
                 is Screen.Create -> {
-                    BackHandler { currentScreen = Screen.Home }
+                    BackHandler {
+                        viewModel.saveGroupOrder()
+                        currentScreen = Screen.Home
+                    }
                     CreateScreen(
                         viewModel = viewModel,
-                        onNavigateBack = { currentScreen = Screen.Home }
+                        onNavigateBack = {
+                            viewModel.saveGroupOrder()
+                            currentScreen = Screen.Home
+                        }
                     )
                 }
                 is Screen.Settings -> {
@@ -254,6 +287,9 @@ fun CalisthenicsMemoryApp(
                         viewModel = viewModel,
                         onNavigateBack = { currentScreen = Screen.Home },
                         onNavigateToLicenses = { currentScreen = Screen.Licenses },
+                        onNavigateToBackup = { currentScreen = Screen.Backup },
+                        onNavigateToCsvDataManagement = { currentScreen = Screen.CsvDataManagement },
+                        onNavigateToShareHub = { currentScreen = Screen.ShareHub },
                         currentTheme = currentTheme,
                         onThemeChange = onThemeChange
                     )
@@ -373,6 +409,35 @@ fun CalisthenicsMemoryApp(
                         }
                     )
                 }
+                is Screen.CommunityShareExport -> {
+                    BackHandler { currentScreen = Screen.ShareHub }
+                    CommunityShareExportScreen(
+                        viewModel = viewModel,
+                        onNavigateBack = { currentScreen = Screen.ShareHub }
+                    )
+                }
+                is Screen.Backup -> {
+                    BackHandler { currentScreen = Screen.Settings }
+                    BackupScreen(
+                        viewModel = viewModel,
+                        onNavigateBack = { currentScreen = Screen.Settings }
+                    )
+                }
+                is Screen.CsvDataManagement -> {
+                    BackHandler { currentScreen = Screen.Settings }
+                    CsvDataManagementScreen(
+                        viewModel = viewModel,
+                        onNavigateBack = { currentScreen = Screen.Settings }
+                    )
+                }
+                is Screen.ShareHub -> {
+                    BackHandler { currentScreen = Screen.Settings }
+                    ShareHubScreen(
+                        viewModel = viewModel,
+                        onNavigateBack = { currentScreen = Screen.Settings },
+                        onNavigateToCommunityShareExport = { currentScreen = Screen.CommunityShareExport }
+                    )
+                }
             }
         }
     }
@@ -393,4 +458,97 @@ sealed class Screen {
     object IntervalList : Screen()
     data class IntervalEdit(val programId: Long?) : Screen()
     data class IntervalExecution(val programId: Long, val fromToDo: Boolean = false) : Screen()
+    object CommunityShareExport : Screen()
+    object Backup : Screen()
+    object CsvDataManagement : Screen()
+    object ShareHub : Screen()
 }
+
+private val ScreenSaver = mapSaver(
+    save = { screen: Screen ->
+        buildMap {
+            when (screen) {
+                Screen.Home -> put("type", "Home")
+                Screen.ToDo -> put("type", "ToDo")
+                Screen.Create -> put("type", "Create")
+                Screen.Settings -> put("type", "Settings")
+                Screen.Licenses -> put("type", "Licenses")
+                Screen.View -> put("type", "View")
+                Screen.ProgramList -> put("type", "ProgramList")
+                Screen.IntervalList -> put("type", "IntervalList")
+                is Screen.Record -> {
+                    put("type", "Record")
+                    put("exerciseId", screen.exerciseId ?: -1L)
+                    put("fromToDo", screen.fromToDo)
+                }
+                is Screen.Workout -> {
+                    put("type", "Workout")
+                    put("exerciseId", screen.exerciseId ?: -1L)
+                    put("fromToDo", screen.fromToDo)
+                }
+                is Screen.ProgramEdit -> {
+                    put("type", "ProgramEdit")
+                    put("programId", screen.programId ?: -1L)
+                }
+                is Screen.ProgramExecution -> {
+                    put("type", "ProgramExecution")
+                    put("programId", screen.programId)
+                    put("resumeSavedState", screen.resumeSavedState)
+                    put("fromToDo", screen.fromToDo)
+                }
+                is Screen.IntervalEdit -> {
+                    put("type", "IntervalEdit")
+                    put("programId", screen.programId ?: -1L)
+                }
+                is Screen.IntervalExecution -> {
+                    put("type", "IntervalExecution")
+                    put("programId", screen.programId)
+                    put("fromToDo", screen.fromToDo)
+                }
+                Screen.CommunityShareExport -> put("type", "CommunityShareExport")
+                Screen.Backup -> put("type", "Backup")
+                Screen.CsvDataManagement -> put("type", "CsvDataManagement")
+                Screen.ShareHub -> put("type", "ShareHub")
+            }
+        }
+    },
+    restore = { map ->
+        when (map["type"] as String) {
+            "ToDo" -> Screen.ToDo
+            "Create" -> Screen.Create
+            "Settings" -> Screen.Settings
+            "Licenses" -> Screen.Licenses
+            "View" -> Screen.View
+            "ProgramList" -> Screen.ProgramList
+            "IntervalList" -> Screen.IntervalList
+            "Record" -> Screen.Record(
+                exerciseId = (map["exerciseId"] as Long).takeIf { it != -1L },
+                fromToDo = map["fromToDo"] as Boolean
+            )
+            "Workout" -> Screen.Workout(
+                exerciseId = (map["exerciseId"] as Long).takeIf { it != -1L },
+                fromToDo = map["fromToDo"] as Boolean
+            )
+            "ProgramEdit" -> Screen.ProgramEdit(
+                programId = (map["programId"] as Long).takeIf { it != -1L }
+            )
+            "ProgramExecution" -> Screen.ProgramExecution(
+                programId = map["programId"] as Long,
+                resumeSavedState = map["resumeSavedState"] as Boolean,
+                fromToDo = map["fromToDo"] as Boolean
+            )
+            "IntervalEdit" -> Screen.IntervalEdit(
+                programId = (map["programId"] as Long).takeIf { it != -1L }
+            )
+            "IntervalExecution" -> Screen.IntervalExecution(
+                programId = map["programId"] as Long,
+                fromToDo = map["fromToDo"] as Boolean
+            )
+            "CommunityShareExport" -> Screen.CommunityShareExport
+            "Backup" -> Screen.Backup
+            "CsvDataManagement" -> Screen.CsvDataManagement
+            "ShareHub" -> Screen.ShareHub
+            else -> Screen.Home
+        }
+    }
+)

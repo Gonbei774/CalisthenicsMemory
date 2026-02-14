@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.19.0] - 2026-02-15
+
+### Added
+- **Community Share** - Export and import exercises, programs, and intervals as JSON files
+  - Share your workout configurations with other users
+  - Preview imported data before applying
+  - Automatic backup prompt before importing
+- **GROUP type in ToDo** - Manage tasks by exercise group
+  - Add entire groups to your ToDo list
+  - Group-level checkbox to select all exercises at once
+- **Group reordering** with drag-and-drop in exercise management screen
+- **Confirmation dialog for ToDo swipe-to-delete** to prevent accidental deletion
+- **Per-exercise round completion** displayed in interval record view
+- **Start button on interval workout confirm screen** for quicker access
+- **Description text for Dynamic/Isometric exercise type selection**
+- **50MB file size limit on import** to prevent out-of-memory crashes
+
+### Improved
+- **Settings screen reorganized** into separate sections (Backup, CSV Data Management, Share Hub)
+- **SAF file picker** for pre-import backup instead of auto-saving to Downloads
+- **Adaptive ScrollableTabRow** for better multi-language tab layout support
+
+### Fixed
+- Theme switch causing app to lose current screen state and return to home
+- Navigation state not preserved across Activity recreation
+- Interval screen briefly showing and beeping when interval is 0 seconds
+- ToDo add dialog tab layout and content alignment
+
+This release includes contributions from @SomeTr and @nautilusx.
+
 ## [1.18.0] - 2026-02-12
 
 ### Added
@@ -401,6 +431,7 @@ This release includes contributions from @unsealed211, @SomeTr, and @balaraz.
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.19.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.19.0
 [1.18.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.18.0
 [1.17.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.17.1
 [1.17.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.17.0

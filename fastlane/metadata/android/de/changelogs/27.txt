@@ -1,0 +1,18 @@
+Hinzugefügt:
+- Community Share: Übungen, Programme, Intervalle exportieren/importieren
+- GRUPPEN-Typ in ToDo
+- Gruppen-Neuordnung (Drag-and-Drop)
+- Gruppenweite Auswahl in ToDo
+- Bestätigung beim Wisch-Löschen in ToDo
+- Rundeninfo pro Übung in Intervallrekorden
+- 50MB Import-Limit
+
+Verbessert:
+- Einstellungen in Abschnitte reorganisiert
+- SAF-Dateiauswahl für Backup vor Import
+
+Behoben:
+- Themenwechsel verliert Bildschirmzustand
+- Blitz/Piep bei 0s Intervall
+
+Contributors: SomeTr, nautilusx

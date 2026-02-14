@@ -364,7 +364,7 @@
     <string name="section_full_backup">Sauvegarde Complète (JSON)</string>
     <string name="section_full_backup_description">Sauvegarder et restaurer toutes les données (exercices, enregistrements, groupes).\nUtilisez cette option lors du changement d\'appareil.</string>
     <string name="section_partial_data_management">Gestion Partielle des Données (CSV)</string>
-    <string name="section_partial_data_management_description">Exporter et importer des groupes, exercices ou enregistrements individuellement.\nContrairement à la sauvegarde JSON, vous pouvez gérer uniquement les données dont vous avez besoin.</string>
+    <string name="section_partial_data_management_description">Pour l\'échange de données avec d\'autres applications et tableurs.\nExportez et importez des groupes, exercices et enregistrements individuellement via CSV.</string>
     <!-- Legacy key for compatibility -->
     <string name="section_add_records">Ajouter des Enregistrements (CSV)</string>
     <string name="section_add_records_description">Ajouter des enregistrements aux données existantes.\nUtilisez cette option pour importer des enregistrements papier ou des données d\'autres applications.</string>
@@ -399,7 +399,7 @@
     <string name="settings_prefill_previous_description">Remplir automatiquement les valeurs de la dernière séance dans les écrans Enregistrement et Entraînement</string>
     <!-- Workout Settings -->
     <string name="section_workout_settings">Paramètres d\'Entraînement</string>
-    <string name="section_workout_settings_description">Configurer les valeurs par défaut du minuteur d\'entraînement.</string>
+    <string name="section_workout_settings_description">Personnaliser le comportement de l\'écran d\'entraînement.</string>
     <string name="workout_settings">Paramètres d\'Entraînement</string>
     <string name="start_countdown_setting">Compte à Rebours de Départ</string>
     <string name="set_interval_setting">Intervalle entre Séries</string>
@@ -484,8 +484,12 @@
     <string name="todo_tab_exercises">Exercices</string>
     <string name="todo_tab_programs">Programmes</string>
     <string name="todo_tab_intervals">Intervalles</string>
+    <string name="todo_tab_groups">Groupes</string>
+    <string name="todo_no_groups">Aucun groupe</string>
+    <string name="todo_delete_confirm_message">Retirer \"%s\" de ToDo ?</string>
     <string name="todo_no_programs">Aucun programme</string>
     <string name="todo_no_intervals">Aucun intervalle</string>
+    <string name="todo_group_exercise_count">%d exercices</string>
     <string name="todo_add_items">Ajouter des éléments</string>
     <string name="todo_repeat_title">Répéter</string>
     <string name="todo_repeat_clear">Effacer</string>
@@ -702,4 +706,43 @@
     <string name="interval_record_complete">Terminé</string>
     <string name="interval_record_partial">Arrêté en avance</string>
     <string name="interval_record_exercises_count">%1$d exercices</string>
+
+    <!-- Share export/import -->
+    <string name="share_section_title">Partage</string>
+    <string name="share_section_description">Partagez vos programmes et exercices avec d\'autres</string>
+    <string name="share_export_title">Exporter pour partager</string>
+    <string name="share_export_description">Sélectionnez des programmes et exercices à partager</string>
+    <string name="share_import_title">Importer un fichier JSON partagé</string>
+    <string name="share_import_description">Importez des programmes et exercices depuis un fichier JSON partagé</string>
+    <string name="share_export_screen_title">Export de partage</string>
+    <string name="share_export_preview_title">Aperçu de l\'export</string>
+    <string name="share_export_button">Exporter</string>
+    <string name="share_export_button_with_count">Exporter (%1$d)</string>
+    <string name="share_exporting">Exportation…</string>
+    <string name="share_tab_programs">Programmes</string>
+    <string name="share_tab_intervals">Intervalles</string>
+    <string name="share_tab_exercises">Exercices</string>
+    <string name="share_preview_programs">Programmes (%1$d)</string>
+    <string name="share_preview_intervals">Intervalles (%1$d)</string>
+    <string name="share_preview_total_exercises">Total des exercices : %1$d</string>
+    <string name="share_preview_auto_included"> (%1$d inclus automatiquement)</string>
+    <string name="share_preview_groups">Groupes : %1$d</string>
+    <string name="share_no_programs">Aucun programme</string>
+    <string name="share_no_intervals">Aucun programme d\'intervalles</string>
+    <string name="share_no_exercises">Aucun exercice</string>
+    <string name="share_exercise_auto_included">Inclus automatiquement depuis un programme/intervalle</string>
+    <string name="share_ungrouped">Sans groupe</string>
+    <string name="share_program_exercises_format">%1$d exercices</string>
+    <string name="share_program_loops_format">, %1$d boucles</string>
+    <string name="share_import_dialog_title">Importer un fichier JSON partagé</string>
+    <string name="share_import_preview_new">Nouveau (sera ajouté)</string>
+    <string name="share_import_preview_exists">Existe déjà (sera ignoré)</string>
+    <string name="share_import_preview_nothing">Tous les éléments existent déjà. Rien ne sera ajouté.</string>
+    <string name="share_import_complete">Importation terminée</string>
+    <string name="share_import_added_reused">%1$d ajoutés, %2$d réutilisés</string>
+    <string name="share_import_added_skipped">%1$d ajoutés, %2$d ignorés</string>
+    <string name="share_import_errors">Erreurs (%1$d)</string>
+    <string name="share_import_count_reused">%1$d réutilisés</string>
+    <string name="share_import_count_skipped">%1$d ignorés</string>
+
 </resources>

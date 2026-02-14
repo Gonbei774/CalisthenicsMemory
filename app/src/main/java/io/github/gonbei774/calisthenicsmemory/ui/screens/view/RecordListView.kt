@@ -693,12 +693,35 @@ fun IntervalRecordCard(
                         modifier = Modifier.padding(start = 12.dp, top = 4.dp),
                         verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        exercises.forEach { name ->
-                            Text(
-                                text = "\u2022 $name",
-                                fontSize = 13.sp,
-                                color = appColors.textSecondary
-                            )
+                        exercises.forEachIndexed { index, name ->
+                            val doneRounds = if (isFullCompletion) {
+                                record.rounds
+                            } else if (index < record.completedExercisesInLastRound) {
+                                record.completedRounds + 1
+                            } else {
+                                record.completedRounds
+                            }
+                            val isExerciseComplete = doneRounds == record.rounds
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = name,
+                                    fontSize = 13.sp,
+                                    color = if (isExerciseComplete) appColors.textPrimary
+                                    else appColors.textTertiary,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Text(
+                                    text = "$doneRounds/${record.rounds}",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isExerciseComplete) Orange600
+                                    else appColors.textTertiary
+                                )
+                            }
                         }
                     }
                 }
