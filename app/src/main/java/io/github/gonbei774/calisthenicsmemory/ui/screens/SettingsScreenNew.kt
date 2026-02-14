@@ -804,13 +804,13 @@ fun SettingsScreenNew(
                         )
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Import shared file",
+                                text = "Import shared JSON file",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = appColors.textPrimary
                             )
                             Text(
-                                text = "Import programs and exercises from a share file",
+                                text = "Import programs and exercises from a shared JSON file",
                                 fontSize = 14.sp,
                                 color = appColors.textSecondary,
                                 modifier = Modifier.padding(top = 4.dp)
@@ -2715,7 +2715,7 @@ fun SettingsScreenNew(
             },
             title = {
                 Text(
-                    text = "Import Shared File",
+                    text = "Import Shared JSON File",
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )
