@@ -687,4 +687,6 @@
     <string name="share_import_errors">Помилки (%1$d)</string>
     <string name="share_import_count_reused">%1$d повторно використано</string>
     <string name="share_import_count_skipped">%1$d пропущено</string>
+    <string name="exercise_type_dynamic_description">напр., віджимання, підтягування. Записується за кількістю повторень.</string>
+    <string name="exercise_type_isometric_description">напр., планка, «вугол». Записується за часом утримання.</string>
 </resources>
