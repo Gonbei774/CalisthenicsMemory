@@ -74,6 +74,11 @@ Details siehe [IzzyOnDroid Permissions](https://android.izzysoft.de/applists/per
 
 Richtlinien siehe [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
+## Wiki
+
+- [Getting Started](https://codeberg.org/Gonbei774/CalisthenicsMemory/wiki/Getting-Started)
+- [はじめに（日本語）](https://codeberg.org/Gonbei774/CalisthenicsMemory/wiki/Getting-Started_ja)
+
 ## Lizenz
 
 Dieses Projekt ist unter der GNU General Public License v3.0 lizenziert. Siehe [LICENSE](../../LICENSE) für Details.

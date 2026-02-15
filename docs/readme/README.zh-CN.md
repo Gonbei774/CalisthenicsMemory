@@ -74,6 +74,11 @@
 
 请参阅 [CONTRIBUTING.md](../../CONTRIBUTING.md) 了解指南。
 
+## Wiki
+
+- [Getting Started](https://codeberg.org/Gonbei774/CalisthenicsMemory/wiki/Getting-Started)
+- [はじめに（日本語）](https://codeberg.org/Gonbei774/CalisthenicsMemory/wiki/Getting-Started_ja)
+
 ## 许可证
 
 本项目采用 GNU 通用公共许可证 v3.0。详见 [LICENSE](../../LICENSE)。

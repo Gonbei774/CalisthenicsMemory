@@ -74,6 +74,11 @@
 
 ガイドラインは [CONTRIBUTING.md](../../CONTRIBUTING.md) を参照。
 
+## Wiki
+
+- [Getting Started](https://codeberg.org/Gonbei774/CalisthenicsMemory/wiki/Getting-Started)
+- [はじめに（日本語）](https://codeberg.org/Gonbei774/CalisthenicsMemory/wiki/Getting-Started_ja)
+
 ## ライセンス
 
 このプロジェクトはGNU General Public License v3.0の下で公開されています。詳細は[LICENSE](../../LICENSE)をご覧ください。
