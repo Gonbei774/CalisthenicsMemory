@@ -655,8 +655,8 @@
     <string name="share_section_description">Діліться програмами та вправами з іншими</string>
     <string name="share_export_title">Експорт для поширення</string>
     <string name="share_export_description">Оберіть програми та вправи для поширення</string>
-    <string name="share_import_title">Імпорт спільного JSON-файлу</string>
-    <string name="share_import_description">Імпортуйте програми та вправи зі спільного JSON-файлу</string>
+    <string name="share_import_title">Імпорт спільного файлу JSON</string>
+    <string name="share_import_description">Імпортуйте програми та вправи зі спільного файлу JSON</string>
     <string name="share_export_screen_title">Експорт для поширення</string>
     <string name="share_export_preview_title">Попередній перегляд експорту</string>
     <string name="share_export_button">Експортувати</string>
@@ -677,7 +677,7 @@
     <string name="share_ungrouped">Без групи</string>
     <string name="share_program_exercises_format">%1$d вправ</string>
     <string name="share_program_loops_format">, %1$d циклів</string>
-    <string name="share_import_dialog_title">Імпорт спільного JSON-файлу</string>
+    <string name="share_import_dialog_title">Імпорт спільного файлу JSON</string>
     <string name="share_import_preview_new">Нове (буде додано)</string>
     <string name="share_import_preview_exists">Вже існує (буде пропущено)</string>
     <string name="share_import_preview_nothing">Усі елементи вже існують. Нічого не буде додано.</string>
