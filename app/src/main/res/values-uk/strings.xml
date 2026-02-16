@@ -520,7 +520,7 @@
     <string name="todo_rec_button">Запис</string>
     <string name="todo_wo_button">Викон.</string>
     <string name="todo_start_button">Старт</string>
-    <string name="todo_choose_mode">Вибрати режим</string>
+    <string name="todo_choose_mode">Виберіть режим</string>
     <string name="todo_mode_record">Запис</string>
     <string name="todo_mode_workout">Тренування</string>
     <string name="todo_tab_exercises">Вправи</string>
@@ -584,7 +584,7 @@
     <string name="interval_mode_description">Для ВІІТ і кругових тренувань</string>
     <string name="interval_list_title">Інтервал</string>
     <string name="interval_empty">Програм для ВІІТ тренувань ще немає.\nДодайте першу за допомогою кнопки +</string>
-    <string name="interval_summary_format">%1$d вправ · %2$ds/%3$ds · %4$d раундів</string>
+    <string name="interval_summary_format">%1$d вправ · %2$d с/%3$d с · %4$d раундів</string>
     <string name="new_interval_program">Нова програма</string>
     <string name="edit_interval_program">Редагувати програму</string>
     <string name="interval_program_name">Назва програми</string>
@@ -646,7 +646,7 @@
     <string name="interval_unsaved_leave">Вийти</string>
     <string name="interval_delete_record_confirm">Видалити запис інтервалу для «%1$s» (%2$s)?</string>
     <string name="interval_record_rounds_format">%1$d/%2$d раундів</string>
-    <string name="interval_record_settings_format">Тренування %1$dс / Відпочинок %2$dс / Відпочинок між раундами %3$dс</string>
+    <string name="interval_record_settings_format">Тренування %1$d с / Відпочинок %2$d с / Відпочинок між раундами %3$d с</string>
     <string name="interval_record_complete">Завершено</string>
     <string name="interval_record_partial">Припинено раніше</string>
     <string name="interval_record_exercises_count">%1$d вправ</string>
