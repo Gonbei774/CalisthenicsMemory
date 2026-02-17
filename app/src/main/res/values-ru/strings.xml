@@ -28,9 +28,9 @@
     <string name="today">Сегодняшняя Тренировка</string>
     <string name="no_records_today">Нет записей сегодня</string>
     <string name="view_details">Просмотр деталей →</string>
-    <string name="view_all_records">Просмотр всез записей →</string>
-    <string name="copied_to_clipboard">Скопировать в буфер обмена</string>
-    <string name="exercise_creation">Создания Упражнения</string>
+    <string name="view_all_records">Просмотр всех записей →</string>
+    <string name="copied_to_clipboard">Скопировано в буфер обмена</string>
+    <string name="exercise_creation">Создание упражнения</string>
     <string name="no_exercises">Упражнений пока нет\nДобавьте упражнение, используя кнопку «+» ниже</string>
     <string name="exercise_name">Название Упражнения</string>
     <string name="set_challenge">Установить Испытание</string>
