@@ -1,21 +1,14 @@
-<p align="center">
-  <img src="icon.png" width="150" alt="Calisthenics Memory Icon">
-</p>
-
-<h1 align="center">Calisthenics Memory</h1>
-
-<p align="center">
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.ja.md">日本語</a>
-</p>
-
-<p align="center">
-  <a href="https://ci.codeberg.org/repos/15682"><img src="https://ci.codeberg.org/api/badges/15682/status.svg" alt="Build Status"></a>
-  <img src="https://img.shields.io/badge/Android-8.0%2B-green.svg" alt="Android 8.0+">
-  <img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0">
-  <img src="https://img.shields.io/badge/dynamic/json?url=https://dlstats.izzyondroid.org/iod-stats-collector/stats/basic/yearly/rolling.json&query=$.['io.github.gonbei774.calisthenicsmemory']&label=Downloads" alt="Downloads">
-  <a href="https://shields.rbtlog.dev/io.github.gonbei774.calisthenicsmemory"><img src="https://shields.rbtlog.dev/simple/io.github.gonbei774.calisthenicsmemory" alt="Reproducible Builds"></a>
-  <a href="https://translate.codeberg.org/engage/calisthenics-memory/"><img src="https://translate.codeberg.org/widget/calisthenics-memory/svg-badge.svg" alt="translated"></a>
-</p>
+<table><tr>
+  <td><img src="icon.png" width="80" alt="Calisthenics Memory Icon"></td>
+  <td>
+    <h1>Calisthenics Memory &nbsp;|&nbsp; <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.ja.md">日本語</a></h1>
+    <p>
+      <img src="https://img.shields.io/badge/Android-8.0%2B-green.svg" alt="Android 8.0+">
+      <img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0">
+      <a href="https://shields.rbtlog.dev/io.github.gonbei774.calisthenicsmemory"><img src="https://shields.rbtlog.dev/simple/io.github.gonbei774.calisthenicsmemory" alt="Reproducible Builds"></a>
+    </p>
+  </td>
+</tr></table>
 
 ## About
 
@@ -106,4 +99,4 @@ This project is licensed under the GNU General Public License v3.0. See [LICENSE
 
 ---
 
-**Last Updated**: February 12, 2026
+**Last Updated**: March 2, 2026
