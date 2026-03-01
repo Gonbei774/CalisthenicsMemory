@@ -5,33 +5,13 @@
 <h1 align="center">Calisthenics Memory</h1>
 
 <p align="center">
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/README.md">English</a> |
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.de.md">Deutsch</a> |
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.es.md">Español</a> |
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.fr.md">Français</a> |
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.it.md">Italiano</a> |
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.zh-CN.md">简体中文</a>
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/README.md">English</a>
 </p>
 
 <p align="center">
-  <a href="https://ci.codeberg.org/repos/15682"><img src="https://ci.codeberg.org/api/badges/15682/status.svg" alt="Build Status"></a>
   <img src="https://img.shields.io/badge/Android-8.0%2B-green.svg" alt="Android 8.0+">
   <img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0">
-  <img src="https://img.shields.io/badge/dynamic/json?url=https://dlstats.izzyondroid.org/iod-stats-collector/stats/basic/yearly/rolling.json&query=$.['io.github.gonbei774.calisthenicsmemory']&label=Downloads" alt="Downloads">
   <a href="https://shields.rbtlog.dev/io.github.gonbei774.calisthenicsmemory"><img src="https://shields.rbtlog.dev/simple/io.github.gonbei774.calisthenicsmemory" alt="Reproducible Builds"></a>
-  <a href="https://translate.codeberg.org/engage/calisthenics-memory/"><img src="https://translate.codeberg.org/widget/calisthenics-memory/svg-badge.svg" alt="translated"></a>
-</p>
-
-<p align="center">
-  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.gonbei774.calisthenicsmemory"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="80" alt="IzzyOnDroidで入手"></a>
-</p>
-
-<p align="center">
-  <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="F-Droidで入手"></a>
-</p>
-
-<p align="center">
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases"><img src="https://get-it-on.codeberg.org/get-it-on-white-on-black.png" height="80" alt="Codebergで入手"></a>
 </p>
 
 ## 概要
@@ -63,6 +43,45 @@
   <img src="../../screenshots/6.png" width="250">
 </p>
 
+## 公式配布先について
+
+このアプリの公式配布先はF-Droid、IzzyOnDroid、Codeberg Releasesのみです。
+上記以外のサイトからダウンロードしたAPKの安全性は保証できません。
+
+<p align="center">
+  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.gonbei774.calisthenicsmemory"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="80" alt="IzzyOnDroidで入手"></a>
+</p>
+
+<p align="center">
+  <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="F-Droidで入手"></a>
+</p>
+
+<p align="center">
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases"><img src="https://get-it-on.codeberg.org/get-it-on-white-on-black.png" height="80" alt="Codebergで入手"></a>
+</p>
+
+### 署名の確認
+
+APKの署名フィンガープリント（SHA-256）:
+
+```
+18c00c347ea1001afcdd87258881d24d684047bbeb22c47fbe7b51499516ab54
+```
+
+確認方法:
+
+```bash
+apksigner verify --print-certs app-release.apk
+```
+
+### チェックサムの確認
+
+SHA256チェックサム: リリースページの `app-release.apk.sha256` を参照
+
+```bash
+sha256sum -c app-release.apk.sha256
+```
+
 ## 権限
 
 - `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`, `WAKE_LOCK` - バックグラウンドでタイマーを実行
@@ -76,8 +95,7 @@
 
 ## Wiki
 
-- [Getting Started](https://codeberg.org/Gonbei774/CalisthenicsMemory/wiki/Getting-Started)
-- [はじめに（日本語）](https://codeberg.org/Gonbei774/CalisthenicsMemory/wiki/Getting-Started_ja)
+- [はじめに](https://codeberg.org/Gonbei774/CalisthenicsMemory/wiki/Getting-Started_ja)
 
 ## ライセンス
 
@@ -85,4 +103,4 @@
 
 ---
 
-**最終更新**: 2026年2月12日
+**最終更新**: 2026年3月2日

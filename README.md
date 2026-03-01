@@ -5,33 +5,13 @@
 <h1 align="center">Calisthenics Memory</h1>
 
 <p align="center">
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.ja.md">日本語</a> |
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.de.md">Deutsch</a> |
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.es.md">Español</a> |
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.fr.md">Français</a> |
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.it.md">Italiano</a> |
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.zh-CN.md">简体中文</a>
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.ja.md">日本語</a>
 </p>
 
 <p align="center">
-  <a href="https://ci.codeberg.org/repos/15682"><img src="https://ci.codeberg.org/api/badges/15682/status.svg" alt="Build Status"></a>
   <img src="https://img.shields.io/badge/Android-8.0%2B-green.svg" alt="Android 8.0+">
   <img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0">
-  <img src="https://img.shields.io/badge/dynamic/json?url=https://dlstats.izzyondroid.org/iod-stats-collector/stats/basic/yearly/rolling.json&query=$.['io.github.gonbei774.calisthenicsmemory']&label=Downloads" alt="Downloads">
   <a href="https://shields.rbtlog.dev/io.github.gonbei774.calisthenicsmemory"><img src="https://shields.rbtlog.dev/simple/io.github.gonbei774.calisthenicsmemory" alt="Reproducible Builds"></a>
-  <a href="https://translate.codeberg.org/engage/calisthenics-memory/"><img src="https://translate.codeberg.org/widget/calisthenics-memory/svg-badge.svg" alt="translated"></a>
-</p>
-
-<p align="center">
-  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.gonbei774.calisthenicsmemory"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="80" alt="Get it on IzzyOnDroid"></a>
-</p>
-
-<p align="center">
-  <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="Get it on F-Droid"></a>
-</p>
-
-<p align="center">
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases"><img src="https://get-it-on.codeberg.org/get-it-on-white-on-black.png" height="80" alt="Get it on Codeberg"></a>
 </p>
 
 ## About
@@ -63,6 +43,45 @@ A privacy-focused bodyweight training tracker. Customize everything to your liki
   <img src="screenshots/6.png" width="250">
 </p>
 
+## Official Distribution
+
+This app is officially distributed only through F-Droid, IzzyOnDroid, and Codeberg Releases.
+We cannot guarantee the safety of APKs downloaded from any other source.
+
+<p align="center">
+  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.gonbei774.calisthenicsmemory"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="80" alt="Get it on IzzyOnDroid"></a>
+</p>
+
+<p align="center">
+  <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="Get it on F-Droid"></a>
+</p>
+
+<p align="center">
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases"><img src="https://get-it-on.codeberg.org/get-it-on-white-on-black.png" height="80" alt="Get it on Codeberg"></a>
+</p>
+
+### Verify Signature
+
+APK signing fingerprint (SHA-256):
+
+```
+18c00c347ea1001afcdd87258881d24d684047bbeb22c47fbe7b51499516ab54
+```
+
+How to verify:
+
+```bash
+apksigner verify --print-certs app-release.apk
+```
+
+### Verify Checksum
+
+SHA256 checksum: See `app-release.apk.sha256` on the release page.
+
+```bash
+sha256sum -c app-release.apk.sha256
+```
+
 ## Permissions
 
 - `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`, `WAKE_LOCK` - Run timer in background
@@ -77,7 +96,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 ## Wiki
 
 - [Getting Started](https://codeberg.org/Gonbei774/CalisthenicsMemory/wiki/Getting-Started)
-- [はじめに（日本語）](https://codeberg.org/Gonbei774/CalisthenicsMemory/wiki/Getting-Started_ja)
 
 ## License
 
@@ -85,4 +103,4 @@ This project is licensed under the GNU General Public License v3.0. See [LICENSE
 
 ---
 
-**Last Updated**: February 12, 2026
+**Last Updated**: March 2, 2026
