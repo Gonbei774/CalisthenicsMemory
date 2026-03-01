@@ -350,7 +350,7 @@
     <string name="csv_import_mode_merge">Combinar (Añadir)</string>
     <string name="csv_import_mode_merge_description">Mantener datos existentes, añadir nuevos elementos</string>
     <string name="csv_import_mode_replace">Reemplazar</string>
-    <string name="csv_import_mode_replace_description">Eliminar todos los datos existentes y reemplazar</string>
+    <string name="csv_import_mode_replace_description">Eliminar todos los datos existentes y reemplazar con los datos importados</string>
     <string name="csv_import_button">Importar</string>
     <!-- CSV Import Result Dialog -->
     <string name="csv_import_completed">Importación Completada</string>
@@ -622,10 +622,8 @@
     <string name="add_exercise_to_loop">Añadir ejercicio</string>
     <string name="move_to_loop">Mover al bucle</string>
     <string name="loop_number_format">Bucle %d</string>
-
     <!-- Exercise Description -->
     <string name="description_optional">Descripción (Opcional)</string>
-
     <!-- Theme Settings -->
     <string name="section_theme">Ajustes de tema</string>
     <string name="section_theme_description">Cambiar la apariencia de la aplicación.</string>
@@ -634,7 +632,6 @@
     <string name="theme_system">Seguir sistema</string>
     <string name="theme_light">Claro</string>
     <string name="theme_dark">Oscuro</string>
-
     <!-- Interval Mode -->
     <string name="interval_mode">Intervalo</string>
     <string name="interval_mode_description">Para HIIT y circuitos</string>
@@ -706,7 +703,6 @@
     <string name="interval_record_complete">Completado</string>
     <string name="interval_record_partial">Detenido antes</string>
     <string name="interval_record_exercises_count">%1$d ejercicios</string>
-
     <!-- Share export/import -->
     <string name="share_section_title">Compartir</string>
     <string name="share_section_description">Comparte tus programas y ejercicios con otros</string>
@@ -744,5 +740,4 @@
     <string name="share_import_errors">Errores (%1$d)</string>
     <string name="share_import_count_reused">%1$d reutilizados</string>
     <string name="share_import_count_skipped">%1$d omitidos</string>
-
 </resources>
