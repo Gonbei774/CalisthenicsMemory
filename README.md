@@ -1,13 +1,18 @@
-<div>
-  <img src="icon.png" width="80" alt="Calisthenics Memory Icon" align="left">
-  <h1>Calisthenics Memory</h1>
-  <p><a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.ja.md">日本語</a></p>
-  <p>
-    <img src="https://img.shields.io/badge/Android-8.0%2B-green.svg" alt="Android 8.0+">
-    <img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0">
-    <a href="https://shields.rbtlog.dev/io.github.gonbei774.calisthenicsmemory"><img src="https://shields.rbtlog.dev/simple/io.github.gonbei774.calisthenicsmemory" alt="Reproducible Builds"></a>
-  </p>
-</div>
+<p align="center">
+  <img src="icon.png" width="150" alt="Calisthenics Memory Icon">
+</p>
+
+<h1 align="center">Calisthenics Memory</h1>
+
+<p align="center">
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/src/branch/master/docs/readme/README.ja.md">日本語</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Android-8.0%2B-green.svg" alt="Android 8.0+">
+  <img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0">
+  <a href="https://shields.rbtlog.dev/io.github.gonbei774.calisthenicsmemory"><img src="https://shields.rbtlog.dev/simple/io.github.gonbei774.calisthenicsmemory" alt="Reproducible Builds"></a>
+</p>
 
 ## About
 
