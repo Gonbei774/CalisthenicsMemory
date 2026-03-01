@@ -22,18 +22,6 @@
   <a href="https://translate.codeberg.org/engage/calisthenics-memory/"><img src="https://translate.codeberg.org/widget/calisthenics-memory/svg-badge.svg" alt="translated"></a>
 </p>
 
-<p align="center">
-  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.gonbei774.calisthenicsmemory"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="80" alt="Get it on IzzyOnDroid"></a>
-</p>
-
-<p align="center">
-  <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="Get it on F-Droid"></a>
-</p>
-
-<p align="center">
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases"><img src="https://get-it-on.codeberg.org/get-it-on-white-on-black.png" height="80" alt="Get it on Codeberg"></a>
-</p>
-
 ## About
 
 A privacy-focused bodyweight training tracker. Customize everything to your liking.
@@ -62,6 +50,45 @@ A privacy-focused bodyweight training tracker. Customize everything to your liki
   <img src="screenshots/5.png" width="250">
   <img src="screenshots/6.png" width="250">
 </p>
+
+## Official Distribution
+
+This app is officially distributed only through F-Droid, IzzyOnDroid, and Codeberg Releases.
+We cannot guarantee the safety of APKs downloaded from any other source.
+
+<p align="center">
+  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.gonbei774.calisthenicsmemory"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="80" alt="Get it on IzzyOnDroid"></a>
+</p>
+
+<p align="center">
+  <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="Get it on F-Droid"></a>
+</p>
+
+<p align="center">
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases"><img src="https://get-it-on.codeberg.org/get-it-on-white-on-black.png" height="80" alt="Get it on Codeberg"></a>
+</p>
+
+### Verify Signature
+
+APK signing fingerprint (SHA-256):
+
+```
+18c00c347ea1001afcdd87258881d24d684047bbeb22c47fbe7b51499516ab54
+```
+
+How to verify:
+
+```bash
+apksigner verify --print-certs app-release.apk
+```
+
+### Verify Checksum
+
+SHA256 checksum: See `app-release.apk.sha256` on the release page.
+
+```bash
+sha256sum -c app-release.apk.sha256
+```
 
 ## Permissions
 

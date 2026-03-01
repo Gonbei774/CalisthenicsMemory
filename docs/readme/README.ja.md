@@ -22,18 +22,6 @@
   <a href="https://translate.codeberg.org/engage/calisthenics-memory/"><img src="https://translate.codeberg.org/widget/calisthenics-memory/svg-badge.svg" alt="translated"></a>
 </p>
 
-<p align="center">
-  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.gonbei774.calisthenicsmemory"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="80" alt="IzzyOnDroidで入手"></a>
-</p>
-
-<p align="center">
-  <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="F-Droidで入手"></a>
-</p>
-
-<p align="center">
-  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases"><img src="https://get-it-on.codeberg.org/get-it-on-white-on-black.png" height="80" alt="Codebergで入手"></a>
-</p>
-
 ## 概要
 
 プライバシー重視の自重トレーニング記録アプリ。すべてを自分好みにカスタマイズ。
@@ -62,6 +50,45 @@
   <img src="../../screenshots/5.png" width="250">
   <img src="../../screenshots/6.png" width="250">
 </p>
+
+## 公式配布先について
+
+このアプリの公式配布先はF-Droid、IzzyOnDroid、Codeberg Releasesのみです。
+上記以外のサイトからダウンロードしたAPKの安全性は保証できません。
+
+<p align="center">
+  <a href="https://apt.izzysoft.de/fdroid/index/apk/io.github.gonbei774.calisthenicsmemory"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="80" alt="IzzyOnDroidで入手"></a>
+</p>
+
+<p align="center">
+  <a href="https://f-droid.org/packages/io.github.gonbei774.calisthenicsmemory/"><img src="https://fdroid.org/badge/get-it-on.png" height="119" alt="F-Droidで入手"></a>
+</p>
+
+<p align="center">
+  <a href="https://codeberg.org/Gonbei774/CalisthenicsMemory/releases"><img src="https://get-it-on.codeberg.org/get-it-on-white-on-black.png" height="80" alt="Codebergで入手"></a>
+</p>
+
+### 署名の確認
+
+APKの署名フィンガープリント（SHA-256）:
+
+```
+18c00c347ea1001afcdd87258881d24d684047bbeb22c47fbe7b51499516ab54
+```
+
+確認方法:
+
+```bash
+apksigner verify --print-certs app-release.apk
+```
+
+### チェックサムの確認
+
+SHA256チェックサム: リリースページの `app-release.apk.sha256` を参照
+
+```bash
+sha256sum -c app-release.apk.sha256
+```
 
 ## 権限
 
