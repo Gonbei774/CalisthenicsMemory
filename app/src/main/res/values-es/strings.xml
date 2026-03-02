@@ -740,4 +740,6 @@
     <string name="share_import_errors">Errores (%1$d)</string>
     <string name="share_import_count_reused">%1$d reutilizados</string>
     <string name="share_import_count_skipped">%1$d omitidos</string>
+    <string name="exercise_type_dynamic_description">Por ejemplo: flexiones, dominadas. Registradas por repeticiones.</string>
+    <string name="exercise_type_isometric_description">Por ejemplo, plancha, sentadilla en L. Registrado por tiempo de mantenimiento.</string>
 </resources>
