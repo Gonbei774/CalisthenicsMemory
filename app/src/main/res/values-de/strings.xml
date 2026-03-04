@@ -702,7 +702,6 @@
     <string name="interval_record_complete">Abgeschlossen</string>
     <string name="interval_record_partial">Vorzeitig beendet</string>
     <string name="interval_record_exercises_count">%1$d Übungen</string>
-
     <!-- Share export/import -->
     <string name="share_section_title">Teilen</string>
     <string name="share_section_description">Programme und Übungen mit anderen teilen</string>
@@ -740,5 +739,6 @@
     <string name="share_import_errors">Fehler (%1$d)</string>
     <string name="share_import_count_reused">%1$d wiederverwendet</string>
     <string name="share_import_count_skipped">%1$d übersprungen</string>
-
+    <string name="exercise_type_dynamic_description">z. B. Liegestütze, Klimmzüge. Aufgezeichnet nach Wiederholungen.</string>
+    <string name="exercise_type_isometric_description">z. B. Plank, L-Sit. Aufzeichnung nach Haltezeit.</string>
 </resources>

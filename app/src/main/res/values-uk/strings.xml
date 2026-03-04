@@ -519,8 +519,8 @@
     <string name="target_reps_label">Мета (разів)</string>
     <string name="todo_rec_button">Запис</string>
     <string name="todo_wo_button">Викон.</string>
-    <string name="todo_start_button">Старт</string>
-    <string name="todo_choose_mode">Вибрати режим</string>
+    <string name="todo_start_button">Почати</string>
+    <string name="todo_choose_mode">Виберіть режим</string>
     <string name="todo_mode_record">Запис</string>
     <string name="todo_mode_workout">Тренування</string>
     <string name="todo_tab_exercises">Вправи</string>
@@ -584,7 +584,7 @@
     <string name="interval_mode_description">Для ВІІТ і кругових тренувань</string>
     <string name="interval_list_title">Інтервал</string>
     <string name="interval_empty">Програм для ВІІТ тренувань ще немає.\nДодайте першу за допомогою кнопки +</string>
-    <string name="interval_summary_format">%1$d вправ · %2$ds/%3$ds · %4$d раундів</string>
+    <string name="interval_summary_format">%1$d вправ · %2$d с/%3$d с · %4$d раундів</string>
     <string name="new_interval_program">Нова програма</string>
     <string name="edit_interval_program">Редагувати програму</string>
     <string name="interval_program_name">Назва програми</string>
@@ -646,7 +646,7 @@
     <string name="interval_unsaved_leave">Вийти</string>
     <string name="interval_delete_record_confirm">Видалити запис інтервалу для «%1$s» (%2$s)?</string>
     <string name="interval_record_rounds_format">%1$d/%2$d раундів</string>
-    <string name="interval_record_settings_format">Тренування %1$dс / Відпочинок %2$dс / Відпочинок між раундами %3$dс</string>
+    <string name="interval_record_settings_format">Тренування %1$d с / Відпочинок %2$d с / Відпочинок між раундами %3$d с</string>
     <string name="interval_record_complete">Завершено</string>
     <string name="interval_record_partial">Припинено раніше</string>
     <string name="interval_record_exercises_count">%1$d вправ</string>
@@ -655,13 +655,13 @@
     <string name="share_section_description">Діліться програмами та вправами з іншими</string>
     <string name="share_export_title">Експорт для поширення</string>
     <string name="share_export_description">Оберіть програми та вправи для поширення</string>
-    <string name="share_import_title">Імпорт спільного JSON-файлу</string>
-    <string name="share_import_description">Імпортуйте програми та вправи зі спільного JSON-файлу</string>
+    <string name="share_import_title">Імпорт спільного файлу JSON</string>
+    <string name="share_import_description">Імпортуйте програми та вправи зі спільного файлу JSON</string>
     <string name="share_export_screen_title">Експорт для поширення</string>
     <string name="share_export_preview_title">Попередній перегляд експорту</string>
     <string name="share_export_button">Експортувати</string>
     <string name="share_export_button_with_count">Експортувати (%1$d)</string>
-    <string name="share_exporting">Експортування…</string>
+    <string name="share_exporting">Експорт…</string>
     <string name="share_tab_programs">Програми</string>
     <string name="share_tab_intervals">Інтервали</string>
     <string name="share_tab_exercises">Вправи</string>
@@ -677,7 +677,7 @@
     <string name="share_ungrouped">Без групи</string>
     <string name="share_program_exercises_format">%1$d вправ</string>
     <string name="share_program_loops_format">, %1$d циклів</string>
-    <string name="share_import_dialog_title">Імпорт спільного JSON-файлу</string>
+    <string name="share_import_dialog_title">Імпорт спільного файлу JSON</string>
     <string name="share_import_preview_new">Нове (буде додано)</string>
     <string name="share_import_preview_exists">Вже існує (буде пропущено)</string>
     <string name="share_import_preview_nothing">Усі елементи вже існують. Нічого не буде додано.</string>
