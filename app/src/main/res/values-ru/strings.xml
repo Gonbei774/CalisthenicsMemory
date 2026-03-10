@@ -63,4 +63,18 @@
     <string name="delete_group_warning">Удалить \"%s\"?\nУпражнения в этой группе будут перенесены в \"Без группы\".</string>
     <string name="delete_exercise_warning">Удалить \"%s\"?\nВсе записи по этому упражнению также будут удалены.</string>
     <string name="delete_confirmation">Подтверждение удаления</string>
+    <string name="exercises_count">%d упражнений</string>
+    <string name="character_count">%1$d/%2$d</string>
+    <string name="training_record">Журнал тренировок</string>
+    <string name="no_exercises_registered">Упражнения не добавлены</string>
+    <string name="add_exercises_in_settings">Добавьте упражнения в настройках</string>
+    <string name="go_to_settings">Перейти в настройки</string>
+    <string name="select_exercise">Выберать упражнение</string>
+    <string name="select_exercise_please">Выберите упражнение</string>
+    <string name="select_from_top">Используйте «Выберите упражнение» выше</string>
+    <string name="no_records_for_exercise">Нет записей для этого упражнения</string>
+    <string name="target_display">Цель: %1$d подходов × %2$d %3$s</string>
+    <string name="target_display_unilateral">Цель: %1$d подходов × %2$d %3$s (на сторону)</string>
+    <string name="right">Правый</string>
+    <string name="left">Левый</string>
 </resources>
