@@ -1192,6 +1192,7 @@ fun ChallengeExerciseCard(
                 Text(
                     text = exercise.name,
                     fontSize = 18.sp,
+                    modifier = Modifier.weight(1f), //takes up available space in the middle without taking space of checkmark icon
                     fontWeight = FontWeight.Bold,
                     color = appColors.textPrimary
                 )
