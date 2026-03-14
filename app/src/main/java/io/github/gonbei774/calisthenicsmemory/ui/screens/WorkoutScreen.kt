@@ -11,6 +11,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.rememberScrollState
@@ -32,8 +33,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -1796,11 +1799,52 @@ fun IntervalStep(
                     }
                 }
 
-                CircularProgressTimer(
-                    progress = progress,
-                    remainingTime = remainingTime,
-                    color = Cyan600
-                )
+                // タイマー - タップで一時停止/再開
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(240.dp)
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) { isRunning = !isRunning }
+                ) {
+                    Canvas(modifier = Modifier.size(240.dp)) {
+                        drawArc(
+                            color = appColors.timerTrack,
+                            startAngle = -90f,
+                            sweepAngle = 360f,
+                            useCenter = false,
+                            style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
+                        )
+                        drawArc(
+                            color = Cyan600.copy(alpha = if (!isRunning) 0.3f else 1f),
+                            startAngle = -90f,
+                            sweepAngle = 360f * progress,
+                            useCenter = false,
+                            style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
+                        )
+                    }
+                    Text(
+                        text = "$remainingTime",
+                        fontSize = 72.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = appColors.textPrimary,
+                        modifier = Modifier.alpha(if (!isRunning) 0.2f else 1f)
+                    )
+                    if (!isRunning) {
+                        val iconColor = appColors.textPrimary
+                        Canvas(modifier = Modifier.size(56.dp)) {
+                            val path = Path().apply {
+                                moveTo(size.width * 0.25f, size.height * 0.15f)
+                                lineTo(size.width * 0.85f, size.height * 0.5f)
+                                lineTo(size.width * 0.25f, size.height * 0.85f)
+                                close()
+                            }
+                            drawPath(path, color = iconColor.copy(alpha = 0.9f))
+                        }
+                    }
+                }
 
                 IconButton(
                     onClick = {
@@ -1828,26 +1872,6 @@ fun IntervalStep(
         }
 
         Spacer(modifier = Modifier.height(32.dp))
-
-        // ボタンエリア
-        Button(
-            onClick = { isRunning = !isRunning },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isRunning) Red600 else Green600
-            ),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text(
-                stringResource(if (isRunning) R.string.pause_button else R.string.resume_button),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         TextButton(onClick = onSkip) {
             Text(
