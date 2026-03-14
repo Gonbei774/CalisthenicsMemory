@@ -132,14 +132,6 @@ fun SingleExecutingStepDynamicManual(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // 状態ラベル
-        Text(
-            text = stringResource(if (effectivelyPaused) R.string.paused_label else R.string.executing_label),
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = statusColor
-        )
-
         Spacer(modifier = Modifier.height(24.dp))
 
         // 円形タイマー（タップで一時停止/再開）
@@ -379,13 +371,6 @@ fun SingleExecutingStepDynamicAuto(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Text(
-            text = stringResource(if (effectivelyPaused) R.string.paused_label else R.string.executing_label),
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = statusColor
-        )
-
         Spacer(modifier = Modifier.height(24.dp))
 
         // 円形タイマー（タップで一時停止/再開）
@@ -578,13 +563,6 @@ fun SingleExecutingStepDynamicSimple(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Text(
-            text = stringResource(R.string.executing_label),
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = Orange600
-        )
-
         Spacer(modifier = Modifier.height(32.dp))
 
         // 大きなレップ数表示
@@ -764,13 +742,6 @@ fun SingleExecutingStepIsometricManual(
         NextSetInfo(session = session, currentSetIndex = currentSetIndex)
 
         Spacer(modifier = Modifier.weight(1f))
-
-        Text(
-            text = stringResource(if (effectivelyPaused) R.string.paused_label else R.string.executing_label),
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = statusColor
-        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -995,13 +966,6 @@ fun SingleExecutingStepIsometricAuto(
         NextSetInfo(session = session, currentSetIndex = currentSetIndex)
 
         Spacer(modifier = Modifier.weight(1f))
-
-        Text(
-            text = stringResource(if (effectivelyPaused) R.string.paused_label else R.string.executing_label),
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = statusColor
-        )
 
         Spacer(modifier = Modifier.height(24.dp))
 

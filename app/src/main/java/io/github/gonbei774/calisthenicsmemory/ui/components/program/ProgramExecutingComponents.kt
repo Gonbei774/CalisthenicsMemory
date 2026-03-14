@@ -161,14 +161,6 @@ internal fun ProgramExecutingStepDynamicManual(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // 状態ラベル（実行中 / 一時停止中）
-        Text(
-            text = stringResource(if (isPaused) R.string.paused_label else R.string.executing_label),
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = statusColor
-        )
-
         Spacer(modifier = Modifier.height(24.dp))
 
         // 円形タイマー（レップ内の進捗表示）- タップで一時停止/再開
@@ -439,14 +431,6 @@ internal fun ProgramExecutingStepIsometricManual(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // 状態ラベル（実行中 / 一時停止中）
-        Text(
-            text = stringResource(if (isPaused) R.string.paused_label else R.string.executing_label),
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = statusColor
-        )
-
         Spacer(modifier = Modifier.height(24.dp))
 
         // タイマーセクション（円形タイマー + 調整ボタン）
@@ -705,14 +689,6 @@ internal fun ProgramExecutingStepIsometricAuto(
         NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
 
         Spacer(modifier = Modifier.weight(1f))
-
-        // 状態ラベル（実行中 / 一時停止中）
-        Text(
-            text = stringResource(if (isPaused) R.string.paused_label else R.string.executing_label),
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = statusColor
-        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -976,14 +952,6 @@ internal fun ProgramExecutingStepDynamicAuto(
         NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
 
         Spacer(modifier = Modifier.weight(1f))
-
-        // 状態ラベル（実行中 / 一時停止中）
-        Text(
-            text = stringResource(if (isPaused) R.string.paused_label else R.string.executing_label),
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = statusColor
-        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
