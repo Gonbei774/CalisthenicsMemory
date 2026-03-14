@@ -1405,9 +1405,6 @@ fun StartIntervalStep(
             )
         }
 
-        // 次のセット情報
-        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
-
         Spacer(modifier = Modifier.height(32.dp))
 
         // スキップボタン

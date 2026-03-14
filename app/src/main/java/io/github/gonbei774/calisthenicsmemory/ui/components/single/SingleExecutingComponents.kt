@@ -127,6 +127,8 @@ fun SingleExecutingStepDynamicManual(
             modifier = Modifier.padding(top = 4.dp)
         )
 
+        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
+
         Spacer(modifier = Modifier.weight(1f))
 
         // 状態ラベル
@@ -231,11 +233,6 @@ fun SingleExecutingStepDynamicManual(
         )
 
         Spacer(modifier = Modifier.weight(1f))
-
-        // 次のセット情報
-        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         // 完了ボタン
         Button(
@@ -373,6 +370,8 @@ fun SingleExecutingStepDynamicAuto(
             modifier = Modifier.padding(top = 4.dp)
         )
 
+        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
+
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
@@ -475,11 +474,6 @@ fun SingleExecutingStepDynamicAuto(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // 次のセット情報
-        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         // 完了ボタン（早期完了用）
         Button(
             onClick = {
@@ -571,6 +565,8 @@ fun SingleExecutingStepDynamicSimple(
             modifier = Modifier.padding(top = 4.dp)
         )
 
+        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
+
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
@@ -638,11 +634,6 @@ fun SingleExecutingStepDynamicSimple(
         )
 
         Spacer(modifier = Modifier.weight(1f))
-
-        // 次のセット情報
-        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
@@ -764,6 +755,8 @@ fun SingleExecutingStepIsometricManual(
             modifier = Modifier.padding(top = 4.dp)
         )
 
+        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
+
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
@@ -858,11 +851,6 @@ fun SingleExecutingStepIsometricManual(
         )
 
         Spacer(modifier = Modifier.weight(1f))
-
-        // 次のセット情報
-        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
@@ -995,6 +983,8 @@ fun SingleExecutingStepIsometricAuto(
             modifier = Modifier.padding(top = 4.dp)
         )
 
+        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
+
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
@@ -1089,11 +1079,6 @@ fun SingleExecutingStepIsometricAuto(
         )
 
         Spacer(modifier = Modifier.weight(1f))
-
-        // 次のセット情報
-        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         // 完了ボタン（早期完了用）
         Button(

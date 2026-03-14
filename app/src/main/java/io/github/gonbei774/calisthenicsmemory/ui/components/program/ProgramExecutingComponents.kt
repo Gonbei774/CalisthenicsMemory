@@ -1251,21 +1251,12 @@ internal fun ProgramExecutingStepDynamicSimple(
             }
 
             // カウンター値
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "$repsCount",
-                    fontSize = 96.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Green400
-                )
-                Text(
-                    text = stringResource(R.string.reps_unit),
-                    fontSize = 24.sp,
-                    color = appColors.textSecondary
-                )
-            }
+            Text(
+                text = "$repsCount",
+                fontSize = 96.sp,
+                fontWeight = FontWeight.Bold,
+                color = Green400
+            )
 
             // プラスボタン
             IconButton(
