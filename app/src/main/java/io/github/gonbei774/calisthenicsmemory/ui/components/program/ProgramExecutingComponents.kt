@@ -167,13 +167,13 @@ internal fun ProgramExecutingStepDynamicManual(
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(220.dp)
+                .size(240.dp)
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() }
                 ) { isPaused = !isPaused }
         ) {
-            Canvas(modifier = Modifier.size(220.dp)) {
+            Canvas(modifier = Modifier.size(240.dp)) {
                 drawArc(
                     color = Slate600,
                     startAngle = -90f,
@@ -467,13 +467,13 @@ internal fun ProgramExecutingStepIsometricManual(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(220.dp)
+                    .size(240.dp)
                     .clickable(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() }
                     ) { isPaused = !isPaused }
             ) {
-                Canvas(modifier = Modifier.size(220.dp)) {
+                Canvas(modifier = Modifier.size(240.dp)) {
                     drawArc(
                         color = Slate600,
                         startAngle = -90f,
@@ -727,13 +727,13 @@ internal fun ProgramExecutingStepIsometricAuto(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(220.dp)
+                    .size(240.dp)
                     .clickable(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() }
                     ) { isPaused = !isPaused }
             ) {
-                Canvas(modifier = Modifier.size(220.dp)) {
+                Canvas(modifier = Modifier.size(240.dp)) {
                     drawArc(
                         color = Slate600,
                         startAngle = -90f,
@@ -959,13 +959,13 @@ internal fun ProgramExecutingStepDynamicAuto(
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(220.dp)
+                .size(240.dp)
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() }
                 ) { isPaused = !isPaused }
         ) {
-            Canvas(modifier = Modifier.size(220.dp)) {
+            Canvas(modifier = Modifier.size(240.dp)) {
                 drawArc(
                     color = Slate600,
                     startAngle = -90f,

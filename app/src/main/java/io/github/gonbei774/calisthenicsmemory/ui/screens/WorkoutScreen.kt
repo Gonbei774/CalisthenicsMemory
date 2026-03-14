@@ -1773,152 +1773,135 @@ fun IntervalStep(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 種目名（上部）
+        // 状態表示（ヘッダー直下）
         Text(
-            text = session.exercise.name,
-            fontSize = 24.sp,
+            text = stringResource(R.string.interval_label),
+            fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
-            color = appColors.textPrimary,
+            color = Cyan600,
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // 中央固定エリア
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            // 状態表示
+        // 次のセット表示
+        nextSet?.let {
+            val nextSideText = when (it.side) {
+                "Right" -> stringResource(R.string.side_right)
+                "Left" -> stringResource(R.string.side_left)
+                else -> null
+            }
             Text(
-                text = stringResource(R.string.interval_label),
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Cyan600
+                text = if (nextSideText != null) {
+                    stringResource(R.string.next_set_format_with_side, it.setNumber, session.totalSets, nextSideText)
+                } else {
+                    stringResource(R.string.next_set_format, it.setNumber, session.totalSets)
+                },
+                fontSize = 20.sp,
+                color = appColors.textTertiary,
+                modifier = Modifier.padding(top = 4.dp)
             )
+        }
 
-            // 次のセット表示
-            nextSet?.let {
-                val nextSideText = when (it.side) {
-                    "Right" -> stringResource(R.string.side_right)
-                    "Left" -> stringResource(R.string.side_left)
-                    else -> null
+        Spacer(modifier = Modifier.weight(1f))
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.Bottom
+        ) {
+            IconButton(
+                onClick = {
+                    // 今回のインターバルのみ短縮（次回以降は影響しない）
+                    remainingTime = (remainingTime - 10).coerceAtLeast(0)
+                },
+                modifier = Modifier
+                    .size(48.dp)
+                    .offset(y = (-20).dp)
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = Color.Transparent,
+                    border = BorderStroke(2.dp, Slate500)
+                ) {
+                    Box(
+                        modifier = Modifier.size(48.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "-", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
+                    }
                 }
-                Text(
-                    text = if (nextSideText != null) {
-                        stringResource(R.string.next_set_format_with_side, it.setNumber, session.totalSets, nextSideText)
-                    } else {
-                        stringResource(R.string.next_set_format, it.setNumber, session.totalSets)
-                    },
-                    fontSize = 20.sp,
-                    color = appColors.textTertiary,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
             }
 
-            Spacer(modifier = Modifier.height(48.dp))
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.Bottom
+            // タイマー - タップで一時停止/再開
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(240.dp)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) { isRunning = !isRunning }
             ) {
-                IconButton(
-                    onClick = {
-                        // 今回のインターバルのみ短縮（次回以降は影響しない）
-                        remainingTime = (remainingTime - 10).coerceAtLeast(0)
-                    },
-                    modifier = Modifier
-                        .size(48.dp)
-                        .offset(y = (-20).dp)
-                ) {
-                    Surface(
-                        shape = RoundedCornerShape(50),
-                        color = Color.Transparent,
-                        border = BorderStroke(2.dp, Slate500)
-                    ) {
-                        Box(
-                            modifier = Modifier.size(48.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(text = "-", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
-                        }
-                    }
-                }
-
-                // タイマー - タップで一時停止/再開
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(240.dp)
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ) { isRunning = !isRunning }
-                ) {
-                    Canvas(modifier = Modifier.size(240.dp)) {
-                        drawArc(
-                            color = appColors.timerTrack,
-                            startAngle = -90f,
-                            sweepAngle = 360f,
-                            useCenter = false,
-                            style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
-                        )
-                        drawArc(
-                            color = Cyan600.copy(alpha = if (!isRunning) 0.3f else 1f),
-                            startAngle = -90f,
-                            sweepAngle = 360f * progress,
-                            useCenter = false,
-                            style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
-                        )
-                    }
-                    Text(
-                        text = "$remainingTime",
-                        fontSize = 72.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = appColors.textPrimary,
-                        modifier = Modifier.alpha(if (!isRunning) 0.2f else 1f)
+                Canvas(modifier = Modifier.size(240.dp)) {
+                    drawArc(
+                        color = appColors.timerTrack,
+                        startAngle = -90f,
+                        sweepAngle = 360f,
+                        useCenter = false,
+                        style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                     )
-                    if (!isRunning) {
-                        val iconColor = appColors.textPrimary
-                        Canvas(modifier = Modifier.size(56.dp)) {
-                            val path = Path().apply {
-                                moveTo(size.width * 0.25f, size.height * 0.15f)
-                                lineTo(size.width * 0.85f, size.height * 0.5f)
-                                lineTo(size.width * 0.25f, size.height * 0.85f)
-                                close()
-                            }
-                            drawPath(path, color = iconColor.copy(alpha = 0.9f))
+                    drawArc(
+                        color = Cyan600.copy(alpha = if (!isRunning) 0.3f else 1f),
+                        startAngle = -90f,
+                        sweepAngle = 360f * progress,
+                        useCenter = false,
+                        style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
+                    )
+                }
+                Text(
+                    text = "$remainingTime",
+                    fontSize = 72.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = appColors.textPrimary,
+                    modifier = Modifier.alpha(if (!isRunning) 0.2f else 1f)
+                )
+                if (!isRunning) {
+                    val iconColor = appColors.textPrimary
+                    Canvas(modifier = Modifier.size(56.dp)) {
+                        val path = Path().apply {
+                            moveTo(size.width * 0.25f, size.height * 0.15f)
+                            lineTo(size.width * 0.85f, size.height * 0.5f)
+                            lineTo(size.width * 0.25f, size.height * 0.85f)
+                            close()
                         }
+                        drawPath(path, color = iconColor.copy(alpha = 0.9f))
                     }
                 }
+            }
 
-                IconButton(
-                    onClick = {
-                        // 今回のインターバルのみ延長（次回以降は影響しない）
-                        remainingTime += 10
-                    },
-                    modifier = Modifier
-                        .size(48.dp)
-                        .offset(y = (-20).dp)
+            IconButton(
+                onClick = {
+                    // 今回のインターバルのみ延長（次回以降は影響しない）
+                    remainingTime += 10
+                },
+                modifier = Modifier
+                    .size(48.dp)
+                    .offset(y = (-20).dp)
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = Color.Transparent,
+                    border = BorderStroke(2.dp, Slate500)
                 ) {
-                    Surface(
-                        shape = RoundedCornerShape(50),
-                        color = Color.Transparent,
-                        border = BorderStroke(2.dp, Slate500)
+                    Box(
+                        modifier = Modifier.size(48.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier.size(48.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(text = "+", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
-                        }
+                        Text(text = "+", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
         TextButton(onClick = onSkip) {
             Text(

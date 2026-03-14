@@ -239,83 +239,79 @@ internal fun ProgramIntervalStep(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 中央エリア
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            // 休憩表示（ラウンド間休憩がある場合は強調表示）
-            if (hasLoopRest) {
-                // ラウンド間休憩表示
-                Text(
-                    text = stringResource(R.string.loop_round_rest),
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Purple600
-                )
+        // 休憩表示（ヘッダー直下）
+        if (hasLoopRest) {
+            // ラウンド間休憩表示
+            Text(
+                text = stringResource(R.string.loop_round_rest),
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = Purple600,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            Text(
+                text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
+                fontSize = 20.sp,
+                color = appColors.textTertiary,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        } else {
+            // 通常の休憩表示
+            Text(
+                text = stringResource(R.string.interval_label),
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = Cyan600,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            // ループ内セットならラウンド情報を表示
+            if (currentSet.loopId != null && currentSet.totalRounds > 1) {
                 Text(
                     text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
-                    fontSize = 20.sp,
-                    color = appColors.textTertiary,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            } else {
-                // 通常の休憩表示
-                Text(
-                    text = stringResource(R.string.interval_label),
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Cyan600
-                )
-                // ループ内セットならラウンド情報を表示
-                if (currentSet.loopId != null && currentSet.totalRounds > 1) {
-                    Text(
-                        text = stringResource(R.string.loop_round_current, currentSet.roundNumber, currentSet.totalRounds),
-                        fontSize = 16.sp,
-                        color = appColors.textSecondary,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-            }
-
-            // 次のセット/種目表示
-            nextSet?.let { next ->
-                val (_, nextExercise) = session.exercises[next.exerciseIndex]
-                val nextSideText = when (next.side) {
-                    "Right" -> stringResource(R.string.side_right)
-                    "Left" -> stringResource(R.string.side_left)
-                    else -> null
-                }
-                // 次のセットの全体位置
-                val nextGlobalIndex = nextSetIndex + 1
-                val totalSets = session.sets.size
-
-                // 次の種目名（常に表示）
-                Text(
-                    text = stringResource(R.string.next_exercise_label, nextExercise.name),
-                    fontSize = 18.sp,
-                    color = appColors.textTertiary,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-
-                // 次のセット情報（全体進捗）
-                Text(
-                    text = if (nextSideText != null) {
-                        stringResource(R.string.set_progress_with_side, nextGlobalIndex, totalSets, nextSideText)
-                    } else {
-                        stringResource(R.string.set_progress, nextGlobalIndex, totalSets)
-                    },
-                    fontSize = 18.sp,
-                    color = appColors.textTertiary,
+                    fontSize = 16.sp,
+                    color = appColors.textSecondary,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
+        }
 
-            Spacer(modifier = Modifier.height(48.dp))
+        // 次のセット/種目表示
+        nextSet?.let { next ->
+            val (_, nextExercise) = session.exercises[next.exerciseIndex]
+            val nextSideText = when (next.side) {
+                "Right" -> stringResource(R.string.side_right)
+                "Left" -> stringResource(R.string.side_left)
+                else -> null
+            }
+            // 次のセットの全体位置
+            val nextGlobalIndex = nextSetIndex + 1
+            val totalSets = session.sets.size
 
-            // タイマー + ±ボタン
-            Row(
+            // 次の種目名（常に表示）
+            Text(
+                text = stringResource(R.string.next_exercise_label, nextExercise.name),
+                fontSize = 18.sp,
+                color = appColors.textTertiary,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+
+            // 次のセット情報（全体進捗）
+            Text(
+                text = if (nextSideText != null) {
+                    stringResource(R.string.set_progress_with_side, nextGlobalIndex, totalSets, nextSideText)
+                } else {
+                    stringResource(R.string.set_progress, nextGlobalIndex, totalSets)
+                },
+                fontSize = 18.sp,
+                color = appColors.textTertiary,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        // タイマー + ±ボタン
+        Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.Bottom
             ) {
@@ -405,10 +401,9 @@ internal fun ProgramIntervalStep(
                         }
                     }
                 }
-            }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
         // スキップボタン
         TextButton(onClick = onSkip) {
