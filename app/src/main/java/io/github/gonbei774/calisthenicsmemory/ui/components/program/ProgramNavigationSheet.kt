@@ -1341,7 +1341,22 @@ private fun SetActionButton(
                 )
             }
         }
-        SetStatus.CURRENT -> { /* ボタンなし */ }
+        SetStatus.CURRENT -> {
+            OutlinedButton(
+                onClick = { onRedoSet(setIndex) },
+                modifier = Modifier.height(32.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp),
+                shape = RoundedCornerShape(8.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Slate500)
+            ) {
+                Text(
+                    text = stringResource(R.string.nav_redo),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Slate400
+                )
+            }
+        }
     }
 }
 

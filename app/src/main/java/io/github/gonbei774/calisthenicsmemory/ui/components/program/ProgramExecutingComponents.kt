@@ -298,59 +298,20 @@ internal fun ProgramExecutingStepDynamicManual(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // 一時停止/再開 + 中断ボタン
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // 一時停止/再開ボタン
-            Button(
-                onClick = { isPaused = !isPaused },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isPaused) Green600 else Slate600
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
-                    fontSize = 14.sp
-                )
-            }
-
-            // 中断ボタン
-            Button(
-                onClick = { onAbort() },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Red600),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.stop_button),
-                    fontSize = 14.sp
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // やり直しボタン
-        OutlinedButton(
-            onClick = { onRetry() },
+        // 一時停止/再開ボタン
+        Button(
+            onClick = { isPaused = !isPaused },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(44.dp),
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, Slate500)
+                .height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isPaused) Green600 else Slate600
+            ),
+            shape = RoundedCornerShape(12.dp)
         ) {
             Text(
-                text = stringResource(R.string.retry_set_button),
-                fontSize = 14.sp,
-                color = Slate300
+                text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
+                fontSize = 14.sp
             )
         }
     }
@@ -616,59 +577,20 @@ internal fun ProgramExecutingStepIsometricManual(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // 一時停止/再開 + 中断ボタン
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // 一時停止/再開ボタン
-            Button(
-                onClick = { isPaused = !isPaused },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isPaused) Green600 else Slate600
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
-                    fontSize = 14.sp
-                )
-            }
-
-            // 中断ボタン
-            Button(
-                onClick = { onAbort() },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Red600),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.stop_button),
-                    fontSize = 14.sp
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // やり直しボタン
-        OutlinedButton(
-            onClick = { onRetry() },
+        // 一時停止/再開ボタン
+        Button(
+            onClick = { isPaused = !isPaused },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(44.dp),
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, Slate500)
+                .height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isPaused) Green600 else Slate600
+            ),
+            shape = RoundedCornerShape(12.dp)
         ) {
             Text(
-                text = stringResource(R.string.retry_set_button),
-                fontSize = 14.sp,
-                color = Slate300
+                text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
+                fontSize = 14.sp
             )
         }
     }
@@ -931,59 +853,20 @@ internal fun ProgramExecutingStepIsometricAuto(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // 一時停止/再開 + 中断ボタン
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // 一時停止/再開ボタン
-            Button(
-                onClick = { isPaused = !isPaused },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isPaused) Green600 else Slate600
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
-                    fontSize = 14.sp
-                )
-            }
-
-            // 中断ボタン
-            Button(
-                onClick = { onAbort() },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Red600),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.stop_button),
-                    fontSize = 14.sp
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // やり直しボタン
-        OutlinedButton(
-            onClick = { onRetry() },
+        // 一時停止/再開ボタン
+        Button(
+            onClick = { isPaused = !isPaused },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(44.dp),
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, Slate500)
+                .height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isPaused) Green600 else Slate600
+            ),
+            shape = RoundedCornerShape(12.dp)
         ) {
             Text(
-                text = stringResource(R.string.retry_set_button),
-                fontSize = 14.sp,
-                color = Slate300
+                text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
+                fontSize = 14.sp
             )
         }
     }
@@ -1254,59 +1137,20 @@ internal fun ProgramExecutingStepDynamicAuto(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // 一時停止/再開 + 中断ボタン
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // 一時停止/再開ボタン
-            Button(
-                onClick = { isPaused = !isPaused },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isPaused) Green600 else Slate600
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
-                    fontSize = 14.sp
-                )
-            }
-
-            // 中断ボタン
-            Button(
-                onClick = { onAbort() },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Red600),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.stop_button),
-                    fontSize = 14.sp
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // やり直しボタン
-        OutlinedButton(
-            onClick = { onRetry() },
+        // 一時停止/再開ボタン
+        Button(
+            onClick = { isPaused = !isPaused },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(44.dp),
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, Slate500)
+                .height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isPaused) Green600 else Slate600
+            ),
+            shape = RoundedCornerShape(12.dp)
         ) {
             Text(
-                text = stringResource(R.string.retry_set_button),
-                fontSize = 14.sp,
-                color = Slate300
+                text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
+                fontSize = 14.sp
             )
         }
     }
@@ -1474,21 +1318,5 @@ internal fun ProgramExecutingStepDynamicSimple(
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // 中断ボタン
-        Button(
-            onClick = { onAbort() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Red600),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.stop_button),
-                fontSize = 14.sp
-            )
-        }
     }
 }
