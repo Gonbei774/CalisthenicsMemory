@@ -47,15 +47,18 @@ internal fun ProgramStartIntervalStep(
     val (_, exercise) = session.exercises[currentSet.exerciseIndex]
 
     var remainingTime by remember { mutableIntStateOf(startCountdownSeconds) }
+    var isPaused by remember { mutableStateOf(false) }
     val progress = remainingTime.toFloat() / startCountdownSeconds
+    val effectivelyPaused = isPaused || isNavigationOpen
 
-    LaunchedEffect(currentSetIndex, isNavigationOpen) {
+    LaunchedEffect(currentSetIndex, isNavigationOpen, isPaused) {
         while (remainingTime > 0) {
-            if (isNavigationOpen) {
+            if (effectivelyPaused) {
                 delay(100L)
                 continue
             }
             delay(1000L)
+            if (effectivelyPaused) continue
             remainingTime--
             if (remainingTime <= 3 && remainingTime > 0) {
                 toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
@@ -118,12 +121,52 @@ internal fun ProgramStartIntervalStep(
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        // タイマー
-        ProgramCircularTimer(
-            progress = progress,
-            remainingTime = remainingTime,
-            color = Orange600
-        )
+        // タイマー（タップで一時停止/再開）
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(240.dp)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { isPaused = !isPaused }
+        ) {
+            Canvas(modifier = Modifier.size(240.dp)) {
+                drawArc(
+                    color = appColors.timerTrack,
+                    startAngle = -90f,
+                    sweepAngle = 360f,
+                    useCenter = false,
+                    style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
+                )
+                drawArc(
+                    color = Orange600.copy(alpha = if (effectivelyPaused) 0.3f else 1f),
+                    startAngle = -90f,
+                    sweepAngle = 360f * progress,
+                    useCenter = false,
+                    style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
+                )
+            }
+            Text(
+                text = "$remainingTime",
+                fontSize = 72.sp,
+                fontWeight = FontWeight.Bold,
+                color = appColors.textPrimary,
+                modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
+            )
+            if (effectivelyPaused) {
+                val iconColor = appColors.textPrimary
+                Canvas(modifier = Modifier.size(56.dp)) {
+                    val path = Path().apply {
+                        moveTo(size.width * 0.25f, size.height * 0.15f)
+                        lineTo(size.width * 0.85f, size.height * 0.5f)
+                        lineTo(size.width * 0.25f, size.height * 0.85f)
+                        close()
+                    }
+                    drawPath(path, color = iconColor.copy(alpha = 0.9f))
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.weight(1f))
 
