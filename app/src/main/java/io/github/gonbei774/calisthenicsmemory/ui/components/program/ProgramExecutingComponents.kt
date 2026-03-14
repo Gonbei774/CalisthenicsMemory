@@ -3,13 +3,17 @@ package io.github.gonbei774.calisthenicsmemory.ui.components.program
 import android.media.ToneGenerator
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
@@ -69,11 +73,8 @@ internal fun ProgramExecutingStepDynamicManual(
     val isTimerComplete = currentCount >= currentSet.targetValue
 
     // 色（一時停止中=グレー、完了=緑、実行中=オレンジ）
-    val statusColor = when {
-        effectivelyPaused -> Slate400
-        isTimerComplete -> Green600
-        else -> Orange600
-    }
+    val activeColor = if (isTimerComplete) Green600 else Orange600
+    val statusColor = if (effectivelyPaused) Slate400 else activeColor
 
     val scope = rememberCoroutineScope()
 
@@ -170,13 +171,17 @@ internal fun ProgramExecutingStepDynamicManual(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 円形タイマー（レップ内の進捗表示）
+        // 円形タイマー（レップ内の進捗表示）- タップで一時停止/再開
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.size(220.dp)
+            modifier = Modifier
+                .size(220.dp)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { isPaused = !isPaused }
         ) {
             Canvas(modifier = Modifier.size(220.dp)) {
-                // 背景円
                 drawArc(
                     color = Slate600,
                     startAngle = -90f,
@@ -184,32 +189,42 @@ internal fun ProgramExecutingStepDynamicManual(
                     useCenter = false,
                     style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                 )
-                // プログレス円
                 drawArc(
-                    color = statusColor,
+                    color = activeColor.copy(alpha = if (effectivelyPaused) 0.3f else 1f),
                     startAngle = -90f,
                     sweepAngle = 360f * progress,
                     useCenter = false,
                     style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                 )
             }
-            // レップ内経過時間
             Text(
                 text = "$repTimeElapsed",
                 fontSize = 56.sp,
                 fontWeight = FontWeight.Bold,
-                color = appColors.textPrimary
+                color = appColors.textPrimary,
+                modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
             )
+            if (effectivelyPaused) {
+                val iconColor = appColors.textPrimary
+                Canvas(modifier = Modifier.size(56.dp)) {
+                    val path = Path().apply {
+                        moveTo(size.width * 0.25f, size.height * 0.15f)
+                        lineTo(size.width * 0.85f, size.height * 0.5f)
+                        lineTo(size.width * 0.25f, size.height * 0.85f)
+                        close()
+                    }
+                    drawPath(path, color = iconColor.copy(alpha = 0.9f))
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // レップカウント表示（+/- ボタン付き）- タイマーと同じ幅で配置
+        // レップカウント表示（+/- ボタン付き）
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // マイナスボタン（タイマー横と同じ位置）
             IconButton(
                 onClick = { adjustedReps-- },
                 modifier = Modifier.size(48.dp)
@@ -233,7 +248,6 @@ internal fun ProgramExecutingStepDynamicManual(
                 }
             }
 
-            // レップカウント（タイマーと同じ幅220dpの中央に配置）
             Box(
                 modifier = Modifier.width(220.dp),
                 contentAlignment = Alignment.Center
@@ -246,7 +260,6 @@ internal fun ProgramExecutingStepDynamicManual(
                 )
             }
 
-            // プラスボタン（タイマー横と同じ位置）
             IconButton(
                 onClick = { adjustedReps++ },
                 modifier = Modifier.size(48.dp)
@@ -295,25 +308,6 @@ internal fun ProgramExecutingStepDynamicManual(
                 fontWeight = FontWeight.Bold
             )
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // 一時停止/再開ボタン
-        Button(
-            onClick = { isPaused = !isPaused },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isPaused) Green600 else Slate600
-            ),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text(
-                text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
-                fontSize = 14.sp
-            )
-        }
     }
 }
 
@@ -360,11 +354,8 @@ internal fun ProgramExecutingStepIsometricManual(
     val isTimerComplete = remainingTime <= 0
 
     // 色（一時停止中=グレー、完了=緑、実行中=オレンジ）
-    val statusColor = when {
-        effectivelyPaused -> Slate400  // 一時停止中はグレー
-        isTimerComplete -> Green600  // 完了は緑
-        else -> Orange600  // 実行中はオレンジ
-    }
+    val activeColor = if (isTimerComplete) Green600 else Orange600
+    val statusColor = if (effectivelyPaused) Slate400 else activeColor
 
     // 目標達成時のビープを一度だけ鳴らすためのフラグ
     var hasPlayedCompletionBeep by remember(currentSetIndex) { mutableStateOf(false) }
@@ -463,7 +454,6 @@ internal fun ProgramExecutingStepIsometricManual(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.Bottom
         ) {
-            // マイナスボタン
             IconButton(
                 onClick = { adjustedValue-- },
                 modifier = Modifier
@@ -489,13 +479,17 @@ internal fun ProgramExecutingStepIsometricManual(
                 }
             }
 
-            // 円形タイマー
+            // 円形タイマー - タップで一時停止/再開
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.size(220.dp)
+                modifier = Modifier
+                    .size(220.dp)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) { isPaused = !isPaused }
             ) {
                 Canvas(modifier = Modifier.size(220.dp)) {
-                    // 背景円
                     drawArc(
                         color = Slate600,
                         startAngle = -90f,
@@ -503,25 +497,35 @@ internal fun ProgramExecutingStepIsometricManual(
                         useCenter = false,
                         style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                     )
-                    // プログレス円
                     drawArc(
-                        color = statusColor,
+                        color = activeColor.copy(alpha = if (effectivelyPaused) 0.3f else 1f),
                         startAngle = -90f,
                         sweepAngle = 360f * progress,
                         useCenter = false,
                         style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                     )
                 }
-                // 残り時間表示
                 Text(
                     text = "$remainingTime",
                     fontSize = 56.sp,
                     fontWeight = FontWeight.Bold,
-                    color = appColors.textPrimary
+                    color = appColors.textPrimary,
+                    modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
                 )
+                if (effectivelyPaused) {
+                    val iconColor = appColors.textPrimary
+                    Canvas(modifier = Modifier.size(56.dp)) {
+                        val path = Path().apply {
+                            moveTo(size.width * 0.25f, size.height * 0.15f)
+                            lineTo(size.width * 0.85f, size.height * 0.5f)
+                            lineTo(size.width * 0.25f, size.height * 0.85f)
+                            close()
+                        }
+                        drawPath(path, color = iconColor.copy(alpha = 0.9f))
+                    }
+                }
             }
 
-            // プラスボタン
             IconButton(
                 onClick = { adjustedValue++ },
                 modifier = Modifier
@@ -574,25 +578,6 @@ internal fun ProgramExecutingStepIsometricManual(
                 fontWeight = FontWeight.Bold
             )
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // 一時停止/再開ボタン
-        Button(
-            onClick = { isPaused = !isPaused },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isPaused) Green600 else Slate600
-            ),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text(
-                text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
-                fontSize = 14.sp
-            )
-        }
     }
 }
 
@@ -638,12 +623,9 @@ internal fun ProgramExecutingStepIsometricAuto(
     // タイマー完了フラグ
     val isTimerComplete = remainingTime <= 0
 
-    // 色（一時停止中=グレー、完了=緑、実行中=オレンジ）
-    val statusColor = when {
-        effectivelyPaused -> Slate400
-        isTimerComplete -> Green600
-        else -> Orange600
-    }
+    // 色（一時停止中=グレー、実行中=オレンジ）
+    val activeColor = Orange600
+    val statusColor = if (effectivelyPaused) Slate400 else activeColor
 
     // タイマー処理
     LaunchedEffect(currentSetIndex, isNavigationOpen, isPaused) {
@@ -765,13 +747,17 @@ internal fun ProgramExecutingStepIsometricAuto(
                 }
             }
 
-            // 円形タイマー
+            // 円形タイマー - タップで一時停止/再開
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.size(220.dp)
+                modifier = Modifier
+                    .size(220.dp)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) { isPaused = !isPaused }
             ) {
                 Canvas(modifier = Modifier.size(220.dp)) {
-                    // 背景円
                     drawArc(
                         color = Slate600,
                         startAngle = -90f,
@@ -779,25 +765,35 @@ internal fun ProgramExecutingStepIsometricAuto(
                         useCenter = false,
                         style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                     )
-                    // プログレス円
                     drawArc(
-                        color = statusColor,
+                        color = activeColor.copy(alpha = if (effectivelyPaused) 0.3f else 1f),
                         startAngle = -90f,
                         sweepAngle = 360f * progress,
                         useCenter = false,
                         style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                     )
                 }
-                // 残り時間表示
                 Text(
                     text = "$remainingTime",
                     fontSize = 56.sp,
                     fontWeight = FontWeight.Bold,
-                    color = appColors.textPrimary
+                    color = appColors.textPrimary,
+                    modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
                 )
+                if (effectivelyPaused) {
+                    val iconColor = appColors.textPrimary
+                    Canvas(modifier = Modifier.size(56.dp)) {
+                        val path = Path().apply {
+                            moveTo(size.width * 0.25f, size.height * 0.15f)
+                            lineTo(size.width * 0.85f, size.height * 0.5f)
+                            lineTo(size.width * 0.25f, size.height * 0.85f)
+                            close()
+                        }
+                        drawPath(path, color = iconColor.copy(alpha = 0.9f))
+                    }
+                }
             }
 
-            // プラスボタン
             IconButton(
                 onClick = { adjustedValue++ },
                 modifier = Modifier
@@ -850,25 +846,6 @@ internal fun ProgramExecutingStepIsometricAuto(
                 fontWeight = FontWeight.Bold
             )
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // 一時停止/再開ボタン
-        Button(
-            onClick = { isPaused = !isPaused },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isPaused) Green600 else Slate600
-            ),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text(
-                text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
-                fontSize = 14.sp
-            )
-        }
     }
 }
 
@@ -913,7 +890,8 @@ internal fun ProgramExecutingStepDynamicAuto(
     val progress = repTimeElapsed.toFloat() / repDuration
 
     // 色（一時停止中=グレー、実行中=オレンジ）
-    val statusColor = if (effectivelyPaused) Slate400 else Orange600
+    val activeColor = Orange600
+    val statusColor = if (effectivelyPaused) Slate400 else activeColor
 
     // タイマー処理
     LaunchedEffect(currentSetIndex, isNavigationOpen, isPaused) {
@@ -1009,13 +987,17 @@ internal fun ProgramExecutingStepDynamicAuto(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 円形タイマー（レップ内の進捗表示）
+        // 円形タイマー（レップ内の進捗表示）- タップで一時停止/再開
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.size(220.dp)
+            modifier = Modifier
+                .size(220.dp)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { isPaused = !isPaused }
         ) {
             Canvas(modifier = Modifier.size(220.dp)) {
-                // 背景円
                 drawArc(
                     color = Slate600,
                     startAngle = -90f,
@@ -1023,32 +1005,42 @@ internal fun ProgramExecutingStepDynamicAuto(
                     useCenter = false,
                     style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                 )
-                // プログレス円
                 drawArc(
-                    color = statusColor,
+                    color = activeColor.copy(alpha = if (effectivelyPaused) 0.3f else 1f),
                     startAngle = -90f,
                     sweepAngle = 360f * progress,
                     useCenter = false,
                     style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                 )
             }
-            // レップ内経過時間
             Text(
                 text = "$repTimeElapsed",
                 fontSize = 56.sp,
                 fontWeight = FontWeight.Bold,
-                color = appColors.textPrimary
+                color = appColors.textPrimary,
+                modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
             )
+            if (effectivelyPaused) {
+                val iconColor = appColors.textPrimary
+                Canvas(modifier = Modifier.size(56.dp)) {
+                    val path = Path().apply {
+                        moveTo(size.width * 0.25f, size.height * 0.15f)
+                        lineTo(size.width * 0.85f, size.height * 0.5f)
+                        lineTo(size.width * 0.25f, size.height * 0.85f)
+                        close()
+                    }
+                    drawPath(path, color = iconColor.copy(alpha = 0.9f))
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // レップカウント表示（+/- ボタン付き）- タイマーと同じ幅で配置
+        // レップカウント表示（+/- ボタン付き）
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // マイナスボタン（タイマー横と同じ位置）
             IconButton(
                 onClick = { adjustedReps-- },
                 modifier = Modifier.size(48.dp)
@@ -1072,7 +1064,6 @@ internal fun ProgramExecutingStepDynamicAuto(
                 }
             }
 
-            // レップカウント（タイマーと同じ幅220dpの中央に配置）
             Box(
                 modifier = Modifier.width(220.dp),
                 contentAlignment = Alignment.Center
@@ -1085,7 +1076,6 @@ internal fun ProgramExecutingStepDynamicAuto(
                 )
             }
 
-            // プラスボタン（タイマー横と同じ位置）
             IconButton(
                 onClick = { adjustedReps++ },
                 modifier = Modifier.size(48.dp)
@@ -1132,25 +1122,6 @@ internal fun ProgramExecutingStepDynamicAuto(
                 text = stringResource(R.string.complete_with_reps, recordValue),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
-            )
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // 一時停止/再開ボタン
-        Button(
-            onClick = { isPaused = !isPaused },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isPaused) Green600 else Slate600
-            ),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text(
-                text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
-                fontSize = 14.sp
             )
         }
     }
