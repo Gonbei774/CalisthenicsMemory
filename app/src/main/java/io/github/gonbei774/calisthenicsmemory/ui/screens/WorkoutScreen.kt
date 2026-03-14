@@ -1769,11 +1769,62 @@ fun IntervalStep(
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            CircularProgressTimer(
-                progress = progress,
-                remainingTime = remainingTime,
-                color = Cyan600
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                IconButton(
+                    onClick = {
+                        // 今回のインターバルのみ短縮（次回以降は影響しない）
+                        remainingTime = (remainingTime - 10).coerceAtLeast(0)
+                    },
+                    modifier = Modifier
+                        .size(48.dp)
+                        .offset(y = (-20).dp)
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(50),
+                        color = Color.Transparent,
+                        border = BorderStroke(2.dp, Slate500)
+                    ) {
+                        Box(
+                            modifier = Modifier.size(48.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "-", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
+                        }
+                    }
+                }
+
+                CircularProgressTimer(
+                    progress = progress,
+                    remainingTime = remainingTime,
+                    color = Cyan600
+                )
+
+                IconButton(
+                    onClick = {
+                        // 今回のインターバルのみ延長（次回以降は影響しない）
+                        remainingTime += 10
+                    },
+                    modifier = Modifier
+                        .size(48.dp)
+                        .offset(y = (-20).dp)
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(50),
+                        color = Color.Transparent,
+                        border = BorderStroke(2.dp, Slate500)
+                    ) {
+                        Box(
+                            modifier = Modifier.size(48.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "+", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
+                        }
+                    }
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -1794,52 +1845,6 @@ fun IntervalStep(
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            IconButton(
-                onClick = {
-                    // 今回のインターバルのみ短縮（次回以降は影響しない）
-                    remainingTime = (remainingTime - 10).coerceAtLeast(0)
-                }
-            ) {
-                Text(
-                    text = "-",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = appColors.textPrimary
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Text(
-                text = stringResource(R.string.ten_seconds),
-                fontSize = 18.sp,
-                color = appColors.textPrimary
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            IconButton(
-                onClick = {
-                    // 今回のインターバルのみ延長（次回以降は影響しない）
-                    remainingTime += 10
-                }
-            ) {
-                Text(
-                    text = "+",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = appColors.textPrimary
-                )
-            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))

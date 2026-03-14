@@ -1,6 +1,7 @@
 package io.github.gonbei774.calisthenicsmemory.ui.components.program
 
 import android.media.ToneGenerator
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -263,12 +264,57 @@ internal fun ProgramIntervalStep(
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            // タイマー
-            ProgramCircularTimer(
-                progress = progress,
-                remainingTime = remainingTime,
-                color = Cyan600
-            )
+            // タイマー + ±ボタン
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                IconButton(
+                    onClick = { remainingTime = (remainingTime - 10).coerceAtLeast(0) },
+                    modifier = Modifier
+                        .size(48.dp)
+                        .offset(y = (-20).dp)
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(50),
+                        color = Color.Transparent,
+                        border = BorderStroke(2.dp, Slate500)
+                    ) {
+                        Box(
+                            modifier = Modifier.size(48.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "-", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
+                        }
+                    }
+                }
+
+                ProgramCircularTimer(
+                    progress = progress,
+                    remainingTime = remainingTime,
+                    color = Cyan600
+                )
+
+                IconButton(
+                    onClick = { remainingTime += 10 },
+                    modifier = Modifier
+                        .size(48.dp)
+                        .offset(y = (-20).dp)
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(50),
+                        color = Color.Transparent,
+                        border = BorderStroke(2.dp, Slate500)
+                    ) {
+                        Box(
+                            modifier = Modifier.size(48.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "+", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
+                        }
+                    }
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -289,37 +335,6 @@ internal fun ProgramIntervalStep(
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 調整ボタン
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            IconButton(
-                onClick = { remainingTime = (remainingTime - 10).coerceAtLeast(0) }
-            ) {
-                Text("-", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Text(
-                text = stringResource(R.string.ten_seconds),
-                fontSize = 18.sp,
-                color = appColors.textPrimary
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            IconButton(
-                onClick = { remainingTime += 10 }
-            ) {
-                Text("+", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
-            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
