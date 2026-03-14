@@ -37,6 +37,7 @@ fun SingleExecutingStepDynamicManual(
     flashController: FlashController,
     isFlashEnabled: Boolean,
     isCountSoundEnabled: Boolean,
+    isNavigationOpen: Boolean = false,
     onSetComplete: (WorkoutSession) -> Unit,
     onSkip: (WorkoutSession) -> Unit,
     onAbort: (WorkoutSession) -> Unit,
@@ -51,20 +52,23 @@ fun SingleExecutingStepDynamicManual(
     var currentCount by remember(currentSetIndex) { mutableIntStateOf(0) }
     var adjustedReps by remember(currentSetIndex) { mutableIntStateOf(0) }
 
+    // ナビゲーション表示中は強制的に一時停止
+    val effectivelyPaused = isPaused || isNavigationOpen
+
     val recordValue = (currentCount + adjustedReps).coerceAtLeast(0)
     val repTimeElapsed = elapsedTime % repDuration
     val progress = repTimeElapsed.toFloat() / repDuration
     val isTimerComplete = currentCount >= currentSet.targetValue
 
     val statusColor = when {
-        isPaused -> Slate400
+        effectivelyPaused -> Slate400
         isTimerComplete -> Green600
         else -> Orange600
     }
 
-    LaunchedEffect(currentSetIndex, isPaused) {
+    LaunchedEffect(currentSetIndex, effectivelyPaused) {
         while (true) {
-            if (!isPaused && currentCount < currentSet.targetValue) {
+            if (!effectivelyPaused && currentCount < currentSet.targetValue) {
                 delay(1000L)
                 elapsedTime++
 
@@ -127,7 +131,7 @@ fun SingleExecutingStepDynamicManual(
 
         // 状態ラベル
         Text(
-            text = stringResource(if (isPaused) R.string.paused_label else R.string.executing_label),
+            text = stringResource(if (effectivelyPaused) R.string.paused_label else R.string.executing_label),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = statusColor
@@ -255,50 +259,17 @@ fun SingleExecutingStepDynamicManual(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Button(
-                onClick = { isPaused = !isPaused },
-                modifier = Modifier.weight(1f).height(48.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isPaused) Green600 else Slate600
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
-                    fontSize = 14.sp
-                )
-            }
-
-            Button(
-                onClick = {
-                    currentSet.actualValue = recordValue
-                    currentSet.isSkipped = true
-                    onAbort(session)
-                },
-                modifier = Modifier.weight(1f).height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Red600),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(text = stringResource(R.string.stop_button), fontSize = 14.sp)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedButton(
-            onClick = onRetry,
-            modifier = Modifier.fillMaxWidth().height(44.dp),
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, Slate500)
+        Button(
+            onClick = { isPaused = !isPaused },
+            modifier = Modifier.fillMaxWidth().height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isPaused) Green600 else Slate600
+            ),
+            shape = RoundedCornerShape(12.dp)
         ) {
             Text(
-                text = stringResource(R.string.retry_set_button),
-                fontSize = 14.sp,
-                color = appColors.textTertiary
+                text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
+                fontSize = 14.sp
             )
         }
     }
@@ -315,6 +286,7 @@ fun SingleExecutingStepDynamicAuto(
     flashController: FlashController,
     isFlashEnabled: Boolean,
     isCountSoundEnabled: Boolean,
+    isNavigationOpen: Boolean = false,
     onSetComplete: (WorkoutSession) -> Unit,
     onSkip: (WorkoutSession) -> Unit,
     onAbort: (WorkoutSession) -> Unit,
@@ -329,15 +301,18 @@ fun SingleExecutingStepDynamicAuto(
     var currentCount by remember(currentSetIndex) { mutableIntStateOf(0) }
     var adjustedReps by remember(currentSetIndex) { mutableIntStateOf(0) }
 
+    // ナビゲーション表示中は強制的に一時停止
+    val effectivelyPaused = isPaused || isNavigationOpen
+
     val recordValue = (currentCount + adjustedReps).coerceAtLeast(0)
     val repTimeElapsed = elapsedTime % repDuration
     val progress = repTimeElapsed.toFloat() / repDuration
 
-    val statusColor = if (isPaused) Slate400 else Orange600
+    val statusColor = if (effectivelyPaused) Slate400 else Orange600
 
-    LaunchedEffect(currentSetIndex) {
+    LaunchedEffect(currentSetIndex, effectivelyPaused) {
         while (true) {
-            if (!isPaused) {
+            if (!effectivelyPaused) {
                 delay(1000L)
                 elapsedTime++
 
@@ -401,7 +376,7 @@ fun SingleExecutingStepDynamicAuto(
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
-            text = stringResource(if (isPaused) R.string.paused_label else R.string.executing_label),
+            text = stringResource(if (effectivelyPaused) R.string.paused_label else R.string.executing_label),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = statusColor
@@ -527,50 +502,17 @@ fun SingleExecutingStepDynamicAuto(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Button(
-                onClick = { isPaused = !isPaused },
-                modifier = Modifier.weight(1f).height(48.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isPaused) Green600 else Red600
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
-                    fontSize = 14.sp
-                )
-            }
-
-            Button(
-                onClick = {
-                    currentSet.actualValue = recordValue
-                    currentSet.isSkipped = true
-                    onAbort(session)
-                },
-                modifier = Modifier.weight(1f).height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Red600),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(stringResource(R.string.stop_button), fontSize = 14.sp)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedButton(
-            onClick = onRetry,
-            modifier = Modifier.fillMaxWidth().height(44.dp),
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, Slate500)
+        Button(
+            onClick = { isPaused = !isPaused },
+            modifier = Modifier.fillMaxWidth().height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isPaused) Green600 else Red600
+            ),
+            shape = RoundedCornerShape(12.dp)
         ) {
             Text(
-                text = stringResource(R.string.retry_set_button),
-                fontSize = 14.sp,
-                color = appColors.textTertiary
+                text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
+                fontSize = 14.sp
             )
         }
     }
@@ -586,6 +528,7 @@ fun SingleExecutingStepDynamicSimple(
     toneGenerator: ToneGenerator,
     flashController: FlashController,
     isFlashEnabled: Boolean,
+    isNavigationOpen: Boolean = false,
     onSetComplete: (WorkoutSession) -> Unit,
     onSkip: (WorkoutSession) -> Unit,
     onAbort: (WorkoutSession) -> Unit,
@@ -723,52 +666,6 @@ fun SingleExecutingStepDynamicSimple(
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            OutlinedButton(
-                onClick = {
-                    currentSet.actualValue = reps
-                    currentSet.isSkipped = true
-                    onSkip(session)
-                },
-                modifier = Modifier.weight(1f).height(48.dp),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(stringResource(R.string.skip_button), fontSize = 14.sp)
-            }
-
-            Button(
-                onClick = {
-                    currentSet.actualValue = reps
-                    currentSet.isSkipped = true
-                    onAbort(session)
-                },
-                modifier = Modifier.weight(1f).height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Red600),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(stringResource(R.string.stop_button), fontSize = 14.sp)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedButton(
-            onClick = onRetry,
-            modifier = Modifier.fillMaxWidth().height(44.dp),
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, Slate500)
-        ) {
-            Text(
-                text = stringResource(R.string.retry_set_button),
-                fontSize = 14.sp,
-                color = appColors.textTertiary
-            )
-        }
     }
 }
 
@@ -784,6 +681,7 @@ fun SingleExecutingStepIsometricManual(
     isFlashEnabled: Boolean,
     isIntervalSoundEnabled: Boolean,
     intervalSeconds: Int,
+    isNavigationOpen: Boolean = false,
     onSetComplete: (WorkoutSession) -> Unit,
     onSkip: (WorkoutSession) -> Unit,
     onAbort: (WorkoutSession) -> Unit,
@@ -796,20 +694,23 @@ fun SingleExecutingStepIsometricManual(
     var isPaused by remember(currentSetIndex) { mutableStateOf(false) }
     var adjustedSeconds by remember(currentSetIndex) { mutableIntStateOf(0) }
 
+    // ナビゲーション表示中は強制的に一時停止
+    val effectivelyPaused = isPaused || isNavigationOpen
+
     val recordValue = (elapsedTime + adjustedSeconds).coerceAtLeast(0)
     val remainingTime = (currentSet.targetValue - elapsedTime).coerceAtLeast(0)
     val progress = if (currentSet.targetValue > 0) remainingTime.toFloat() / currentSet.targetValue else 0f
     val isTimerComplete = elapsedTime >= currentSet.targetValue
 
     val statusColor = when {
-        isPaused -> Slate400
+        effectivelyPaused -> Slate400
         isTimerComplete -> Green600
         else -> Orange600
     }
 
-    LaunchedEffect(currentSetIndex, isPaused) {
+    LaunchedEffect(currentSetIndex, effectivelyPaused) {
         while (true) {
-            if (!isPaused) {
+            if (!effectivelyPaused) {
                 delay(1000L)
                 elapsedTime++
 
@@ -866,7 +767,7 @@ fun SingleExecutingStepIsometricManual(
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
-            text = stringResource(if (isPaused) R.string.paused_label else R.string.executing_label),
+            text = stringResource(if (effectivelyPaused) R.string.paused_label else R.string.executing_label),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = statusColor
@@ -984,50 +885,17 @@ fun SingleExecutingStepIsometricManual(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Button(
-                onClick = { isPaused = !isPaused },
-                modifier = Modifier.weight(1f).height(48.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isPaused) Green600 else Slate600
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
-                    fontSize = 14.sp
-                )
-            }
-
-            Button(
-                onClick = {
-                    currentSet.actualValue = recordValue
-                    currentSet.isSkipped = true
-                    onAbort(session)
-                },
-                modifier = Modifier.weight(1f).height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Red600),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(stringResource(R.string.stop_button), fontSize = 14.sp)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedButton(
-            onClick = onRetry,
-            modifier = Modifier.fillMaxWidth().height(44.dp),
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, Slate500)
+        Button(
+            onClick = { isPaused = !isPaused },
+            modifier = Modifier.fillMaxWidth().height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isPaused) Green600 else Slate600
+            ),
+            shape = RoundedCornerShape(12.dp)
         ) {
             Text(
-                text = stringResource(R.string.retry_set_button),
-                fontSize = 14.sp,
-                color = appColors.textTertiary
+                text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
+                fontSize = 14.sp
             )
         }
     }
@@ -1045,6 +913,7 @@ fun SingleExecutingStepIsometricAuto(
     isFlashEnabled: Boolean,
     isIntervalSoundEnabled: Boolean,
     intervalSeconds: Int,
+    isNavigationOpen: Boolean = false,
     onSetComplete: (WorkoutSession) -> Unit,
     onSkip: (WorkoutSession) -> Unit,
     onAbort: (WorkoutSession) -> Unit,
@@ -1057,15 +926,18 @@ fun SingleExecutingStepIsometricAuto(
     var isPaused by remember(currentSetIndex) { mutableStateOf(false) }
     var adjustedSeconds by remember(currentSetIndex) { mutableIntStateOf(0) }
 
+    // ナビゲーション表示中は強制的に一時停止
+    val effectivelyPaused = isPaused || isNavigationOpen
+
     val recordValue = (elapsedTime + adjustedSeconds).coerceAtLeast(0)
     val remainingTime = (currentSet.targetValue - elapsedTime).coerceAtLeast(0)
     val progress = if (currentSet.targetValue > 0) remainingTime.toFloat() / currentSet.targetValue else 0f
 
-    val statusColor = if (isPaused) Slate400 else Orange600
+    val statusColor = if (effectivelyPaused) Slate400 else Orange600
 
-    LaunchedEffect(currentSetIndex, isPaused) {
+    LaunchedEffect(currentSetIndex, effectivelyPaused) {
         while (true) {
-            if (!isPaused) {
+            if (!effectivelyPaused) {
                 delay(1000L)
                 elapsedTime++
 
@@ -1126,7 +998,7 @@ fun SingleExecutingStepIsometricAuto(
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
-            text = stringResource(if (isPaused) R.string.paused_label else R.string.executing_label),
+            text = stringResource(if (effectivelyPaused) R.string.paused_label else R.string.executing_label),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = statusColor
@@ -1245,50 +1117,17 @@ fun SingleExecutingStepIsometricAuto(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Button(
-                onClick = { isPaused = !isPaused },
-                modifier = Modifier.weight(1f).height(48.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isPaused) Green600 else Red600
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
-                    fontSize = 14.sp
-                )
-            }
-
-            Button(
-                onClick = {
-                    currentSet.actualValue = recordValue
-                    currentSet.isSkipped = true
-                    onAbort(session)
-                },
-                modifier = Modifier.weight(1f).height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Red600),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(stringResource(R.string.stop_button), fontSize = 14.sp)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedButton(
-            onClick = onRetry,
-            modifier = Modifier.fillMaxWidth().height(44.dp),
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, Slate500)
+        Button(
+            onClick = { isPaused = !isPaused },
+            modifier = Modifier.fillMaxWidth().height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isPaused) Green600 else Red600
+            ),
+            shape = RoundedCornerShape(12.dp)
         ) {
             Text(
-                text = stringResource(R.string.retry_set_button),
-                fontSize = 14.sp,
-                color = appColors.textTertiary
+                text = stringResource(if (isPaused) R.string.resume_button else R.string.pause_button),
+                fontSize = 14.sp
             )
         }
     }

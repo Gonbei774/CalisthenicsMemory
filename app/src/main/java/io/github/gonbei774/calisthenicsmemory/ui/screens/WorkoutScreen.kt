@@ -7,6 +7,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -158,6 +160,9 @@ fun WorkoutScreen(
     // やり直しボタン用のキー（インクリメントで実行ステップをリセット）
     var retryKey by remember { mutableIntStateOf(0) }
 
+    // ナビゲーションシート表示状態
+    var showNavigationSheet by remember { mutableStateOf(false) }
+
     // 戻るボタンのハンドリング
     BackHandler {
         when (currentStep) {
@@ -246,6 +251,17 @@ fun WorkoutScreen(
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
+                    Spacer(modifier = Modifier.weight(1f))
+                    // ナビゲーションボタン（実行中のみ表示）
+                    if (currentStep is WorkoutStep.Executing) {
+                        IconButton(onClick = { showNavigationSheet = true }) {
+                            Icon(
+                                Icons.Default.Menu,
+                                contentDescription = stringResource(R.string.nav_program_overview),
+                                tint = Color.White
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -358,6 +374,7 @@ fun WorkoutScreen(
                                     isFlashEnabled = isFlashEnabled,
                                     isIntervalSoundEnabled = workoutPreferences.isIsometricIntervalSoundEnabled(),
                                     intervalSeconds = workoutPreferences.getIsometricIntervalSeconds(),
+                                    isNavigationOpen = showNavigationSheet,
                                     onSetComplete = onSetComplete,
                                     onSkip = onSkip,
                                     onAbort = onAbort,
@@ -374,6 +391,7 @@ fun WorkoutScreen(
                                     isFlashEnabled = isFlashEnabled,
                                     isIntervalSoundEnabled = workoutPreferences.isIsometricIntervalSoundEnabled(),
                                     intervalSeconds = workoutPreferences.getIsometricIntervalSeconds(),
+                                    isNavigationOpen = showNavigationSheet,
                                     onSetComplete = onSetComplete,
                                     onSkip = onSkip,
                                     onAbort = onAbort,
@@ -388,6 +406,7 @@ fun WorkoutScreen(
                                     toneGenerator = toneGenerator,
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
+                                    isNavigationOpen = showNavigationSheet,
                                     onSetComplete = onSetComplete,
                                     onSkip = onSkip,
                                     onAbort = onAbort,
@@ -403,6 +422,7 @@ fun WorkoutScreen(
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
                                     isCountSoundEnabled = step.session.isDynamicCountSoundEnabled,
+                                    isNavigationOpen = showNavigationSheet,
                                     onSetComplete = onSetComplete,
                                     onSkip = onSkip,
                                     onAbort = onAbort,
@@ -418,11 +438,62 @@ fun WorkoutScreen(
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
                                     isCountSoundEnabled = step.session.isDynamicCountSoundEnabled,
+                                    isNavigationOpen = showNavigationSheet,
                                     onSetComplete = onSetComplete,
                                     onSkip = onSkip,
                                     onAbort = onAbort,
                                     onRetry = onRetry
                                 )
+                            }
+                        }
+                    }
+
+                    // ナビゲーションシート（中止・やり直し）
+                    if (showNavigationSheet) {
+                        ModalBottomSheet(
+                            onDismissRequest = { showNavigationSheet = false },
+                            containerColor = Slate800
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp)
+                                    .padding(bottom = 32.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                OutlinedButton(
+                                    onClick = {
+                                        showNavigationSheet = false
+                                        onRetry()
+                                    },
+                                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    border = BorderStroke(1.dp, Slate500)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.retry_set_button),
+                                        fontSize = 16.sp,
+                                        color = Color.White
+                                    )
+                                }
+                                Button(
+                                    onClick = {
+                                        showNavigationSheet = false
+                                        val currentSet = step.session.sets.getOrNull(step.currentSetIndex)
+                                        if (currentSet != null) {
+                                            currentSet.isSkipped = true
+                                        }
+                                        onAbort(step.session)
+                                    },
+                                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Red600),
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.stop_button),
+                                        fontSize = 16.sp
+                                    )
+                                }
                             }
                         }
                     }
