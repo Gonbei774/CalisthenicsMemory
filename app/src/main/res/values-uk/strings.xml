@@ -559,6 +559,8 @@
     <string name="timer_mode_off_description">Ручне завершення кнопкою «Готово»</string>
     <string name="timer_mode_on_description">Автоматичне завершення при досягненні мети</string>
     <string name="previous_value_format">Попереднє: %d</string>
+    <string name="previous_reps_format">Попереднє: %d повт.</string>
+    <string name="previous_time_format">Попереднє: %dс</string>
     <string name="last_record_short">Останній: %s</string>
     <string name="exercise_type_isometric">Ізометрична</string>
     <string name="exercise_type_dynamic">Динамічна</string>

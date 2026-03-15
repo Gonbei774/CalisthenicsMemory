@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.R
@@ -212,7 +213,8 @@ fun SingleExecutingStepDynamicManual(
                     text = stringResource(R.string.reps_count, recordValue),
                     fontSize = 48.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Green400
+                    color = Green400,
+                    textAlign = TextAlign.Center
                 )
             }
 
@@ -236,7 +238,8 @@ fun SingleExecutingStepDynamicManual(
         }
 
         Text(
-            text = stringResource(R.string.target_reps_format, currentSet.targetValue),
+            text = stringResource(R.string.target_reps_format, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_reps_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )
@@ -449,7 +452,8 @@ fun SingleExecutingStepDynamicAuto(
                     text = stringResource(R.string.reps_count, recordValue),
                     fontSize = 48.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Green400
+                    color = Green400,
+                    textAlign = TextAlign.Center
                 )
             }
 
@@ -473,7 +477,8 @@ fun SingleExecutingStepDynamicAuto(
         }
 
         Text(
-            text = stringResource(R.string.target_reps_format, currentSet.targetValue),
+            text = stringResource(R.string.target_reps_format, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_reps_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )
@@ -611,7 +616,8 @@ fun SingleExecutingStepDynamicSimple(
         }
 
         Text(
-            text = stringResource(R.string.target_reps_format, currentSet.targetValue),
+            text = stringResource(R.string.target_reps_format, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_reps_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )
@@ -835,7 +841,8 @@ fun SingleExecutingStepIsometricManual(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = stringResource(R.string.elapsed_target_format, recordValue, currentSet.targetValue),
+            text = stringResource(R.string.elapsed_target_format, recordValue, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_time_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )
@@ -1059,7 +1066,8 @@ fun SingleExecutingStepIsometricAuto(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = stringResource(R.string.elapsed_target_format, recordValue, currentSet.targetValue),
+            text = stringResource(R.string.elapsed_target_format, recordValue, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_time_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )

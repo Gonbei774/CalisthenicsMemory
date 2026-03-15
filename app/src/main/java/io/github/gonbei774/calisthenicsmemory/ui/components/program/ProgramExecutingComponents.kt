@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.R
@@ -243,7 +244,8 @@ internal fun ProgramExecutingStepDynamicManual(
                     text = stringResource(R.string.reps_count, recordValue),
                     fontSize = 48.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Green400
+                    color = Green400,
+                    textAlign = TextAlign.Center
                 )
             }
 
@@ -273,7 +275,8 @@ internal fun ProgramExecutingStepDynamicManual(
 
         // 目標レップ数
         Text(
-            text = stringResource(R.string.target_reps_format, currentSet.targetValue),
+            text = stringResource(R.string.target_reps_format, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_reps_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )
@@ -532,7 +535,8 @@ internal fun ProgramExecutingStepIsometricManual(
 
         // 経過時間 / 目標時間
         Text(
-            text = stringResource(R.string.elapsed_target_format, elapsedTime, currentSet.targetValue),
+            text = stringResource(R.string.elapsed_target_format, elapsedTime, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_time_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )
@@ -789,7 +793,8 @@ internal fun ProgramExecutingStepIsometricAuto(
 
         // 経過時間 / 目標時間
         Text(
-            text = stringResource(R.string.elapsed_target_format, elapsedTime, currentSet.targetValue),
+            text = stringResource(R.string.elapsed_target_format, elapsedTime, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_time_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )
@@ -1026,7 +1031,8 @@ internal fun ProgramExecutingStepDynamicAuto(
                     text = stringResource(R.string.reps_count, recordValue),
                     fontSize = 48.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Green400
+                    color = Green400,
+                    textAlign = TextAlign.Center
                 )
             }
 
@@ -1056,7 +1062,8 @@ internal fun ProgramExecutingStepDynamicAuto(
 
         // 目標レップ数
         Text(
-            text = stringResource(R.string.target_reps_format, currentSet.targetValue),
+            text = stringResource(R.string.target_reps_format, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_reps_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )
@@ -1209,7 +1216,8 @@ internal fun ProgramExecutingStepDynamicSimple(
 
         // 目標レップ数
         Text(
-            text = stringResource(R.string.target_reps_format, currentSet.targetValue),
+            text = stringResource(R.string.target_reps_format, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_reps_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary,
             modifier = Modifier.padding(top = 8.dp)
