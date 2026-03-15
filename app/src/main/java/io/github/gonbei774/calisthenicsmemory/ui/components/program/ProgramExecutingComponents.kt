@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.R
@@ -243,7 +244,8 @@ internal fun ProgramExecutingStepDynamicManual(
                     text = stringResource(R.string.reps_count, recordValue),
                     fontSize = 48.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Green400
+                    color = Green400,
+                    textAlign = TextAlign.Center
                 )
             }
 
@@ -1029,7 +1031,8 @@ internal fun ProgramExecutingStepDynamicAuto(
                     text = stringResource(R.string.reps_count, recordValue),
                     fontSize = 48.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Green400
+                    color = Green400,
+                    textAlign = TextAlign.Center
                 )
             }
 
