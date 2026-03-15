@@ -1,0 +1,16 @@
+Hinzugefügt:
+- Tippen zum Pausieren ersetzt Pause-Button
+- Vorherigen Sitzungswert neben Ziel anzeigen
+- Aktuellen Satz im Programmmodus wiederholen
+
+Verbessert:
+- Einheitliches Timer-Layout
+- Optimiertes Button-Layout
+- Zentrierter Wiederholungszähler
+
+Behoben:
+- Wiederholung überspringt Sätze bei unilateralen Übungen
+- Anzeige der nächsten Übung bei Wiederholung
+- Häkchen bei langen Namen in Challenge-Ansicht
+
+Contributors: @Leoni, @gallegonovato, @nautilusx, @komeko, @SomeTr, @scream

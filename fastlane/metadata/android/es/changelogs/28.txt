@@ -1,0 +1,16 @@
+Añadido:
+- Tocar para pausar reemplaza botón de pausa
+- Mostrar valor de sesión anterior junto al objetivo
+- Rehacer serie en modo programa
+
+Mejorado:
+- Diseño del temporizador unificado
+- Diseño de botones optimizado
+- Contador de repeticiones centrado
+
+Corregido:
+- Rehacer saltaba series en ejercicios unilaterales
+- Siguiente ejercicio durante rehacer
+- Marca para nombres largos en vista de desafío
+
+Contributors: @Leoni, @gallegonovato, @nautilusx, @komeko, @SomeTr, @scream

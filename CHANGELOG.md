@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.0] - 2026-03-15
+
+### Added
+- **Tap-to-pause timer** - Tap the timer to pause/resume, replacing the pause button
+- **Previous session value display** - Show last session's value next to the target on workout screens
+- **Redo current set** in program mode
+
+### Improved
+- Unified timer layout across all workout modes (240dp, status labels removed)
+- Streamlined workout button layout with navigation sheet
+- Center-aligned reps counter for long translations
+
+### Fixed
+- Redo skipping completed sets in unilateral exercises
+- Next exercise display showing completed sets during redo
+- Checkmark visibility for long exercise names in challenge view (#39)
+
+This release includes contributions from @Leoni, @gallegonovato, @nautilusx, @komeko, @SomeTr, and @scream.
+
 ## [1.19.0] - 2026-02-15
 
 ### Added
@@ -431,6 +450,7 @@ This release includes contributions from @unsealed211, @SomeTr, and @balaraz.
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.20.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.20.0
 [1.19.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.19.0
 [1.18.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.18.0
 [1.17.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.17.1
