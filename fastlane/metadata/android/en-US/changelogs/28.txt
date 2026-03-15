@@ -1,0 +1,16 @@
+Added:
+- Tap-to-pause timer replaces pause button
+- Show previous session value next to target
+- Redo current set in program mode
+
+Improved:
+- Unified timer layout across workout modes
+- Streamlined workout button layout
+- Center-aligned reps counter
+
+Fixed:
+- Redo skipping completed sets in unilateral exercises
+- Next exercise display during redo
+- Checkmark visibility for long names in challenge view
+
+Contributors: @Leoni, @gallegonovato, @nautilusx, @komeko, @SomeTr, @scream

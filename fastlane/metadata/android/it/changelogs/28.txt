@@ -1,0 +1,16 @@
+Aggiunto:
+- Tocca per pausa sostituisce il pulsante
+- Mostra valore sessione precedente accanto all'obiettivo
+- Ripeti serie in modalità programma
+
+Migliorato:
+- Layout del timer unificato
+- Layout pulsanti ottimizzato
+- Contatore ripetizioni centrato
+
+Corretto:
+- Ripetizione saltava serie in esercizi unilaterali
+- Visualizzazione prossimo esercizio durante ripetizione
+- Segno di spunta per nomi lunghi in vista sfida
+
+Contributors: @Leoni, @gallegonovato, @nautilusx, @komeko, @SomeTr, @scream
