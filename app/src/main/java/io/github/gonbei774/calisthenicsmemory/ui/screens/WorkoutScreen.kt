@@ -7,9 +7,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.rememberScrollState
@@ -25,13 +27,16 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -158,6 +163,9 @@ fun WorkoutScreen(
     // やり直しボタン用のキー（インクリメントで実行ステップをリセット）
     var retryKey by remember { mutableIntStateOf(0) }
 
+    // ナビゲーションシート表示状態
+    var showNavigationSheet by remember { mutableStateOf(false) }
+
     // 戻るボタンのハンドリング
     BackHandler {
         when (currentStep) {
@@ -246,6 +254,17 @@ fun WorkoutScreen(
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
+                    Spacer(modifier = Modifier.weight(1f))
+                    // ナビゲーションボタン（実行中のみ表示）
+                    if (currentStep is WorkoutStep.Executing) {
+                        IconButton(onClick = { showNavigationSheet = true }) {
+                            Icon(
+                                Icons.Default.Menu,
+                                contentDescription = stringResource(R.string.nav_program_overview),
+                                tint = Color.White
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -358,6 +377,7 @@ fun WorkoutScreen(
                                     isFlashEnabled = isFlashEnabled,
                                     isIntervalSoundEnabled = workoutPreferences.isIsometricIntervalSoundEnabled(),
                                     intervalSeconds = workoutPreferences.getIsometricIntervalSeconds(),
+                                    isNavigationOpen = showNavigationSheet,
                                     onSetComplete = onSetComplete,
                                     onSkip = onSkip,
                                     onAbort = onAbort,
@@ -374,6 +394,7 @@ fun WorkoutScreen(
                                     isFlashEnabled = isFlashEnabled,
                                     isIntervalSoundEnabled = workoutPreferences.isIsometricIntervalSoundEnabled(),
                                     intervalSeconds = workoutPreferences.getIsometricIntervalSeconds(),
+                                    isNavigationOpen = showNavigationSheet,
                                     onSetComplete = onSetComplete,
                                     onSkip = onSkip,
                                     onAbort = onAbort,
@@ -388,6 +409,7 @@ fun WorkoutScreen(
                                     toneGenerator = toneGenerator,
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
+                                    isNavigationOpen = showNavigationSheet,
                                     onSetComplete = onSetComplete,
                                     onSkip = onSkip,
                                     onAbort = onAbort,
@@ -403,6 +425,7 @@ fun WorkoutScreen(
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
                                     isCountSoundEnabled = step.session.isDynamicCountSoundEnabled,
+                                    isNavigationOpen = showNavigationSheet,
                                     onSetComplete = onSetComplete,
                                     onSkip = onSkip,
                                     onAbort = onAbort,
@@ -418,11 +441,62 @@ fun WorkoutScreen(
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
                                     isCountSoundEnabled = step.session.isDynamicCountSoundEnabled,
+                                    isNavigationOpen = showNavigationSheet,
                                     onSetComplete = onSetComplete,
                                     onSkip = onSkip,
                                     onAbort = onAbort,
                                     onRetry = onRetry
                                 )
+                            }
+                        }
+                    }
+
+                    // ナビゲーションシート（中止・やり直し）
+                    if (showNavigationSheet) {
+                        ModalBottomSheet(
+                            onDismissRequest = { showNavigationSheet = false },
+                            containerColor = Slate800
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp)
+                                    .padding(bottom = 32.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                OutlinedButton(
+                                    onClick = {
+                                        showNavigationSheet = false
+                                        onRetry()
+                                    },
+                                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    border = BorderStroke(1.dp, Slate500)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.retry_set_button),
+                                        fontSize = 16.sp,
+                                        color = Color.White
+                                    )
+                                }
+                                Button(
+                                    onClick = {
+                                        showNavigationSheet = false
+                                        val currentSet = step.session.sets.getOrNull(step.currentSetIndex)
+                                        if (currentSet != null) {
+                                            currentSet.isSkipped = true
+                                        }
+                                        onAbort(step.session)
+                                    },
+                                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Red600),
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.stop_button),
+                                        fontSize = 16.sp
+                                    )
+                                }
                             }
                         }
                     }
@@ -1272,11 +1346,17 @@ fun StartIntervalStep(
 ) {
     val appColors = LocalAppColors.current
     var remainingTime by remember { mutableIntStateOf(session.startInterval) }
+    var isPaused by remember { mutableStateOf(false) }
     val progress = if (session.startInterval > 0) remainingTime.toFloat() / session.startInterval else 0f
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(isPaused) {
         while (remainingTime > 0) {
+            if (isPaused) {
+                delay(100L)
+                continue
+            }
             delay(1000L)
+            if (isPaused) continue
             remainingTime--
             if (remainingTime <= 3 && remainingTime > 0) {
                 toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
@@ -1327,15 +1407,53 @@ fun StartIntervalStep(
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            CircularProgressTimer(
-                progress = progress,
-                remainingTime = remainingTime,
-                color = Orange600
-            )
+            // タイマー（タップで一時停止/再開）
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(240.dp)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) { isPaused = !isPaused }
+            ) {
+                Canvas(modifier = Modifier.size(240.dp)) {
+                    drawArc(
+                        color = appColors.timerTrack,
+                        startAngle = -90f,
+                        sweepAngle = 360f,
+                        useCenter = false,
+                        style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
+                    )
+                    drawArc(
+                        color = Orange600.copy(alpha = if (isPaused) 0.3f else 1f),
+                        startAngle = -90f,
+                        sweepAngle = 360f * progress,
+                        useCenter = false,
+                        style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
+                    )
+                }
+                Text(
+                    text = "$remainingTime",
+                    fontSize = 72.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = appColors.textPrimary,
+                    modifier = Modifier.alpha(if (isPaused) 0.2f else 1f)
+                )
+                if (isPaused) {
+                    val iconColor = appColors.textPrimary
+                    Canvas(modifier = Modifier.size(56.dp)) {
+                        val path = Path().apply {
+                            moveTo(size.width * 0.25f, size.height * 0.15f)
+                            lineTo(size.width * 0.85f, size.height * 0.5f)
+                            lineTo(size.width * 0.25f, size.height * 0.85f)
+                            close()
+                        }
+                        drawPath(path, color = iconColor.copy(alpha = 0.9f))
+                    }
+                }
+            }
         }
-
-        // 次のセット情報
-        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -1550,9 +1668,6 @@ fun ExecutingStep(
             }
         }
 
-        // 次のセット情報
-        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
-
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
@@ -1655,126 +1770,135 @@ fun IntervalStep(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 種目名（上部）
+        // 状態表示（ヘッダー直下）
         Text(
-            text = session.exercise.name,
-            fontSize = 24.sp,
+            text = stringResource(R.string.interval_label),
+            fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
-            color = appColors.textPrimary,
+            color = Cyan600,
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // 中央固定エリア
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            // 状態表示
-            Text(
-                text = stringResource(R.string.interval_label),
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Cyan600
-            )
-
-            // 次のセット表示
-            nextSet?.let {
-                val nextSideText = when (it.side) {
-                    "Right" -> stringResource(R.string.side_right)
-                    "Left" -> stringResource(R.string.side_left)
-                    else -> null
-                }
-                Text(
-                    text = if (nextSideText != null) {
-                        stringResource(R.string.next_set_format_with_side, it.setNumber, session.totalSets, nextSideText)
-                    } else {
-                        stringResource(R.string.next_set_format, it.setNumber, session.totalSets)
-                    },
-                    fontSize = 20.sp,
-                    color = appColors.textTertiary,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
+        // 次のセット表示
+        nextSet?.let {
+            val nextSideText = when (it.side) {
+                "Right" -> stringResource(R.string.side_right)
+                "Left" -> stringResource(R.string.side_left)
+                else -> null
             }
-
-            Spacer(modifier = Modifier.height(48.dp))
-
-            CircularProgressTimer(
-                progress = progress,
-                remainingTime = remainingTime,
-                color = Cyan600
-            )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // ボタンエリア
-        Button(
-            onClick = { isRunning = !isRunning },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isRunning) Red600 else Green600
-            ),
-            shape = RoundedCornerShape(16.dp)
-        ) {
             Text(
-                stringResource(if (isRunning) R.string.pause_button else R.string.resume_button),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+                text = if (nextSideText != null) {
+                    stringResource(R.string.next_set_format_with_side, it.setNumber, session.totalSets, nextSideText)
+                } else {
+                    stringResource(R.string.next_set_format, it.setNumber, session.totalSets)
+                },
+                fontSize = 20.sp,
+                color = appColors.textTertiary,
+                modifier = Modifier.padding(top = 4.dp)
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            verticalAlignment = Alignment.Bottom
         ) {
             IconButton(
                 onClick = {
                     // 今回のインターバルのみ短縮（次回以降は影響しない）
                     remainingTime = (remainingTime - 10).coerceAtLeast(0)
-                }
+                },
+                modifier = Modifier
+                    .size(48.dp)
+                    .offset(y = (-20).dp)
             ) {
-                Text(
-                    text = "-",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = appColors.textPrimary
-                )
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = Color.Transparent,
+                    border = BorderStroke(2.dp, Slate500)
+                ) {
+                    Box(
+                        modifier = Modifier.size(48.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "-", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
+                    }
+                }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
-
-            Text(
-                text = stringResource(R.string.ten_seconds),
-                fontSize = 18.sp,
-                color = appColors.textPrimary
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
+            // タイマー - タップで一時停止/再開
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(240.dp)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) { isRunning = !isRunning }
+            ) {
+                Canvas(modifier = Modifier.size(240.dp)) {
+                    drawArc(
+                        color = appColors.timerTrack,
+                        startAngle = -90f,
+                        sweepAngle = 360f,
+                        useCenter = false,
+                        style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
+                    )
+                    drawArc(
+                        color = Cyan600.copy(alpha = if (!isRunning) 0.3f else 1f),
+                        startAngle = -90f,
+                        sweepAngle = 360f * progress,
+                        useCenter = false,
+                        style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
+                    )
+                }
+                Text(
+                    text = "$remainingTime",
+                    fontSize = 72.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = appColors.textPrimary,
+                    modifier = Modifier.alpha(if (!isRunning) 0.2f else 1f)
+                )
+                if (!isRunning) {
+                    val iconColor = appColors.textPrimary
+                    Canvas(modifier = Modifier.size(56.dp)) {
+                        val path = Path().apply {
+                            moveTo(size.width * 0.25f, size.height * 0.15f)
+                            lineTo(size.width * 0.85f, size.height * 0.5f)
+                            lineTo(size.width * 0.25f, size.height * 0.85f)
+                            close()
+                        }
+                        drawPath(path, color = iconColor.copy(alpha = 0.9f))
+                    }
+                }
+            }
 
             IconButton(
                 onClick = {
                     // 今回のインターバルのみ延長（次回以降は影響しない）
                     remainingTime += 10
-                }
+                },
+                modifier = Modifier
+                    .size(48.dp)
+                    .offset(y = (-20).dp)
             ) {
-                Text(
-                    text = "+",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = appColors.textPrimary
-                )
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = Color.Transparent,
+                    border = BorderStroke(2.dp, Slate500)
+                ) {
+                    Box(
+                        modifier = Modifier.size(48.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "+", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
+                    }
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
         TextButton(onClick = onSkip) {
             Text(
@@ -2174,15 +2298,14 @@ fun saveWorkoutRecords(
     }
 }
 
-// 次のセット情報を表示するコンポーザブル（シングルモード用）
+// 次のセット情報をテキスト1行で表示（実行中画面の下部用）
 @Composable
-fun NextSetInfo(
+fun NextSetText(
     session: WorkoutSession,
     currentSetIndex: Int
 ) {
     val appColors = LocalAppColors.current
-    val nextSetIndex = currentSetIndex + 1
-    val nextSet = session.sets.getOrNull(nextSetIndex) ?: return
+    val nextSet = session.sets.getOrNull(currentSetIndex + 1) ?: return
 
     val nextSideText = when (nextSet.side) {
         "Right" -> stringResource(R.string.side_right)
@@ -2190,21 +2313,18 @@ fun NextSetInfo(
         else -> null
     }
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(vertical = 8.dp)
-    ) {
-        // 次のセット情報
-        Text(
-            text = if (nextSideText != null) {
-                stringResource(R.string.next_set_format_with_side, nextSet.setNumber, session.totalSets, nextSideText)
-            } else {
-                stringResource(R.string.next_set_format, nextSet.setNumber, session.totalSets)
-            },
-            fontSize = 16.sp,
-            color = appColors.textSecondary
-        )
+    val displayText = if (nextSideText != null) {
+        "${stringResource(R.string.interval_next)}: ${stringResource(R.string.set_format_with_side, nextSet.setNumber, session.totalSets, nextSideText)}"
+    } else {
+        "${stringResource(R.string.interval_next)}: ${stringResource(R.string.set_format, nextSet.setNumber, session.totalSets)}"
     }
+
+    Text(
+        text = displayText,
+        fontSize = 14.sp,
+        color = appColors.textSecondary,
+        modifier = Modifier.padding(top = 16.dp)
+    )
 }
 
 // ピピピ、ピピピ、ピピピ（3連×3セット）のビープ音を再生

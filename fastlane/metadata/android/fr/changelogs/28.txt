@@ -1,0 +1,16 @@
+Ajouté :
+- Appuyer pour mettre en pause remplace le bouton
+- Afficher la valeur de la session précédente
+- Refaire la série en mode programme
+
+Amélioré :
+- Disposition du minuteur unifiée
+- Disposition des boutons optimisée
+- Compteur de répétitions centré
+
+Corrigé :
+- Refaire sautait les séries unilatérales
+- Affichage du prochain exercice pendant refaire
+- Coche pour noms longs dans vue défi
+
+Contributors : @Leoni, @gallegonovato, @nautilusx, @komeko, @SomeTr, @scream

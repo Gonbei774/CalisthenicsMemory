@@ -564,6 +564,8 @@
     <string name="elapsed_target_format">Vergangen: %1$ds / Ziel: %2$ds</string>
     <string name="complete_with_time">✓ Fertig (%ds)</string>
     <string name="previous_value_format">Vorherig: %d</string>
+    <string name="previous_reps_format">Vorherig: %d Wdh.</string>
+    <string name="previous_time_format">Vorherig: %ds</string>
     <string name="reps_unit">Wdh.</string>
     <string name="program_result_zero_warning">Es gibt Sätze mit dem Wert 0. Null-Sätze für bilaterale Übungen und Sätze, bei denen beide Seiten 0 sind für unilaterale Übungen, werden nicht gespeichert.</string>
     <!-- Sound Settings (Program Confirm) -->

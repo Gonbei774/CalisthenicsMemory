@@ -945,12 +945,32 @@ fun ProgramExecutionScreen(
                                             if (nextIndex < sets.size) {
                                                 if (completedSet.intervalSeconds > 0 || completedSet.loopRestAfterSeconds > 0) {
                                                     currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                                } else if (isRedoMode) {
+                                                    // Redoモード: 次の未完了セットを探す
+                                                    var nextIncompleteIndex = -1
+                                                    for (i in nextIndex until sets.size) {
+                                                        if (!sets[i].isCompleted) {
+                                                            nextIncompleteIndex = i
+                                                            break
+                                                        }
+                                                    }
+                                                    isRedoMode = false
+                                                    if (nextIncompleteIndex >= 0) {
+                                                        if (startCountdownSeconds > 0) {
+                                                            currentStep = ProgramExecutionStep.StartInterval(step.session, nextIncompleteIndex)
+                                                        } else {
+                                                            currentStep = ProgramExecutionStep.Executing(step.session, nextIncompleteIndex)
+                                                        }
+                                                    } else {
+                                                        currentStep = ProgramExecutionStep.Result(step.session)
+                                                    }
                                                 } else if (startCountdownSeconds > 0) {
                                                     currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                                 } else {
                                                     currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
                                                 }
                                             } else {
+                                                if (isRedoMode) isRedoMode = false
                                                 currentStep = ProgramExecutionStep.Result(step.session)
                                             }
                                         },
@@ -1055,12 +1075,32 @@ fun ProgramExecutionScreen(
                                             if (nextIndex < sets.size) {
                                                 if (completedSet.intervalSeconds > 0 || completedSet.loopRestAfterSeconds > 0) {
                                                     currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                                } else if (isRedoMode) {
+                                                    // Redoモード: 次の未完了セットを探す
+                                                    var nextIncompleteIndex = -1
+                                                    for (i in nextIndex until sets.size) {
+                                                        if (!sets[i].isCompleted) {
+                                                            nextIncompleteIndex = i
+                                                            break
+                                                        }
+                                                    }
+                                                    isRedoMode = false
+                                                    if (nextIncompleteIndex >= 0) {
+                                                        if (startCountdownSeconds > 0) {
+                                                            currentStep = ProgramExecutionStep.StartInterval(step.session, nextIncompleteIndex)
+                                                        } else {
+                                                            currentStep = ProgramExecutionStep.Executing(step.session, nextIncompleteIndex)
+                                                        }
+                                                    } else {
+                                                        currentStep = ProgramExecutionStep.Result(step.session)
+                                                    }
                                                 } else if (startCountdownSeconds > 0) {
                                                     currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                                 } else {
                                                     currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
                                                 }
                                             } else {
+                                                if (isRedoMode) isRedoMode = false
                                                 currentStep = ProgramExecutionStep.Result(step.session)
                                             }
                                         },
@@ -1088,12 +1128,32 @@ fun ProgramExecutionScreen(
                                             if (nextIndex < sets.size) {
                                                 if (completedSet.intervalSeconds > 0 || completedSet.loopRestAfterSeconds > 0) {
                                                     currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                                } else if (isRedoMode) {
+                                                    // Redoモード: 次の未完了セットを探す
+                                                    var nextIncompleteIndex = -1
+                                                    for (i in nextIndex until sets.size) {
+                                                        if (!sets[i].isCompleted) {
+                                                            nextIncompleteIndex = i
+                                                            break
+                                                        }
+                                                    }
+                                                    isRedoMode = false
+                                                    if (nextIncompleteIndex >= 0) {
+                                                        if (startCountdownSeconds > 0) {
+                                                            currentStep = ProgramExecutionStep.StartInterval(step.session, nextIncompleteIndex)
+                                                        } else {
+                                                            currentStep = ProgramExecutionStep.Executing(step.session, nextIncompleteIndex)
+                                                        }
+                                                    } else {
+                                                        currentStep = ProgramExecutionStep.Result(step.session)
+                                                    }
                                                 } else if (startCountdownSeconds > 0) {
                                                     currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                                 } else {
                                                     currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
                                                 }
                                             } else {
+                                                if (isRedoMode) isRedoMode = false
                                                 currentStep = ProgramExecutionStep.Result(step.session)
                                             }
                                         },
@@ -1125,12 +1185,32 @@ fun ProgramExecutionScreen(
                                             if (nextIndex < sets.size) {
                                                 if (completedSet.intervalSeconds > 0 || completedSet.loopRestAfterSeconds > 0) {
                                                     currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                                } else if (isRedoMode) {
+                                                    // Redoモード: 次の未完了セットを探す
+                                                    var nextIncompleteIndex = -1
+                                                    for (i in nextIndex until sets.size) {
+                                                        if (!sets[i].isCompleted) {
+                                                            nextIncompleteIndex = i
+                                                            break
+                                                        }
+                                                    }
+                                                    isRedoMode = false
+                                                    if (nextIncompleteIndex >= 0) {
+                                                        if (startCountdownSeconds > 0) {
+                                                            currentStep = ProgramExecutionStep.StartInterval(step.session, nextIncompleteIndex)
+                                                        } else {
+                                                            currentStep = ProgramExecutionStep.Executing(step.session, nextIncompleteIndex)
+                                                        }
+                                                    } else {
+                                                        currentStep = ProgramExecutionStep.Result(step.session)
+                                                    }
                                                 } else if (startCountdownSeconds > 0) {
                                                     currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                                 } else {
                                                     currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
                                                 }
                                             } else {
+                                                if (isRedoMode) isRedoMode = false
                                                 currentStep = ProgramExecutionStep.Result(step.session)
                                             }
                                         },
@@ -1298,12 +1378,27 @@ fun ProgramExecutionScreen(
             onRedoSet = { targetIndex ->
                 // Redoモードを有効化
                 isRedoMode = true
-                // 対象セットのみリセット
+                // 対象セットをリセット
                 navSession.sets[targetIndex] = navSession.sets[targetIndex].copy(
                     isCompleted = false,
                     isSkipped = false,
                     actualValue = 0
                 )
+                // 片側種目の場合、ペア（Right/Left）もリセット
+                val targetSet = navSession.sets[targetIndex]
+                if (targetSet.side != null) {
+                    val pairIndex = if (targetSet.side == "Right") targetIndex + 1 else targetIndex - 1
+                    if (pairIndex in navSession.sets.indices) {
+                        val pairSet = navSession.sets[pairIndex]
+                        if (pairSet.exerciseIndex == targetSet.exerciseIndex && pairSet.setNumber == targetSet.setNumber && pairSet.side != null && pairSet.side != targetSet.side) {
+                            navSession.sets[pairIndex] = pairSet.copy(
+                                isCompleted = false,
+                                isSkipped = false,
+                                actualValue = 0
+                            )
+                        }
+                    }
+                }
                 // やり直し対象セットに遷移
                 if (startCountdownSeconds > 0) {
                     currentStep = ProgramExecutionStep.StartInterval(navSession, targetIndex)

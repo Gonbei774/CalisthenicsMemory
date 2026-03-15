@@ -4,7 +4,10 @@ import androidx.activity.compose.BackHandler
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.view.WindowManager
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -18,7 +21,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
@@ -749,12 +754,18 @@ private fun IntervalPrepareContent(
     val scope = rememberCoroutineScope()
     val totalSeconds = 5
     var remainingSeconds by remember { mutableIntStateOf(totalSeconds) }
+    var isPaused by remember { mutableStateOf(false) }
     val progress = remainingSeconds.toFloat() / totalSeconds
     val firstExercise = exercises.firstOrNull()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(isPaused) {
         while (remainingSeconds > 0) {
+            if (isPaused) {
+                delay(100L)
+                continue
+            }
             delay(1000L)
+            if (isPaused) continue
             remainingSeconds--
             if (remainingSeconds in 1..3) {
                 toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
@@ -789,12 +800,17 @@ private fun IntervalPrepareContent(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Center: timer
+        // Center: timer（タップで一時停止/再開）
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.size(240.dp)
+            modifier = Modifier
+                .size(240.dp)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { isPaused = !isPaused }
         ) {
-            androidx.compose.foundation.Canvas(modifier = Modifier.size(240.dp)) {
+            Canvas(modifier = Modifier.size(240.dp)) {
                 drawArc(
                     color = Orange600.copy(alpha = 0.2f),
                     startAngle = -90f,
@@ -803,7 +819,7 @@ private fun IntervalPrepareContent(
                     style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                 )
                 drawArc(
-                    color = Orange600,
+                    color = Orange600.copy(alpha = if (isPaused) 0.3f else 1f),
                     startAngle = -90f,
                     sweepAngle = 360f * progress,
                     useCenter = false,
@@ -815,8 +831,21 @@ private fun IntervalPrepareContent(
                 text = "$remainingSeconds",
                 fontSize = 56.sp,
                 fontWeight = FontWeight.Bold,
-                color = Orange600
+                color = Orange600,
+                modifier = Modifier.alpha(if (isPaused) 0.2f else 1f)
             )
+            if (isPaused) {
+                val iconColor = appColors.textPrimary
+                Canvas(modifier = Modifier.size(56.dp)) {
+                    val path = Path().apply {
+                        moveTo(size.width * 0.25f, size.height * 0.15f)
+                        lineTo(size.width * 0.85f, size.height * 0.5f)
+                        lineTo(size.width * 0.25f, size.height * 0.85f)
+                        close()
+                    }
+                    drawPath(path, color = iconColor.copy(alpha = 0.9f))
+                }
+            }
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -973,12 +1002,17 @@ private fun IntervalTimerContent(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Circular timer
+        // Circular timer（タップで一時停止/再開）
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.size(240.dp)
+            modifier = Modifier
+                .size(240.dp)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { onPauseToggle() }
         ) {
-            androidx.compose.foundation.Canvas(modifier = Modifier.size(240.dp)) {
+            Canvas(modifier = Modifier.size(240.dp)) {
                 drawArc(
                     color = phaseColor.copy(alpha = 0.2f),
                     startAngle = -90f,
@@ -987,7 +1021,7 @@ private fun IntervalTimerContent(
                     style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                 )
                 drawArc(
-                    color = phaseColor,
+                    color = phaseColor.copy(alpha = if (isPaused) 0.3f else 1f),
                     startAngle = -90f,
                     sweepAngle = 360f * progress,
                     useCenter = false,
@@ -999,8 +1033,21 @@ private fun IntervalTimerContent(
                 text = "$remainingSeconds",
                 fontSize = 56.sp,
                 fontWeight = FontWeight.Bold,
-                color = phaseColor
+                color = phaseColor,
+                modifier = Modifier.alpha(if (isPaused) 0.2f else 1f)
             )
+            if (isPaused) {
+                val iconColor = appColors.textPrimary
+                Canvas(modifier = Modifier.size(56.dp)) {
+                    val path = Path().apply {
+                        moveTo(size.width * 0.25f, size.height * 0.15f)
+                        lineTo(size.width * 0.85f, size.height * 0.5f)
+                        lineTo(size.width * 0.25f, size.height * 0.85f)
+                        close()
+                    }
+                    drawPath(path, color = iconColor.copy(alpha = 0.9f))
+                }
+            }
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -1062,24 +1109,6 @@ private fun IntervalTimerContent(
                 .padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Pause
-            OutlinedButton(
-                onClick = onPauseToggle,
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = appColors.textPrimary
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-            ) {
-                Text(
-                    text = if (isPaused) stringResource(R.string.interval_resume)
-                    else stringResource(R.string.interval_pause),
-                    fontSize = 15.sp
-                )
-            }
-
             // Stop
             if (onStop != null) {
                 Button(
