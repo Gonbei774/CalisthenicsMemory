@@ -18,7 +18,10 @@ fun NextExerciseText(
     currentSetIndex: Int
 ) {
     val appColors = LocalAppColors.current
-    val nextSet = session.sets.getOrNull(currentSetIndex + 1) ?: return
+    // 次の未完了セットを探す（Redoモード時に完了済みセットをスキップ）
+    val nextSet = ((currentSetIndex + 1) until session.sets.size)
+        .map { session.sets[it] }
+        .firstOrNull { !it.isCompleted && !it.isSkipped } ?: return
 
     val (_, nextExercise) = session.exercises[nextSet.exerciseIndex]
     val nextSideText = when (nextSet.side) {
