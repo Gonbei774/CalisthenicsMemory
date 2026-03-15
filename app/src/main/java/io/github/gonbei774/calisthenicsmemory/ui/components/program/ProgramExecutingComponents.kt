@@ -273,7 +273,8 @@ internal fun ProgramExecutingStepDynamicManual(
 
         // 目標レップ数
         Text(
-            text = stringResource(R.string.target_reps_format, currentSet.targetValue),
+            text = stringResource(R.string.target_reps_format, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_reps_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )
@@ -532,7 +533,8 @@ internal fun ProgramExecutingStepIsometricManual(
 
         // 経過時間 / 目標時間
         Text(
-            text = stringResource(R.string.elapsed_target_format, elapsedTime, currentSet.targetValue),
+            text = stringResource(R.string.elapsed_target_format, elapsedTime, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_time_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )
@@ -789,7 +791,8 @@ internal fun ProgramExecutingStepIsometricAuto(
 
         // 経過時間 / 目標時間
         Text(
-            text = stringResource(R.string.elapsed_target_format, elapsedTime, currentSet.targetValue),
+            text = stringResource(R.string.elapsed_target_format, elapsedTime, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_time_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )
@@ -1056,7 +1059,8 @@ internal fun ProgramExecutingStepDynamicAuto(
 
         // 目標レップ数
         Text(
-            text = stringResource(R.string.target_reps_format, currentSet.targetValue),
+            text = stringResource(R.string.target_reps_format, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_reps_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )
@@ -1209,7 +1213,8 @@ internal fun ProgramExecutingStepDynamicSimple(
 
         // 目標レップ数
         Text(
-            text = stringResource(R.string.target_reps_format, currentSet.targetValue),
+            text = stringResource(R.string.target_reps_format, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_reps_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary,
             modifier = Modifier.padding(top = 8.dp)

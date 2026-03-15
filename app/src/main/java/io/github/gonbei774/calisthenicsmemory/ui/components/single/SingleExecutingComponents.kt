@@ -236,7 +236,8 @@ fun SingleExecutingStepDynamicManual(
         }
 
         Text(
-            text = stringResource(R.string.target_reps_format, currentSet.targetValue),
+            text = stringResource(R.string.target_reps_format, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_reps_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )
@@ -473,7 +474,8 @@ fun SingleExecutingStepDynamicAuto(
         }
 
         Text(
-            text = stringResource(R.string.target_reps_format, currentSet.targetValue),
+            text = stringResource(R.string.target_reps_format, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_reps_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )
@@ -611,7 +613,8 @@ fun SingleExecutingStepDynamicSimple(
         }
 
         Text(
-            text = stringResource(R.string.target_reps_format, currentSet.targetValue),
+            text = stringResource(R.string.target_reps_format, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_reps_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )
@@ -835,7 +838,8 @@ fun SingleExecutingStepIsometricManual(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = stringResource(R.string.elapsed_target_format, recordValue, currentSet.targetValue),
+            text = stringResource(R.string.elapsed_target_format, recordValue, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_time_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )
@@ -1059,7 +1063,8 @@ fun SingleExecutingStepIsometricAuto(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = stringResource(R.string.elapsed_target_format, recordValue, currentSet.targetValue),
+            text = stringResource(R.string.elapsed_target_format, recordValue, currentSet.targetValue) +
+                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_time_format, it) } ?: ""),
             fontSize = 14.sp,
             color = appColors.textSecondary
         )

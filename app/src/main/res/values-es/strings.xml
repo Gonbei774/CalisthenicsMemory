@@ -569,6 +569,8 @@
     <string name="elapsed_target_format">Transcurrido: %1$ds / Objetivo: %2$ds</string>
     <string name="complete_with_time">✓ Completar (%ds)</string>
     <string name="previous_value_format">Anterior: %d</string>
+    <string name="previous_reps_format">Anterior: %d reps</string>
+    <string name="previous_time_format">Anterior: %ds</string>
     <string name="reps_unit">reps</string>
     <string name="program_result_zero_warning">Hay series con valor 0. Las series con valor cero para ejercicios bilaterales, y las series donde ambos lados son 0 para ejercicios unilaterales, no se guardarán.</string>
     <!-- Sound Settings (Program Confirm) -->

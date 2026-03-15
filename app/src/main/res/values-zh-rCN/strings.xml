@@ -569,6 +569,8 @@
     <string name="elapsed_target_format">已用时：%1$d秒 / 目标：%2$d秒</string>
     <string name="complete_with_time">✓ 完成 (%d秒)</string>
     <string name="previous_value_format">上次：%d</string>
+    <string name="previous_reps_format">上次：%d次</string>
+    <string name="previous_time_format">上次：%d秒</string>
     <string name="reps_unit">次</string>
     <string name="program_result_zero_warning">存在值为0的组数。双侧动作的0值组数，以及单侧动作中两侧都为0的组数，将不会被保存。</string>
     <!-- Sound Settings (Program Confirm) -->
