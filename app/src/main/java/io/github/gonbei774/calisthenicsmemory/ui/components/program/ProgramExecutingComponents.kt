@@ -156,12 +156,7 @@ internal fun ProgramExecutingStepDynamicManual(
             )
         }
 
-        // 次の種目/セット情報（上部に配置）
-        NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
-
         Spacer(modifier = Modifier.weight(1f))
-
-        Spacer(modifier = Modifier.height(24.dp))
 
         // 円形タイマー（レップ内の進捗表示）- タップで一時停止/再開
         Box(
@@ -300,6 +295,8 @@ internal fun ProgramExecutingStepDynamicManual(
                 fontWeight = FontWeight.Bold
             )
         }
+
+        NextExerciseText(session = session, currentSetIndex = currentSetIndex)
     }
 }
 
@@ -426,12 +423,7 @@ internal fun ProgramExecutingStepIsometricManual(
             )
         }
 
-        // 次の種目/セット情報（上部に配置）
-        NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
-
         Spacer(modifier = Modifier.weight(1f))
-
-        Spacer(modifier = Modifier.height(24.dp))
 
         // タイマーセクション（円形タイマー + 調整ボタン）
         Row(
@@ -562,6 +554,8 @@ internal fun ProgramExecutingStepIsometricManual(
                 fontWeight = FontWeight.Bold
             )
         }
+
+        NextExerciseText(session = session, currentSetIndex = currentSetIndex)
     }
 }
 
@@ -685,12 +679,7 @@ internal fun ProgramExecutingStepIsometricAuto(
             )
         }
 
-        // 次の種目/セット情報（上部に配置）
-        NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
-
         Spacer(modifier = Modifier.weight(1f))
-
-        Spacer(modifier = Modifier.height(24.dp))
 
         // タイマーセクション（円形タイマー + 調整ボタン）
         Row(
@@ -822,6 +811,8 @@ internal fun ProgramExecutingStepIsometricAuto(
                 fontWeight = FontWeight.Bold
             )
         }
+
+        NextExerciseText(session = session, currentSetIndex = currentSetIndex)
     }
 }
 
@@ -948,12 +939,7 @@ internal fun ProgramExecutingStepDynamicAuto(
             )
         }
 
-        // 次の種目/セット情報（上部に配置）
-        NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
-
         Spacer(modifier = Modifier.weight(1f))
-
-        Spacer(modifier = Modifier.height(24.dp))
 
         // 円形タイマー（レップ内の進捗表示）- タップで一時停止/再開
         Box(
@@ -1092,6 +1078,8 @@ internal fun ProgramExecutingStepDynamicAuto(
                 fontWeight = FontWeight.Bold
             )
         }
+
+        NextExerciseText(session = session, currentSetIndex = currentSetIndex)
     }
 }
 
@@ -1154,9 +1142,6 @@ internal fun ProgramExecutingStepDynamicSimple(
                 modifier = Modifier.padding(top = 4.dp)
             )
         }
-
-        // 次の種目/セット情報
-        NextExerciseInfo(session = session, currentSetIndex = currentSetIndex)
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -1248,5 +1233,6 @@ internal fun ProgramExecutingStepDynamicSimple(
             )
         }
 
+        NextExerciseText(session = session, currentSetIndex = currentSetIndex)
     }
 }
