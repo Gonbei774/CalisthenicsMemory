@@ -275,39 +275,6 @@ internal fun ProgramIntervalStep(
             }
         }
 
-        // 次のセット/種目表示
-        nextSet?.let { next ->
-            val (_, nextExercise) = session.exercises[next.exerciseIndex]
-            val nextSideText = when (next.side) {
-                "Right" -> stringResource(R.string.side_right)
-                "Left" -> stringResource(R.string.side_left)
-                else -> null
-            }
-            // 次のセットの全体位置
-            val nextGlobalIndex = nextSetIndex + 1
-            val totalSets = session.sets.size
-
-            // 次の種目名（常に表示）
-            Text(
-                text = stringResource(R.string.next_exercise_label, nextExercise.name),
-                fontSize = 18.sp,
-                color = appColors.textTertiary,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-
-            // 次のセット情報（全体進捗）
-            Text(
-                text = if (nextSideText != null) {
-                    stringResource(R.string.set_progress_with_side, nextGlobalIndex, totalSets, nextSideText)
-                } else {
-                    stringResource(R.string.set_progress, nextGlobalIndex, totalSets)
-                },
-                fontSize = 18.sp,
-                color = appColors.textTertiary,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-        }
-
         Spacer(modifier = Modifier.weight(1f))
 
         // タイマー + ±ボタン
@@ -404,6 +371,55 @@ internal fun ProgramIntervalStep(
         }
 
         Spacer(modifier = Modifier.weight(1f))
+
+        // 次のセット/種目カード
+        nextSet?.let { next ->
+            val (_, nextExercise) = session.exercises[next.exerciseIndex]
+            val nextSideText = when (next.side) {
+                "Right" -> stringResource(R.string.side_right)
+                "Left" -> stringResource(R.string.side_left)
+                else -> null
+            }
+            val nextGlobalIndex = nextSetIndex + 1
+            val totalSets = session.sets.size
+            val setProgressText = if (nextSideText != null) {
+                stringResource(R.string.set_progress_with_side, nextGlobalIndex, totalSets, nextSideText)
+            } else {
+                stringResource(R.string.set_progress, nextGlobalIndex, totalSets)
+            }
+
+            Card(
+                colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text(
+                        text = "${stringResource(R.string.interval_next)} ▶",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Cyan600
+                    )
+                    Text(
+                        text = "${nextExercise.name}  $setProgressText",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = appColors.textPrimary,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                    if (!nextExercise.description.isNullOrBlank()) {
+                        Text(
+                            text = nextExercise.description,
+                            fontSize = 13.sp,
+                            color = appColors.textSecondary,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // スキップボタン
         TextButton(onClick = onSkip) {

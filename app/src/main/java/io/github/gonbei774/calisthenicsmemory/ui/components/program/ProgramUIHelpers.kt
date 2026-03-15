@@ -11,17 +11,14 @@ import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
 import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 
-// 次の種目情報を表示するコンポーザブル（実行中画面用）
-// セット番号は表示しない（今のセット番号から自明のため）
+// 次の種目情報をテキスト1行で表示（実行中画面の下部用）
 @Composable
-fun NextExerciseInfo(
+fun NextExerciseText(
     session: ProgramExecutionSession,
-    currentSetIndex: Int,
-    nextSetIndexOverride: Int? = null  // Redoモード時など、次のセットが+1でない場合に使用
+    currentSetIndex: Int
 ) {
     val appColors = LocalAppColors.current
-    val nextSetIndex = nextSetIndexOverride ?: (currentSetIndex + 1)
-    val nextSet = session.sets.getOrNull(nextSetIndex) ?: return
+    val nextSet = session.sets.getOrNull(currentSetIndex + 1) ?: return
 
     val (_, nextExercise) = session.exercises[nextSet.exerciseIndex]
     val nextSideText = when (nextSet.side) {
@@ -30,17 +27,16 @@ fun NextExerciseInfo(
         else -> null
     }
 
-    // 次の種目名（サイド情報があれば含める）
-    val displayText = if (nextSideText != null) {
-        stringResource(R.string.next_exercise_label, "${nextExercise.name} - $nextSideText")
+    val displayName = if (nextSideText != null) {
+        "${nextExercise.name} - $nextSideText"
     } else {
-        stringResource(R.string.next_exercise_label, nextExercise.name)
+        nextExercise.name
     }
 
     Text(
-        text = displayText,
-        fontSize = 16.sp,
+        text = "${stringResource(R.string.interval_next)}: $displayName",
+        fontSize = 14.sp,
         color = appColors.textSecondary,
-        modifier = Modifier.padding(vertical = 8.dp)
+        modifier = Modifier.padding(top = 16.dp)
     )
 }

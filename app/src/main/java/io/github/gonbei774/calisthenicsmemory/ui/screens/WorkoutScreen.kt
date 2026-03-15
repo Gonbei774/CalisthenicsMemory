@@ -1668,9 +1668,6 @@ fun ExecutingStep(
             }
         }
 
-        // 次のセット情報
-        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
-
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
@@ -2301,15 +2298,14 @@ fun saveWorkoutRecords(
     }
 }
 
-// 次のセット情報を表示するコンポーザブル（シングルモード用）
+// 次のセット情報をテキスト1行で表示（実行中画面の下部用）
 @Composable
-fun NextSetInfo(
+fun NextSetText(
     session: WorkoutSession,
     currentSetIndex: Int
 ) {
     val appColors = LocalAppColors.current
-    val nextSetIndex = currentSetIndex + 1
-    val nextSet = session.sets.getOrNull(nextSetIndex) ?: return
+    val nextSet = session.sets.getOrNull(currentSetIndex + 1) ?: return
 
     val nextSideText = when (nextSet.side) {
         "Right" -> stringResource(R.string.side_right)
@@ -2317,21 +2313,18 @@ fun NextSetInfo(
         else -> null
     }
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(vertical = 8.dp)
-    ) {
-        // 次のセット情報
-        Text(
-            text = if (nextSideText != null) {
-                stringResource(R.string.next_set_format_with_side, nextSet.setNumber, session.totalSets, nextSideText)
-            } else {
-                stringResource(R.string.next_set_format, nextSet.setNumber, session.totalSets)
-            },
-            fontSize = 16.sp,
-            color = appColors.textSecondary
-        )
+    val displayText = if (nextSideText != null) {
+        "${stringResource(R.string.interval_next)}: ${stringResource(R.string.set_format_with_side, nextSet.setNumber, session.totalSets, nextSideText)}"
+    } else {
+        "${stringResource(R.string.interval_next)}: ${stringResource(R.string.set_format, nextSet.setNumber, session.totalSets)}"
     }
+
+    Text(
+        text = displayText,
+        fontSize = 14.sp,
+        color = appColors.textSecondary,
+        modifier = Modifier.padding(top = 16.dp)
+    )
 }
 
 // ピピピ、ピピピ、ピピピ（3連×3セット）のビープ音を再生

@@ -21,8 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.R
+import io.github.gonbei774.calisthenicsmemory.ui.screens.NextSetText
 import io.github.gonbei774.calisthenicsmemory.ui.screens.WorkoutSession
-import io.github.gonbei774.calisthenicsmemory.ui.screens.NextSetInfo
 import io.github.gonbei774.calisthenicsmemory.ui.screens.playTripleBeepTwice
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
@@ -127,8 +127,6 @@ fun SingleExecutingStepDynamicManual(
             color = appColors.textTertiary,
             modifier = Modifier.padding(top = 4.dp)
         )
-
-        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -265,6 +263,7 @@ fun SingleExecutingStepDynamicManual(
             )
         }
 
+        NextSetText(session = session, currentSetIndex = currentSetIndex)
     }
 }
 
@@ -366,8 +365,6 @@ fun SingleExecutingStepDynamicAuto(
             color = appColors.textTertiary,
             modifier = Modifier.padding(top = 4.dp)
         )
-
-        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -503,6 +500,7 @@ fun SingleExecutingStepDynamicAuto(
             )
         }
 
+        NextSetText(session = session, currentSetIndex = currentSetIndex)
     }
 }
 
@@ -558,8 +556,6 @@ fun SingleExecutingStepDynamicSimple(
             color = appColors.textTertiary,
             modifier = Modifier.padding(top = 4.dp)
         )
-
-        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -644,6 +640,7 @@ fun SingleExecutingStepDynamicSimple(
             )
         }
 
+        NextSetText(session = session, currentSetIndex = currentSetIndex)
     }
 }
 
@@ -738,8 +735,6 @@ fun SingleExecutingStepIsometricManual(
             color = appColors.textTertiary,
             modifier = Modifier.padding(top = 4.dp)
         )
-
-        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -865,6 +860,8 @@ fun SingleExecutingStepIsometricManual(
                 fontWeight = FontWeight.Bold
             )
         }
+
+        NextSetText(session = session, currentSetIndex = currentSetIndex)
     }
 }
 
@@ -962,8 +959,6 @@ fun SingleExecutingStepIsometricAuto(
             color = appColors.textTertiary,
             modifier = Modifier.padding(top = 4.dp)
         )
-
-        NextSetInfo(session = session, currentSetIndex = currentSetIndex)
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -1090,5 +1085,7 @@ fun SingleExecutingStepIsometricAuto(
                 fontWeight = FontWeight.Bold
             )
         }
+
+        NextSetText(session = session, currentSetIndex = currentSetIndex)
     }
 }
