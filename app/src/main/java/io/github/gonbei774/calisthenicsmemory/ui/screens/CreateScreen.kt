@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.util.SearchUtils
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import sh.calvin.reorderable.ReorderableColumn
 import sh.calvin.reorderable.ReorderableItem
@@ -53,6 +54,12 @@ fun CreateScreen(
     var showGroupMenu by remember { mutableStateOf<String?>(null) }
     var showGroupEditDialog by remember { mutableStateOf<String?>(null) }
     var showGroupDeleteDialog by remember { mutableStateOf<String?>(null) }
+
+    // Search state
+    var searchQuery by remember { mutableStateOf("") }
+    val searchResults = remember(hierarchicalData, searchQuery) {
+        SearchUtils.searchHierarchicalExercises(hierarchicalData, searchQuery)
+    }
 
     Scaffold(
         topBar = {
@@ -121,7 +128,8 @@ fun CreateScreen(
             val ungroupedGroup = hierarchicalData.firstOrNull { it.groupName == null }
 
             val lazyListState = rememberLazyListState()
-            val headerCount = if (favoriteGroup != null) 1 else 0
+            val isSearching = searchQuery.isNotBlank()
+            val headerCount = if (!isSearching && favoriteGroup != null) 1 else 0
 
             val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
                 val fromIndex = from.index - headerCount
@@ -132,94 +140,181 @@ fun CreateScreen(
                 }
             }
 
-            LazyColumn(
-                state = lazyListState,
+            // Scroll to top when search results change
+            LaunchedEffect(searchQuery, searchResults) {
+                if (searchQuery.isNotBlank() && searchResults.isNotEmpty()) {
+                    lazyListState.scrollToItem(0)
+                }
+            }
+
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(16.dp)
             ) {
-                // お気に入りグループ（固定位置）
-                if (favoriteGroup != null) {
-                    item(key = "favorite") {
-                        ExpandableGroupCard(
-                            group = favoriteGroup,
-                            isExpanded = TrainingViewModel.FAVORITE_GROUP_KEY in expandedGroups,
-                            onExpandToggle = {
-                                viewModel.toggleGroupExpansion(TrainingViewModel.FAVORITE_GROUP_KEY)
-                            },
-                            onGroupMenuClick = {
-                                showGroupMenu = favoriteGroup.groupName
-                            },
-                            onExerciseEdit = { exercise ->
-                                editingExercise = exercise
-                                showAddDialog = true
-                            },
-                            onExerciseDelete = { exercise ->
-                                showDeleteDialog = exercise
-                            },
-                            viewModel = viewModel
+                // Search field
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    placeholder = {
+                        Text(
+                            text = stringResource(R.string.search_placeholder),
+                            color = appColors.textSecondary
                         )
-                    }
-                }
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Search,
+                            contentDescription = null,
+                            tint = appColors.textSecondary
+                        )
+                    },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(
+                                    Icons.Default.Clear,
+                                    contentDescription = stringResource(R.string.clear),
+                                    tint = appColors.textSecondary
+                                )
+                            }
+                        }
+                    },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = appColors.textPrimary,
+                        unfocusedTextColor = appColors.textPrimary,
+                        focusedContainerColor = appColors.cardBackground,
+                        unfocusedContainerColor = appColors.cardBackground,
+                        focusedBorderColor = Blue600,
+                        unfocusedBorderColor = appColors.border,
+                        cursorColor = Blue600
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                )
 
-                // 通常グループ（並び替え可能）
-                items(
-                    count = regularGroups.size,
-                    key = { index -> "group_${regularGroups[index].groupName}" }
-                ) { index ->
-                    val group = regularGroups[index]
-                    ReorderableItem(reorderableLazyListState, key = "group_${group.groupName}") { isDragging ->
-                        val elevation by animateDpAsState(
-                            targetValue = if (isDragging) 4.dp else 0.dp,
-                            label = "elevation"
-                        )
-                        ExpandableGroupCard(
-                            group = group,
-                            isExpanded = group.groupName!! in expandedGroups,
-                            onExpandToggle = {
-                                viewModel.toggleGroupExpansion(group.groupName!!)
-                            },
-                            onGroupMenuClick = {
-                                showGroupMenu = group.groupName
-                            },
-                            onExerciseEdit = { exercise ->
-                                editingExercise = exercise
-                                showAddDialog = true
-                            },
-                            onExerciseDelete = { exercise ->
-                                showDeleteDialog = exercise
-                            },
-                            viewModel = viewModel,
-                            isDragging = isDragging,
-                            elevation = elevation,
-                            dragHandle = { Modifier.longPressDraggableHandle() }
-                        )
-                    }
-                }
+                LazyColumn(
+                    state = lazyListState,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    if (isSearching) {
+                        // Search results (hierarchical)
+                        if (searchResults.isEmpty()) {
+                            item {
+                                Text(
+                                    text = stringResource(R.string.no_results),
+                                    color = appColors.textSecondary,
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            }
+                        } else {
+                            searchResults.forEach { group ->
+                                val groupKey = group.groupName ?: "ungrouped"
+                                item(key = "search_$groupKey") {
+                                    ExpandableGroupCard(
+                                        group = group,
+                                        isExpanded = true,
+                                        onExpandToggle = { },
+                                        onGroupMenuClick = { },
+                                        onExerciseEdit = { exercise ->
+                                            editingExercise = exercise
+                                            showAddDialog = true
+                                        },
+                                        onExerciseDelete = { exercise ->
+                                            showDeleteDialog = exercise
+                                        },
+                                        viewModel = viewModel
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        // お気に入りグループ（固定位置）
+                        if (favoriteGroup != null) {
+                            item(key = "favorite") {
+                                ExpandableGroupCard(
+                                    group = favoriteGroup,
+                                    isExpanded = TrainingViewModel.FAVORITE_GROUP_KEY in expandedGroups,
+                                    onExpandToggle = {
+                                        viewModel.toggleGroupExpansion(TrainingViewModel.FAVORITE_GROUP_KEY)
+                                    },
+                                    onGroupMenuClick = {
+                                        showGroupMenu = favoriteGroup.groupName
+                                    },
+                                    onExerciseEdit = { exercise ->
+                                        editingExercise = exercise
+                                        showAddDialog = true
+                                    },
+                                    onExerciseDelete = { exercise ->
+                                        showDeleteDialog = exercise
+                                    },
+                                    viewModel = viewModel
+                                )
+                            }
+                        }
 
-                // グループなし（固定位置）
-                if (ungroupedGroup != null) {
-                    item(key = "ungrouped") {
-                        ExpandableGroupCard(
-                            group = ungroupedGroup,
-                            isExpanded = "ungrouped" in expandedGroups,
-                            onExpandToggle = {
-                                viewModel.toggleGroupExpansion("ungrouped")
-                            },
-                            onGroupMenuClick = {
-                                showGroupMenu = ungroupedGroup.groupName
-                            },
-                            onExerciseEdit = { exercise ->
-                                editingExercise = exercise
-                                showAddDialog = true
-                            },
-                            onExerciseDelete = { exercise ->
-                                showDeleteDialog = exercise
-                            },
-                            viewModel = viewModel
-                        )
+                        // 通常グループ（並び替え可能）
+                        items(
+                            count = regularGroups.size,
+                            key = { index -> "group_${regularGroups[index].groupName}" }
+                        ) { index ->
+                            val group = regularGroups[index]
+                            ReorderableItem(reorderableLazyListState, key = "group_${group.groupName}") { isDragging ->
+                                val elevation by animateDpAsState(
+                                    targetValue = if (isDragging) 4.dp else 0.dp,
+                                    label = "elevation"
+                                )
+                                ExpandableGroupCard(
+                                    group = group,
+                                    isExpanded = group.groupName!! in expandedGroups,
+                                    onExpandToggle = {
+                                        viewModel.toggleGroupExpansion(group.groupName!!)
+                                    },
+                                    onGroupMenuClick = {
+                                        showGroupMenu = group.groupName
+                                    },
+                                    onExerciseEdit = { exercise ->
+                                        editingExercise = exercise
+                                        showAddDialog = true
+                                    },
+                                    onExerciseDelete = { exercise ->
+                                        showDeleteDialog = exercise
+                                    },
+                                    viewModel = viewModel,
+                                    isDragging = isDragging,
+                                    elevation = elevation,
+                                    dragHandle = { Modifier.longPressDraggableHandle() }
+                                )
+                            }
+                        }
+
+                        // グループなし（固定位置）
+                        if (ungroupedGroup != null) {
+                            item(key = "ungrouped") {
+                                ExpandableGroupCard(
+                                    group = ungroupedGroup,
+                                    isExpanded = "ungrouped" in expandedGroups,
+                                    onExpandToggle = {
+                                        viewModel.toggleGroupExpansion("ungrouped")
+                                    },
+                                    onGroupMenuClick = {
+                                        showGroupMenu = ungroupedGroup.groupName
+                                    },
+                                    onExerciseEdit = { exercise ->
+                                        editingExercise = exercise
+                                        showAddDialog = true
+                                    },
+                                    onExerciseDelete = { exercise ->
+                                        showDeleteDialog = exercise
+                                    },
+                                    viewModel = viewModel
+                                )
+                            }
+                        }
                     }
                 }
             }
