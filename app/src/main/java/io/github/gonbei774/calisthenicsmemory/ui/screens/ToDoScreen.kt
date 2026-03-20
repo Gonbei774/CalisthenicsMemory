@@ -1931,13 +1931,6 @@ private fun RepeatDaysDialog(
             }) {
                 Text(stringResource(R.string.todo_repeat_save), color = Amber500)
             }
-        },
-        dismissButton = {
-            TextButton(onClick = {
-                onSave("")
-            }) {
-                Text(stringResource(R.string.todo_repeat_clear), color = appColors.textSecondary)
-            }
         }
     )
 }
