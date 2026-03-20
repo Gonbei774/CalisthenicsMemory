@@ -717,7 +717,7 @@ private fun AddExerciseToIntervalDialog(
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
     val expandedGroups by viewModel.expandedGroups.collectAsState()
 
-    var selectedExercises by remember { mutableStateOf(setOf<Long>()) }
+    var selectedExercises by remember { mutableStateOf(listOf<Long>()) }
     var searchQuery by remember { mutableStateOf("") }
     val searchResults = remember(exercises, searchQuery) {
         SearchUtils.searchExercises(exercises, searchQuery)
@@ -863,7 +863,7 @@ private fun AddExerciseToIntervalDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    val selected = exercises.filter { it.id in selectedExercises }
+                    val selected = selectedExercises.mapNotNull { id -> exercises.find { it.id == id } }
                     onAdd(selected)
                 },
                 enabled = selectedExercises.isNotEmpty()
@@ -975,7 +975,7 @@ private fun IntervalExerciseSelectItem(
 private fun IntervalSelectExerciseGroup(
     groupName: String?,
     exercises: List<Exercise>,
-    selectedExercises: Set<Long>,
+    selectedExercises: List<Long>,
     isExpanded: Boolean,
     onExpandToggle: () -> Unit,
     onExerciseToggle: (Long) -> Unit
