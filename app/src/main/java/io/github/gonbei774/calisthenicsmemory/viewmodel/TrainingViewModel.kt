@@ -342,16 +342,16 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
     }
 
     // Training Record operations
-    // Training Record operations (既存)
+    // セット別の距離/重量/アシストに対応。リストはvaluesと同じindexで整列していることを呼び出し側で保証すること
     fun addTrainingRecords(
         exerciseId: Long,
         values: List<Int>,
         date: String,
         time: String,
         comment: String,
-        distanceCm: Int? = null,   // 距離（cm）
-        weightG: Int? = null,      // 追加ウエイト（g）
-        assistanceG: Int? = null   // アシスト量（g）
+        distancesCm: List<Int?> = emptyList(),   // セット別距離（cm）
+        weightsG: List<Int?> = emptyList(),      // セット別追加ウエイト（g）
+        assistancesG: List<Int?> = emptyList()   // セット別アシスト量（g）
     ) {
         viewModelScope.launch {
             try {
@@ -364,9 +364,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         date = date,
                         time = time,
                         comment = comment,
-                        distanceCm = distanceCm,
-                        weightG = weightG,
-                        assistanceG = assistanceG
+                        distanceCm = distancesCm.getOrNull(index),
+                        weightG = weightsG.getOrNull(index),
+                        assistanceG = assistancesG.getOrNull(index)
                     )
                 }
                 recordDao.insertRecords(records)
@@ -377,17 +377,17 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    // ← ここから追加: Unilateral種目用
+    // Unilateral種目用（セット別の距離/重量/アシストに対応）
     fun addTrainingRecordsUnilateral(
         exerciseId: Long,
         valuesRight: List<Int>,
-        valuesLeft: List<Int>,
+        valuesLeft: List<Int?>,
         date: String,
         time: String,
         comment: String,
-        distanceCm: Int? = null,   // 距離（cm）
-        weightG: Int? = null,      // 追加ウエイト（g）
-        assistanceG: Int? = null   // アシスト量（g）
+        distancesCm: List<Int?> = emptyList(),   // セット別距離（cm）
+        weightsG: List<Int?> = emptyList(),      // セット別追加ウエイト（g）
+        assistancesG: List<Int?> = emptyList()   // セット別アシスト量（g）
     ) {
         viewModelScope.launch {
             try {
@@ -401,9 +401,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         date = date,
                         time = time,
                         comment = comment,
-                        distanceCm = distanceCm,
-                        weightG = weightG,
-                        assistanceG = assistanceG
+                        distanceCm = distancesCm.getOrNull(index),
+                        weightG = weightsG.getOrNull(index),
+                        assistanceG = assistancesG.getOrNull(index)
                     )
                 }
                 recordDao.insertRecords(records)
