@@ -659,33 +659,39 @@ fun WorkoutInputScreen(
         )
     }
 
-    // 距離・荷重入力（プリフィルデータで初期化）
-    var distanceInput by remember(prefillData) {
+    // 距離・荷重・アシスト入力（セット別、プリフィルデータで初期化）
+    var distanceInputs by remember(prefillData) {
         mutableStateOf(
-            if (prefillData != null && exercise.distanceTrackingEnabled) {
-                prefillData.firstOrNull()?.distanceCm?.toString() ?: ""
+            if (exercise.distanceTrackingEnabled) {
+                List(numberOfSets) { index ->
+                    prefillData?.getOrNull(index)?.distanceCm?.toString() ?: ""
+                }
             } else {
-                ""
+                List(numberOfSets) { "" }
             }
         )
     }
-    var weightInput by remember(prefillData) {
+    var weightInputs by remember(prefillData) {
         mutableStateOf(
-            if (prefillData != null && exercise.weightTrackingEnabled) {
-                // gからkgに変換（例: 1500g → 1.5）
-                prefillData.firstOrNull()?.weightG?.let { (it / 1000.0).toString() } ?: ""
+            if (exercise.weightTrackingEnabled) {
+                List(numberOfSets) { index ->
+                    // gからkgに変換（例: 1500g → 1.5）
+                    prefillData?.getOrNull(index)?.weightG?.let { (it / 1000.0).toString() } ?: ""
+                }
             } else {
-                ""
+                List(numberOfSets) { "" }
             }
         )
     }
-    var assistanceInput by remember(prefillData) {
+    var assistanceInputs by remember(prefillData) {
         mutableStateOf(
-            if (prefillData != null && exercise.assistanceTrackingEnabled) {
-                // gからkgに変換（例: 1500g → 1.5）
-                prefillData.firstOrNull()?.assistanceG?.let { (it / 1000.0).toString() } ?: ""
+            if (exercise.assistanceTrackingEnabled) {
+                List(numberOfSets) { index ->
+                    // gからkgに変換（例: 1500g → 1.5）
+                    prefillData?.getOrNull(index)?.assistanceG?.let { (it / 1000.0).toString() } ?: ""
+                }
             } else {
-                ""
+                List(numberOfSets) { "" }
             }
         )
     }
@@ -700,6 +706,10 @@ fun WorkoutInputScreen(
                 setValuesLeft.getOrElse(index) { "" }
             }
         }
+        // 距離・荷重・アシストもセット数に合わせてリサイズ
+        distanceInputs = List(numberOfSets) { index -> distanceInputs.getOrElse(index) { "" } }
+        weightInputs = List(numberOfSets) { index -> weightInputs.getOrElse(index) { "" } }
+        assistanceInputs = List(numberOfSets) { index -> assistanceInputs.getOrElse(index) { "" } }
     }
 
     // バリデーション
@@ -997,35 +1007,86 @@ fun WorkoutInputScreen(
                                     )
                                 )
                             }
+
+                            // セット別 距離/荷重/アシスト入力
+                            PerSetTrackingFields(
+                                exercise = exercise,
+                                index = index,
+                                distanceInputs = distanceInputs,
+                                weightInputs = weightInputs,
+                                assistanceInputs = assistanceInputs,
+                                onDistanceChange = { i, v ->
+                                    distanceInputs = distanceInputs.toMutableList().also { it[i] = v }
+                                },
+                                onWeightChange = { i, v ->
+                                    weightInputs = weightInputs.toMutableList().also { it[i] = v }
+                                },
+                                onAssistanceChange = { i, v ->
+                                    assistanceInputs = assistanceInputs.toMutableList().also { it[i] = v }
+                                },
+                                appColors = appColors
+                            )
                         }
                     }
                 }
             } else {
-                // Bilateral: 従来通り1つの入力フィールド
+                // Bilateral: 従来通り1つの入力フィールド（セット別トラッキング有効時はCard内にまとめる）
                 items(numberOfSets) { index ->
-                    OutlinedTextField(
-                        value = setValues.getOrElse(index) { "" },
-                        onValueChange = { value ->
-                            onSetValueChange(index, value)
-                        },
-                        label = {
-                            Text(stringResource(R.string.set_number_with_unit, index + 1, if (exercise.type == "Dynamic") stringResource(R.string.reps_label) else stringResource(R.string.time_label)))
-                        },
+                    Card(
                         modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number
+                        colors = CardDefaults.cardColors(
+                            containerColor = appColors.cardBackground
                         ),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Green600,
-                            unfocusedBorderColor = appColors.border,
-                            focusedLabelColor = Green600,
-                            unfocusedLabelColor = appColors.textSecondary,
-                            cursorColor = Green600,
-                            focusedTextColor = appColors.textPrimary,
-                            unfocusedTextColor = appColors.textPrimary
-                        )
-                    )
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            OutlinedTextField(
+                                value = setValues.getOrElse(index) { "" },
+                                onValueChange = { value ->
+                                    onSetValueChange(index, value)
+                                },
+                                label = {
+                                    Text(stringResource(R.string.set_number_with_unit, index + 1, if (exercise.type == "Dynamic") stringResource(R.string.reps_label) else stringResource(R.string.time_label)))
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Number
+                                ),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Green600,
+                                    unfocusedBorderColor = appColors.border,
+                                    focusedLabelColor = Green600,
+                                    unfocusedLabelColor = appColors.textSecondary,
+                                    cursorColor = Green600,
+                                    focusedTextColor = appColors.textPrimary,
+                                    unfocusedTextColor = appColors.textPrimary
+                                )
+                            )
+
+                            // セット別 距離/荷重/アシスト入力
+                            PerSetTrackingFields(
+                                exercise = exercise,
+                                index = index,
+                                distanceInputs = distanceInputs,
+                                weightInputs = weightInputs,
+                                assistanceInputs = assistanceInputs,
+                                onDistanceChange = { i, v ->
+                                    distanceInputs = distanceInputs.toMutableList().also { it[i] = v }
+                                },
+                                onWeightChange = { i, v ->
+                                    weightInputs = weightInputs.toMutableList().also { it[i] = v }
+                                },
+                                onAssistanceChange = { i, v ->
+                                    assistanceInputs = assistanceInputs.toMutableList().also { it[i] = v }
+                                },
+                                appColors = appColors
+                            )
+                        }
+                    }
                 }
             }
 
@@ -1077,138 +1138,35 @@ fun WorkoutInputScreen(
                 )
             }
 
-            // 距離入力（有効な場合のみ表示）- 負の値・0・正の値を許可
-            if (exercise.distanceTrackingEnabled) {
-                item {
-                    OutlinedTextField(
-                        value = distanceInput,
-                        onValueChange = { value ->
-                            // 全角→半角変換
-                            val normalized = value
-                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
-                                .replace("．", ".").replace("－", "-")
-                            // 空、"-"、または整数（負を含む）を許可
-                            if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
-                                distanceInput = normalized
-                            }
-                        },
-                        label = { Text(stringResource(R.string.distance_input_label)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number
-                        ),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Blue600,
-                            unfocusedBorderColor = appColors.border,
-                            focusedLabelColor = Blue600,
-                            unfocusedLabelColor = appColors.textSecondary,
-                            cursorColor = Blue600,
-                            focusedTextColor = appColors.textPrimary,
-                            unfocusedTextColor = appColors.textPrimary
-                        )
-                    )
-                }
-            }
-
-            // 荷重入力（有効な場合のみ表示）- kg単位で小数第1位まで
-            if (exercise.weightTrackingEnabled) {
-                item {
-                    OutlinedTextField(
-                        value = weightInput,
-                        onValueChange = { value ->
-                            // 全角→半角変換
-                            val normalized = value
-                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
-                                .replace("．", ".")
-                            // 空、または小数（小数点1つまで、小数第1位まで）を許可
-                            val isValidDecimal = normalized.isEmpty() ||
-                                normalized == "." ||
-                                normalized.matches(Regex("^\\d*\\.?\\d?\$"))
-                            if (isValidDecimal) {
-                                weightInput = normalized
-                            }
-                        },
-                        label = { Text(stringResource(R.string.weight_input_label)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Decimal
-                        ),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Orange600,
-                            unfocusedBorderColor = appColors.border,
-                            focusedLabelColor = Orange600,
-                            unfocusedLabelColor = appColors.textSecondary,
-                            cursorColor = Orange600,
-                            focusedTextColor = appColors.textPrimary,
-                            unfocusedTextColor = appColors.textPrimary
-                        )
-                    )
-                }
-            }
-
-            // アシスト入力（有効な場合のみ表示）- kg単位で小数第1位まで
-            if (exercise.assistanceTrackingEnabled) {
-                item {
-                    OutlinedTextField(
-                        value = assistanceInput,
-                        onValueChange = { value ->
-                            // 全角→半角変換
-                            val normalized = value
-                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
-                                .replace("．", ".")
-                            // 空、または小数（小数点1つまで、小数第1位まで）を許可
-                            val isValidDecimal = normalized.isEmpty() ||
-                                normalized == "." ||
-                                normalized.matches(Regex("^\\d*\\.?\\d?\$"))
-                            if (isValidDecimal) {
-                                assistanceInput = normalized
-                            }
-                        },
-                        label = { Text(stringResource(R.string.assistance_input_label)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Decimal
-                        ),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Amber500,
-                            unfocusedBorderColor = appColors.border,
-                            focusedLabelColor = Amber500,
-                            unfocusedLabelColor = appColors.textSecondary,
-                            cursorColor = Amber500,
-                            focusedTextColor = appColors.textPrimary,
-                            unfocusedTextColor = appColors.textPrimary
-                        )
-                    )
-                }
-            }
-
             // 記録ボタン
             item {
                 Button(
                     onClick = {
-                        // 距離・荷重・アシストの値を取得（空の場合はnull）
-                        val distanceCm = distanceInput.ifEmpty { null }?.toIntOrNull()
-                        // 荷重はkgで入力、gに変換して保存（例: 1.5kg → 1500g）
-                        val weightG = weightInput.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
-                        // アシストはkgで入力、gに変換して保存（例: 22.5kg → 22500g）
-                        val assistanceG = assistanceInput.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
-
                         if (isUnilateral) {
-                            // Unilateral: 左右の値を処理（0を含む）
-                            val valuesRight = setValuesRight
-                                .filter { it.isNotBlank() }
-                                .mapNotNull { it.toIntOrNull() }
-                                .filter { it >= 0 }
+                            // Unilateral: 有効セットのindexを先に決定 → 全リストを同じindexでフィルタ
+                            val validIndices = (0 until numberOfSets).filter { i ->
+                                val s = setValuesRight.getOrElse(i) { "" }
+                                s.isNotBlank() && s.toIntOrNull()?.let { it >= 0 } == true
+                            }
 
-                            val valuesLeft = setValuesLeft
-                                .filter { it.isNotBlank() }
-                                .mapNotNull { it.toIntOrNull() }
-                                .filter { it >= 0 }
+                            if (validIndices.isNotEmpty()) {
+                                val valuesRight = validIndices.map { setValuesRight[it].toInt() }
+                                val valuesLeft: List<Int?> = validIndices.map { i ->
+                                    setValuesLeft.getOrElse(i) { "" }
+                                        .takeIf { it.isNotBlank() }
+                                        ?.toIntOrNull()
+                                        ?.takeIf { it >= 0 }
+                                }
+                                val distancesCm = validIndices.map { i ->
+                                    parseDistanceCm(distanceInputs.getOrElse(i) { "" })
+                                }
+                                val weightsG = validIndices.map { i ->
+                                    parseWeightG(weightInputs.getOrElse(i) { "" })
+                                }
+                                val assistancesG = validIndices.map { i ->
+                                    parseWeightG(assistanceInputs.getOrElse(i) { "" })
+                                }
 
-                            if (valuesRight.isNotEmpty()) {
                                 viewModel.addTrainingRecordsUnilateral(
                                     exerciseId = exercise.id,
                                     valuesRight = valuesRight,
@@ -1216,9 +1174,9 @@ fun WorkoutInputScreen(
                                     date = selectedDate.format(dateFormatter),
                                     time = selectedTime.format(timeFormatter),
                                     comment = comment,
-                                    distanceCm = distanceCm,
-                                    weightG = weightG,
-                                    assistanceG = assistanceG
+                                    distancesCm = distancesCm,
+                                    weightsG = weightsG,
+                                    assistancesG = assistancesG
                                 )
                                 // Delete todo task if from ToDo
                                 if (fromToDo) {
@@ -1227,22 +1185,33 @@ fun WorkoutInputScreen(
                                 onNavigateBack()
                             }
                         } else {
-                            // Bilateral: 距離・荷重を含めて記録
-                            val values = setValues
-                                .filter { it.isNotBlank() }
-                                .mapNotNull { it.toIntOrNull() }
-                                .filter { it >= 0 }
+                            // Bilateral: 有効セットのindexを先に決定 → 全リストを同じindexでフィルタ
+                            val validIndices = (0 until numberOfSets).filter { i ->
+                                val s = setValues.getOrElse(i) { "" }
+                                s.isNotBlank() && s.toIntOrNull()?.let { it >= 0 } == true
+                            }
 
-                            if (values.isNotEmpty()) {
+                            if (validIndices.isNotEmpty()) {
+                                val values = validIndices.map { setValues[it].toInt() }
+                                val distancesCm = validIndices.map { i ->
+                                    parseDistanceCm(distanceInputs.getOrElse(i) { "" })
+                                }
+                                val weightsG = validIndices.map { i ->
+                                    parseWeightG(weightInputs.getOrElse(i) { "" })
+                                }
+                                val assistancesG = validIndices.map { i ->
+                                    parseWeightG(assistanceInputs.getOrElse(i) { "" })
+                                }
+
                                 viewModel.addTrainingRecords(
                                     exerciseId = exercise.id,
                                     values = values,
                                     date = selectedDate.format(dateFormatter),
                                     time = selectedTime.format(timeFormatter),
                                     comment = comment,
-                                    distanceCm = distanceCm,
-                                    weightG = weightG,
-                                    assistanceG = assistanceG
+                                    distancesCm = distancesCm,
+                                    weightsG = weightsG,
+                                    assistancesG = assistancesG
                                 )
                                 // Delete todo task if from ToDo
                                 if (fromToDo) {
@@ -1331,4 +1300,132 @@ fun WorkoutInputScreen(
             }
         )
     }
+}
+
+/**
+ * セット別 距離/荷重/アシスト 入力欄
+ * 各トラッキング設定が有効な場合のみフィールドを表示する
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PerSetTrackingFields(
+    exercise: Exercise,
+    index: Int,
+    distanceInputs: List<String>,
+    weightInputs: List<String>,
+    assistanceInputs: List<String>,
+    onDistanceChange: (Int, String) -> Unit,
+    onWeightChange: (Int, String) -> Unit,
+    onAssistanceChange: (Int, String) -> Unit,
+    appColors: io.github.gonbei774.calisthenicsmemory.ui.theme.AppColors
+) {
+    // 距離
+    if (exercise.distanceTrackingEnabled) {
+        OutlinedTextField(
+            value = distanceInputs.getOrElse(index) { "" },
+            onValueChange = { value ->
+                val normalized = value
+                    .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                    .replace("．", ".").replace("－", "-")
+                if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
+                    onDistanceChange(index, normalized)
+                }
+            },
+            label = { Text(stringResource(R.string.distance_input_label)) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Blue600,
+                unfocusedBorderColor = appColors.border,
+                focusedLabelColor = Blue600,
+                unfocusedLabelColor = appColors.textSecondary,
+                cursorColor = Blue600,
+                focusedTextColor = appColors.textPrimary,
+                unfocusedTextColor = appColors.textPrimary
+            )
+        )
+    }
+
+    // 荷重（kg）
+    if (exercise.weightTrackingEnabled) {
+        OutlinedTextField(
+            value = weightInputs.getOrElse(index) { "" },
+            onValueChange = { value ->
+                val normalized = value
+                    .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                    .replace("．", ".")
+                val isValidDecimal = normalized.isEmpty() ||
+                    normalized == "." ||
+                    normalized.matches(Regex("^\\d*\\.?\\d?$"))
+                if (isValidDecimal) {
+                    onWeightChange(index, normalized)
+                }
+            },
+            label = { Text(stringResource(R.string.weight_input_label)) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Orange600,
+                unfocusedBorderColor = appColors.border,
+                focusedLabelColor = Orange600,
+                unfocusedLabelColor = appColors.textSecondary,
+                cursorColor = Orange600,
+                focusedTextColor = appColors.textPrimary,
+                unfocusedTextColor = appColors.textPrimary
+            )
+        )
+    }
+
+    // アシスト（kg）
+    if (exercise.assistanceTrackingEnabled) {
+        OutlinedTextField(
+            value = assistanceInputs.getOrElse(index) { "" },
+            onValueChange = { value ->
+                val normalized = value
+                    .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                    .replace("．", ".")
+                val isValidDecimal = normalized.isEmpty() ||
+                    normalized == "." ||
+                    normalized.matches(Regex("^\\d*\\.?\\d?$"))
+                if (isValidDecimal) {
+                    onAssistanceChange(index, normalized)
+                }
+            },
+            label = { Text(stringResource(R.string.assistance_input_label)) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Amber500,
+                unfocusedBorderColor = appColors.border,
+                focusedLabelColor = Amber500,
+                unfocusedLabelColor = appColors.textSecondary,
+                cursorColor = Amber500,
+                focusedTextColor = appColors.textPrimary,
+                unfocusedTextColor = appColors.textPrimary
+            )
+        )
+    }
+}
+
+/**
+ * 距離入力文字列（cm）→ Int? へ変換
+ */
+private fun parseDistanceCm(input: String): Int? {
+    val trimmed = input.trim()
+    if (trimmed.isEmpty() || trimmed == "-") return null
+    return trimmed.toIntOrNull()
+}
+
+/**
+ * 荷重/アシスト入力文字列（kg、小数第1位）→ g (Int?) へ変換
+ * 例: "1.5" → 1500
+ */
+private fun parseWeightG(input: String): Int? {
+    val trimmed = input.trim()
+    if (trimmed.isEmpty() || trimmed == ".") return null
+    val kg = trimmed.toDoubleOrNull() ?: return null
+    return (kg * 1000).toInt()
 }
