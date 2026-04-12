@@ -350,7 +350,7 @@
     <string name="csv_import_mode_merge">Fusionner (Ajouter)</string>
     <string name="csv_import_mode_merge_description">Conserver les données existantes, ajouter de nouveaux éléments</string>
     <string name="csv_import_mode_replace">Remplacer</string>
-    <string name="csv_import_mode_replace_description">Supprimer toutes les données existantes et remplacer</string>
+    <string name="csv_import_mode_replace_description">Supprimer toutes les données existantes et remplacer par les données importées</string>
     <string name="csv_import_button">Importer</string>
     <!-- CSV Import Result Dialog -->
     <string name="csv_import_completed">Importation Terminée</string>
@@ -624,10 +624,8 @@
     <string name="add_exercise_to_loop">Ajouter un exercice</string>
     <string name="move_to_loop">Déplacer vers la boucle</string>
     <string name="loop_number_format">Boucle %d</string>
-
     <!-- Exercise Description -->
     <string name="description_optional">Description (Optionnel)</string>
-
     <!-- Theme Settings -->
     <string name="section_theme">Paramètres du thème</string>
     <string name="section_theme_description">Changer l\'apparence de l\'application.</string>
@@ -636,7 +634,6 @@
     <string name="theme_system">Suivre le système</string>
     <string name="theme_light">Clair</string>
     <string name="theme_dark">Sombre</string>
-
     <!-- Interval Mode -->
     <string name="interval_mode">Intervalle</string>
     <string name="interval_mode_description">Pour HIIT et circuits</string>
@@ -708,7 +705,6 @@
     <string name="interval_record_complete">Terminé</string>
     <string name="interval_record_partial">Arrêté en avance</string>
     <string name="interval_record_exercises_count">%1$d exercices</string>
-
     <!-- Share export/import -->
     <string name="share_section_title">Partage</string>
     <string name="share_section_description">Partagez vos programmes et exercices avec d\'autres</string>
@@ -746,5 +742,6 @@
     <string name="share_import_errors">Erreurs (%1$d)</string>
     <string name="share_import_count_reused">%1$d réutilisés</string>
     <string name="share_import_count_skipped">%1$d ignorés</string>
-
+    <string name="exercise_type_dynamic_description">Par exemple : pompes, tractions… Comptées en répétitions.</string>
+    <string name="exercise_type_isometric_description">Par exemple : planche, équerre… Comptées en temps.</string>
 </resources>
