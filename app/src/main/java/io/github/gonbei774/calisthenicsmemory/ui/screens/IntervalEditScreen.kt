@@ -333,7 +333,8 @@ fun IntervalEditScreen(
                         label = stringResource(R.string.interval_rest_seconds),
                         value = restSeconds,
                         onValueChange = { restSeconds = it.filter { c -> c.isDigit() } },
-                        suffix = stringResource(R.string.interval_seconds_suffix)
+                        suffix = stringResource(R.string.interval_seconds_suffix),
+                        enabled = programExercises.size > 1
                     )
                 }
 
@@ -601,7 +602,8 @@ private fun TimerSettingRow(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
-    suffix: String
+    suffix: String,
+    enabled: Boolean = true
 ) {
     val appColors = LocalAppColors.current
     Row(
@@ -612,7 +614,7 @@ private fun TimerSettingRow(
         Text(
             text = label,
             fontSize = 14.sp,
-            color = appColors.textPrimary,
+            color = if (enabled) appColors.textPrimary else appColors.textTertiary,
             modifier = Modifier.weight(1f)
         )
         Row(
@@ -622,6 +624,7 @@ private fun TimerSettingRow(
             OutlinedTextField(
                 value = value,
                 onValueChange = onValueChange,
+                enabled = enabled,
                 modifier = Modifier.width(80.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -629,7 +632,9 @@ private fun TimerSettingRow(
                     cursorColor = Orange600,
                     unfocusedTextColor = appColors.textPrimary,
                     focusedTextColor = appColors.textPrimary,
-                    unfocusedBorderColor = appColors.border
+                    unfocusedBorderColor = appColors.border,
+                    disabledTextColor = appColors.textTertiary,
+                    disabledBorderColor = appColors.border.copy(alpha = 0.4f)
                 ),
                 singleLine = true,
                 textStyle = androidx.compose.ui.text.TextStyle(
@@ -640,7 +645,7 @@ private fun TimerSettingRow(
             Text(
                 text = suffix,
                 fontSize = 14.sp,
-                color = appColors.textSecondary
+                color = if (enabled) appColors.textSecondary else appColors.textTertiary
             )
         }
     }
