@@ -263,8 +263,9 @@ fun IntervalEditScreen(
             }
         } else {
             // Number of header items before the exercise list
-            // (Name + Timer Settings title + 4 timer fields + Exercises title = 7)
-            val headerItemCount = 7
+            // Name + Timer Settings title + timer fields (3 or 4) + Exercises title
+            // Rest time row is hidden when there's only one exercise
+            val headerItemCount = if (programExercises.size > 1) 7 else 6
 
             val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
                 val fromIndex = from.index - headerItemCount
@@ -327,15 +328,16 @@ fun IntervalEditScreen(
                     )
                 }
 
-                // Rest Time
-                item {
-                    TimerSettingRow(
-                        label = stringResource(R.string.interval_rest_seconds),
-                        value = restSeconds,
-                        onValueChange = { restSeconds = it.filter { c -> c.isDigit() } },
-                        suffix = stringResource(R.string.interval_seconds_suffix),
-                        enabled = programExercises.size > 1
-                    )
+                // Rest Time (only shown when 2+ exercises; irrelevant for single-exercise programs)
+                if (programExercises.size > 1) {
+                    item {
+                        TimerSettingRow(
+                            label = stringResource(R.string.interval_rest_seconds),
+                            value = restSeconds,
+                            onValueChange = { restSeconds = it.filter { c -> c.isDigit() } },
+                            suffix = stringResource(R.string.interval_seconds_suffix)
+                        )
+                    }
                 }
 
                 // Rounds
@@ -602,8 +604,7 @@ private fun TimerSettingRow(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
-    suffix: String,
-    enabled: Boolean = true
+    suffix: String
 ) {
     val appColors = LocalAppColors.current
     Row(
@@ -614,7 +615,7 @@ private fun TimerSettingRow(
         Text(
             text = label,
             fontSize = 14.sp,
-            color = if (enabled) appColors.textPrimary else appColors.textTertiary,
+            color = appColors.textPrimary,
             modifier = Modifier.weight(1f)
         )
         Row(
@@ -624,7 +625,6 @@ private fun TimerSettingRow(
             OutlinedTextField(
                 value = value,
                 onValueChange = onValueChange,
-                enabled = enabled,
                 modifier = Modifier.width(80.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -632,9 +632,7 @@ private fun TimerSettingRow(
                     cursorColor = Orange600,
                     unfocusedTextColor = appColors.textPrimary,
                     focusedTextColor = appColors.textPrimary,
-                    unfocusedBorderColor = appColors.border,
-                    disabledTextColor = appColors.textTertiary,
-                    disabledBorderColor = appColors.border.copy(alpha = 0.4f)
+                    unfocusedBorderColor = appColors.border
                 ),
                 singleLine = true,
                 textStyle = androidx.compose.ui.text.TextStyle(
@@ -645,7 +643,7 @@ private fun TimerSettingRow(
             Text(
                 text = suffix,
                 fontSize = 14.sp,
-                color = if (enabled) appColors.textSecondary else appColors.textTertiary
+                color = appColors.textSecondary
             )
         }
     }
