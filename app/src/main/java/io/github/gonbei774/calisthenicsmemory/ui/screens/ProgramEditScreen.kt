@@ -44,6 +44,7 @@ import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
 import io.github.gonbei774.calisthenicsmemory.data.ProgramLoop
 import io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.util.ProgramTimeEstimator
 import io.github.gonbei774.calisthenicsmemory.util.SearchUtils
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import kotlinx.coroutines.launch
@@ -409,12 +410,27 @@ fun ProgramEditScreen(
 
                 // Exercises Section
                 item {
-                    Text(
-                        text = stringResource(R.string.program_exercises),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = appColors.textPrimary
-                    )
+                    Column {
+                        Text(
+                            text = stringResource(R.string.program_exercises),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = appColors.textPrimary
+                        )
+                        if (programListItems.isNotEmpty()) {
+                            val estimatedMinutes = remember(programExercises, programLoops, exerciseMap) {
+                                val countdownSeconds = if (workoutPreferences.isStartCountdownEnabled()) workoutPreferences.getStartCountdown() else 0
+                                val seconds = ProgramTimeEstimator.estimateSeconds(programExercises, programLoops, exerciseMap, countdownSeconds)
+                                ProgramTimeEstimator.formatMinutes(seconds)
+                            }
+                            Text(
+                                text = stringResource(R.string.program_estimated_time, estimatedMinutes),
+                                fontSize = 14.sp,
+                                color = appColors.textSecondary,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    }
                 }
 
                 // Combined list with exercises and loops
