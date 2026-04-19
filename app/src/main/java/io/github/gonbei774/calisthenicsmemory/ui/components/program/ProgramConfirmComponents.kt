@@ -34,7 +34,7 @@ import io.github.gonbei774.calisthenicsmemory.data.ProgramLoop
 import io.github.gonbei774.calisthenicsmemory.data.ProgramWorkoutSet
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
-import kotlin.math.roundToInt
+import io.github.gonbei774.calisthenicsmemory.util.ProgramTimeEstimator
 
 // Sealed class to represent items in the confirm list (for grouping loops)
 private sealed class ConfirmListItem {
@@ -86,7 +86,10 @@ internal fun ProgramConfirmStep(
     // 課題設定がある種目が1つでもあるか
     val hasChallengeExercise = session.exercises.any { (_, exercise) -> exercise.targetValue != null }
     // 推定時間を計算
-    val estimatedMinutes = calculateEstimatedMinutes(session)
+    val estimatedMinutes = remember(session, session.exercises, session.sets, startCountdownSeconds) {
+        val seconds = ProgramTimeEstimator.estimateSeconds(session, startCountdownSeconds)
+        ProgramTimeEstimator.formatMinutes(seconds)
+    }
 
     // ループの展開状態を管理
     var expandedLoopIds by remember { mutableStateOf(session.loops.map { it.id }.toSet()) }
@@ -1021,25 +1024,6 @@ private fun BulkSettingTab(
     }
 }
 
-/**
- * 推定時間を計算
- * - Dynamic: 1レップ2秒として概算
- * - Isometric: 目標秒数をそのまま使用
- * - 各セット後のインターバルを加算
- */
-internal fun calculateEstimatedMinutes(session: ProgramExecutionSession): Int {
-    var totalSeconds = 0
-    session.sets.forEach { set ->
-        val exercise = session.exercises[set.exerciseIndex].second
-        val repSeconds = if (exercise.type == "Isometric") {
-            set.targetValue
-        } else {
-            set.targetValue * 2  // 1レップ2秒
-        }
-        totalSeconds += repSeconds + set.intervalSeconds
-    }
-    return (totalSeconds / 60.0).roundToInt().coerceAtLeast(1)
-}
 
 /**
  * ループブロック（オレンジ枠で囲まれたグループ）
