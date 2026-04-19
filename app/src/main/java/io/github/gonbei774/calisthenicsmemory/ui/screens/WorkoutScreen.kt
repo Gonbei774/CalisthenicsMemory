@@ -84,7 +84,7 @@ data class WorkoutSet(
 // ワークアウトセッションのデータ
 data class WorkoutSession(
     val exercise: Exercise,
-    val totalSets: Int,
+    var totalSets: Int, // リザルト画面でセット追加時に増える
     val targetValue: Int, // 目標値
     val repDuration: Int?, // Dynamic用: 1レップ時間（秒）
     val startInterval: Int, // 開始前インターバル（秒）
@@ -540,6 +540,16 @@ fun WorkoutScreen(
                                 viewModel.completeTodoTaskByReference(TodoTask.TYPE_EXERCISE, finalSession.exercise.id)
                             }
                             onNavigateBack()
+                        },
+                        onAddSet = { updatedSession, nextIndex ->
+                            currentStep = when {
+                                updatedSession.intervalDuration > 0 ->
+                                    WorkoutStep.Interval(updatedSession, nextIndex)
+                                updatedSession.startInterval > 0 ->
+                                    WorkoutStep.StartInterval(updatedSession, nextIndex)
+                                else ->
+                                    WorkoutStep.Executing(updatedSession, nextIndex)
+                            }
                         },
                         onCancel = {
                             // If from ToDo, go back to ToDo; otherwise go to exercise selection
@@ -1936,10 +1946,12 @@ fun IntervalStep(
 fun ConfirmationStep(
     session: WorkoutSession,
     onConfirm: (WorkoutSession) -> Unit,
+    onAddSet: (WorkoutSession, Int) -> Unit,
     onCancel: () -> Unit
 ) {
     val appColors = LocalAppColors.current
     var comment by remember { mutableStateOf(session.comment) }
+    var showAddSetDialog by remember { mutableStateOf(false) }
 
     // Unilateralの場合、セット番号でグループ化
     val displaySets = remember(session) {
@@ -2082,12 +2094,222 @@ fun ConfirmationStep(
         }
 
         OutlinedButton(
+            onClick = { showAddSetDialog = true },
+            modifier = Modifier.fillMaxWidth(),
+            border = BorderStroke(1.dp, Orange600)
+        ) {
+            Text(stringResource(R.string.add_extra_set_button), color = Orange600)
+        }
+
+        OutlinedButton(
             onClick = onCancel,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(stringResource(R.string.cancel))
         }
     }
+
+    if (showAddSetDialog) {
+        AddExtraSetDialog(
+            session = session,
+            onDismiss = { showAddSetDialog = false },
+            onConfirm = { nextIndex ->
+                showAddSetDialog = false
+                session.comment = comment
+                onAddSet(session, nextIndex)
+            }
+        )
+    }
+}
+
+// リザルト画面で「もう1セット追加」するダイアログ
+@Composable
+fun AddExtraSetDialog(
+    session: WorkoutSession,
+    onDismiss: () -> Unit,
+    onConfirm: (Int) -> Unit
+) {
+    val appColors = LocalAppColors.current
+    val exercise = session.exercise
+
+    // プリフィル元：直前セット（Unilateral の場合は Right 側）
+    val lastSet = remember(session.sets.size) {
+        if (exercise.laterality == "Unilateral") {
+            session.sets.lastOrNull { it.side == "Right" }
+        } else {
+            session.sets.lastOrNull()
+        }
+    }
+
+    var targetValueStr by remember {
+        mutableStateOf((lastSet?.targetValue ?: session.targetValue).toString())
+    }
+    var distanceStr by remember {
+        mutableStateOf(lastSet?.distanceCm?.toString() ?: "")
+    }
+    var weightStr by remember {
+        mutableStateOf(lastSet?.weightG?.let { "%.1f".format(it / 1000.0) } ?: "")
+    }
+    var assistanceStr by remember {
+        mutableStateOf(lastSet?.assistanceG?.let { "%.1f".format(it / 1000.0) } ?: "")
+    }
+
+    val isValid = targetValueStr.toIntOrNull()?.let { it > 0 } == true
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.add_extra_set_title)) },
+        text = {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedTextField(
+                    value = targetValueStr,
+                    onValueChange = {
+                        if (it.isEmpty() || it.all { c -> c.isDigit() }) targetValueStr = it
+                    },
+                    label = {
+                        Text(
+                            stringResource(
+                                if (exercise.type == "Dynamic") R.string.target_reps_label
+                                else R.string.target_duration_label
+                            )
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Orange600,
+                        focusedLabelColor = Orange600
+                    )
+                )
+
+                if (exercise.distanceTrackingEnabled) {
+                    OutlinedTextField(
+                        value = distanceStr,
+                        onValueChange = { value ->
+                            val normalized = value
+                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                .replace("．", ".").replace("－", "-")
+                            if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
+                                distanceStr = normalized
+                            }
+                        },
+                        label = { Text(stringResource(R.string.distance_input_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Blue600,
+                            focusedLabelColor = Blue600,
+                            cursorColor = Blue600
+                        )
+                    )
+                }
+
+                if (exercise.weightTrackingEnabled) {
+                    OutlinedTextField(
+                        value = weightStr,
+                        onValueChange = { value ->
+                            val normalized = value
+                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                .replace("．", ".")
+                            val isValidDecimal = normalized.isEmpty() ||
+                                normalized == "." ||
+                                normalized.matches(Regex("^\\d*\\.?\\d?\$"))
+                            if (isValidDecimal) weightStr = normalized
+                        },
+                        label = { Text(stringResource(R.string.weight_input_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Orange600,
+                            focusedLabelColor = Orange600
+                        )
+                    )
+                }
+
+                if (exercise.assistanceTrackingEnabled) {
+                    OutlinedTextField(
+                        value = assistanceStr,
+                        onValueChange = { value ->
+                            val normalized = value
+                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                .replace("．", ".")
+                            val isValidDecimal = normalized.isEmpty() ||
+                                normalized == "." ||
+                                normalized.matches(Regex("^\\d*\\.?\\d?\$"))
+                            if (isValidDecimal) assistanceStr = normalized
+                        },
+                        label = { Text(stringResource(R.string.assistance_input_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Amber500,
+                            focusedLabelColor = Amber500,
+                            cursorColor = Amber500
+                        )
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val target = targetValueStr.toIntOrNull() ?: return@TextButton
+                    val distanceCm = distanceStr.ifEmpty { null }?.toIntOrNull()
+                    val weightG = weightStr.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
+                    val assistanceG = assistanceStr.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
+
+                    val nextIndex = session.sets.size
+                    val newSetNumber = session.totalSets + 1
+                    session.totalSets = newSetNumber
+
+                    if (exercise.laterality == "Unilateral") {
+                        session.sets.add(WorkoutSet(
+                            setNumber = newSetNumber,
+                            side = "Right",
+                            targetValue = target,
+                            distanceCm = distanceCm,
+                            weightG = weightG,
+                            assistanceG = assistanceG
+                        ))
+                        session.sets.add(WorkoutSet(
+                            setNumber = newSetNumber,
+                            side = "Left",
+                            targetValue = target,
+                            distanceCm = distanceCm,
+                            weightG = weightG,
+                            assistanceG = assistanceG
+                        ))
+                    } else {
+                        session.sets.add(WorkoutSet(
+                            setNumber = newSetNumber,
+                            side = null,
+                            targetValue = target,
+                            distanceCm = distanceCm,
+                            weightG = weightG,
+                            assistanceG = assistanceG
+                        ))
+                    }
+                    onConfirm(nextIndex)
+                },
+                enabled = isValid
+            ) {
+                Text(stringResource(R.string.add_extra_set_confirm), color = Orange600)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel), color = appColors.textSecondary)
+            }
+        },
+        containerColor = appColors.cardBackground
+    )
 }
 
 // Unilateral用セットアイテム（1行表示）
