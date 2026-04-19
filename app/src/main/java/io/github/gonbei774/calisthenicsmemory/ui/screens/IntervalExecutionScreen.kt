@@ -499,8 +499,7 @@ fun IntervalExecutionScreen(
                         viewModel.saveIntervalRecord(record)
                         onComplete()
                     }
-                },
-                onDiscard = onComplete
+                }
             )
         }
     }
@@ -1160,8 +1159,7 @@ private fun IntervalCompleteContent(
     completedExercisesInLastRound: Int,
     isFullCompletion: Boolean,
     appColors: AppColors,
-    onSave: (String) -> Unit,
-    onDiscard: () -> Unit
+    onSave: (String) -> Unit
 ) {
     val statusColor = Orange600
     var comment by remember { mutableStateOf("") }
@@ -1375,25 +1373,6 @@ private fun IntervalCompleteContent(
                 }
             }
 
-            if (!isFullCompletion) {
-                item {
-                    OutlinedButton(
-                        onClick = onDiscard,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = appColors.textSecondary
-                        )
-                    ) {
-                        Text(
-                            text = stringResource(R.string.interval_discard_result),
-                            fontSize = 16.sp
-                        )
-                    }
-                }
-            }
         }
     }
 }

@@ -550,14 +550,6 @@ fun WorkoutScreen(
                                 else ->
                                     WorkoutStep.Executing(updatedSession, nextIndex)
                             }
-                        },
-                        onCancel = {
-                            // If from ToDo, go back to ToDo; otherwise go to exercise selection
-                            if (fromToDo) {
-                                onNavigateBack()
-                            } else {
-                                currentStep = WorkoutStep.ExerciseSelection
-                            }
                         }
                     )
                 }
@@ -1946,8 +1938,7 @@ fun IntervalStep(
 fun ConfirmationStep(
     session: WorkoutSession,
     onConfirm: (WorkoutSession) -> Unit,
-    onAddSet: (WorkoutSession, Int) -> Unit,
-    onCancel: () -> Unit
+    onAddSet: (WorkoutSession, Int) -> Unit
 ) {
     val appColors = LocalAppColors.current
     var comment by remember { mutableStateOf(session.comment) }
@@ -2099,13 +2090,6 @@ fun ConfirmationStep(
             border = BorderStroke(1.dp, Orange600)
         ) {
             Text(stringResource(R.string.add_extra_set_button), color = Orange600)
-        }
-
-        OutlinedButton(
-            onClick = onCancel,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.cancel))
         }
     }
 
