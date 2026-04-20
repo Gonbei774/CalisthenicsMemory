@@ -1,8 +1,6 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
 import androidx.activity.compose.BackHandler
-import android.media.AudioManager
-import android.media.ToneGenerator
 import android.view.WindowManager
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -40,6 +38,7 @@ import io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences
 import io.github.gonbei774.calisthenicsmemory.service.WorkoutTimerService
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
+import io.github.gonbei774.calisthenicsmemory.util.SoundPlayer
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -109,7 +108,7 @@ fun IntervalExecutionScreen(
     val isFlashEnabled = remember { workoutPrefs.isFlashNotificationEnabled() }
 
     // Audio & Flash
-    val toneGenerator = remember { ToneGenerator(AudioManager.STREAM_MUSIC, 80) }
+    val soundPlayer = remember { SoundPlayer(context) }
     val flashController = remember { FlashController(context) }
 
     // State
@@ -184,7 +183,7 @@ fun IntervalExecutionScreen(
         onDispose {
             val window = (view.context as? android.app.Activity)?.window
             window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            toneGenerator.release()
+            soundPlayer.release()
             flashController.turnOff()
             WorkoutTimerService.stopService(context)
         }
@@ -361,7 +360,7 @@ fun IntervalExecutionScreen(
         is IntervalPhase.Prepare -> {
             IntervalPrepareContent(
                 exercises = exercises,
-                toneGenerator = toneGenerator,
+                soundPlayer = soundPlayer,
                 flashController = flashController,
                 isFlashEnabled = isFlashEnabled,
                 appColors = appColors,
@@ -389,7 +388,7 @@ fun IntervalExecutionScreen(
                 onTimerFinish = {
                     advanceFromWork(currentPhase.round, currentPhase.exerciseIndex)
                 },
-                toneGenerator = toneGenerator,
+                soundPlayer = soundPlayer,
                 flashController = flashController,
                 isFlashEnabled = isFlashEnabled,
                 appColors = appColors,
@@ -422,7 +421,7 @@ fun IntervalExecutionScreen(
                 onTimerFinish = {
                     advanceFromRest(currentPhase.round, currentPhase.exerciseIndex)
                 },
-                toneGenerator = toneGenerator,
+                soundPlayer = soundPlayer,
                 flashController = flashController,
                 isFlashEnabled = isFlashEnabled,
                 appColors = appColors
@@ -458,7 +457,7 @@ fun IntervalExecutionScreen(
                 onTimerFinish = {
                     advanceFromRoundRest(currentPhase.completedRound)
                 },
-                toneGenerator = toneGenerator,
+                soundPlayer = soundPlayer,
                 flashController = flashController,
                 isFlashEnabled = isFlashEnabled,
                 appColors = appColors
@@ -744,7 +743,7 @@ private fun ConfirmSettingRow(
 @Composable
 private fun IntervalPrepareContent(
     exercises: List<IntervalExerciseInfo>,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     appColors: AppColors,
@@ -767,14 +766,14 @@ private fun IntervalPrepareContent(
             if (isPaused) continue
             remainingSeconds--
             if (remainingSeconds in 1..3) {
-                toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                soundPlayer.playBeep()
                 if (isFlashEnabled) {
                     scope.launch { flashController.flashShort() }
                 }
             }
         }
         // Prepare complete: single beep like rest completion
-        toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 300)
+        soundPlayer.playStartCue()
         if (isFlashEnabled) {
             scope.launch { flashController.flashComplete() }
         }
@@ -911,7 +910,7 @@ private fun IntervalTimerContent(
     onStop: (() -> Unit)?,
     onSkip: (() -> Unit)?,
     onTimerFinish: () -> Unit,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     appColors: AppColors,
@@ -931,7 +930,7 @@ private fun IntervalTimerContent(
                 remainingSeconds--
                 // Beep at 3, 2, 1
                 if (remainingSeconds in 1..3) {
-                    toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                    soundPlayer.playBeep()
                     if (isFlashEnabled) {
                         launch { flashController.flashShort() }
                     }
@@ -944,10 +943,10 @@ private fun IntervalTimerContent(
                 if (isFlashEnabled) {
                     launch { flashController.flashSetComplete() }
                 }
-                playTripleBeepTwice(toneGenerator)
+                soundPlayer.playSetComplete()
             } else {
                 // Rest/RoundRest complete: single beep + short flash
-                toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 300)
+                soundPlayer.playStartCue()
                 if (isFlashEnabled) {
                     launch { flashController.flashComplete() }
                 }

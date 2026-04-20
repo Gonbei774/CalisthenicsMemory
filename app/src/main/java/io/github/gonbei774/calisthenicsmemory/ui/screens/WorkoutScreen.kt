@@ -1,7 +1,5 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
-import android.media.ToneGenerator
-import android.media.AudioManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -58,6 +56,7 @@ import android.view.WindowManager
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
 import io.github.gonbei774.calisthenicsmemory.util.SearchUtils
+import io.github.gonbei774.calisthenicsmemory.util.SoundPlayer
 import io.github.gonbei774.calisthenicsmemory.service.WorkoutTimerService
 import io.github.gonbei774.calisthenicsmemory.ui.components.single.*
 import kotlinx.coroutines.delay
@@ -144,10 +143,8 @@ fun WorkoutScreen(
     }
     var selectedExercise by remember(initialExercise) { mutableStateOf<Exercise?>(initialExercise) }
 
-    // ビープ音用
-    val toneGenerator = remember {
-        ToneGenerator(AudioManager.STREAM_MUSIC, 100)
-    }
+    // 効果音用
+    val soundPlayer = remember { SoundPlayer(context) }
 
     // LEDフラッシュ用
     val flashController = remember { FlashController(context) }
@@ -215,7 +212,7 @@ fun WorkoutScreen(
         onDispose {
             val window = (view.context as? android.app.Activity)?.window
             window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            toneGenerator.release()
+            soundPlayer.release()
             flashController.turnOff()
             WorkoutTimerService.stopService(context)
         }
@@ -314,7 +311,7 @@ fun WorkoutScreen(
                     StartIntervalStep(
                         session = step.session,
                         currentSetIndex = step.currentSetIndex,
-                        toneGenerator = toneGenerator,
+                        soundPlayer = soundPlayer,
                         flashController = flashController,
                         isFlashEnabled = isFlashEnabled,
                         onIntervalComplete = {
@@ -373,7 +370,7 @@ fun WorkoutScreen(
                                 SingleExecutingStepIsometricAuto(
                                     session = step.session,
                                     currentSetIndex = step.currentSetIndex,
-                                    toneGenerator = toneGenerator,
+                                    soundPlayer = soundPlayer,
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
                                     isIntervalSoundEnabled = workoutPreferences.isIsometricIntervalSoundEnabled(),
@@ -390,7 +387,7 @@ fun WorkoutScreen(
                                 SingleExecutingStepIsometricManual(
                                     session = step.session,
                                     currentSetIndex = step.currentSetIndex,
-                                    toneGenerator = toneGenerator,
+                                    soundPlayer = soundPlayer,
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
                                     isIntervalSoundEnabled = workoutPreferences.isIsometricIntervalSoundEnabled(),
@@ -407,7 +404,7 @@ fun WorkoutScreen(
                                 SingleExecutingStepDynamicSimple(
                                     session = step.session,
                                     currentSetIndex = step.currentSetIndex,
-                                    toneGenerator = toneGenerator,
+                                    soundPlayer = soundPlayer,
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
                                     isNavigationOpen = showNavigationSheet,
@@ -422,7 +419,7 @@ fun WorkoutScreen(
                                 SingleExecutingStepDynamicAuto(
                                     session = step.session,
                                     currentSetIndex = step.currentSetIndex,
-                                    toneGenerator = toneGenerator,
+                                    soundPlayer = soundPlayer,
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
                                     isCountSoundEnabled = step.session.isDynamicCountSoundEnabled,
@@ -438,7 +435,7 @@ fun WorkoutScreen(
                                 SingleExecutingStepDynamicManual(
                                     session = step.session,
                                     currentSetIndex = step.currentSetIndex,
-                                    toneGenerator = toneGenerator,
+                                    soundPlayer = soundPlayer,
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
                                     isCountSoundEnabled = step.session.isDynamicCountSoundEnabled,
@@ -506,7 +503,7 @@ fun WorkoutScreen(
                     IntervalStep(
                         session = step.session,
                         nextSetIndex = step.currentSetIndex,
-                        toneGenerator = toneGenerator,
+                        soundPlayer = soundPlayer,
                         flashController = flashController,
                         isFlashEnabled = isFlashEnabled,
                         onIntervalComplete = {
@@ -1362,7 +1359,7 @@ fun SettingsStep(
 fun StartIntervalStep(
     session: WorkoutSession,
     currentSetIndex: Int,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     onIntervalComplete: () -> Unit,
@@ -1383,14 +1380,14 @@ fun StartIntervalStep(
             if (isPaused) continue
             remainingTime--
             if (remainingTime <= 3 && remainingTime > 0) {
-                toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                soundPlayer.playBeep()
                 if (isFlashEnabled) {
                     launch { flashController.flashShort() }
                 }
             }
         }
         // カウントダウン完了
-        toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 300)
+        soundPlayer.playStartCue()
         if (isFlashEnabled) {
             launch { flashController.flashComplete() }
         }
@@ -1540,7 +1537,7 @@ fun CircularProgressTimer(
 fun ExecutingStep(
     session: WorkoutSession,
     currentSetIndex: Int,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     onSetComplete: (WorkoutSession) -> Unit,
@@ -1587,14 +1584,14 @@ fun ExecutingStep(
                             if (isFlashEnabled) {
                                 launch { flashController.flashSetComplete() }
                             }
-                            playTripleBeepTwice(toneGenerator)
+                            soundPlayer.playSetComplete()
                             currentSet.actualValue = currentCount
                             currentSet.isCompleted = true
                             onSetComplete(session)
                             return@LaunchedEffect
                         } else {
                             // 途中のレップは短いフラッシュ
-                            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                            soundPlayer.playBeep()
                             if (isFlashEnabled) {
                                 launch { flashController.flashShort() }
                             }
@@ -1608,7 +1605,7 @@ fun ExecutingStep(
                     if (isFlashEnabled) {
                         launch { flashController.flashSetComplete() }
                     }
-                    playTripleBeepTwice(toneGenerator)
+                    soundPlayer.playSetComplete()
                     currentSet.actualValue = elapsedTime
                     currentSet.isCompleted = true
                     onSetComplete(session)
@@ -1752,7 +1749,7 @@ fun ExecutingStep(
 fun IntervalStep(
     session: WorkoutSession,
     nextSetIndex: Int,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     onIntervalComplete: () -> Unit,
@@ -1769,7 +1766,7 @@ fun IntervalStep(
             delay(1000L)
             remainingTime--
             if (remainingTime <= 3 && remainingTime > 0) {
-                toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                soundPlayer.playBeep()
                 if (isFlashEnabled) {
                     launch { flashController.flashShort() }
                 }
@@ -1777,7 +1774,7 @@ fun IntervalStep(
         }
         if (remainingTime == 0) {
             // インターバル完了
-            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 300)
+            soundPlayer.playStartCue()
             if (isFlashEnabled) {
                 launch { flashController.flashComplete() }
             }
@@ -2746,22 +2743,6 @@ fun NextSetText(
         color = appColors.textSecondary,
         modifier = Modifier.padding(top = 16.dp)
     )
-}
-
-// ピピピ、ピピピ、ピピピ（3連×3セット）のビープ音を再生
-suspend fun playTripleBeepTwice(toneGenerator: ToneGenerator) {
-    // 3セット繰り返す
-    repeat(3) { setIndex ->
-        repeat(3) {
-            toneGenerator.startTone(ToneGenerator.TONE_DTMF_9, 150)
-            delay(150L)
-            delay(100L) // ビープ間の間隔
-        }
-        // 最後のセット以外は間隔を入れる
-        if (setIndex < 2) {
-            delay(150L) // セット間の間隔
-        }
-    }
 }
 
 // シングルワークアウト設定セクション
