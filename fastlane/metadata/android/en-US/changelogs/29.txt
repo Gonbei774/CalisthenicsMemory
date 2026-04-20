@@ -1,0 +1,17 @@
+Added:
+- Per-set tracking: weight, distance, assistance
+- Search in exercise creation screen
+- "Add another set" on single-mode result
+- Estimated program duration on edit/preview
+
+Improved:
+- Sound effects: ToneGenerator to SoundPool
+- Unified circular timer font size (80sp)
+- Allow 0 as rest interval value
+- Hide rest input for single-exercise programs
+
+Fixed:
+- Repeating alarm in isometric manual mode
+- Exercise order in interval add dialog
+
+Contributors: @lejun (fr), @SomeTr (uk)

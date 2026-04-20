@@ -1,6 +1,5 @@
 package io.github.gonbei774.calisthenicsmemory.ui.components.program
 
-import android.media.ToneGenerator
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
@@ -23,8 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
-import io.github.gonbei774.calisthenicsmemory.ui.screens.playTripleBeepTwice
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
+import io.github.gonbei774.calisthenicsmemory.util.SoundPlayer
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 import kotlinx.coroutines.delay
@@ -35,7 +34,7 @@ import kotlinx.coroutines.launch
 internal fun ProgramExecutingStepDynamicManual(
     session: ProgramExecutionSession,
     currentSetIndex: Int,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     isCountSoundEnabled: Boolean,
@@ -96,11 +95,11 @@ internal fun ProgramExecutingStepDynamicManual(
                         if (isFlashEnabled) {
                             launch { flashController.flashSetComplete() }
                         }
-                        playTripleBeepTwice(toneGenerator)
+                        soundPlayer.playSetComplete()
                     } else {
                         // 途中のレップは短いビープ（設定ONの場合のみ）
                         if (isCountSoundEnabled) {
-                            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                            soundPlayer.playBeep()
                             if (isFlashEnabled) {
                                 launch { flashController.flashShort() }
                             }
@@ -187,7 +186,7 @@ internal fun ProgramExecutingStepDynamicManual(
             }
             Text(
                 text = "$repTimeElapsed",
-                fontSize = 56.sp,
+                fontSize = 80.sp,
                 fontWeight = FontWeight.Bold,
                 color = appColors.textPrimary,
                 modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
@@ -308,7 +307,7 @@ internal fun ProgramExecutingStepDynamicManual(
 internal fun ProgramExecutingStepIsometricManual(
     session: ProgramExecutionSession,
     currentSetIndex: Int,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     isIntervalSoundEnabled: Boolean,
@@ -361,7 +360,7 @@ internal fun ProgramExecutingStepIsometricManual(
 
                 // 一定間隔ごとにビープ音（目標達成前のみ、設定ONの場合）
                 if (isIntervalSoundEnabled && intervalSeconds > 0 && elapsedTime > 0 && elapsedTime % intervalSeconds == 0 && elapsedTime < currentSet.targetValue) {
-                    toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 200)
+                    soundPlayer.playBeep()
                     if (isFlashEnabled) {
                         launch { flashController.flashShort() }
                     }
@@ -374,7 +373,7 @@ internal fun ProgramExecutingStepIsometricManual(
                     if (isFlashEnabled) {
                         launch { flashController.flashSetComplete() }
                     }
-                    playTripleBeepTwice(toneGenerator)
+                    soundPlayer.playSetComplete()
                 }
             } else {
                 delay(100L)  // 一時停止中または目標達成後は短い間隔でチェック
@@ -486,7 +485,7 @@ internal fun ProgramExecutingStepIsometricManual(
                 }
                 Text(
                     text = "$remainingTime",
-                    fontSize = 56.sp,
+                    fontSize = 80.sp,
                     fontWeight = FontWeight.Bold,
                     color = appColors.textPrimary,
                     modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
@@ -568,7 +567,7 @@ internal fun ProgramExecutingStepIsometricManual(
 internal fun ProgramExecutingStepIsometricAuto(
     session: ProgramExecutionSession,
     currentSetIndex: Int,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     isIntervalSoundEnabled: Boolean,
@@ -618,7 +617,7 @@ internal fun ProgramExecutingStepIsometricAuto(
 
                 // 一定間隔ごとにビープ音（目標達成前のみ、設定ONの場合）
                 if (isIntervalSoundEnabled && intervalSeconds > 0 && elapsedTime > 0 && elapsedTime % intervalSeconds == 0 && elapsedTime < currentSet.targetValue) {
-                    toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 200)
+                    soundPlayer.playBeep()
                     if (isFlashEnabled) {
                         launch { flashController.flashShort() }
                     }
@@ -629,7 +628,7 @@ internal fun ProgramExecutingStepIsometricAuto(
                     if (isFlashEnabled) {
                         launch { flashController.flashSetComplete() }
                     }
-                    playTripleBeepTwice(toneGenerator)
+                    soundPlayer.playSetComplete()
                     onSetComplete(elapsedTime)
                     return@LaunchedEffect
                 }
@@ -744,7 +743,7 @@ internal fun ProgramExecutingStepIsometricAuto(
                 }
                 Text(
                     text = "$remainingTime",
-                    fontSize = 56.sp,
+                    fontSize = 80.sp,
                     fontWeight = FontWeight.Bold,
                     color = appColors.textPrimary,
                     modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
@@ -826,7 +825,7 @@ internal fun ProgramExecutingStepIsometricAuto(
 internal fun ProgramExecutingStepDynamicAuto(
     session: ProgramExecutionSession,
     currentSetIndex: Int,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     isCountSoundEnabled: Boolean,
@@ -881,13 +880,13 @@ internal fun ProgramExecutingStepDynamicAuto(
                         if (isFlashEnabled) {
                             launch { flashController.flashSetComplete() }
                         }
-                        playTripleBeepTwice(toneGenerator)
+                        soundPlayer.playSetComplete()
                         onSetComplete(currentCount)
                         return@LaunchedEffect
                     } else {
                         // 途中のレップは短いビープ（設定ONの場合のみ）
                         if (isCountSoundEnabled) {
-                            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                            soundPlayer.playBeep()
                             if (isFlashEnabled) {
                                 launch { flashController.flashShort() }
                             }
@@ -974,7 +973,7 @@ internal fun ProgramExecutingStepDynamicAuto(
             }
             Text(
                 text = "$repTimeElapsed",
-                fontSize = 56.sp,
+                fontSize = 80.sp,
                 fontWeight = FontWeight.Bold,
                 color = appColors.textPrimary,
                 modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)

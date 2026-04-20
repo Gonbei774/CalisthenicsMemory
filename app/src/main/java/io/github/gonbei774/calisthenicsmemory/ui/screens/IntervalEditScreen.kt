@@ -263,8 +263,9 @@ fun IntervalEditScreen(
             }
         } else {
             // Number of header items before the exercise list
-            // (Name + Timer Settings title + 4 timer fields + Exercises title = 7)
-            val headerItemCount = 7
+            // Name + Timer Settings title + timer fields (3 or 4) + Exercises title
+            // Rest time row is hidden when there's only one exercise
+            val headerItemCount = if (programExercises.size > 1) 7 else 6
 
             val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
                 val fromIndex = from.index - headerItemCount
@@ -327,14 +328,16 @@ fun IntervalEditScreen(
                     )
                 }
 
-                // Rest Time
-                item {
-                    TimerSettingRow(
-                        label = stringResource(R.string.interval_rest_seconds),
-                        value = restSeconds,
-                        onValueChange = { restSeconds = it.filter { c -> c.isDigit() } },
-                        suffix = stringResource(R.string.interval_seconds_suffix)
-                    )
+                // Rest Time (only shown when 2+ exercises; irrelevant for single-exercise programs)
+                if (programExercises.size > 1) {
+                    item {
+                        TimerSettingRow(
+                            label = stringResource(R.string.interval_rest_seconds),
+                            value = restSeconds,
+                            onValueChange = { restSeconds = it.filter { c -> c.isDigit() } },
+                            suffix = stringResource(R.string.interval_seconds_suffix)
+                        )
+                    }
                 }
 
                 // Rounds
@@ -717,7 +720,7 @@ private fun AddExerciseToIntervalDialog(
     val hierarchicalData by viewModel.hierarchicalExercises.collectAsState()
     val expandedGroups by viewModel.expandedGroups.collectAsState()
 
-    var selectedExercises by remember { mutableStateOf(setOf<Long>()) }
+    var selectedExercises by remember { mutableStateOf(listOf<Long>()) }
     var searchQuery by remember { mutableStateOf("") }
     val searchResults = remember(exercises, searchQuery) {
         SearchUtils.searchExercises(exercises, searchQuery)
@@ -863,7 +866,7 @@ private fun AddExerciseToIntervalDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    val selected = exercises.filter { it.id in selectedExercises }
+                    val selected = selectedExercises.mapNotNull { id -> exercises.find { it.id == id } }
                     onAdd(selected)
                 },
                 enabled = selectedExercises.isNotEmpty()
@@ -975,7 +978,7 @@ private fun IntervalExerciseSelectItem(
 private fun IntervalSelectExerciseGroup(
     groupName: String?,
     exercises: List<Exercise>,
-    selectedExercises: Set<Long>,
+    selectedExercises: List<Long>,
     isExpanded: Boolean,
     onExpandToggle: () -> Unit,
     onExerciseToggle: (Long) -> Unit

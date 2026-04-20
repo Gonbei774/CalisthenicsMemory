@@ -1,6 +1,5 @@
 package io.github.gonbei774.calisthenicsmemory.ui.components.program
 
-import android.media.ToneGenerator
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
@@ -26,6 +25,7 @@ import io.github.gonbei774.calisthenicsmemory.ui.components.common.ProgramCircul
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
+import io.github.gonbei774.calisthenicsmemory.util.SoundPlayer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -34,7 +34,7 @@ internal fun ProgramStartIntervalStep(
     session: ProgramExecutionSession,
     currentSetIndex: Int,
     startCountdownSeconds: Int,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     isNavigationOpen: Boolean = false,
@@ -61,13 +61,13 @@ internal fun ProgramStartIntervalStep(
             if (effectivelyPaused) continue
             remainingTime--
             if (remainingTime <= 3 && remainingTime > 0) {
-                toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                soundPlayer.playBeep()
                 if (isFlashEnabled) {
                     launch { flashController.flashShort() }
                 }
             }
         }
-        toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 300)
+        soundPlayer.playStartCue()
         if (isFlashEnabled) {
             launch { flashController.flashComplete() }
         }
@@ -149,7 +149,7 @@ internal fun ProgramStartIntervalStep(
             }
             Text(
                 text = "$remainingTime",
-                fontSize = 72.sp,
+                fontSize = 80.sp,
                 fontWeight = FontWeight.Bold,
                 color = appColors.textPrimary,
                 modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
@@ -184,7 +184,7 @@ internal fun ProgramStartIntervalStep(
 internal fun ProgramIntervalStep(
     session: ProgramExecutionSession,
     currentSetIndex: Int,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     isNavigationOpen: Boolean = false,
@@ -217,14 +217,14 @@ internal fun ProgramIntervalStep(
             if (!effectivelyRunning) break
             remainingTime--
             if (remainingTime <= 3 && remainingTime > 0) {
-                toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                soundPlayer.playBeep()
                 if (isFlashEnabled) {
                     launch { flashController.flashShort() }
                 }
             }
         }
         if (remainingTime == 0) {
-            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 300)
+            soundPlayer.playStartCue()
             if (isFlashEnabled) {
                 launch { flashController.flashComplete() }
             }
@@ -330,7 +330,7 @@ internal fun ProgramIntervalStep(
                     }
                     Text(
                         text = "$remainingTime",
-                        fontSize = 72.sp,
+                        fontSize = 80.sp,
                         fontWeight = FontWeight.Bold,
                         color = appColors.textPrimary,
                         modifier = Modifier.alpha(if (!effectivelyRunning) 0.2f else 1f)

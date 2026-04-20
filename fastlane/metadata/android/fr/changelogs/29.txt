@@ -1,0 +1,17 @@
+Ajouté :
+- Par série : poids, distance, assistance
+- Recherche dans la création d'exercices
+- "Ajouter une série" en résultat mode unique
+- Durée estimée du programme
+
+Amélioré :
+- Sons : ToneGenerator vers SoundPool
+- Police du minuteur unifiée (80sp)
+- Autoriser 0 comme intervalle de repos
+- Masquer le repos pour programmes à un exercice
+
+Corrigé :
+- Alarme répétitive en isometric manual
+- Ordre des exercices dans le dialogue intervalle
+
+Contributors: @lejun (fr), @SomeTr (uk)

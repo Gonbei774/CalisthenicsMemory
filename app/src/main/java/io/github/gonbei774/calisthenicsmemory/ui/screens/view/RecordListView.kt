@@ -4,8 +4,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
@@ -202,44 +204,7 @@ fun SessionCard(
                 }
             }
 
-            // Distance, Weight, and Assistance (from first record, as they're the same for all sets in a session)
-            val firstRecord = session.records.firstOrNull()
-            val hasDistance = firstRecord?.distanceCm != null
-            val hasWeight = firstRecord?.weightG != null
-            val hasAssistance = firstRecord?.assistanceG != null
-            if (hasDistance || hasWeight || hasAssistance) {
-                Row(
-                    modifier = Modifier.padding(bottom = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    if (hasDistance) {
-                        Text(
-                            text = stringResource(R.string.distance_display_format, firstRecord!!.distanceCm!!),
-                            fontSize = 14.sp,
-                            color = Blue600,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    if (hasWeight) {
-                        Text(
-                            text = stringResource(R.string.weight_display_format, firstRecord!!.weightG!! / 1000.0f),
-                            fontSize = 14.sp,
-                            color = Orange600,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    if (hasAssistance) {
-                        Text(
-                            text = stringResource(R.string.assistance_display_format, firstRecord!!.assistanceG!! / 1000.0f),
-                            fontSize = 14.sp,
-                            color = Amber500,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            }
-
-            // Sets
+            // Sets（各セットにセット別の距離/荷重/アシストを表示）
             Column(
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
@@ -252,47 +217,87 @@ fun SessionCard(
                         shape = RoundedCornerShape(8.dp),
                         onClick = { onRecordClick(record) }
                     ) {
-                        Row(
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Text(
-                                text = stringResource(R.string.set_number, record.setNumber),
-                                fontSize = 14.sp,
-                                color = appColors.textTertiary
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.set_number, record.setNumber),
+                                    fontSize = 14.sp,
+                                    color = appColors.textTertiary
+                                )
 
-                            // Unilateral/Bilateral 対応
-                            if (record.valueLeft != null) {
-                                // Unilateral: 左右表示
-                                Column(
-                                    horizontalAlignment = Alignment.End,
-                                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                                ) {
+                                // Unilateral/Bilateral 対応
+                                if (record.valueLeft != null) {
+                                    // Unilateral: 左右表示
+                                    Column(
+                                        horizontalAlignment = Alignment.End,
+                                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                                    ) {
+                                        Text(
+                                            text = stringResource(R.string.right_value_short, record.valueRight, if (exercise?.type == "Dynamic") stringResource(R.string.unit_reps) else stringResource(R.string.unit_seconds)),
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Green400
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.left_value_short, record.valueLeft!!, if (exercise?.type == "Dynamic") stringResource(R.string.unit_reps) else stringResource(R.string.unit_seconds)),
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Purple600
+                                        )
+                                    }
+                                } else {
+                                    // Bilateral: 従来通り
                                     Text(
-                                        text = stringResource(R.string.right_value_short, record.valueRight, if (exercise?.type == "Dynamic") stringResource(R.string.unit_reps) else stringResource(R.string.unit_seconds)),
-                                        fontSize = 16.sp,
+                                        text = "${record.valueRight}${if (exercise?.type == "Dynamic") stringResource(R.string.unit_reps) else stringResource(R.string.unit_seconds)}",
+                                        fontSize = 18.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Green400
                                     )
-                                    Text(
-                                        text = stringResource(R.string.left_value_short, record.valueLeft!!, if (exercise?.type == "Dynamic") stringResource(R.string.unit_reps) else stringResource(R.string.unit_seconds)),
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Purple600
-                                    )
                                 }
-                            } else {
-                                // Bilateral: 従来通り
-                                Text(
-                                    text = "${record.valueRight}${if (exercise?.type == "Dynamic") stringResource(R.string.unit_reps) else stringResource(R.string.unit_seconds)}",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Green400
-                                )
+                            }
+
+                            // セット別 距離/荷重/アシスト（有効な値のみ表示）
+                            val hasDistance = record.distanceCm != null
+                            val hasWeight = record.weightG != null
+                            val hasAssistance = record.assistanceG != null
+                            if (hasDistance || hasWeight || hasAssistance) {
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    if (hasDistance) {
+                                        Text(
+                                            text = stringResource(R.string.distance_display_format, record.distanceCm!!),
+                                            fontSize = 13.sp,
+                                            color = Blue600,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    if (hasWeight) {
+                                        Text(
+                                            text = stringResource(R.string.weight_display_format, record.weightG!! / 1000.0f),
+                                            fontSize = 13.sp,
+                                            color = Orange600,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    if (hasAssistance) {
+                                        Text(
+                                            text = stringResource(R.string.assistance_display_format, record.assistanceG!! / 1000.0f),
+                                            fontSize = 13.sp,
+                                            color = Amber500,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -306,36 +311,55 @@ fun SessionCard(
 @Composable
 fun SessionEditDialog(
     session: SessionInfo,
+    exercise: Exercise?,
     onDismiss: () -> Unit,
-    onConfirm: (String, String, String, Int?, Int?, Int?) -> Unit  // date, time, comment, distanceCm, weightG, assistanceG
+    onConfirm: (String, String, String, List<Int?>, List<Int?>, List<Int?>) -> Unit
+    // date, time, comment, distancesCm, weightsG, assistancesG（セッションのrecordsと同じ順序・同じサイズ）
 ) {
-    val firstRecord = session.records.firstOrNull()
-
     var editDate by remember { mutableStateOf(session.date) }
     var editTime by remember { mutableStateOf(session.time) }
     var editComment by remember { mutableStateOf(session.comment) }
-    var editDistance by remember { mutableStateOf(firstRecord?.distanceCm?.toString() ?: "") }
-    var editWeight by remember {
+
+    // セット別の編集値（recordsと同じ順序・サイズ）
+    var editDistances by remember {
         mutableStateOf(
-            firstRecord?.weightG?.let { "%.1f".format(it / 1000.0f) } ?: ""
+            session.records.map { it.distanceCm?.toString() ?: "" }
         )
     }
-    var editAssistance by remember {
+    var editWeights by remember {
         mutableStateOf(
-            firstRecord?.assistanceG?.let { "%.1f".format(it / 1000.0f) } ?: ""
+            session.records.map { r ->
+                r.weightG?.let { "%.1f".format(it / 1000.0f) } ?: ""
+            }
         )
     }
+    var editAssistances by remember {
+        mutableStateOf(
+            session.records.map { r ->
+                r.assistanceG?.let { "%.1f".format(it / 1000.0f) } ?: ""
+            }
+        )
+    }
+
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
 
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
+    val showDistance = exercise?.distanceTrackingEnabled == true
+    val showWeight = exercise?.weightTrackingEnabled == true
+    val showAssistance = exercise?.assistanceTrackingEnabled == true
+    val hasAnyTracking = showDistance || showWeight || showAssistance
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.edit_session_info)) },
         text = {
             Column(
+                modifier = Modifier
+                    .heightIn(max = 480.dp)
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 OutlinedButton(
@@ -360,80 +384,107 @@ fun SessionEditDialog(
                     maxLines = 3
                 )
 
-                // 距離入力（cm単位）
-                OutlinedTextField(
-                    value = editDistance,
-                    onValueChange = { value ->
-                        // 全角→半角変換
-                        val normalized = value
-                            .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
-                            .replace("．", ".").replace("－", "-")
-                        if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
-                            editDistance = normalized
-                        }
-                    },
-                    label = { Text(stringResource(R.string.distance_input_label)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number
-                    )
-                )
+                // セット別 距離/荷重/アシスト 編集
+                if (hasAnyTracking) {
+                    session.records.forEachIndexed { index, record ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.set_number, record.setNumber),
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
 
-                // 荷重入力（kg単位）
-                OutlinedTextField(
-                    value = editWeight,
-                    onValueChange = { value ->
-                        // 全角→半角変換
-                        val normalized = value
-                            .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
-                            .replace("．", ".")
-                        val isValidDecimal = normalized.isEmpty() ||
-                            normalized == "." ||
-                            normalized.matches(Regex("^\\d*\\.?\\d?\$"))
-                        if (isValidDecimal) {
-                            editWeight = normalized
-                        }
-                    },
-                    label = { Text(stringResource(R.string.weight_input_label)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Decimal
-                    )
-                )
+                                if (showDistance) {
+                                    OutlinedTextField(
+                                        value = editDistances.getOrElse(index) { "" },
+                                        onValueChange = { value ->
+                                            val normalized = value
+                                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                                .replace("．", ".").replace("－", "-")
+                                            if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
+                                                editDistances = editDistances.toMutableList().also { it[index] = normalized }
+                                            }
+                                        },
+                                        label = { Text(stringResource(R.string.distance_input_label), fontSize = 12.sp) },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                    )
+                                }
 
-                // アシスト入力（kg単位）
-                OutlinedTextField(
-                    value = editAssistance,
-                    onValueChange = { value ->
-                        // 全角→半角変換
-                        val normalized = value
-                            .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
-                            .replace("．", ".")
-                        val isValidDecimal = normalized.isEmpty() ||
-                            normalized == "." ||
-                            normalized.matches(Regex("^\\d*\\.?\\d?\$"))
-                        if (isValidDecimal) {
-                            editAssistance = normalized
+                                if (showWeight) {
+                                    OutlinedTextField(
+                                        value = editWeights.getOrElse(index) { "" },
+                                        onValueChange = { value ->
+                                            val normalized = value
+                                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                                .replace("．", ".")
+                                            val isValid = normalized.isEmpty() || normalized == "." ||
+                                                normalized.matches(Regex("^\\d*\\.?\\d?\$"))
+                                            if (isValid) {
+                                                editWeights = editWeights.toMutableList().also { it[index] = normalized }
+                                            }
+                                        },
+                                        label = { Text(stringResource(R.string.weight_input_label), fontSize = 12.sp) },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                                    )
+                                }
+
+                                if (showAssistance) {
+                                    OutlinedTextField(
+                                        value = editAssistances.getOrElse(index) { "" },
+                                        onValueChange = { value ->
+                                            val normalized = value
+                                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                                .replace("．", ".")
+                                            val isValid = normalized.isEmpty() || normalized == "." ||
+                                                normalized.matches(Regex("^\\d*\\.?\\d?\$"))
+                                            if (isValid) {
+                                                editAssistances = editAssistances.toMutableList().also { it[index] = normalized }
+                                            }
+                                        },
+                                        label = { Text(stringResource(R.string.assistance_input_label), fontSize = 12.sp) },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                                    )
+                                }
+                            }
                         }
-                    },
-                    label = { Text(stringResource(R.string.assistance_input_label)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Decimal
-                    )
-                )
+                    }
+                }
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    val distanceCm = editDistance.ifEmpty { null }?.toIntOrNull()
-                    val weightG = editWeight.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
-                    val assistanceG = editAssistance.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
-                    onConfirm(editDate, editTime, editComment, distanceCm, weightG, assistanceG)
+                    val distancesCm: List<Int?> = session.records.indices.map { i ->
+                        editDistances.getOrElse(i) { "" }
+                            .takeIf { it.isNotEmpty() && it != "-" }
+                            ?.toIntOrNull()
+                    }
+                    val weightsG: List<Int?> = session.records.indices.map { i ->
+                        editWeights.getOrElse(i) { "" }
+                            .takeIf { it.isNotEmpty() && it != "." }
+                            ?.toDoubleOrNull()
+                            ?.let { (it * 1000).toInt() }
+                    }
+                    val assistancesG: List<Int?> = session.records.indices.map { i ->
+                        editAssistances.getOrElse(i) { "" }
+                            .takeIf { it.isNotEmpty() && it != "." }
+                            ?.toDoubleOrNull()
+                            ?.let { (it * 1000).toInt() }
+                    }
+                    onConfirm(editDate, editTime, editComment, distancesCm, weightsG, assistancesG)
                 }
             ) {
                 Text(stringResource(R.string.save))

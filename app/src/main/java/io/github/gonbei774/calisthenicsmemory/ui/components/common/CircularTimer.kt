@@ -47,7 +47,7 @@ fun ProgramCircularTimer(
         }
         Text(
             text = "$remainingTime",
-            fontSize = 72.sp,
+            fontSize = 80.sp,
             fontWeight = FontWeight.Bold,
             color = appColors.textPrimary,
             style = TextStyle(

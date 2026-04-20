@@ -23,8 +23,7 @@ import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 @Composable
 internal fun ProgramResultStep(
     session: ProgramExecutionSession,
-    onSave: () -> Unit,
-    onCancel: () -> Unit
+    onSave: () -> Unit
 ) {
     val appColors = LocalAppColors.current
     var comment by remember { mutableStateOf(session.comment) }
@@ -177,13 +176,6 @@ internal fun ProgramResultStep(
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
-        }
-
-        OutlinedButton(
-            onClick = onCancel,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.cancel))
         }
     }
 }

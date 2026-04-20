@@ -1,7 +1,5 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
-import android.media.ToneGenerator
-import android.media.AudioManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -58,6 +56,7 @@ import android.view.WindowManager
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
 import io.github.gonbei774.calisthenicsmemory.util.SearchUtils
+import io.github.gonbei774.calisthenicsmemory.util.SoundPlayer
 import io.github.gonbei774.calisthenicsmemory.service.WorkoutTimerService
 import io.github.gonbei774.calisthenicsmemory.ui.components.single.*
 import kotlinx.coroutines.delay
@@ -74,22 +73,23 @@ data class WorkoutSet(
     var actualValue: Int = 0, // 実際の値
     var isCompleted: Boolean = false,
     var isSkipped: Boolean = false,
-    val previousValue: Int? = null // 前回値（参考用）
+    val previousValue: Int? = null, // 前回値（参考用）
+    // セット別トラッキング値（Settings画面で入力した共通値が全セットにコピーされ、Confirmation画面で個別編集可能）
+    var distanceCm: Int? = null, // 距離（cm）
+    var weightG: Int? = null,    // 追加ウエイト（g）
+    var assistanceG: Int? = null // アシスト量（g）
 )
 
 // ワークアウトセッションのデータ
 data class WorkoutSession(
     val exercise: Exercise,
-    val totalSets: Int,
+    var totalSets: Int, // リザルト画面でセット追加時に増える
     val targetValue: Int, // 目標値
     val repDuration: Int?, // Dynamic用: 1レップ時間（秒）
     val startInterval: Int, // 開始前インターバル（秒）
     var intervalDuration: Int, // セット間インターバル（秒）
     val sets: MutableList<WorkoutSet>,
     var comment: String = "",
-    val distanceCm: Int? = null, // 距離（cm）
-    val weightG: Int? = null, // 追加ウエイト（g）
-    val assistanceG: Int? = null, // アシスト量（g）
     val isAutoMode: Boolean = true, // 自動モード（目標達成時に自動遷移）
     val isDynamicCountSoundEnabled: Boolean = true // レップカウント音有効
 )
@@ -143,10 +143,8 @@ fun WorkoutScreen(
     }
     var selectedExercise by remember(initialExercise) { mutableStateOf<Exercise?>(initialExercise) }
 
-    // ビープ音用
-    val toneGenerator = remember {
-        ToneGenerator(AudioManager.STREAM_MUSIC, 100)
-    }
+    // 効果音用
+    val soundPlayer = remember { SoundPlayer(context) }
 
     // LEDフラッシュ用
     val flashController = remember { FlashController(context) }
@@ -214,7 +212,7 @@ fun WorkoutScreen(
         onDispose {
             val window = (view.context as? android.app.Activity)?.window
             window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            toneGenerator.release()
+            soundPlayer.release()
             flashController.turnOff()
             WorkoutTimerService.stopService(context)
         }
@@ -313,7 +311,7 @@ fun WorkoutScreen(
                     StartIntervalStep(
                         session = step.session,
                         currentSetIndex = step.currentSetIndex,
-                        toneGenerator = toneGenerator,
+                        soundPlayer = soundPlayer,
                         flashController = flashController,
                         isFlashEnabled = isFlashEnabled,
                         onIntervalComplete = {
@@ -372,7 +370,7 @@ fun WorkoutScreen(
                                 SingleExecutingStepIsometricAuto(
                                     session = step.session,
                                     currentSetIndex = step.currentSetIndex,
-                                    toneGenerator = toneGenerator,
+                                    soundPlayer = soundPlayer,
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
                                     isIntervalSoundEnabled = workoutPreferences.isIsometricIntervalSoundEnabled(),
@@ -389,7 +387,7 @@ fun WorkoutScreen(
                                 SingleExecutingStepIsometricManual(
                                     session = step.session,
                                     currentSetIndex = step.currentSetIndex,
-                                    toneGenerator = toneGenerator,
+                                    soundPlayer = soundPlayer,
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
                                     isIntervalSoundEnabled = workoutPreferences.isIsometricIntervalSoundEnabled(),
@@ -406,7 +404,7 @@ fun WorkoutScreen(
                                 SingleExecutingStepDynamicSimple(
                                     session = step.session,
                                     currentSetIndex = step.currentSetIndex,
-                                    toneGenerator = toneGenerator,
+                                    soundPlayer = soundPlayer,
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
                                     isNavigationOpen = showNavigationSheet,
@@ -421,7 +419,7 @@ fun WorkoutScreen(
                                 SingleExecutingStepDynamicAuto(
                                     session = step.session,
                                     currentSetIndex = step.currentSetIndex,
-                                    toneGenerator = toneGenerator,
+                                    soundPlayer = soundPlayer,
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
                                     isCountSoundEnabled = step.session.isDynamicCountSoundEnabled,
@@ -437,7 +435,7 @@ fun WorkoutScreen(
                                 SingleExecutingStepDynamicManual(
                                     session = step.session,
                                     currentSetIndex = step.currentSetIndex,
-                                    toneGenerator = toneGenerator,
+                                    soundPlayer = soundPlayer,
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
                                     isCountSoundEnabled = step.session.isDynamicCountSoundEnabled,
@@ -505,7 +503,7 @@ fun WorkoutScreen(
                     IntervalStep(
                         session = step.session,
                         nextSetIndex = step.currentSetIndex,
-                        toneGenerator = toneGenerator,
+                        soundPlayer = soundPlayer,
                         flashController = flashController,
                         isFlashEnabled = isFlashEnabled,
                         onIntervalComplete = {
@@ -540,12 +538,14 @@ fun WorkoutScreen(
                             }
                             onNavigateBack()
                         },
-                        onCancel = {
-                            // If from ToDo, go back to ToDo; otherwise go to exercise selection
-                            if (fromToDo) {
-                                onNavigateBack()
-                            } else {
-                                currentStep = WorkoutStep.ExerciseSelection
+                        onAddSet = { updatedSession, nextIndex ->
+                            currentStep = when {
+                                updatedSession.intervalDuration > 0 ->
+                                    WorkoutStep.Interval(updatedSession, nextIndex)
+                                updatedSession.startInterval > 0 ->
+                                    WorkoutStep.StartInterval(updatedSession, nextIndex)
+                                else ->
+                                    WorkoutStep.Executing(updatedSession, nextIndex)
                             }
                         }
                     )
@@ -1276,28 +1276,52 @@ fun SettingsStep(
                 val start = startInterval.toIntOrNull() ?: 5
                 val inter = interval.toIntOrNull() ?: 240
 
-                val workoutSets = mutableListOf<WorkoutSet>()
-                if (exercise.laterality == "Unilateral") {
-                    for (i in 1..totalSets) {
-                        // 前回セッションからこのセット番号のレコードを探す
-                        val prevRecord = previousSessionRecords.find { it.setNumber == i }
-                        workoutSets.add(WorkoutSet(i, "Right", target, previousValue = prevRecord?.valueRight))
-                        workoutSets.add(WorkoutSet(i, "Left", target, previousValue = prevRecord?.valueLeft))
-                    }
-                } else {
-                    for (i in 1..totalSets) {
-                        // 前回セッションからこのセット番号のレコードを探す
-                        val prevRecord = previousSessionRecords.find { it.setNumber == i }
-                        workoutSets.add(WorkoutSet(i, null, target, previousValue = prevRecord?.valueRight))
-                    }
-                }
-
-                // 距離・荷重・アシストの値を取得（空の場合はnull）
+                // 距離・荷重・アシストの値を取得（空の場合はnull）— 設定画面の値を全セットのデフォルトとして使用
                 val distanceCm = distanceInput.ifEmpty { null }?.toIntOrNull()
                 // 荷重はkgで入力、gに変換（例: 1.5kg → 1500g）
                 val weightG = weightInput.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
                 // アシストはkgで入力、gに変換（例: 22.5kg → 22500g）
                 val assistanceG = assistanceInput.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
+
+                val workoutSets = mutableListOf<WorkoutSet>()
+                if (exercise.laterality == "Unilateral") {
+                    for (i in 1..totalSets) {
+                        // 前回セッションからこのセット番号のレコードを探す
+                        val prevRecord = previousSessionRecords.find { it.setNumber == i }
+                        workoutSets.add(WorkoutSet(
+                            setNumber = i,
+                            side = "Right",
+                            targetValue = target,
+                            previousValue = prevRecord?.valueRight,
+                            distanceCm = distanceCm,
+                            weightG = weightG,
+                            assistanceG = assistanceG
+                        ))
+                        workoutSets.add(WorkoutSet(
+                            setNumber = i,
+                            side = "Left",
+                            targetValue = target,
+                            previousValue = prevRecord?.valueLeft,
+                            distanceCm = distanceCm,
+                            weightG = weightG,
+                            assistanceG = assistanceG
+                        ))
+                    }
+                } else {
+                    for (i in 1..totalSets) {
+                        // 前回セッションからこのセット番号のレコードを探す
+                        val prevRecord = previousSessionRecords.find { it.setNumber == i }
+                        workoutSets.add(WorkoutSet(
+                            setNumber = i,
+                            side = null,
+                            targetValue = target,
+                            previousValue = prevRecord?.valueRight,
+                            distanceCm = distanceCm,
+                            weightG = weightG,
+                            assistanceG = assistanceG
+                        ))
+                    }
+                }
 
                 val session = WorkoutSession(
                     exercise = exercise,
@@ -1307,9 +1331,6 @@ fun SettingsStep(
                     startInterval = start,
                     intervalDuration = inter,
                     sets = workoutSets,
-                    distanceCm = distanceCm,
-                    weightG = weightG,
-                    assistanceG = assistanceG,
                     isAutoMode = isAutoMode,
                     isDynamicCountSoundEnabled = isDynamicCountSoundEnabled
                 )
@@ -1338,7 +1359,7 @@ fun SettingsStep(
 fun StartIntervalStep(
     session: WorkoutSession,
     currentSetIndex: Int,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     onIntervalComplete: () -> Unit,
@@ -1359,14 +1380,14 @@ fun StartIntervalStep(
             if (isPaused) continue
             remainingTime--
             if (remainingTime <= 3 && remainingTime > 0) {
-                toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                soundPlayer.playBeep()
                 if (isFlashEnabled) {
                     launch { flashController.flashShort() }
                 }
             }
         }
         // カウントダウン完了
-        toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 300)
+        soundPlayer.playStartCue()
         if (isFlashEnabled) {
             launch { flashController.flashComplete() }
         }
@@ -1435,7 +1456,7 @@ fun StartIntervalStep(
                 }
                 Text(
                     text = "$remainingTime",
-                    fontSize = 72.sp,
+                    fontSize = 80.sp,
                     fontWeight = FontWeight.Bold,
                     color = appColors.textPrimary,
                     modifier = Modifier.alpha(if (isPaused) 0.2f else 1f)
@@ -1497,7 +1518,7 @@ fun CircularProgressTimer(
         }
         Text(
             text = "$remainingTime",
-            fontSize = 72.sp,
+            fontSize = 80.sp,
             fontWeight = FontWeight.Bold,
             color = appColors.textPrimary,
             style = androidx.compose.ui.text.TextStyle(
@@ -1516,7 +1537,7 @@ fun CircularProgressTimer(
 fun ExecutingStep(
     session: WorkoutSession,
     currentSetIndex: Int,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     onSetComplete: (WorkoutSession) -> Unit,
@@ -1563,14 +1584,14 @@ fun ExecutingStep(
                             if (isFlashEnabled) {
                                 launch { flashController.flashSetComplete() }
                             }
-                            playTripleBeepTwice(toneGenerator)
+                            soundPlayer.playSetComplete()
                             currentSet.actualValue = currentCount
                             currentSet.isCompleted = true
                             onSetComplete(session)
                             return@LaunchedEffect
                         } else {
                             // 途中のレップは短いフラッシュ
-                            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                            soundPlayer.playBeep()
                             if (isFlashEnabled) {
                                 launch { flashController.flashShort() }
                             }
@@ -1584,7 +1605,7 @@ fun ExecutingStep(
                     if (isFlashEnabled) {
                         launch { flashController.flashSetComplete() }
                     }
-                    playTripleBeepTwice(toneGenerator)
+                    soundPlayer.playSetComplete()
                     currentSet.actualValue = elapsedTime
                     currentSet.isCompleted = true
                     onSetComplete(session)
@@ -1728,7 +1749,7 @@ fun ExecutingStep(
 fun IntervalStep(
     session: WorkoutSession,
     nextSetIndex: Int,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     onIntervalComplete: () -> Unit,
@@ -1745,7 +1766,7 @@ fun IntervalStep(
             delay(1000L)
             remainingTime--
             if (remainingTime <= 3 && remainingTime > 0) {
-                toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                soundPlayer.playBeep()
                 if (isFlashEnabled) {
                     launch { flashController.flashShort() }
                 }
@@ -1753,7 +1774,7 @@ fun IntervalStep(
         }
         if (remainingTime == 0) {
             // インターバル完了
-            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 300)
+            soundPlayer.playStartCue()
             if (isFlashEnabled) {
                 launch { flashController.flashComplete() }
             }
@@ -1855,7 +1876,7 @@ fun IntervalStep(
                 }
                 Text(
                     text = "$remainingTime",
-                    fontSize = 72.sp,
+                    fontSize = 80.sp,
                     fontWeight = FontWeight.Bold,
                     color = appColors.textPrimary,
                     modifier = Modifier.alpha(if (!isRunning) 0.2f else 1f)
@@ -1914,10 +1935,11 @@ fun IntervalStep(
 fun ConfirmationStep(
     session: WorkoutSession,
     onConfirm: (WorkoutSession) -> Unit,
-    onCancel: () -> Unit
+    onAddSet: (WorkoutSession, Int) -> Unit
 ) {
     val appColors = LocalAppColors.current
     var comment by remember { mutableStateOf(session.comment) }
+    var showAddSetDialog by remember { mutableStateOf(false) }
 
     // Unilateralの場合、セット番号でグループ化
     val displaySets = remember(session) {
@@ -1987,12 +2009,25 @@ fun ConfirmationStep(
                         setNumber = setNumber,
                         rightSet = rightSet,
                         leftSet = leftSet,
-                        exerciseType = session.exercise.type,
+                        exercise = session.exercise,
                         onRightValueChange = { newValue ->
                             rightSet?.actualValue = newValue
                         },
                         onLeftValueChange = { newValue ->
                             leftSet?.actualValue = newValue
+                        },
+                        onDistanceChange = { newValue ->
+                            // L/R両方に同じ値を書き戻す（セット別単一値）
+                            rightSet?.distanceCm = newValue
+                            leftSet?.distanceCm = newValue
+                        },
+                        onWeightChange = { newValue ->
+                            rightSet?.weightG = newValue
+                            leftSet?.weightG = newValue
+                        },
+                        onAssistanceChange = { newValue ->
+                            rightSet?.assistanceG = newValue
+                            leftSet?.assistanceG = newValue
                         }
                     )
                 }
@@ -2002,10 +2037,13 @@ fun ConfirmationStep(
                     val set = session.sets[index]
                     BilateralSetItem(
                         set = set,
-                        exerciseType = session.exercise.type,
+                        exercise = session.exercise,
                         onValueChange = { newValue ->
                             set.actualValue = newValue
-                        }
+                        },
+                        onDistanceChange = { newValue -> set.distanceCm = newValue },
+                        onWeightChange = { newValue -> set.weightG = newValue },
+                        onAssistanceChange = { newValue -> set.assistanceG = newValue }
                     )
                 }
             }
@@ -2044,12 +2082,215 @@ fun ConfirmationStep(
         }
 
         OutlinedButton(
-            onClick = onCancel,
-            modifier = Modifier.fillMaxWidth()
+            onClick = { showAddSetDialog = true },
+            modifier = Modifier.fillMaxWidth(),
+            border = BorderStroke(1.dp, Orange600)
         ) {
-            Text(stringResource(R.string.cancel))
+            Text(stringResource(R.string.add_extra_set_button), color = Orange600)
         }
     }
+
+    if (showAddSetDialog) {
+        AddExtraSetDialog(
+            session = session,
+            onDismiss = { showAddSetDialog = false },
+            onConfirm = { nextIndex ->
+                showAddSetDialog = false
+                session.comment = comment
+                onAddSet(session, nextIndex)
+            }
+        )
+    }
+}
+
+// リザルト画面で「もう1セット追加」するダイアログ
+@Composable
+fun AddExtraSetDialog(
+    session: WorkoutSession,
+    onDismiss: () -> Unit,
+    onConfirm: (Int) -> Unit
+) {
+    val appColors = LocalAppColors.current
+    val exercise = session.exercise
+
+    // プリフィル元：直前セット（Unilateral の場合は Right 側）
+    val lastSet = remember(session.sets.size) {
+        if (exercise.laterality == "Unilateral") {
+            session.sets.lastOrNull { it.side == "Right" }
+        } else {
+            session.sets.lastOrNull()
+        }
+    }
+
+    var targetValueStr by remember {
+        mutableStateOf((lastSet?.targetValue ?: session.targetValue).toString())
+    }
+    var distanceStr by remember {
+        mutableStateOf(lastSet?.distanceCm?.toString() ?: "")
+    }
+    var weightStr by remember {
+        mutableStateOf(lastSet?.weightG?.let { "%.1f".format(it / 1000.0) } ?: "")
+    }
+    var assistanceStr by remember {
+        mutableStateOf(lastSet?.assistanceG?.let { "%.1f".format(it / 1000.0) } ?: "")
+    }
+
+    val isValid = targetValueStr.toIntOrNull()?.let { it > 0 } == true
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.add_extra_set_title)) },
+        text = {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedTextField(
+                    value = targetValueStr,
+                    onValueChange = {
+                        if (it.isEmpty() || it.all { c -> c.isDigit() }) targetValueStr = it
+                    },
+                    label = {
+                        Text(
+                            stringResource(
+                                if (exercise.type == "Dynamic") R.string.target_reps_label
+                                else R.string.target_duration_label
+                            )
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Orange600,
+                        focusedLabelColor = Orange600
+                    )
+                )
+
+                if (exercise.distanceTrackingEnabled) {
+                    OutlinedTextField(
+                        value = distanceStr,
+                        onValueChange = { value ->
+                            val normalized = value
+                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                .replace("．", ".").replace("－", "-")
+                            if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
+                                distanceStr = normalized
+                            }
+                        },
+                        label = { Text(stringResource(R.string.distance_input_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Blue600,
+                            focusedLabelColor = Blue600,
+                            cursorColor = Blue600
+                        )
+                    )
+                }
+
+                if (exercise.weightTrackingEnabled) {
+                    OutlinedTextField(
+                        value = weightStr,
+                        onValueChange = { value ->
+                            val normalized = value
+                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                .replace("．", ".")
+                            val isValidDecimal = normalized.isEmpty() ||
+                                normalized == "." ||
+                                normalized.matches(Regex("^\\d*\\.?\\d?\$"))
+                            if (isValidDecimal) weightStr = normalized
+                        },
+                        label = { Text(stringResource(R.string.weight_input_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Orange600,
+                            focusedLabelColor = Orange600
+                        )
+                    )
+                }
+
+                if (exercise.assistanceTrackingEnabled) {
+                    OutlinedTextField(
+                        value = assistanceStr,
+                        onValueChange = { value ->
+                            val normalized = value
+                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                .replace("．", ".")
+                            val isValidDecimal = normalized.isEmpty() ||
+                                normalized == "." ||
+                                normalized.matches(Regex("^\\d*\\.?\\d?\$"))
+                            if (isValidDecimal) assistanceStr = normalized
+                        },
+                        label = { Text(stringResource(R.string.assistance_input_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Amber500,
+                            focusedLabelColor = Amber500,
+                            cursorColor = Amber500
+                        )
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val target = targetValueStr.toIntOrNull() ?: return@TextButton
+                    val distanceCm = distanceStr.ifEmpty { null }?.toIntOrNull()
+                    val weightG = weightStr.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
+                    val assistanceG = assistanceStr.ifEmpty { null }?.toDoubleOrNull()?.let { (it * 1000).toInt() }
+
+                    val nextIndex = session.sets.size
+                    val newSetNumber = session.totalSets + 1
+                    session.totalSets = newSetNumber
+
+                    if (exercise.laterality == "Unilateral") {
+                        session.sets.add(WorkoutSet(
+                            setNumber = newSetNumber,
+                            side = "Right",
+                            targetValue = target,
+                            distanceCm = distanceCm,
+                            weightG = weightG,
+                            assistanceG = assistanceG
+                        ))
+                        session.sets.add(WorkoutSet(
+                            setNumber = newSetNumber,
+                            side = "Left",
+                            targetValue = target,
+                            distanceCm = distanceCm,
+                            weightG = weightG,
+                            assistanceG = assistanceG
+                        ))
+                    } else {
+                        session.sets.add(WorkoutSet(
+                            setNumber = newSetNumber,
+                            side = null,
+                            targetValue = target,
+                            distanceCm = distanceCm,
+                            weightG = weightG,
+                            assistanceG = assistanceG
+                        ))
+                    }
+                    onConfirm(nextIndex)
+                },
+                enabled = isValid
+            ) {
+                Text(stringResource(R.string.add_extra_set_confirm), color = Orange600)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel), color = appColors.textSecondary)
+            }
+        },
+        containerColor = appColors.cardBackground
+    )
 }
 
 // Unilateral用セットアイテム（1行表示）
@@ -2058,14 +2299,28 @@ fun UnilateralSetItem(
     setNumber: Int,
     rightSet: WorkoutSet?,
     leftSet: WorkoutSet?,
-    exerciseType: String,
+    exercise: Exercise,
     onRightValueChange: (Int) -> Unit,
-    onLeftValueChange: (Int) -> Unit
+    onLeftValueChange: (Int) -> Unit,
+    onDistanceChange: (Int?) -> Unit,
+    onWeightChange: (Int?) -> Unit,
+    onAssistanceChange: (Int?) -> Unit
 ) {
     val appColors = LocalAppColors.current
+    val exerciseType = exercise.type
     // 編集可能な状態として管理
     var rightValue by remember(rightSet) { mutableStateOf(rightSet?.actualValue?.toString() ?: "0") }
     var leftValue by remember(leftSet) { mutableStateOf(leftSet?.actualValue?.toString() ?: "0") }
+    // L/R共通の重量/距離/アシスト（rightSet側を正とする）
+    var distanceStr by remember(rightSet) {
+        mutableStateOf(rightSet?.distanceCm?.toString() ?: "")
+    }
+    var weightStr by remember(rightSet) {
+        mutableStateOf(rightSet?.weightG?.let { "%.1f".format(it / 1000.0) } ?: "")
+    }
+    var assistanceStr by remember(rightSet) {
+        mutableStateOf(rightSet?.assistanceG?.let { "%.1f".format(it / 1000.0) } ?: "")
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -2174,6 +2429,18 @@ fun UnilateralSetItem(
                     singleLine = true
                 )
             }
+
+            // セット別 距離/荷重/アシスト（L/R共通）
+            WorkoutSetTrackingFields(
+                exercise = exercise,
+                distanceStr = distanceStr,
+                weightStr = weightStr,
+                assistanceStr = assistanceStr,
+                onDistanceStrChange = { distanceStr = it; onDistanceChange(parseDistanceCmValue(it)) },
+                onWeightStrChange = { weightStr = it; onWeightChange(parseWeightGValue(it)) },
+                onAssistanceStrChange = { assistanceStr = it; onAssistanceChange(parseWeightGValue(it)) },
+                appColors = appColors
+            )
         }
     }
 }
@@ -2182,12 +2449,25 @@ fun UnilateralSetItem(
 @Composable
 fun BilateralSetItem(
     set: WorkoutSet,
-    exerciseType: String,
-    onValueChange: (Int) -> Unit
+    exercise: Exercise,
+    onValueChange: (Int) -> Unit,
+    onDistanceChange: (Int?) -> Unit,
+    onWeightChange: (Int?) -> Unit,
+    onAssistanceChange: (Int?) -> Unit
 ) {
     val appColors = LocalAppColors.current
+    val exerciseType = exercise.type
     // 編集可能な状態として管理
     var value by remember(set) { mutableStateOf(set.actualValue.toString()) }
+    var distanceStr by remember(set) {
+        mutableStateOf(set.distanceCm?.toString() ?: "")
+    }
+    var weightStr by remember(set) {
+        mutableStateOf(set.weightG?.let { "%.1f".format(it / 1000.0) } ?: "")
+    }
+    var assistanceStr by remember(set) {
+        mutableStateOf(set.assistanceG?.let { "%.1f".format(it / 1000.0) } ?: "")
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -2196,56 +2476,182 @@ fun BilateralSetItem(
         ),
         shape = RoundedCornerShape(8.dp)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(12.dp)
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.set_label, set.setNumber),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = appColors.textPrimary
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.set_label, set.setNumber),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = appColors.textPrimary
+                    )
+                    if (set.isSkipped) {
+                        Text(
+                            text = stringResource(R.string.skipped_label),
+                            fontSize = 12.sp,
+                            color = appColors.textSecondary
+                        )
+                    }
+                    // 前回値表示
+                    set.previousValue?.let { prev ->
+                        Text(
+                            text = stringResource(R.string.previous_value_format, prev),
+                            fontSize = 12.sp,
+                            color = appColors.textDisabled
+                        )
+                    }
+                }
+
+                OutlinedTextField(
+                    value = value,
+                    onValueChange = { newValue ->
+                        if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
+                            value = newValue
+                            newValue.toIntOrNull()?.let { onValueChange(it) }
+                        }
+                    },
+                    label = {
+                        Text(
+                            stringResource(if (exerciseType == "Dynamic") R.string.reps_input else R.string.seconds_input),
+                            fontSize = 12.sp
+                        )
+                    },
+                    modifier = Modifier.width(100.dp),
+                    singleLine = true
                 )
-                if (set.isSkipped) {
-                    Text(
-                        text = stringResource(R.string.skipped_label),
-                        fontSize = 12.sp,
-                        color = appColors.textSecondary
-                    )
-                }
-                // 前回値表示
-                set.previousValue?.let { prev ->
-                    Text(
-                        text = stringResource(R.string.previous_value_format, prev),
-                        fontSize = 12.sp,
-                        color = appColors.textDisabled
-                    )
-                }
             }
 
-            OutlinedTextField(
-                value = value,
-                onValueChange = { newValue ->
-                    if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
-                        value = newValue
-                        newValue.toIntOrNull()?.let { onValueChange(it) }
-                    }
-                },
-                label = {
-                    Text(
-                        stringResource(if (exerciseType == "Dynamic") R.string.reps_input else R.string.seconds_input),
-                        fontSize = 12.sp
-                    )
-                },
-                modifier = Modifier.width(100.dp),
-                singleLine = true
+            // セット別 距離/荷重/アシスト
+            WorkoutSetTrackingFields(
+                exercise = exercise,
+                distanceStr = distanceStr,
+                weightStr = weightStr,
+                assistanceStr = assistanceStr,
+                onDistanceStrChange = { distanceStr = it; onDistanceChange(parseDistanceCmValue(it)) },
+                onWeightStrChange = { weightStr = it; onWeightChange(parseWeightGValue(it)) },
+                onAssistanceStrChange = { assistanceStr = it; onAssistanceChange(parseWeightGValue(it)) },
+                appColors = appColors
             )
         }
     }
+}
+
+/**
+ * Confirmation画面の各セットCard内に表示する 距離/荷重/アシスト 入力欄
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun WorkoutSetTrackingFields(
+    exercise: Exercise,
+    distanceStr: String,
+    weightStr: String,
+    assistanceStr: String,
+    onDistanceStrChange: (String) -> Unit,
+    onWeightStrChange: (String) -> Unit,
+    onAssistanceStrChange: (String) -> Unit,
+    appColors: io.github.gonbei774.calisthenicsmemory.ui.theme.AppColors
+) {
+    if (!exercise.distanceTrackingEnabled &&
+        !exercise.weightTrackingEnabled &&
+        !exercise.assistanceTrackingEnabled) return
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    if (exercise.distanceTrackingEnabled) {
+        OutlinedTextField(
+            value = distanceStr,
+            onValueChange = { value ->
+                val normalized = value
+                    .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                    .replace("．", ".").replace("－", "-")
+                if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
+                    onDistanceStrChange(normalized)
+                }
+            },
+            label = { Text(stringResource(R.string.distance_input_label), fontSize = 12.sp) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Blue600,
+                focusedLabelColor = Blue600,
+                cursorColor = Blue600
+            )
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+    }
+
+    if (exercise.weightTrackingEnabled) {
+        OutlinedTextField(
+            value = weightStr,
+            onValueChange = { value ->
+                val normalized = value
+                    .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                    .replace("．", ".")
+                val isValid = normalized.isEmpty() || normalized == "." ||
+                    normalized.matches(Regex("^\\d*\\.?\\d?$"))
+                if (isValid) {
+                    onWeightStrChange(normalized)
+                }
+            },
+            label = { Text(stringResource(R.string.weight_input_label), fontSize = 12.sp) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Orange600,
+                focusedLabelColor = Orange600,
+                cursorColor = Orange600
+            )
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+    }
+
+    if (exercise.assistanceTrackingEnabled) {
+        OutlinedTextField(
+            value = assistanceStr,
+            onValueChange = { value ->
+                val normalized = value
+                    .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                    .replace("．", ".")
+                val isValid = normalized.isEmpty() || normalized == "." ||
+                    normalized.matches(Regex("^\\d*\\.?\\d?$"))
+                if (isValid) {
+                    onAssistanceStrChange(normalized)
+                }
+            },
+            label = { Text(stringResource(R.string.assistance_input_label), fontSize = 12.sp) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Amber500,
+                focusedLabelColor = Amber500,
+                cursorColor = Amber500
+            )
+        )
+    }
+}
+
+private fun parseDistanceCmValue(input: String): Int? {
+    val trimmed = input.trim()
+    if (trimmed.isEmpty() || trimmed == "-") return null
+    return trimmed.toIntOrNull()
+}
+
+private fun parseWeightGValue(input: String): Int? {
+    val trimmed = input.trim()
+    if (trimmed.isEmpty() || trimmed == ".") return null
+    val kg = trimmed.toDoubleOrNull() ?: return null
+    return (kg * 1000).toInt()
 }
 
 // 記録保存関数
@@ -2258,12 +2664,22 @@ fun saveWorkoutRecords(
     val now = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
 
     if (session.exercise.laterality == "Unilateral") {
-        val valuesRight = session.sets
-            .filter { it.side == "Right" && it.actualValue > 0 }
-            .map { it.actualValue }
-        val valuesLeft = session.sets
-            .filter { it.side == "Left" && it.actualValue > 0 }
-            .map { it.actualValue }
+        // Unilateral: setNumber毎にRight/Leftをペアにする。重量等はRight側から拾う
+        // （Settings画面でセット共通値、Confirmation画面ではL/R共通で1値を編集）
+        val rightSets = session.sets.filter { it.side == "Right" && it.actualValue > 0 }
+        val leftSetsBySetNumber = session.sets
+            .filter { it.side == "Left" }
+            .associateBy { it.setNumber }
+
+        val valuesRight = rightSets.map { it.actualValue }
+        val valuesLeft: List<Int?> = rightSets.map { right ->
+            leftSetsBySetNumber[right.setNumber]
+                ?.takeIf { it.actualValue > 0 }
+                ?.actualValue
+        }
+        val distancesCm = rightSets.map { it.distanceCm }
+        val weightsG = rightSets.map { it.weightG }
+        val assistancesG = rightSets.map { it.assistanceG }
 
         if (valuesRight.isNotEmpty()) {
             viewModel.addTrainingRecordsUnilateral(
@@ -2273,15 +2689,17 @@ fun saveWorkoutRecords(
                 date = today,
                 time = now,
                 comment = session.comment.ifEmpty { workoutModeComment },
-                distanceCm = session.distanceCm,
-                weightG = session.weightG,
-                assistanceG = session.assistanceG
+                distancesCm = distancesCm,
+                weightsG = weightsG,
+                assistancesG = assistancesG
             )
         }
     } else {
-        val values = session.sets
-            .filter { it.actualValue > 0 }
-            .map { it.actualValue }
+        val validSets = session.sets.filter { it.actualValue > 0 }
+        val values = validSets.map { it.actualValue }
+        val distancesCm = validSets.map { it.distanceCm }
+        val weightsG = validSets.map { it.weightG }
+        val assistancesG = validSets.map { it.assistanceG }
 
         if (values.isNotEmpty()) {
             viewModel.addTrainingRecords(
@@ -2290,9 +2708,9 @@ fun saveWorkoutRecords(
                 date = today,
                 time = now,
                 comment = session.comment.ifEmpty { workoutModeComment },
-                distanceCm = session.distanceCm,
-                weightG = session.weightG,
-                assistanceG = session.assistanceG
+                distancesCm = distancesCm,
+                weightsG = weightsG,
+                assistancesG = assistancesG
             )
         }
     }
@@ -2325,22 +2743,6 @@ fun NextSetText(
         color = appColors.textSecondary,
         modifier = Modifier.padding(top = 16.dp)
     )
-}
-
-// ピピピ、ピピピ、ピピピ（3連×3セット）のビープ音を再生
-suspend fun playTripleBeepTwice(toneGenerator: ToneGenerator) {
-    // 3セット繰り返す
-    repeat(3) { setIndex ->
-        repeat(3) {
-            toneGenerator.startTone(ToneGenerator.TONE_DTMF_9, 150)
-            delay(150L)
-            delay(100L) // ビープ間の間隔
-        }
-        // 最後のセット以外は間隔を入れる
-        if (setIndex < 2) {
-            delay(150L) // セット間の間隔
-        }
-    }
 }
 
 // シングルワークアウト設定セクション

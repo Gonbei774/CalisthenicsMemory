@@ -611,19 +611,21 @@ fun ViewScreen(
 
     // Session Edit Dialog
     showSessionEditDialog?.let { session ->
+        val editExercise = exercises.find { it.id == session.exerciseId }
         SessionEditDialog(
             session = session,
+            exercise = editExercise,
             onDismiss = { showSessionEditDialog = null },
-            onConfirm = { newDate, newTime, newComment, newDistanceCm, newWeightG, newAssistanceG ->
-                session.records.forEach { record ->
+            onConfirm = { newDate, newTime, newComment, newDistancesCm, newWeightsG, newAssistancesG ->
+                session.records.forEachIndexed { index, record ->
                     viewModel.updateRecord(
                         record.copy(
                             date = newDate,
                             time = newTime,
                             comment = newComment,
-                            distanceCm = newDistanceCm,
-                            weightG = newWeightG,
-                            assistanceG = newAssistanceG
+                            distanceCm = newDistancesCm.getOrNull(index),
+                            weightG = newWeightsG.getOrNull(index),
+                            assistanceG = newAssistancesG.getOrNull(index)
                         )
                     )
                 }

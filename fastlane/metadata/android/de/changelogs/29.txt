@@ -1,0 +1,17 @@
+Hinzugefügt:
+- Pro-Satz: Gewicht, Distanz, Assistenz
+- Suche im Übungserstellungs-Bildschirm
+- "Weiteren Satz" im Einzelmodus-Ergebnis
+- Geschätzte Programmdauer in Bearbeitung
+
+Verbessert:
+- Soundeffekte: ToneGenerator zu SoundPool
+- Timer-Schriftgröße vereinheitlicht (80sp)
+- 0 als Pausenintervall erlaubt
+- Pausen-Eingabe bei Einzelübungen ausgeblendet
+
+Behoben:
+- Wiederholender Alarm im Isometric-Manual
+- Übungsreihenfolge im Intervall-Dialog
+
+Contributors: @lejun (fr), @SomeTr (uk)

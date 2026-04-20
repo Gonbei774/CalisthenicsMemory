@@ -1,0 +1,17 @@
+Añadido:
+- Registro por serie: peso, distancia, asistencia
+- Búsqueda en creación de ejercicios
+- "Añadir serie" en resultado modo único
+- Duración estimada del programa
+
+Mejorado:
+- Efectos: ToneGenerator a SoundPool
+- Fuente del temporizador unificada (80sp)
+- Permitir 0 como intervalo de descanso
+- Ocultar descanso en programas de un ejercicio
+
+Corregido:
+- Alarma repetitiva en isometric manual
+- Orden de ejercicios en diálogo de intervalo
+
+Contributors: @lejun (fr), @SomeTr (uk)

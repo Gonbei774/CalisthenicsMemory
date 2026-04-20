@@ -244,6 +244,9 @@
     <string name="program_result_zero_warning">Sets with 0 value exist. Zero sets for bilateral exercises, and sets where both sides are 0 for unilateral exercises, will not be saved.</string>
     <string name="comment_label">Comment</string>
     <string name="record_workout">Record</string>
+    <string name="add_extra_set_button">Add Another Set</string>
+    <string name="add_extra_set_title">Add Set</string>
+    <string name="add_extra_set_confirm">Add</string>
     <string name="set_number">Set %d</string>
     <string name="skipped_label">Skipped</string>
     <string name="right_label">Right:</string>
