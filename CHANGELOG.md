@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.21.0] - 2026-04-21
+
+### Added
+- **Per-set tracking** for weight, distance, and assistance values
+- **Search functionality** in exercise creation screen
+- **"Add another set"** button on single-mode result screen
+- **Estimated program duration** displayed on edit and preview screens
+
+### Improved
+- Migrated sound effects from ToneGenerator to SoundPool
+- Unified circular timer font size to 80sp across all workout modes
+- Allow 0 as rest interval value in exercise settings
+- Hide rest time input for single-exercise interval programs
+- Removed Cancel/Discard buttons from workout result screens
+- Removed clear button from repeat days dialog
+
+### Fixed
+- Repeating completion alarm in single isometric manual mode
+- Exercise selection order in interval add dialog (#40)
+
+This release includes translation contributions from @lejun (French) and @SomeTr (Ukrainian).
+
 ## [1.20.0] - 2026-03-15
 
 ### Added
@@ -450,6 +472,7 @@ This release includes contributions from @unsealed211, @SomeTr, and @balaraz.
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.21.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.21.0
 [1.20.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.20.0
 [1.19.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.19.0
 [1.18.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.18.0
