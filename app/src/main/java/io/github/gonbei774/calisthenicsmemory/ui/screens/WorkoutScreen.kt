@@ -1456,7 +1456,7 @@ fun StartIntervalStep(
                 }
                 Text(
                     text = "$remainingTime",
-                    fontSize = 72.sp,
+                    fontSize = 80.sp,
                     fontWeight = FontWeight.Bold,
                     color = appColors.textPrimary,
                     modifier = Modifier.alpha(if (isPaused) 0.2f else 1f)
@@ -1518,7 +1518,7 @@ fun CircularProgressTimer(
         }
         Text(
             text = "$remainingTime",
-            fontSize = 72.sp,
+            fontSize = 80.sp,
             fontWeight = FontWeight.Bold,
             color = appColors.textPrimary,
             style = androidx.compose.ui.text.TextStyle(
@@ -1876,7 +1876,7 @@ fun IntervalStep(
                 }
                 Text(
                     text = "$remainingTime",
-                    fontSize = 72.sp,
+                    fontSize = 80.sp,
                     fontWeight = FontWeight.Bold,
                     color = appColors.textPrimary,
                     modifier = Modifier.alpha(if (!isRunning) 0.2f else 1f)

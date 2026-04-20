@@ -827,7 +827,7 @@ private fun IntervalPrepareContent(
 
             Text(
                 text = "$remainingSeconds",
-                fontSize = 56.sp,
+                fontSize = 80.sp,
                 fontWeight = FontWeight.Bold,
                 color = Orange600,
                 modifier = Modifier.alpha(if (isPaused) 0.2f else 1f)
@@ -1029,7 +1029,7 @@ private fun IntervalTimerContent(
 
             Text(
                 text = "$remainingSeconds",
-                fontSize = 56.sp,
+                fontSize = 80.sp,
                 fontWeight = FontWeight.Bold,
                 color = phaseColor,
                 modifier = Modifier.alpha(if (isPaused) 0.2f else 1f)

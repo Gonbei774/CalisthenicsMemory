@@ -186,7 +186,7 @@ internal fun ProgramExecutingStepDynamicManual(
             }
             Text(
                 text = "$repTimeElapsed",
-                fontSize = 56.sp,
+                fontSize = 80.sp,
                 fontWeight = FontWeight.Bold,
                 color = appColors.textPrimary,
                 modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
@@ -485,7 +485,7 @@ internal fun ProgramExecutingStepIsometricManual(
                 }
                 Text(
                     text = "$remainingTime",
-                    fontSize = 56.sp,
+                    fontSize = 80.sp,
                     fontWeight = FontWeight.Bold,
                     color = appColors.textPrimary,
                     modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
@@ -743,7 +743,7 @@ internal fun ProgramExecutingStepIsometricAuto(
                 }
                 Text(
                     text = "$remainingTime",
-                    fontSize = 56.sp,
+                    fontSize = 80.sp,
                     fontWeight = FontWeight.Bold,
                     color = appColors.textPrimary,
                     modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
@@ -973,7 +973,7 @@ internal fun ProgramExecutingStepDynamicAuto(
             }
             Text(
                 text = "$repTimeElapsed",
-                fontSize = 56.sp,
+                fontSize = 80.sp,
                 fontWeight = FontWeight.Bold,
                 color = appColors.textPrimary,
                 modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)

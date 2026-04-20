@@ -149,7 +149,7 @@ internal fun ProgramStartIntervalStep(
             }
             Text(
                 text = "$remainingTime",
-                fontSize = 72.sp,
+                fontSize = 80.sp,
                 fontWeight = FontWeight.Bold,
                 color = appColors.textPrimary,
                 modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
@@ -330,7 +330,7 @@ internal fun ProgramIntervalStep(
                     }
                     Text(
                         text = "$remainingTime",
-                        fontSize = 72.sp,
+                        fontSize = 80.sp,
                         fontWeight = FontWeight.Bold,
                         color = appColors.textPrimary,
                         modifier = Modifier.alpha(if (!effectivelyRunning) 0.2f else 1f)
