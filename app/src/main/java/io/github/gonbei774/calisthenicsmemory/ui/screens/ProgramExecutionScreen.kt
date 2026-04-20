@@ -1,7 +1,5 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
-import android.media.AudioManager
-import android.media.ToneGenerator
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -58,6 +56,7 @@ import io.github.gonbei774.calisthenicsmemory.ui.components.program.ProgramStart
 import io.github.gonbei774.calisthenicsmemory.ui.components.program.SettingsSection
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
+import io.github.gonbei774.calisthenicsmemory.util.SoundPlayer
 import io.github.gonbei774.calisthenicsmemory.util.buildChallengeValueSets
 import io.github.gonbei774.calisthenicsmemory.util.buildProgramValueSets
 import io.github.gonbei774.calisthenicsmemory.util.saveProgramResults
@@ -327,8 +326,8 @@ fun ProgramExecutionScreen(
         currentStep = ProgramExecutionStep.Confirm(newSession)
     }
 
-    // ビープ音・フラッシュ
-    val toneGenerator = remember { ToneGenerator(AudioManager.STREAM_MUSIC, 100) }
+    // 効果音・フラッシュ
+    val soundPlayer = remember { SoundPlayer(context) }
     val flashController = remember { FlashController(context) }
     val isFlashEnabled = remember { workoutPreferences.isFlashNotificationEnabled() }
     val isKeepScreenOnEnabled = remember { workoutPreferences.isKeepScreenOnEnabled() }
@@ -374,7 +373,7 @@ fun ProgramExecutionScreen(
         onDispose {
             val window = (view.context as? android.app.Activity)?.window
             window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            toneGenerator.release()
+            soundPlayer.release()
             flashController.turnOff()
             WorkoutTimerService.stopService(context)
         }
@@ -864,7 +863,7 @@ fun ProgramExecutionScreen(
                             session = step.session,
                             currentSetIndex = step.currentSetIndex,
                             startCountdownSeconds = startCountdownSeconds,
-                            toneGenerator = toneGenerator,
+                            soundPlayer = soundPlayer,
                             flashController = flashController,
                             isFlashEnabled = isFlashEnabled,
                             isNavigationOpen = showNavigationSheet,
@@ -900,7 +899,7 @@ fun ProgramExecutionScreen(
                                     ProgramExecutingStepIsometricAuto(
                                         session = step.session,
                                         currentSetIndex = step.currentSetIndex,
-                                        toneGenerator = toneGenerator,
+                                        soundPlayer = soundPlayer,
                                         flashController = flashController,
                                         isFlashEnabled = isFlashEnabled,
                                         isIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
@@ -989,7 +988,7 @@ fun ProgramExecutionScreen(
                                 ProgramExecutingStepDynamicAuto(
                                     session = step.session,
                                     currentSetIndex = step.currentSetIndex,
-                                    toneGenerator = toneGenerator,
+                                    soundPlayer = soundPlayer,
                                     flashController = flashController,
                                     isFlashEnabled = isFlashEnabled,
                                     isCountSoundEnabled = isDynamicCountSoundEnabled,
@@ -1029,7 +1028,7 @@ fun ProgramExecutionScreen(
                                     ProgramExecutingStepIsometricManual(
                                         session = step.session,
                                         currentSetIndex = step.currentSetIndex,
-                                        toneGenerator = toneGenerator,
+                                        soundPlayer = soundPlayer,
                                         flashController = flashController,
                                         isFlashEnabled = isFlashEnabled,
                                         isIntervalSoundEnabled = isIsometricIntervalSoundEnabled,
@@ -1140,7 +1139,7 @@ fun ProgramExecutionScreen(
                                     ProgramExecutingStepDynamicManual(
                                         session = step.session,
                                         currentSetIndex = step.currentSetIndex,
-                                        toneGenerator = toneGenerator,
+                                        soundPlayer = soundPlayer,
                                         flashController = flashController,
                                         isFlashEnabled = isFlashEnabled,
                                         isCountSoundEnabled = isDynamicCountSoundEnabled,
@@ -1222,7 +1221,7 @@ fun ProgramExecutionScreen(
                         ProgramIntervalStep(
                             session = step.session,
                             currentSetIndex = step.currentSetIndex,
-                            toneGenerator = toneGenerator,
+                            soundPlayer = soundPlayer,
                             flashController = flashController,
                             isFlashEnabled = isFlashEnabled,
                             isNavigationOpen = showNavigationSheet,

@@ -1,6 +1,5 @@
 package io.github.gonbei774.calisthenicsmemory.ui.components.single
 
-import android.media.ToneGenerator
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
@@ -24,8 +23,8 @@ import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.ui.screens.NextSetText
 import io.github.gonbei774.calisthenicsmemory.ui.screens.WorkoutSession
-import io.github.gonbei774.calisthenicsmemory.ui.screens.playTripleBeepTwice
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
+import io.github.gonbei774.calisthenicsmemory.util.SoundPlayer
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
 import kotlinx.coroutines.delay
@@ -38,7 +37,7 @@ import kotlinx.coroutines.launch
 fun SingleExecutingStepDynamicManual(
     session: WorkoutSession,
     currentSetIndex: Int,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     isCountSoundEnabled: Boolean,
@@ -81,10 +80,10 @@ fun SingleExecutingStepDynamicManual(
                         if (isFlashEnabled) {
                             launch { flashController.flashSetComplete() }
                         }
-                        playTripleBeepTwice(toneGenerator)
+                        soundPlayer.playSetComplete()
                     } else {
                         if (isCountSoundEnabled) {
-                            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                            soundPlayer.playBeep()
                             if (isFlashEnabled) {
                                 launch { flashController.flashShort() }
                             }
@@ -277,7 +276,7 @@ fun SingleExecutingStepDynamicManual(
 fun SingleExecutingStepDynamicAuto(
     session: WorkoutSession,
     currentSetIndex: Int,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     isCountSoundEnabled: Boolean,
@@ -319,14 +318,14 @@ fun SingleExecutingStepDynamicAuto(
                         if (isFlashEnabled) {
                             launch { flashController.flashSetComplete() }
                         }
-                        playTripleBeepTwice(toneGenerator)
+                        soundPlayer.playSetComplete()
                         currentSet.actualValue = currentCount + adjustedReps
                         currentSet.isCompleted = true
                         onSetComplete(session)
                         return@LaunchedEffect
                     } else {
                         if (isCountSoundEnabled) {
-                            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                            soundPlayer.playBeep()
                             if (isFlashEnabled) {
                                 launch { flashController.flashShort() }
                             }
@@ -516,7 +515,7 @@ fun SingleExecutingStepDynamicAuto(
 fun SingleExecutingStepDynamicSimple(
     session: WorkoutSession,
     currentSetIndex: Int,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     isNavigationOpen: Boolean = false,
@@ -657,7 +656,7 @@ fun SingleExecutingStepDynamicSimple(
 fun SingleExecutingStepIsometricManual(
     session: WorkoutSession,
     currentSetIndex: Int,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     isIntervalSoundEnabled: Boolean,
@@ -694,7 +693,7 @@ fun SingleExecutingStepIsometricManual(
 
                 // 一定間隔ごとにビープ音（目標達成前のみ、設定ONの場合）
                 if (isIntervalSoundEnabled && intervalSeconds > 0 && elapsedTime > 0 && elapsedTime % intervalSeconds == 0 && elapsedTime < currentSet.targetValue) {
-                    toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 200)
+                    soundPlayer.playBeep()
                     if (isFlashEnabled) {
                         launch { flashController.flashShort() }
                     }
@@ -704,7 +703,7 @@ fun SingleExecutingStepIsometricManual(
                     if (isFlashEnabled) {
                         launch { flashController.flashSetComplete() }
                     }
-                    playTripleBeepTwice(toneGenerator)
+                    soundPlayer.playSetComplete()
                 }
             } else {
                 delay(100L)
@@ -879,7 +878,7 @@ fun SingleExecutingStepIsometricManual(
 fun SingleExecutingStepIsometricAuto(
     session: WorkoutSession,
     currentSetIndex: Int,
-    toneGenerator: ToneGenerator,
+    soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
     isIntervalSoundEnabled: Boolean,
@@ -915,7 +914,7 @@ fun SingleExecutingStepIsometricAuto(
 
                 // 一定間隔ごとにビープ音（目標達成前のみ、設定ONの場合）
                 if (isIntervalSoundEnabled && intervalSeconds > 0 && elapsedTime > 0 && elapsedTime % intervalSeconds == 0 && elapsedTime < currentSet.targetValue) {
-                    toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 200)
+                    soundPlayer.playBeep()
                     if (isFlashEnabled) {
                         launch { flashController.flashShort() }
                     }
@@ -925,7 +924,7 @@ fun SingleExecutingStepIsometricAuto(
                     if (isFlashEnabled) {
                         launch { flashController.flashSetComplete() }
                     }
-                    playTripleBeepTwice(toneGenerator)
+                    soundPlayer.playSetComplete()
                     currentSet.actualValue = elapsedTime + adjustedSeconds
                     currentSet.isCompleted = true
                     onSetComplete(session)
