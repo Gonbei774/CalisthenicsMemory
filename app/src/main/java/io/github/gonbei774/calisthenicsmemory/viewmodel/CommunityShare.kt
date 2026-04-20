@@ -163,8 +163,8 @@ fun validateCommunityShareContent(data: CommunityShareData): List<String> {
             }
         }
         exercise.restInterval?.let {
-            if (it <= 0 || it > MAX_NUMERIC_VALUE) {
-                errors.add("exercises[$index]: restInterval out of range (1-$MAX_NUMERIC_VALUE)")
+            if (it < 0 || it > MAX_NUMERIC_VALUE) {
+                errors.add("exercises[$index]: restInterval out of range (0-$MAX_NUMERIC_VALUE)")
             }
         }
         exercise.repDuration?.let {

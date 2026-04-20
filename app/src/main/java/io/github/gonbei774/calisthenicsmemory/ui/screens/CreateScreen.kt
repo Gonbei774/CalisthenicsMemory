@@ -1372,7 +1372,7 @@ fun UnifiedAddDialog(
                                 OutlinedTextField(
                                     value = restInterval,
                                     onValueChange = {
-                                        if (it.isEmpty() || (it.all { char -> char.isDigit() } && it.toIntOrNull()?.let { num -> num in 1..600 } == true)) {
+                                        if (it.isEmpty() || (it.all { char -> char.isDigit() } && it.toIntOrNull()?.let { num -> num in 0..600 } == true)) {
                                             restInterval = it
                                         }
                                     },
