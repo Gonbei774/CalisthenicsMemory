@@ -1,0 +1,17 @@
+Aggiunto:
+- Per serie: peso, distanza, assistenza
+- Ricerca nella creazione esercizi
+- "Aggiungi serie" nel risultato modalità singola
+- Durata stimata del programma
+
+Migliorato:
+- Suoni: ToneGenerator a SoundPool
+- Font timer unificato (80sp)
+- Consenti 0 come intervallo di riposo
+- Nascondi riposo per programmi singoli
+
+Corretto:
+- Allarme ripetuto in isometric manual
+- Ordine esercizi nel dialogo intervallo
+
+Contributors: @lejun (fr), @SomeTr (uk)
