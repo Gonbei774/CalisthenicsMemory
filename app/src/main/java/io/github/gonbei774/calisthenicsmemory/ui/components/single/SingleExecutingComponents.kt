@@ -673,6 +673,7 @@ fun SingleExecutingStepIsometricManual(
     var elapsedTime by remember(currentSetIndex) { mutableIntStateOf(0) }
     var isPaused by remember(currentSetIndex) { mutableStateOf(false) }
     var adjustedSeconds by remember(currentSetIndex) { mutableIntStateOf(0) }
+    var hasPlayedCompletionBeep by remember(currentSetIndex) { mutableStateOf(false) }
 
     // ナビゲーション表示中は強制的に一時停止
     val effectivelyPaused = isPaused || isNavigationOpen
@@ -687,7 +688,7 @@ fun SingleExecutingStepIsometricManual(
 
     LaunchedEffect(currentSetIndex, effectivelyPaused) {
         while (true) {
-            if (!effectivelyPaused) {
+            if (!effectivelyPaused && elapsedTime < currentSet.targetValue) {
                 delay(1000L)
                 elapsedTime++
 
@@ -699,7 +700,8 @@ fun SingleExecutingStepIsometricManual(
                     }
                 }
 
-                if (elapsedTime >= currentSet.targetValue) {
+                if (elapsedTime >= currentSet.targetValue && !hasPlayedCompletionBeep) {
+                    hasPlayedCompletionBeep = true
                     if (isFlashEnabled) {
                         launch { flashController.flashSetComplete() }
                     }
