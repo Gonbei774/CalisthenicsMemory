@@ -7,6 +7,9 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,12 +23,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
@@ -62,7 +72,9 @@ internal fun ProgramConfirmStep(
     onUpdateTargetValue: (Int, Int) -> Unit,
     onUpdateInterval: (Int, Int) -> Unit,  // exerciseIndex, newInterval
     onUpdateSetCount: (Int, Int) -> Unit,  // exerciseIndex, newSetCount
-    onUpdateExerciseSetsValue: (Int, Int) -> Unit,  // exerciseIndex, delta - 種目内の全セット一括更新
+    onUpdateSetWeightG: (Int, Int?) -> Unit,
+    onUpdateSetDistanceCm: (Int, Int?) -> Unit,
+    onUpdateSetAssistanceG: (Int, Int?) -> Unit,
     onUseAllProgramValues: () -> Unit,
     onUseAllChallengeValues: () -> Unit,
     onUseAllPreviousRecordValues: () -> Unit,
@@ -261,29 +273,16 @@ internal fun ProgramConfirmStep(
                                     expandedExercises + exerciseIndex
                                 }
                             },
-                            onUpdateValue = { setIndex, newValue ->
-                                onUpdateTargetValue(setIndex, newValue)
-                                if (exercise.laterality == "Unilateral") {
-                                    val rightSet = session.sets[setIndex]
-                                    val leftSetIndex = session.sets.indexOfFirst {
-                                        it.exerciseIndex == exerciseIndex &&
-                                        it.setNumber == rightSet.setNumber &&
-                                        it.side == "Left"
-                                    }
-                                    if (leftSetIndex >= 0) {
-                                        onUpdateTargetValue(leftSetIndex, newValue)
-                                    }
-                                }
-                            },
+                            onUpdateValue = onUpdateTargetValue,
                             onUpdateInterval = { newInterval ->
                                 onUpdateInterval(exerciseIndex, newInterval)
                             },
                             onUpdateSetCount = { newSetCount ->
                                 onUpdateSetCount(exerciseIndex, newSetCount)
                             },
-                            onUpdateAllSetsValue = { delta ->
-                                onUpdateExerciseSetsValue(exerciseIndex, delta)
-                            }
+                            onUpdateWeightG = onUpdateSetWeightG,
+                            onUpdateDistanceCm = onUpdateSetDistanceCm,
+                            onUpdateAssistanceG = onUpdateSetAssistanceG
                         )
                     }
                     is ConfirmListItem.Loop -> {
@@ -314,7 +313,9 @@ internal fun ProgramConfirmStep(
                             onUpdateTargetValue = onUpdateTargetValue,
                             onUpdateInterval = onUpdateInterval,
                             onUpdateSetCount = onUpdateSetCount,
-                            onUpdateExerciseSetsValue = onUpdateExerciseSetsValue
+                            onUpdateSetWeightG = onUpdateSetWeightG,
+                            onUpdateSetDistanceCm = onUpdateSetDistanceCm,
+                            onUpdateSetAssistanceG = onUpdateSetAssistanceG
                         )
                     }
                 }
@@ -630,11 +631,11 @@ internal fun ProgramConfirmExerciseCard(
     onUpdateValue: (Int, Int) -> Unit,
     onUpdateInterval: (Int) -> Unit,
     onUpdateSetCount: (Int) -> Unit,
-    onUpdateAllSetsValue: (Int) -> Unit
+    onUpdateWeightG: (Int, Int?) -> Unit,
+    onUpdateDistanceCm: (Int, Int?) -> Unit,
+    onUpdateAssistanceG: (Int, Int?) -> Unit
 ) {
     val appColors = LocalAppColors.current
-    val unit = stringResource(if (exercise.type == "Isometric") R.string.unit_seconds else R.string.unit_reps)
-
     // 現在のセット数とインターバルを取得
     val currentSetCount = sets.maxOfOrNull { it.setNumber } ?: programExercise.sets
     val currentInterval = sets.firstOrNull()?.intervalSeconds ?: programExercise.intervalSeconds
@@ -773,51 +774,24 @@ internal fun ProgramConfirmExerciseCard(
                         }
                     }
 
-                    // カラムヘッダー（目標±ボタン付き / 前回）
+                    // カラムヘッダー（回数/時間 / 前回）
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // 空（セットラベル用スペース）- 固定幅でコンパクトに
                         Spacer(modifier = Modifier.width(72.dp))
-
-                        // 目標（±ボタン付き）
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            // −ボタン
-                            Box(
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .clickable { onUpdateAllSetsValue(-1) },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text("−", fontSize = 14.sp, color = appColors.textSecondary)
-                            }
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = stringResource(R.string.target_value_label),
-                                fontSize = 12.sp,
-                                color = Slate500,
-                                textAlign = TextAlign.Center
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            // +ボタン
-                            Box(
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .clickable { onUpdateAllSetsValue(1) },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text("+", fontSize = 14.sp, color = appColors.textSecondary)
-                            }
-                        }
-
-                        // 前回
+                        Text(
+                            text = stringResource(
+                                if (exercise.type == "Isometric") R.string.time_label
+                                else R.string.reps_label
+                            ),
+                            fontSize = 12.sp,
+                            color = Slate500,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.weight(1f)
+                        )
                         Text(
                             text = stringResource(R.string.program_use_previous),
                             fontSize = 12.sp,
@@ -844,29 +818,36 @@ internal fun ProgramConfirmExerciseCard(
                     mutableStateOf(currentSet.targetValue.toString())
                 }
 
-                // 現在の種目の実際のセット数（Program/Challenge切り替え後も正しい値）
-                val actualTotalSets = sets.maxOfOrNull { it.setNumber } ?: programExercise.sets
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // セットラベル（固定幅）
+                    // セットラベル（固定幅）— 全体の総セット数はヘッダのステッパに表示
                     Text(
-                        text = stringResource(R.string.set_format, set.setNumber, actualTotalSets),
+                        text = stringResource(R.string.set_number_format, set.setNumber),
                         fontSize = 14.sp,
                         color = appColors.textTertiary,
                         modifier = Modifier.width(72.dp)
                     )
 
-                    // 目標値入力（中央配置）
+                    // 目標値入力（中央配置 + 個別±）
                     Row(
                         modifier = Modifier.weight(1f),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        RepeatableStepButton(
+                            label = "−",
+                            size = 28.dp,
+                            fontSize = 16.sp,
+                            color = appColors.textSecondary,
+                            onStep = {
+                                val newValue = (currentSet.targetValue - 1).coerceAtLeast(0)
+                                onUpdateValue(setIndex, newValue)
+                            }
+                        )
                         Box(
                             modifier = Modifier
                                 .width(56.dp)
@@ -918,6 +899,15 @@ internal fun ProgramConfirmExerciseCard(
                                 }
                             )
                         }
+                        RepeatableStepButton(
+                            label = "+",
+                            size = 28.dp,
+                            fontSize = 16.sp,
+                            color = appColors.textSecondary,
+                            onStep = {
+                                onUpdateValue(setIndex, currentSet.targetValue + 1)
+                            }
+                        )
                     }
 
                     // 前回値（70dp）
@@ -929,6 +919,19 @@ internal fun ProgramConfirmExerciseCard(
                         modifier = Modifier.width(70.dp)
                     )
                 }
+
+                ProgramConfirmTrackingInputs(
+                    exercise = exercise,
+                    weightG = currentSet.weightG,
+                    distanceCm = currentSet.distanceCm,
+                    assistanceG = currentSet.assistanceG,
+                    previousWeightG = currentSet.previousWeightG,
+                    previousDistanceCm = currentSet.previousDistanceCm,
+                    previousAssistanceG = currentSet.previousAssistanceG,
+                    onWeightChange = { onUpdateWeightG(setIndex, it) },
+                    onDistanceChange = { onUpdateDistanceCm(setIndex, it) },
+                    onAssistanceChange = { onUpdateAssistanceG(setIndex, it) }
+                )
             }
 
                     // 休憩時間
@@ -1041,7 +1044,9 @@ private fun ProgramConfirmLoopBlock(
     onUpdateTargetValue: (Int, Int) -> Unit,
     onUpdateInterval: (Int, Int) -> Unit,
     onUpdateSetCount: (Int, Int) -> Unit,
-    onUpdateExerciseSetsValue: (Int, Int) -> Unit
+    onUpdateSetWeightG: (Int, Int?) -> Unit,
+    onUpdateSetDistanceCm: (Int, Int?) -> Unit,
+    onUpdateSetAssistanceG: (Int, Int?) -> Unit
 ) {
     val appColors = LocalAppColors.current
     val chevronRotation by animateFloatAsState(
@@ -1163,34 +1168,278 @@ private fun ProgramConfirmLoopBlock(
                                 isExpanded = exerciseIndex in expandedExercises,
                                 loopRounds = null,  // ループヘッダーで表示するのでここでは不要
                                 onToggleExpanded = { onToggleExerciseExpanded(exerciseIndex) },
-                                onUpdateValue = { setIndex, newValue ->
-                                    onUpdateTargetValue(setIndex, newValue)
-                                    if (exercise.laterality == "Unilateral") {
-                                        val rightSet = session.sets[setIndex]
-                                        val leftSetIndex = session.sets.indexOfFirst {
-                                            it.exerciseIndex == exerciseIndex &&
-                                            it.setNumber == rightSet.setNumber &&
-                                            it.side == "Left"
-                                        }
-                                        if (leftSetIndex >= 0) {
-                                            onUpdateTargetValue(leftSetIndex, newValue)
-                                        }
-                                    }
-                                },
+                                onUpdateValue = onUpdateTargetValue,
                                 onUpdateInterval = { newInterval ->
                                     onUpdateInterval(exerciseIndex, newInterval)
                                 },
                                 onUpdateSetCount = { newSetCount ->
                                     onUpdateSetCount(exerciseIndex, newSetCount)
                                 },
-                                onUpdateAllSetsValue = { delta ->
-                                    onUpdateExerciseSetsValue(exerciseIndex, delta)
-                                }
+                                onUpdateWeightG = onUpdateSetWeightG,
+                                onUpdateDistanceCm = onUpdateSetDistanceCm,
+                                onUpdateAssistanceG = onUpdateSetAssistanceG
                             )
                         }
                     }
                 }
             }
         }
+    }
+}
+
+/**
+ * Confirm画面の各セット行下に表示する 距離/重量/アシスト 入力欄
+ * Exercise の各 *TrackingEnabled が true の項目のみ表示
+ */
+@Composable
+private fun ProgramConfirmTrackingInputs(
+    exercise: Exercise,
+    weightG: Int?,
+    distanceCm: Int?,
+    assistanceG: Int?,
+    previousWeightG: Int?,
+    previousDistanceCm: Int?,
+    previousAssistanceG: Int?,
+    onWeightChange: (Int?) -> Unit,
+    onDistanceChange: (Int?) -> Unit,
+    onAssistanceChange: (Int?) -> Unit
+) {
+    if (!exercise.distanceTrackingEnabled &&
+        !exercise.weightTrackingEnabled &&
+        !exercise.assistanceTrackingEnabled) return
+
+    val appColors = LocalAppColors.current
+
+    var distanceStr by remember(distanceCm) {
+        mutableStateOf(distanceCm?.toString() ?: "")
+    }
+    var weightStr by remember(weightG) {
+        mutableStateOf(weightG?.let { "%.1f".format(it / 1000.0) } ?: "")
+    }
+    var assistanceStr by remember(assistanceG) {
+        mutableStateOf(assistanceG?.let { "%.1f".format(it / 1000.0) } ?: "")
+    }
+
+    Spacer(modifier = Modifier.height(6.dp))
+
+    if (exercise.distanceTrackingEnabled) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RepeatableStepButton(
+                label = "−",
+                size = 32.dp,
+                fontSize = 18.sp,
+                color = appColors.textSecondary,
+                onStep = {
+                    val newCm = ((distanceCm ?: 0) - 1).coerceAtLeast(0)
+                    onDistanceChange(newCm)
+                }
+            )
+            OutlinedTextField(
+                value = distanceStr,
+                onValueChange = { value ->
+                    val normalized = value
+                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                        .replace("．", ".").replace("－", "-")
+                    if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
+                        distanceStr = normalized
+                        onDistanceChange(parseProgramDistanceCmValue(normalized))
+                    }
+                },
+                label = { Text(stringResource(R.string.distance_input_label), fontSize = 12.sp) },
+                modifier = Modifier.weight(1f),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Blue600,
+                    focusedLabelColor = Blue600,
+                    cursorColor = Blue600
+                )
+            )
+            RepeatableStepButton(
+                label = "+",
+                size = 32.dp,
+                fontSize = 18.sp,
+                color = appColors.textSecondary,
+                onStep = {
+                    val newCm = ((distanceCm ?: 0) + 1).coerceAtLeast(0)
+                    onDistanceChange(newCm)
+                }
+            )
+            Text(
+                text = previousDistanceCm?.toString() ?: "-",
+                fontSize = 13.sp,
+                color = Slate500,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.width(70.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+    }
+
+    if (exercise.weightTrackingEnabled) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RepeatableStepButton(
+                label = "−",
+                size = 32.dp,
+                fontSize = 18.sp,
+                color = appColors.textSecondary,
+                onStep = {
+                    val newG = ((weightG ?: 0) - 1000).coerceAtLeast(0)
+                    onWeightChange(newG)
+                }
+            )
+            OutlinedTextField(
+                value = weightStr,
+                onValueChange = { value ->
+                    val normalized = value
+                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                        .replace("．", ".")
+                    val isValid = normalized.isEmpty() || normalized == "." ||
+                        normalized.matches(Regex("^\\d*\\.?\\d?$"))
+                    if (isValid) {
+                        weightStr = normalized
+                        onWeightChange(parseProgramWeightGValue(normalized))
+                    }
+                },
+                label = { Text(stringResource(R.string.weight_input_label), fontSize = 12.sp) },
+                modifier = Modifier.weight(1f),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Orange600,
+                    focusedLabelColor = Orange600,
+                    cursorColor = Orange600
+                )
+            )
+            RepeatableStepButton(
+                label = "+",
+                size = 32.dp,
+                fontSize = 18.sp,
+                color = appColors.textSecondary,
+                onStep = {
+                    val newG = ((weightG ?: 0) + 1000).coerceAtLeast(0)
+                    onWeightChange(newG)
+                }
+            )
+            Text(
+                text = previousWeightG?.let { "%.1f".format(it / 1000.0) } ?: "-",
+                fontSize = 13.sp,
+                color = Slate500,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.width(70.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+    }
+
+    if (exercise.assistanceTrackingEnabled) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RepeatableStepButton(
+                label = "−",
+                size = 32.dp,
+                fontSize = 18.sp,
+                color = appColors.textSecondary,
+                onStep = {
+                    val newG = ((assistanceG ?: 0) - 1000).coerceAtLeast(0)
+                    onAssistanceChange(newG)
+                }
+            )
+            OutlinedTextField(
+                value = assistanceStr,
+                onValueChange = { value ->
+                    val normalized = value
+                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                        .replace("．", ".")
+                    val isValid = normalized.isEmpty() || normalized == "." ||
+                        normalized.matches(Regex("^\\d*\\.?\\d?$"))
+                    if (isValid) {
+                        assistanceStr = normalized
+                        onAssistanceChange(parseProgramWeightGValue(normalized))
+                    }
+                },
+                label = { Text(stringResource(R.string.assistance_input_label), fontSize = 12.sp) },
+                modifier = Modifier.weight(1f),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Amber500,
+                    focusedLabelColor = Amber500,
+                    cursorColor = Amber500
+                )
+            )
+            RepeatableStepButton(
+                label = "+",
+                size = 32.dp,
+                fontSize = 18.sp,
+                color = appColors.textSecondary,
+                onStep = {
+                    val newG = ((assistanceG ?: 0) + 1000).coerceAtLeast(0)
+                    onAssistanceChange(newG)
+                }
+            )
+            Text(
+                text = previousAssistanceG?.let { "%.1f".format(it / 1000.0) } ?: "-",
+                fontSize = 13.sp,
+                color = Slate500,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.width(70.dp)
+            )
+        }
+    }
+}
+
+private fun parseProgramDistanceCmValue(input: String): Int? {
+    val trimmed = input.trim()
+    if (trimmed.isEmpty() || trimmed == "-") return null
+    return trimmed.toIntOrNull()
+}
+
+private fun parseProgramWeightGValue(input: String): Int? {
+    val trimmed = input.trim()
+    if (trimmed.isEmpty() || trimmed == ".") return null
+    val kg = trimmed.toDoubleOrNull() ?: return null
+    return (kg * 1000).toInt()
+}
+
+/**
+ * 単発タップで1回、長押しで連続発火するステップボタン。
+ * - 単発タップ: 即座に1回 onStep
+ * - 350ms 押し続けで連続モード、80ms 間隔で onStep
+ */
+@Composable
+private fun RepeatableStepButton(
+    label: String,
+    size: Dp,
+    fontSize: TextUnit,
+    color: Color,
+    onStep: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val currentOnStep by rememberUpdatedState(onStep)
+    Box(
+        modifier = Modifier
+            .size(size)
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = false)
+                    currentOnStep()
+                    var repeatJob: Job? = null
+                    try {
+                        repeatJob = scope.launch {
+                            delay(350)
+                            while (isActive) {
+                                currentOnStep()
+                                delay(80)
+                            }
+                        }
+                        waitForUpOrCancellation()
+                    } finally {
+                        repeatJob?.cancel()
+                    }
+                }
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(label, fontSize = fontSize, color = color)
     }
 }

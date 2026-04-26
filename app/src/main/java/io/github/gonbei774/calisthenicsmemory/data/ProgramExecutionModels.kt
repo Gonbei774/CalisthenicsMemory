@@ -20,7 +20,15 @@ data class ProgramWorkoutSet(
     val loopId: Long? = null,     // 所属ループID（nullはループ外）
     val roundNumber: Int = 1,     // ラウンド番号（1始まり）
     val totalRounds: Int = 1,     // 総ラウンド数
-    val loopRestAfterSeconds: Int = 0  // ラウンド間休憩（このセット後に追加、最終ラウンドは0）
+    val loopRestAfterSeconds: Int = 0,  // ラウンド間休憩（このセット後に追加、最終ラウンドは0）
+    // セット別トラッキング値（種目の*TrackingEnabledがtrueの項目のみ使用）
+    var weightG: Int? = null,     // 追加ウエイト（g）
+    var distanceCm: Int? = null,  // 距離（cm）
+    var assistanceG: Int? = null, // アシスト量（g）
+    // 前回値（表示用）
+    val previousWeightG: Int? = null,
+    val previousDistanceCm: Int? = null,
+    val previousAssistanceG: Int? = null
 )
 
 /**
