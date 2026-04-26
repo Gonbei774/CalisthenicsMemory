@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -38,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import io.github.gonbei774.calisthenicsmemory.R
+import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
 import io.github.gonbei774.calisthenicsmemory.data.ProgramWorkoutSet
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
@@ -62,6 +66,9 @@ fun ProgramNavigationSheet(
     onRedoSet: (Int) -> Unit,
     onUpdateTargetValue: (Int, Int) -> Unit,
     onUpdateActualValue: (Int, Int) -> Unit,
+    onUpdateSetWeightG: (Int, Int?) -> Unit,
+    onUpdateSetDistanceCm: (Int, Int?) -> Unit,
+    onUpdateSetAssistanceG: (Int, Int?) -> Unit,
     onToggleComplete: (Int) -> Unit,
     onFinish: () -> Unit,
     onSaveAndExit: () -> Unit,
@@ -69,8 +76,10 @@ fun ProgramNavigationSheet(
 ) {
     val appColors = LocalAppColors.current
 
-    // 編集中セットのインデックス。同じピル再タップで -1 に戻して閉じる。
+    // 編集中セットのインデックス + どのメトリクス（reps / weight / distance / assistance）。
+    // 同じピル再タップで -1 に戻して閉じる。
     var editingSetIndex by remember { mutableIntStateOf(-1) }
+    var editingMetric by remember { mutableStateOf(EditingMetric.REPS) }
 
     // 進捗計算
     val completedSets = session.sets.count { it.isCompleted }
@@ -109,8 +118,14 @@ fun ProgramNavigationSheet(
                     session = session,
                     currentSetIndex = currentSetIndex,
                     editingSetIndex = editingSetIndex,
-                    onToggleEditing = { setIdx ->
-                        editingSetIndex = if (editingSetIndex == setIdx) -1 else setIdx
+                    editingMetric = editingMetric,
+                    onToggleEditing = { setIdx, metric ->
+                        if (editingSetIndex == setIdx && editingMetric == metric) {
+                            editingSetIndex = -1
+                        } else {
+                            editingSetIndex = setIdx
+                            editingMetric = metric
+                        }
                     },
                     onUpdateTargetValue = { setIdx, newValue ->
                         onUpdateTargetValue(setIdx, newValue)
@@ -118,6 +133,9 @@ fun ProgramNavigationSheet(
                     onUpdateActualValue = { setIdx, newValue ->
                         onUpdateActualValue(setIdx, newValue)
                     },
+                    onUpdateSetWeightG = onUpdateSetWeightG,
+                    onUpdateSetDistanceCm = onUpdateSetDistanceCm,
+                    onUpdateSetAssistanceG = onUpdateSetAssistanceG,
                     onJumpToSet = onJumpToSet,
                     onRedoSet = onRedoSet,
                     onToggleComplete = onToggleComplete,
@@ -312,9 +330,13 @@ private fun NavigationSetsList(
     session: ProgramExecutionSession,
     currentSetIndex: Int,
     editingSetIndex: Int,
-    onToggleEditing: (Int) -> Unit,
+    editingMetric: EditingMetric,
+    onToggleEditing: (Int, EditingMetric) -> Unit,
     onUpdateTargetValue: (Int, Int) -> Unit,
     onUpdateActualValue: (Int, Int) -> Unit,
+    onUpdateSetWeightG: (Int, Int?) -> Unit,
+    onUpdateSetDistanceCm: (Int, Int?) -> Unit,
+    onUpdateSetAssistanceG: (Int, Int?) -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
     onToggleComplete: (Int) -> Unit,
@@ -362,18 +384,20 @@ private fun NavigationSetsList(
 
                     NavigationExerciseCard(
                         displayNumber = displayNumber,
-                        exerciseName = item.exercise.name,
-                        exerciseType = item.exercise.type,
+                        exercise = item.exercise,
                         exerciseStatus = exerciseStatus,
                         sets = item.sets,
                         allSets = session.sets,
                         currentSetIndex = currentSetIndex,
                         totalSets = actualTotalSets,
-                        isUnilateral = item.exercise.laterality == "Unilateral",
                         editingSetIndex = editingSetIndex,
+                        editingMetric = editingMetric,
                         onToggleEditing = onToggleEditing,
                         onUpdateTargetValue = onUpdateTargetValue,
                         onUpdateActualValue = onUpdateActualValue,
+                        onUpdateSetWeightG = onUpdateSetWeightG,
+                        onUpdateSetDistanceCm = onUpdateSetDistanceCm,
+                        onUpdateSetAssistanceG = onUpdateSetAssistanceG,
                         onJumpToSet = onJumpToSet,
                         onRedoSet = onRedoSet,
                         onToggleComplete = onToggleComplete
@@ -388,9 +412,13 @@ private fun NavigationSetsList(
                         exercises = session.exercises,
                         currentSetIndex = currentSetIndex,
                         editingSetIndex = editingSetIndex,
+                        editingMetric = editingMetric,
                         onToggleEditing = onToggleEditing,
                         onUpdateTargetValue = onUpdateTargetValue,
                         onUpdateActualValue = onUpdateActualValue,
+                        onUpdateSetWeightG = onUpdateSetWeightG,
+                        onUpdateSetDistanceCm = onUpdateSetDistanceCm,
+                        onUpdateSetAssistanceG = onUpdateSetAssistanceG,
                         onJumpToSet = onJumpToSet,
                         onRedoSet = onRedoSet,
                         onToggleComplete = onToggleComplete
@@ -421,12 +449,16 @@ private fun NavigationRoundCard(
     totalRounds: Int,
     sets: List<ProgramWorkoutSet>,
     allSets: List<ProgramWorkoutSet>,
-    exercises: List<Pair<io.github.gonbei774.calisthenicsmemory.data.ProgramExercise, io.github.gonbei774.calisthenicsmemory.data.Exercise>>,
+    exercises: List<Pair<io.github.gonbei774.calisthenicsmemory.data.ProgramExercise, Exercise>>,
     currentSetIndex: Int,
     editingSetIndex: Int,
-    onToggleEditing: (Int) -> Unit,
+    editingMetric: EditingMetric,
+    onToggleEditing: (Int, EditingMetric) -> Unit,
     onUpdateTargetValue: (Int, Int) -> Unit,
     onUpdateActualValue: (Int, Int) -> Unit,
+    onUpdateSetWeightG: (Int, Int?) -> Unit,
+    onUpdateSetDistanceCm: (Int, Int?) -> Unit,
+    onUpdateSetAssistanceG: (Int, Int?) -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
     onToggleComplete: (Int) -> Unit
@@ -526,10 +558,11 @@ private fun NavigationRoundCard(
                 NavigationRoundSetRow(
                     set = set,
                     setIndex = setIndex,
-                    exerciseName = exercise?.name ?: "",
+                    exercise = exercise,
                     isCurrent = isCurrent,
                     isIsometric = isIsometric,
                     isEditing = isEditing,
+                    editingMetric = editingMetric,
                     onTogglePillEditing = onToggleEditing,
                     onJumpToSet = onJumpToSet,
                     onRedoSet = onRedoSet,
@@ -541,8 +574,12 @@ private fun NavigationRoundCard(
                         set = set,
                         setIndex = setIndex,
                         isIsometric = isIsometric,
+                        editingMetric = editingMetric,
                         onUpdateTargetValue = onUpdateTargetValue,
                         onUpdateActualValue = onUpdateActualValue,
+                        onUpdateSetWeightG = onUpdateSetWeightG,
+                        onUpdateSetDistanceCm = onUpdateSetDistanceCm,
+                        onUpdateSetAssistanceG = onUpdateSetAssistanceG,
                         isLast = index == sets.lastIndex
                     )
                 }
@@ -558,11 +595,12 @@ private fun NavigationRoundCard(
 private fun NavigationRoundSetRow(
     set: ProgramWorkoutSet,
     setIndex: Int,
-    exerciseName: String,
+    exercise: Exercise?,
     isCurrent: Boolean,
     isIsometric: Boolean,
     isEditing: Boolean,
-    onTogglePillEditing: (Int) -> Unit,
+    editingMetric: EditingMetric,
+    onTogglePillEditing: (Int, EditingMetric) -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
     onToggleComplete: (Int) -> Unit,
@@ -628,7 +666,7 @@ private fun NavigationRoundSetRow(
         // 種目名 + セット情報
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = exerciseName,
+                text = exercise?.name ?: "",
                 fontSize = 14.sp,
                 fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Medium,
                 color = when (setStatus) {
@@ -640,12 +678,13 @@ private fun NavigationRoundSetRow(
             Spacer(modifier = Modifier.height(2.dp))
             SetValueText(
                 set = set,
+                setIndex = setIndex,
+                exercise = exercise,
                 status = setStatus,
                 isIsometric = isIsometric,
                 isEditing = isEditing,
-                onClick = if (setStatus != SetStatus.SKIPPED) {
-                    { onTogglePillEditing(setIndex) }
-                } else null
+                editingMetric = editingMetric,
+                onTogglePillEditing = if (setStatus != SetStatus.SKIPPED) onTogglePillEditing else null
             )
         }
 
@@ -665,22 +704,26 @@ private fun NavigationRoundSetRow(
 @Composable
 private fun NavigationExerciseCard(
     displayNumber: Int,  // 表示用番号（ソート順）
-    exerciseName: String,
-    exerciseType: String,
+    exercise: Exercise,
     exerciseStatus: ExerciseStatus,
     sets: List<ProgramWorkoutSet>,
     allSets: List<ProgramWorkoutSet>,
     currentSetIndex: Int,
     totalSets: Int,
-    isUnilateral: Boolean,
     editingSetIndex: Int,
-    onToggleEditing: (Int) -> Unit,
+    editingMetric: EditingMetric,
+    onToggleEditing: (Int, EditingMetric) -> Unit,
     onUpdateTargetValue: (Int, Int) -> Unit,
     onUpdateActualValue: (Int, Int) -> Unit,
+    onUpdateSetWeightG: (Int, Int?) -> Unit,
+    onUpdateSetDistanceCm: (Int, Int?) -> Unit,
+    onUpdateSetAssistanceG: (Int, Int?) -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
     onToggleComplete: (Int) -> Unit
 ) {
+    val isUnilateral = exercise.laterality == "Unilateral"
+    val exerciseType = exercise.type
     val appColors = LocalAppColors.current
     Card(
         colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
@@ -690,7 +733,7 @@ private fun NavigationExerciseCard(
             // 種目ヘッダー
             NavigationExerciseHeader(
                 displayNumber = displayNumber,
-                exerciseName = exerciseName,
+                exerciseName = exercise.name,
                 exerciseType = exerciseType,
                 exerciseStatus = exerciseStatus
             )
@@ -720,6 +763,7 @@ private fun NavigationExerciseCard(
                         totalSets = totalSets,
                         rightSet = rightSet,
                         leftSet = leftSet,
+                        exercise = exercise,
                         isCurrent = isCurrent,
                         rightSetIndex = rightSetIndex,
                         leftSetIndex = leftSetIndex,
@@ -727,6 +771,7 @@ private fun NavigationExerciseCard(
                         isIsometric = exerciseType == "Isometric",
                         editingRight = isEditingRight,
                         editingLeft = isEditingLeft,
+                        editingMetric = editingMetric,
                         onTogglePillEditing = onToggleEditing,
                         onJumpToSet = onJumpToSet,
                         onRedoSet = onRedoSet,
@@ -741,9 +786,13 @@ private fun NavigationExerciseCard(
                             leftSetIndex = leftSetIndex,
                             editingRight = isEditingRight,
                             editingLeft = isEditingLeft,
+                            editingMetric = editingMetric,
                             isIsometric = exerciseType == "Isometric",
                             onUpdateTargetValue = onUpdateTargetValue,
                             onUpdateActualValue = onUpdateActualValue,
+                            onUpdateSetWeightG = onUpdateSetWeightG,
+                            onUpdateSetDistanceCm = onUpdateSetDistanceCm,
+                            onUpdateSetAssistanceG = onUpdateSetAssistanceG,
                             isLast = isLastGroup
                         )
                     }
@@ -759,10 +808,12 @@ private fun NavigationExerciseCard(
                     NavigationBilateralSetRow(
                         set = set,
                         setIndex = setIndex,
+                        exercise = exercise,
                         totalSets = totalSets,
                         isCurrent = isCurrent,
                         isIsometric = exerciseType == "Isometric",
                         isEditing = isEditing,
+                        editingMetric = editingMetric,
                         onTogglePillEditing = onToggleEditing,
                         onJumpToSet = onJumpToSet,
                         onRedoSet = onRedoSet,
@@ -774,8 +825,12 @@ private fun NavigationExerciseCard(
                             set = set,
                             setIndex = setIndex,
                             isIsometric = exerciseType == "Isometric",
+                            editingMetric = editingMetric,
                             onUpdateTargetValue = onUpdateTargetValue,
                             onUpdateActualValue = onUpdateActualValue,
+                            onUpdateSetWeightG = onUpdateSetWeightG,
+                            onUpdateSetDistanceCm = onUpdateSetDistanceCm,
+                            onUpdateSetAssistanceG = onUpdateSetAssistanceG,
                             isLast = index == sets.lastIndex
                         )
                     }
@@ -894,11 +949,13 @@ private fun NavigationExerciseHeader(
 private fun NavigationBilateralSetRow(
     set: ProgramWorkoutSet,
     setIndex: Int,
+    exercise: Exercise,
     totalSets: Int,
     isCurrent: Boolean,
     isIsometric: Boolean,
     isEditing: Boolean,
-    onTogglePillEditing: (Int) -> Unit,
+    editingMetric: EditingMetric,
+    onTogglePillEditing: (Int, EditingMetric) -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
     onToggleComplete: (Int) -> Unit,
@@ -996,12 +1053,13 @@ private fun NavigationBilateralSetRow(
             Spacer(modifier = Modifier.height(2.dp))
             SetValueText(
                 set = set,
+                setIndex = setIndex,
+                exercise = exercise,
                 status = setStatus,
                 isIsometric = isIsometric,
                 isEditing = isEditing,
-                onClick = if (setStatus != SetStatus.SKIPPED) {
-                    { onTogglePillEditing(setIndex) }
-                } else null
+                editingMetric = editingMetric,
+                onTogglePillEditing = if (setStatus != SetStatus.SKIPPED) onTogglePillEditing else null
             )
         }
 
@@ -1024,6 +1082,7 @@ private fun NavigationUnilateralSetRow(
     totalSets: Int,
     rightSet: ProgramWorkoutSet?,
     leftSet: ProgramWorkoutSet?,
+    exercise: Exercise,
     isCurrent: Boolean,
     rightSetIndex: Int,
     leftSetIndex: Int,
@@ -1031,7 +1090,8 @@ private fun NavigationUnilateralSetRow(
     isIsometric: Boolean,
     editingRight: Boolean,
     editingLeft: Boolean,
-    onTogglePillEditing: (Int) -> Unit,
+    editingMetric: EditingMetric,
+    onTogglePillEditing: (Int, EditingMetric) -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
     onToggleComplete: (Int) -> Unit,
@@ -1141,18 +1201,17 @@ private fun NavigationUnilateralSetRow(
             UnilateralValueText(
                 rightSet = rightSet,
                 leftSet = leftSet,
+                rightSetIndex = rightSetIndex,
+                leftSetIndex = leftSetIndex,
+                exercise = exercise,
                 status = setStatus,
                 isIsometric = isIsometric,
                 rightIsCurrent = rightSetIndex == currentSetIndex,
                 leftIsCurrent = leftSetIndex == currentSetIndex,
                 editingRight = editingRight,
                 editingLeft = editingLeft,
-                onClickRight = if (rightSet != null && rightSet.isSkipped.not() && rightSetIndex >= 0) {
-                    { onTogglePillEditing(rightSetIndex) }
-                } else null,
-                onClickLeft = if (leftSet != null && leftSet.isSkipped.not() && leftSetIndex >= 0) {
-                    { onTogglePillEditing(leftSetIndex) }
-                } else null
+                editingMetric = editingMetric,
+                onTogglePillEditing = onTogglePillEditing
             )
         }
 
@@ -1233,39 +1292,146 @@ private fun SetStatusIcon(
 
 /**
  * セット値テキスト（Bilateral）
+ *
+ * Reps/Sec ピル + tracking ピル（重量/距離/アシスト、各 *TrackingEnabled が true の場合のみ）
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SetValueText(
     set: ProgramWorkoutSet,
+    setIndex: Int,
+    exercise: Exercise?,
     status: SetStatus,
     isIsometric: Boolean,
     isEditing: Boolean = false,
-    onClick: (() -> Unit)? = null
+    editingMetric: EditingMetric = EditingMetric.REPS,
+    onTogglePillEditing: ((Int, EditingMetric) -> Unit)? = null
 ) {
     val unit = stringResource(if (isIsometric) R.string.unit_seconds else R.string.unit_reps)
 
-    when (status) {
-        SetStatus.SKIPPED -> {
+    if (status == SetStatus.SKIPPED) {
+        Text(
+            text = stringResource(R.string.nav_skipped),
+            fontSize = 13.sp,
+            fontStyle = FontStyle.Italic,
+            color = Slate500
+        )
+        return
+    }
+
+    val (valueText, valueColor) = when (status) {
+        SetStatus.COMPLETED -> "${set.actualValue}" to Green400
+        SetStatus.CURRENT -> "${set.actualValue}/${set.targetValue}" to Slate400
+        SetStatus.PENDING -> "${set.targetValue}" to Slate500
+        SetStatus.SKIPPED -> "" to Slate500
+    }
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        ValuePill(
+            valueText = valueText,
+            valueColor = valueColor,
+            unit = unit,
+            isEditing = isEditing && editingMetric == EditingMetric.REPS,
+            onClick = onTogglePillEditing?.let { cb -> { cb(setIndex, EditingMetric.REPS) } }
+        )
+        TrackingPills(
+            set = set,
+            setIndex = setIndex,
+            exercise = exercise,
+            isEditing = isEditing,
+            editingMetric = editingMetric,
+            onTogglePillEditing = onTogglePillEditing
+        )
+    }
+}
+
+/**
+ * 重量/距離/アシスト ピル（exercise の各 *TrackingEnabled が true のもののみ表示）
+ */
+@Composable
+private fun TrackingPills(
+    set: ProgramWorkoutSet,
+    setIndex: Int,
+    exercise: Exercise?,
+    isEditing: Boolean,
+    editingMetric: EditingMetric,
+    onTogglePillEditing: ((Int, EditingMetric) -> Unit)?
+) {
+    if (exercise == null) return
+    if (exercise.weightTrackingEnabled) {
+        TrackingPill(
+            prefix = "W:",
+            valueText = set.weightG?.let { "%.1f".format(it / 1000.0) } ?: "—",
+            unit = "kg",
+            accentColor = Orange600,
+            isEditing = isEditing && editingMetric == EditingMetric.WEIGHT,
+            onClick = onTogglePillEditing?.let { cb -> { cb(setIndex, EditingMetric.WEIGHT) } }
+        )
+    }
+    if (exercise.distanceTrackingEnabled) {
+        TrackingPill(
+            prefix = "D:",
+            valueText = set.distanceCm?.toString() ?: "—",
+            unit = "cm",
+            accentColor = Blue600,
+            isEditing = isEditing && editingMetric == EditingMetric.DISTANCE,
+            onClick = onTogglePillEditing?.let { cb -> { cb(setIndex, EditingMetric.DISTANCE) } }
+        )
+    }
+    if (exercise.assistanceTrackingEnabled) {
+        TrackingPill(
+            prefix = "A:",
+            valueText = set.assistanceG?.let { "%.1f".format(it / 1000.0) } ?: "—",
+            unit = "kg",
+            accentColor = Amber500,
+            isEditing = isEditing && editingMetric == EditingMetric.ASSISTANCE,
+            onClick = onTogglePillEditing?.let { cb -> { cb(setIndex, EditingMetric.ASSISTANCE) } }
+        )
+    }
+}
+
+/**
+ * tracking 値ピル：枠の色でメトリクスを区別
+ */
+@Composable
+private fun TrackingPill(
+    prefix: String,
+    valueText: String,
+    unit: String,
+    accentColor: Color,
+    isEditing: Boolean,
+    onClick: (() -> Unit)?
+) {
+    val borderColor = if (isEditing) Green400 else accentColor.copy(alpha = 0.6f)
+    val pillModifier = Modifier
+        .border(1.dp, borderColor, RoundedCornerShape(6.dp))
+        .then(
+            if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier
+        )
+        .padding(horizontal = 8.dp, vertical = 3.dp)
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = pillModifier
+    ) {
+        Text(
+            text = prefix,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = accentColor
+        )
+        Spacer(modifier = Modifier.width(3.dp))
+        Text(text = valueText, fontSize = 13.sp, color = Color.White)
+        Spacer(modifier = Modifier.width(3.dp))
+        Text(text = unit, fontSize = 11.sp, color = Slate500)
+        if (onClick != null) {
+            Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = stringResource(R.string.nav_skipped),
-                fontSize = 13.sp,
-                fontStyle = FontStyle.Italic,
-                color = Slate500
-            )
-        }
-        else -> {
-            val (valueText, valueColor) = when (status) {
-                SetStatus.COMPLETED -> "${set.actualValue}" to Green400
-                SetStatus.CURRENT -> "${set.actualValue}/${set.targetValue}" to Slate400
-                SetStatus.PENDING -> "${set.targetValue}" to Slate500
-                SetStatus.SKIPPED -> "" to Slate500
-            }
-            ValuePill(
-                valueText = valueText,
-                valueColor = valueColor,
-                unit = unit,
-                isEditing = isEditing,
-                onClick = onClick
+                text = "✎",
+                fontSize = 11.sp,
+                color = if (isEditing) Green400 else Slate500
             )
         }
     }
@@ -1310,19 +1476,26 @@ private fun ValuePill(
 
 /**
  * Unilateral用の値表示
+ *
+ * R/L 各々の reps ピル + 共通の tracking ピル（重量/距離/アシスト）。
+ * tracking 値は R/L 共通なので、編集ピルは「Right側」のインデックス経由で発火する。
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun UnilateralValueText(
     rightSet: ProgramWorkoutSet?,
     leftSet: ProgramWorkoutSet?,
+    rightSetIndex: Int,
+    leftSetIndex: Int,
+    exercise: Exercise,
     status: SetStatus,
     isIsometric: Boolean,
     rightIsCurrent: Boolean,
     leftIsCurrent: Boolean,
     editingRight: Boolean,
     editingLeft: Boolean,
-    onClickRight: (() -> Unit)?,
-    onClickLeft: (() -> Unit)?
+    editingMetric: EditingMetric,
+    onTogglePillEditing: (Int, EditingMetric) -> Unit
 ) {
     val unit = stringResource(if (isIsometric) R.string.unit_seconds else R.string.unit_reps)
 
@@ -1336,26 +1509,55 @@ private fun UnilateralValueText(
         return
     }
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        UnilateralSidePill(
-            sideLabel = "R:",
-            set = rightSet,
-            isCurrent = rightIsCurrent,
-            unit = unit,
-            isEditing = editingRight,
-            onClick = onClickRight
-        )
-        UnilateralSidePill(
-            sideLabel = "L:",
-            set = leftSet,
-            isCurrent = leftIsCurrent,
-            unit = unit,
-            isEditing = editingLeft,
-            onClick = onClickLeft
-        )
+    val onClickRightReps: (() -> Unit)? = if (rightSet != null && !rightSet.isSkipped && rightSetIndex >= 0) {
+        { onTogglePillEditing(rightSetIndex, EditingMetric.REPS) }
+    } else null
+    val onClickLeftReps: (() -> Unit)? = if (leftSet != null && !leftSet.isSkipped && leftSetIndex >= 0) {
+        { onTogglePillEditing(leftSetIndex, EditingMetric.REPS) }
+    } else null
+
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            UnilateralSidePill(
+                sideLabel = "R:",
+                set = rightSet,
+                isCurrent = rightIsCurrent,
+                unit = unit,
+                isEditing = editingRight && editingMetric == EditingMetric.REPS,
+                onClick = onClickRightReps
+            )
+            UnilateralSidePill(
+                sideLabel = "L:",
+                set = leftSet,
+                isCurrent = leftIsCurrent,
+                unit = unit,
+                isEditing = editingLeft && editingMetric == EditingMetric.REPS,
+                onClick = onClickLeftReps
+            )
+        }
+        // tracking 値は R/L 共通。Right を「代表」として編集起点にする
+        // （対応する onUpdateSet*G 側で R/L 両方に同期書き込みする）
+        val representativeSet = rightSet ?: leftSet
+        val representativeIndex = if (rightSetIndex >= 0) rightSetIndex else leftSetIndex
+        val isPairEditing = (editingRight || editingLeft)
+        if (representativeSet != null && representativeIndex >= 0) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                TrackingPills(
+                    set = representativeSet,
+                    setIndex = representativeIndex,
+                    exercise = exercise,
+                    isEditing = isPairEditing,
+                    editingMetric = editingMetric,
+                    onTogglePillEditing = onTogglePillEditing
+                )
+            }
+        }
     }
 }
 
@@ -1559,6 +1761,13 @@ private enum class SetStatus {
 }
 
 /**
+ * 編集対象メトリクス。ピルタップで切り替わる。
+ * REPS は targetValue/actualValue（種目状態に応じて）、
+ * WEIGHT/DISTANCE/ASSISTANCE はそれぞれの tracking 値を編集する。
+ */
+private enum class EditingMetric { REPS, WEIGHT, DISTANCE, ASSISTANCE }
+
+/**
  * 種目のステータスを判定
  */
 private fun getExerciseStatus(
@@ -1586,17 +1795,14 @@ private fun InlineBilateralEditor(
     set: ProgramWorkoutSet,
     setIndex: Int,
     isIsometric: Boolean,
+    editingMetric: EditingMetric,
     onUpdateTargetValue: (Int, Int) -> Unit,
     onUpdateActualValue: (Int, Int) -> Unit,
+    onUpdateSetWeightG: (Int, Int?) -> Unit,
+    onUpdateSetDistanceCm: (Int, Int?) -> Unit,
+    onUpdateSetAssistanceG: (Int, Int?) -> Unit,
     isLast: Boolean
 ) {
-    val unit = stringResource(if (isIsometric) R.string.unit_seconds else R.string.unit_reps)
-    val isEditingActual = set.isCompleted
-    val currentValue = if (isEditingActual) set.actualValue else set.targetValue
-    val onChange: (Int) -> Unit = { newValue ->
-        if (isEditingActual) onUpdateActualValue(setIndex, newValue)
-        else onUpdateTargetValue(setIndex, newValue)
-    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -1617,12 +1823,34 @@ private fun InlineBilateralEditor(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        InlineValueEditorCore(
-            value = currentValue,
-            unit = unit,
-            onChange = onChange,
-            compact = false
-        )
+        when (editingMetric) {
+            EditingMetric.REPS -> {
+                val unit = stringResource(if (isIsometric) R.string.unit_seconds else R.string.unit_reps)
+                val isEditingActual = set.isCompleted
+                val currentValue = if (isEditingActual) set.actualValue else set.targetValue
+                InlineValueEditorCore(
+                    value = currentValue,
+                    unit = unit,
+                    onChange = { newValue ->
+                        if (isEditingActual) onUpdateActualValue(setIndex, newValue)
+                        else onUpdateTargetValue(setIndex, newValue)
+                    },
+                    compact = false
+                )
+            }
+            EditingMetric.WEIGHT -> InlineWeightEditor(
+                valueG = set.weightG,
+                onChange = { onUpdateSetWeightG(setIndex, it) }
+            )
+            EditingMetric.DISTANCE -> InlineDistanceEditor(
+                valueCm = set.distanceCm,
+                onChange = { onUpdateSetDistanceCm(setIndex, it) }
+            )
+            EditingMetric.ASSISTANCE -> InlineAssistanceEditor(
+                valueG = set.assistanceG,
+                onChange = { onUpdateSetAssistanceG(setIndex, it) }
+            )
+        }
     }
 }
 
@@ -1637,9 +1865,13 @@ private fun InlineUnilateralEditor(
     leftSetIndex: Int,
     editingRight: Boolean,
     editingLeft: Boolean,
+    editingMetric: EditingMetric,
     isIsometric: Boolean,
     onUpdateTargetValue: (Int, Int) -> Unit,
     onUpdateActualValue: (Int, Int) -> Unit,
+    onUpdateSetWeightG: (Int, Int?) -> Unit,
+    onUpdateSetDistanceCm: (Int, Int?) -> Unit,
+    onUpdateSetAssistanceG: (Int, Int?) -> Unit,
     isLast: Boolean
 ) {
     val unit = stringResource(if (isIsometric) R.string.unit_seconds else R.string.unit_reps)
@@ -1663,26 +1895,61 @@ private fun InlineUnilateralEditor(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (editingRight && rightSet != null && rightSetIndex >= 0 && !rightSet.isSkipped) {
-            UnilateralEditorBlock(
-                sideLabel = "R",
-                set = rightSet,
-                setIndex = rightSetIndex,
-                unit = unit,
-                onUpdateTargetValue = onUpdateTargetValue,
-                onUpdateActualValue = onUpdateActualValue,
-                compact = false
-            )
-        } else if (editingLeft && leftSet != null && leftSetIndex >= 0 && !leftSet.isSkipped) {
-            UnilateralEditorBlock(
-                sideLabel = "L",
-                set = leftSet,
-                setIndex = leftSetIndex,
-                unit = unit,
-                onUpdateTargetValue = onUpdateTargetValue,
-                onUpdateActualValue = onUpdateActualValue,
-                compact = false
-            )
+        when (editingMetric) {
+            EditingMetric.REPS -> {
+                if (editingRight && rightSet != null && rightSetIndex >= 0 && !rightSet.isSkipped) {
+                    UnilateralEditorBlock(
+                        sideLabel = "R",
+                        set = rightSet,
+                        setIndex = rightSetIndex,
+                        unit = unit,
+                        onUpdateTargetValue = onUpdateTargetValue,
+                        onUpdateActualValue = onUpdateActualValue,
+                        compact = false
+                    )
+                } else if (editingLeft && leftSet != null && leftSetIndex >= 0 && !leftSet.isSkipped) {
+                    UnilateralEditorBlock(
+                        sideLabel = "L",
+                        set = leftSet,
+                        setIndex = leftSetIndex,
+                        unit = unit,
+                        onUpdateTargetValue = onUpdateTargetValue,
+                        onUpdateActualValue = onUpdateActualValue,
+                        compact = false
+                    )
+                }
+            }
+            EditingMetric.WEIGHT -> {
+                // R/L 共通入力。Right 側のセットを代表とし、callback で R/L 両方に同期書き込み。
+                val repSet = rightSet ?: leftSet
+                val repIndex = if (rightSetIndex >= 0) rightSetIndex else leftSetIndex
+                if (repSet != null && repIndex >= 0) {
+                    InlineWeightEditor(
+                        valueG = repSet.weightG,
+                        onChange = { onUpdateSetWeightG(repIndex, it) }
+                    )
+                }
+            }
+            EditingMetric.DISTANCE -> {
+                val repSet = rightSet ?: leftSet
+                val repIndex = if (rightSetIndex >= 0) rightSetIndex else leftSetIndex
+                if (repSet != null && repIndex >= 0) {
+                    InlineDistanceEditor(
+                        valueCm = repSet.distanceCm,
+                        onChange = { onUpdateSetDistanceCm(repIndex, it) }
+                    )
+                }
+            }
+            EditingMetric.ASSISTANCE -> {
+                val repSet = rightSet ?: leftSet
+                val repIndex = if (rightSetIndex >= 0) rightSetIndex else leftSetIndex
+                if (repSet != null && repIndex >= 0) {
+                    InlineAssistanceEditor(
+                        valueG = repSet.assistanceG,
+                        onChange = { onUpdateSetAssistanceG(repIndex, it) }
+                    )
+                }
+            }
         }
     }
 }
@@ -1776,6 +2043,136 @@ private fun InlineValueEditorCore(
             onStep = {
                 onChange(value + 1); true
             }
+        )
+    }
+}
+
+/**
+ * 重量エディタ（kg 表示、内部は g、±1000g ステップ）
+ */
+@Composable
+private fun InlineWeightEditor(
+    valueG: Int?,
+    onChange: (Int?) -> Unit
+) {
+    InlineTrackingEditorCore(
+        valueDisplay = valueG?.let { "%.1f".format(it / 1000.0) } ?: "—",
+        unit = "kg",
+        accentColor = Orange600,
+        decrementEnabled = (valueG ?: 0) > 0,
+        onDecrement = {
+            val next = ((valueG ?: 0) - 1000).coerceAtLeast(0)
+            if (next != (valueG ?: 0)) {
+                onChange(next); true
+            } else false
+        },
+        onIncrement = {
+            onChange(((valueG ?: 0) + 1000).coerceAtLeast(0)); true
+        }
+    )
+}
+
+/**
+ * 距離エディタ（cm 表示、±1cm ステップ）
+ */
+@Composable
+private fun InlineDistanceEditor(
+    valueCm: Int?,
+    onChange: (Int?) -> Unit
+) {
+    InlineTrackingEditorCore(
+        valueDisplay = valueCm?.toString() ?: "—",
+        unit = "cm",
+        accentColor = Blue600,
+        decrementEnabled = (valueCm ?: 0) > 0,
+        onDecrement = {
+            val next = ((valueCm ?: 0) - 1).coerceAtLeast(0)
+            if (next != (valueCm ?: 0)) {
+                onChange(next); true
+            } else false
+        },
+        onIncrement = {
+            onChange(((valueCm ?: 0) + 1).coerceAtLeast(0)); true
+        }
+    )
+}
+
+/**
+ * アシストエディタ（kg 表示、内部は g、±1000g ステップ）
+ */
+@Composable
+private fun InlineAssistanceEditor(
+    valueG: Int?,
+    onChange: (Int?) -> Unit
+) {
+    InlineTrackingEditorCore(
+        valueDisplay = valueG?.let { "%.1f".format(it / 1000.0) } ?: "—",
+        unit = "kg",
+        accentColor = Amber500,
+        decrementEnabled = (valueG ?: 0) > 0,
+        onDecrement = {
+            val next = ((valueG ?: 0) - 1000).coerceAtLeast(0)
+            if (next != (valueG ?: 0)) {
+                onChange(next); true
+            } else false
+        },
+        onIncrement = {
+            onChange(((valueG ?: 0) + 1000).coerceAtLeast(0)); true
+        }
+    )
+}
+
+/**
+ * tracking 値エディタの共通レイアウト：`−` ボタン / 値+単位 / `+` ボタン
+ * accentColor は単位テキストに反映してメトリクスを区別する
+ */
+@Composable
+private fun InlineTrackingEditorCore(
+    valueDisplay: String,
+    unit: String,
+    accentColor: Color,
+    decrementEnabled: Boolean,
+    onDecrement: () -> Boolean,
+    onIncrement: () -> Boolean
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        RepeatableStepButton(
+            label = "−",
+            size = 36.dp,
+            enabled = decrementEnabled,
+            contentDescription = stringResource(R.string.nav_step_decrement),
+            onStep = onDecrement
+        )
+        Box(
+            modifier = Modifier.widthIn(min = 80.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    text = valueDisplay,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = unit,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = accentColor,
+                    modifier = Modifier.padding(bottom = 2.dp)
+                )
+            }
+        }
+        RepeatableStepButton(
+            label = "+",
+            size = 36.dp,
+            enabled = true,
+            contentDescription = stringResource(R.string.nav_step_increment),
+            onStep = onIncrement
         )
     }
 }

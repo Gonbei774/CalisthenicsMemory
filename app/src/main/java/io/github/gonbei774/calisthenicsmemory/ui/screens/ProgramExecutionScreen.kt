@@ -1585,6 +1585,91 @@ fun ProgramExecutionScreen(
                     }
                 }
             },
+            onUpdateSetWeightG = { setIndex, newValue ->
+                if (setIndex in navSession.sets.indices) {
+                    val target = navSession.sets[setIndex]
+                    val newSets = navSession.sets.toMutableList()
+                    // 対象セット + Unilateral の R/L ペアのみに反映（ラウンド間は伝播しない）
+                    newSets[setIndex] = target.copy(weightG = newValue)
+                    if (target.side != null) {
+                        val pairIndex = if (target.side == "Right") setIndex + 1 else setIndex - 1
+                        if (pairIndex in newSets.indices) {
+                            val pair = newSets[pairIndex]
+                            if (pair.exerciseIndex == target.exerciseIndex
+                                && pair.setNumber == target.setNumber
+                                && pair.roundNumber == target.roundNumber
+                                && pair.side != null && pair.side != target.side) {
+                                newSets[pairIndex] = pair.copy(weightG = newValue)
+                            }
+                        }
+                    }
+                    val newSession = navSession.copy(sets = newSets)
+                    currentStep = when (val s = currentStep) {
+                        is ProgramExecutionStep.Confirm -> s.copy(session = newSession)
+                        is ProgramExecutionStep.StartInterval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Executing -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Interval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Result -> s.copy(session = newSession)
+                        null -> null
+                    }
+                }
+            },
+            onUpdateSetDistanceCm = { setIndex, newValue ->
+                if (setIndex in navSession.sets.indices) {
+                    val target = navSession.sets[setIndex]
+                    val newSets = navSession.sets.toMutableList()
+                    newSets[setIndex] = target.copy(distanceCm = newValue)
+                    if (target.side != null) {
+                        val pairIndex = if (target.side == "Right") setIndex + 1 else setIndex - 1
+                        if (pairIndex in newSets.indices) {
+                            val pair = newSets[pairIndex]
+                            if (pair.exerciseIndex == target.exerciseIndex
+                                && pair.setNumber == target.setNumber
+                                && pair.roundNumber == target.roundNumber
+                                && pair.side != null && pair.side != target.side) {
+                                newSets[pairIndex] = pair.copy(distanceCm = newValue)
+                            }
+                        }
+                    }
+                    val newSession = navSession.copy(sets = newSets)
+                    currentStep = when (val s = currentStep) {
+                        is ProgramExecutionStep.Confirm -> s.copy(session = newSession)
+                        is ProgramExecutionStep.StartInterval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Executing -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Interval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Result -> s.copy(session = newSession)
+                        null -> null
+                    }
+                }
+            },
+            onUpdateSetAssistanceG = { setIndex, newValue ->
+                if (setIndex in navSession.sets.indices) {
+                    val target = navSession.sets[setIndex]
+                    val newSets = navSession.sets.toMutableList()
+                    newSets[setIndex] = target.copy(assistanceG = newValue)
+                    if (target.side != null) {
+                        val pairIndex = if (target.side == "Right") setIndex + 1 else setIndex - 1
+                        if (pairIndex in newSets.indices) {
+                            val pair = newSets[pairIndex]
+                            if (pair.exerciseIndex == target.exerciseIndex
+                                && pair.setNumber == target.setNumber
+                                && pair.roundNumber == target.roundNumber
+                                && pair.side != null && pair.side != target.side) {
+                                newSets[pairIndex] = pair.copy(assistanceG = newValue)
+                            }
+                        }
+                    }
+                    val newSession = navSession.copy(sets = newSets)
+                    currentStep = when (val s = currentStep) {
+                        is ProgramExecutionStep.Confirm -> s.copy(session = newSession)
+                        is ProgramExecutionStep.StartInterval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Executing -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Interval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Result -> s.copy(session = newSession)
+                        null -> null
+                    }
+                }
+            },
             onToggleComplete = { setIndex ->
                 if (setIndex in navSession.sets.indices) {
                     val target = navSession.sets[setIndex]
