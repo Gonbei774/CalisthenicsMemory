@@ -1378,6 +1378,36 @@ fun ProgramExecutionScreen(
                 }
                 showNavigationSheet = false
             },
+            onUpdateTargetValue = { setIndex, newValue ->
+                if (setIndex in navSession.sets.indices) {
+                    val newSets = navSession.sets.toMutableList()
+                    newSets[setIndex] = newSets[setIndex].copy(targetValue = newValue)
+                    val newSession = navSession.copy(sets = newSets)
+                    currentStep = when (val s = currentStep) {
+                        is ProgramExecutionStep.Confirm -> s.copy(session = newSession)
+                        is ProgramExecutionStep.StartInterval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Executing -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Interval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Result -> s.copy(session = newSession)
+                        null -> null
+                    }
+                }
+            },
+            onUpdateActualValue = { setIndex, newValue ->
+                if (setIndex in navSession.sets.indices) {
+                    val newSets = navSession.sets.toMutableList()
+                    newSets[setIndex] = newSets[setIndex].copy(actualValue = newValue)
+                    val newSession = navSession.copy(sets = newSets)
+                    currentStep = when (val s = currentStep) {
+                        is ProgramExecutionStep.Confirm -> s.copy(session = newSession)
+                        is ProgramExecutionStep.StartInterval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Executing -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Interval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Result -> s.copy(session = newSession)
+                        null -> null
+                    }
+                }
+            },
             onFinish = {
                 // 結果画面に遷移（完了したセットのみ保存される）
                 isRedoMode = false

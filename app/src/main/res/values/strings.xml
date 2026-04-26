@@ -619,6 +619,10 @@
     <string name="nav_skipped">Skipped</string>
     <string name="nav_type_dynamic_short">Dyn</string>
     <string name="nav_type_isometric_short">Iso</string>
+    <string name="nav_edit_target">Edit target</string>
+    <string name="nav_edit_actual">Edit actual</string>
+    <string name="nav_step_decrement">Decrease</string>
+    <string name="nav_step_increment">Increase</string>
     <!-- Loop Feature -->
     <string name="add_loop">Add Loop</string>
     <string name="loop_label">Loop</string>
