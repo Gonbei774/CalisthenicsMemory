@@ -969,12 +969,31 @@ fun ProgramExecutionScreen(
                                         if (nextIndex < sets.size) {
                                             if (completedSet.intervalSeconds > 0 || completedSet.loopRestAfterSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                            } else if (isRedoMode) {
+                                                var nextIncompleteIndex = -1
+                                                for (i in nextIndex until sets.size) {
+                                                    if (!sets[i].isCompleted) {
+                                                        nextIncompleteIndex = i
+                                                        break
+                                                    }
+                                                }
+                                                isRedoMode = false
+                                                if (nextIncompleteIndex >= 0) {
+                                                    if (startCountdownSeconds > 0) {
+                                                        currentStep = ProgramExecutionStep.StartInterval(step.session, nextIncompleteIndex)
+                                                    } else {
+                                                        currentStep = ProgramExecutionStep.Executing(step.session, nextIncompleteIndex)
+                                                    }
+                                                } else {
+                                                    currentStep = ProgramExecutionStep.Result(step.session)
+                                                }
                                             } else if (startCountdownSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                             } else {
                                                 currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
                                             }
                                         } else {
+                                            if (isRedoMode) isRedoMode = false
                                             currentStep = ProgramExecutionStep.Result(step.session)
                                         }
                                     },
@@ -1005,12 +1024,31 @@ fun ProgramExecutionScreen(
                                         if (nextIndex < sets.size) {
                                             if (completedSet.intervalSeconds > 0 || completedSet.loopRestAfterSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                            } else if (isRedoMode) {
+                                                var nextIncompleteIndex = -1
+                                                for (i in nextIndex until sets.size) {
+                                                    if (!sets[i].isCompleted) {
+                                                        nextIncompleteIndex = i
+                                                        break
+                                                    }
+                                                }
+                                                isRedoMode = false
+                                                if (nextIncompleteIndex >= 0) {
+                                                    if (startCountdownSeconds > 0) {
+                                                        currentStep = ProgramExecutionStep.StartInterval(step.session, nextIncompleteIndex)
+                                                    } else {
+                                                        currentStep = ProgramExecutionStep.Executing(step.session, nextIncompleteIndex)
+                                                    }
+                                                } else {
+                                                    currentStep = ProgramExecutionStep.Result(step.session)
+                                                }
                                             } else if (startCountdownSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                             } else {
                                                 currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
                                             }
                                         } else {
+                                            if (isRedoMode) isRedoMode = false
                                             currentStep = ProgramExecutionStep.Result(step.session)
                                         }
                                     },
@@ -1313,12 +1351,22 @@ fun ProgramExecutionScreen(
         is ProgramExecutionStep.Result -> step.session
         else -> null
     }
-    val navCurrentSetIndex = when (step) {
+    val baseNavSetIndex = when (step) {
         is ProgramExecutionStep.Executing -> step.currentSetIndex
         is ProgramExecutionStep.Interval -> step.currentSetIndex + 1  // 次のセット
         is ProgramExecutionStep.StartInterval -> step.currentSetIndex
         is ProgramExecutionStep.Result -> -1  // Result画面では「現在セット」なし
         else -> 0
+    }
+    // ナビ内で手動チェックされた完了済み/スキップを飛ばして次の有効セットを「現在」として表示
+    val navCurrentSetIndex = if (baseNavSetIndex < 0 || navSession == null) {
+        -1
+    } else {
+        var i = baseNavSetIndex.coerceIn(0, navSession.sets.size - 1)
+        while (i < navSession.sets.size && (navSession.sets[i].isCompleted || navSession.sets[i].isSkipped)) {
+            i++
+        }
+        if (i >= navSession.sets.size) -1 else i
     }
     val isFromResult = step is ProgramExecutionStep.Result
     if (showNavigationSheet && navSession != null) {
@@ -1326,7 +1374,31 @@ fun ProgramExecutionScreen(
             session = navSession,
             currentSetIndex = if (navCurrentSetIndex >= 0) navCurrentSetIndex.coerceIn(0, navSession.sets.size - 1) else -1,
             isFromResult = isFromResult,
-            onDismiss = { showNavigationSheet = false },
+            onDismiss = {
+                // ナビ内のチェック操作で「現在のセット」が完了済みになっていたら次の未完了セットへ進める
+                val sets = navSession.sets
+                val stepIndex = when (val s = currentStep) {
+                    is ProgramExecutionStep.Executing -> s.currentSetIndex
+                    is ProgramExecutionStep.StartInterval -> s.currentSetIndex
+                    else -> -1
+                }
+                if (stepIndex in sets.indices && (sets[stepIndex].isCompleted || sets[stepIndex].isSkipped)) {
+                    var nextIncomplete = stepIndex + 1
+                    while (nextIncomplete < sets.size && (sets[nextIncomplete].isCompleted || sets[nextIncomplete].isSkipped)) {
+                        nextIncomplete++
+                    }
+                    currentStep = if (nextIncomplete < sets.size) {
+                        if (startCountdownSeconds > 0) {
+                            ProgramExecutionStep.StartInterval(navSession, nextIncomplete)
+                        } else {
+                            ProgramExecutionStep.Executing(navSession, nextIncomplete)
+                        }
+                    } else {
+                        ProgramExecutionStep.Result(navSession)
+                    }
+                }
+                showNavigationSheet = false
+            },
             onJumpToSet = { targetIndex ->
                 // Jumpでも次の未完了セットを探すようにする（完了済みセットをスキップ）
                 isRedoMode = true
@@ -1405,6 +1477,79 @@ fun ProgramExecutionScreen(
                         is ProgramExecutionStep.Interval -> s.copy(session = newSession)
                         is ProgramExecutionStep.Result -> s.copy(session = newSession)
                         null -> null
+                    }
+                }
+            },
+            onToggleComplete = { setIndex ->
+                if (setIndex in navSession.sets.indices) {
+                    val target = navSession.sets[setIndex]
+                    val newSets = navSession.sets.toMutableList()
+                    if (target.isCompleted) {
+                        // チェック外す → PENDING へ
+                        newSets[setIndex] = target.copy(
+                            isCompleted = false,
+                            isSkipped = false,
+                            actualValue = 0
+                        )
+                        if (target.side != null) {
+                            val pairIndex = if (target.side == "Right") setIndex + 1 else setIndex - 1
+                            if (pairIndex in newSets.indices) {
+                                val pairSet = newSets[pairIndex]
+                                if (pairSet.exerciseIndex == target.exerciseIndex
+                                    && pairSet.setNumber == target.setNumber
+                                    && pairSet.side != null && pairSet.side != target.side) {
+                                    newSets[pairIndex] = pairSet.copy(
+                                        isCompleted = false,
+                                        isSkipped = false,
+                                        actualValue = 0
+                                    )
+                                }
+                            }
+                        }
+                        val newSession = navSession.copy(sets = newSets)
+                        currentStep = when (val s = currentStep) {
+                            is ProgramExecutionStep.Confirm -> s.copy(session = newSession)
+                            is ProgramExecutionStep.StartInterval -> s.copy(session = newSession)
+                            is ProgramExecutionStep.Executing -> s.copy(session = newSession)
+                            is ProgramExecutionStep.Interval -> s.copy(session = newSession)
+                            is ProgramExecutionStep.Result -> s.copy(session = newSession)
+                            null -> null
+                        }
+                    } else {
+                        // チェック入れる → COMPLETED へ
+                        newSets[setIndex] = target.copy(
+                            isCompleted = true,
+                            isSkipped = false,
+                            actualValue = target.targetValue
+                        )
+                        if (target.side != null) {
+                            val pairIndex = if (target.side == "Right") setIndex + 1 else setIndex - 1
+                            if (pairIndex in newSets.indices) {
+                                val pairSet = newSets[pairIndex]
+                                if (pairSet.exerciseIndex == target.exerciseIndex
+                                    && pairSet.setNumber == target.setNumber
+                                    && pairSet.side != null && pairSet.side != target.side
+                                    && !pairSet.isCompleted) {
+                                    newSets[pairIndex] = pairSet.copy(
+                                        isCompleted = true,
+                                        isSkipped = false,
+                                        actualValue = pairSet.targetValue
+                                    )
+                                }
+                            }
+                        }
+                        val newSession = navSession.copy(sets = newSets)
+                        // ナビで完了済みにしたセットは自然な進行で飛ばすため Redo モードを有効化
+                        isRedoMode = true
+                        // チェック操作はセッションを書き換えるだけ。画面遷移は X 押下（onDismiss）で行う
+                        currentStep = when (val s = currentStep) {
+                            is ProgramExecutionStep.Confirm -> s.copy(session = newSession)
+                            is ProgramExecutionStep.StartInterval -> s.copy(session = newSession)
+                            is ProgramExecutionStep.Executing -> s.copy(session = newSession)
+                            is ProgramExecutionStep.Interval -> s.copy(session = newSession)
+                            is ProgramExecutionStep.Result -> s.copy(session = newSession)
+                            null -> null
+                        }
                     }
                 }
             },

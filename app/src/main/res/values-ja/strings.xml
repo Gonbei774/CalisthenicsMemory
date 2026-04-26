@@ -751,5 +751,7 @@
     <string name="share_import_errors">エラー (%1$d)</string>
     <string name="share_import_count_reused">%1$d 再利用</string>
     <string name="share_import_count_skipped">%1$d スキップ</string>
+    <string name="nav_check_set">セットを完了にする</string>
+    <string name="nav_uncheck_set">セットを未実行に戻す</string>
 
 </resources>
