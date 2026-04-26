@@ -715,6 +715,8 @@ private fun NavigationExerciseCard(
                             leftSet = leftSet,
                             rightSetIndex = rightSetIndex,
                             leftSetIndex = leftSetIndex,
+                            editingRight = isEditingRight,
+                            editingLeft = isEditingLeft,
                             isIsometric = exerciseType == "Isometric",
                             onUpdateTargetValue = onUpdateTargetValue,
                             onUpdateActualValue = onUpdateActualValue,
@@ -1569,6 +1571,8 @@ private fun InlineUnilateralEditor(
     leftSet: ProgramWorkoutSet?,
     rightSetIndex: Int,
     leftSetIndex: Int,
+    editingRight: Boolean,
+    editingLeft: Boolean,
     isIsometric: Boolean,
     onUpdateTargetValue: (Int, Int) -> Unit,
     onUpdateActualValue: (Int, Int) -> Unit,
@@ -1592,27 +1596,28 @@ private fun InlineUnilateralEditor(
                 } else Modifier
             )
             .padding(horizontal = 16.dp, vertical = 10.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (rightSet != null && rightSetIndex >= 0 && !rightSet.isSkipped) {
+        if (editingRight && rightSet != null && rightSetIndex >= 0 && !rightSet.isSkipped) {
             UnilateralEditorBlock(
                 sideLabel = "R",
                 set = rightSet,
                 setIndex = rightSetIndex,
                 unit = unit,
                 onUpdateTargetValue = onUpdateTargetValue,
-                onUpdateActualValue = onUpdateActualValue
+                onUpdateActualValue = onUpdateActualValue,
+                compact = false
             )
-        }
-        if (leftSet != null && leftSetIndex >= 0 && !leftSet.isSkipped) {
+        } else if (editingLeft && leftSet != null && leftSetIndex >= 0 && !leftSet.isSkipped) {
             UnilateralEditorBlock(
                 sideLabel = "L",
                 set = leftSet,
                 setIndex = leftSetIndex,
                 unit = unit,
                 onUpdateTargetValue = onUpdateTargetValue,
-                onUpdateActualValue = onUpdateActualValue
+                onUpdateActualValue = onUpdateActualValue,
+                compact = false
             )
         }
     }
@@ -1625,7 +1630,8 @@ private fun UnilateralEditorBlock(
     setIndex: Int,
     unit: String,
     onUpdateTargetValue: (Int, Int) -> Unit,
-    onUpdateActualValue: (Int, Int) -> Unit
+    onUpdateActualValue: (Int, Int) -> Unit,
+    compact: Boolean = true
 ) {
     val isEditingActual = set.isCompleted
     val currentValue = if (isEditingActual) set.actualValue else set.targetValue
@@ -1636,16 +1642,16 @@ private fun UnilateralEditorBlock(
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = "$sideLabel:",
-            fontSize = 12.sp,
+            fontSize = if (compact) 12.sp else 14.sp,
             fontWeight = FontWeight.SemiBold,
             color = Slate500
         )
-        Spacer(modifier = Modifier.width(6.dp))
+        Spacer(modifier = Modifier.width(if (compact) 6.dp else 10.dp))
         InlineValueEditorCore(
             value = currentValue,
             unit = unit,
             onChange = onChange,
-            compact = true
+            compact = compact
         )
     }
 }
