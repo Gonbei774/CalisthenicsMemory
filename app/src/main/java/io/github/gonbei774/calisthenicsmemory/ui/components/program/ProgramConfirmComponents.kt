@@ -63,6 +63,9 @@ internal fun ProgramConfirmStep(
     onUpdateInterval: (Int, Int) -> Unit,  // exerciseIndex, newInterval
     onUpdateSetCount: (Int, Int) -> Unit,  // exerciseIndex, newSetCount
     onUpdateExerciseSetsValue: (Int, Int) -> Unit,  // exerciseIndex, delta - 種目内の全セット一括更新
+    onUpdateSetWeightG: (Int, Int?) -> Unit,
+    onUpdateSetDistanceCm: (Int, Int?) -> Unit,
+    onUpdateSetAssistanceG: (Int, Int?) -> Unit,
     onUseAllProgramValues: () -> Unit,
     onUseAllChallengeValues: () -> Unit,
     onUseAllPreviousRecordValues: () -> Unit,
@@ -283,7 +286,10 @@ internal fun ProgramConfirmStep(
                             },
                             onUpdateAllSetsValue = { delta ->
                                 onUpdateExerciseSetsValue(exerciseIndex, delta)
-                            }
+                            },
+                            onUpdateWeightG = onUpdateSetWeightG,
+                            onUpdateDistanceCm = onUpdateSetDistanceCm,
+                            onUpdateAssistanceG = onUpdateSetAssistanceG
                         )
                     }
                     is ConfirmListItem.Loop -> {
@@ -314,7 +320,10 @@ internal fun ProgramConfirmStep(
                             onUpdateTargetValue = onUpdateTargetValue,
                             onUpdateInterval = onUpdateInterval,
                             onUpdateSetCount = onUpdateSetCount,
-                            onUpdateExerciseSetsValue = onUpdateExerciseSetsValue
+                            onUpdateExerciseSetsValue = onUpdateExerciseSetsValue,
+                            onUpdateSetWeightG = onUpdateSetWeightG,
+                            onUpdateSetDistanceCm = onUpdateSetDistanceCm,
+                            onUpdateSetAssistanceG = onUpdateSetAssistanceG
                         )
                     }
                 }
@@ -630,7 +639,10 @@ internal fun ProgramConfirmExerciseCard(
     onUpdateValue: (Int, Int) -> Unit,
     onUpdateInterval: (Int) -> Unit,
     onUpdateSetCount: (Int) -> Unit,
-    onUpdateAllSetsValue: (Int) -> Unit
+    onUpdateAllSetsValue: (Int) -> Unit,
+    onUpdateWeightG: (Int, Int?) -> Unit,
+    onUpdateDistanceCm: (Int, Int?) -> Unit,
+    onUpdateAssistanceG: (Int, Int?) -> Unit
 ) {
     val appColors = LocalAppColors.current
     val unit = stringResource(if (exercise.type == "Isometric") R.string.unit_seconds else R.string.unit_reps)
@@ -929,6 +941,16 @@ internal fun ProgramConfirmExerciseCard(
                         modifier = Modifier.width(70.dp)
                     )
                 }
+
+                ProgramConfirmTrackingInputs(
+                    exercise = exercise,
+                    weightG = currentSet.weightG,
+                    distanceCm = currentSet.distanceCm,
+                    assistanceG = currentSet.assistanceG,
+                    onWeightChange = { onUpdateWeightG(setIndex, it) },
+                    onDistanceChange = { onUpdateDistanceCm(setIndex, it) },
+                    onAssistanceChange = { onUpdateAssistanceG(setIndex, it) }
+                )
             }
 
                     // 休憩時間
@@ -1041,7 +1063,10 @@ private fun ProgramConfirmLoopBlock(
     onUpdateTargetValue: (Int, Int) -> Unit,
     onUpdateInterval: (Int, Int) -> Unit,
     onUpdateSetCount: (Int, Int) -> Unit,
-    onUpdateExerciseSetsValue: (Int, Int) -> Unit
+    onUpdateExerciseSetsValue: (Int, Int) -> Unit,
+    onUpdateSetWeightG: (Int, Int?) -> Unit,
+    onUpdateSetDistanceCm: (Int, Int?) -> Unit,
+    onUpdateSetAssistanceG: (Int, Int?) -> Unit
 ) {
     val appColors = LocalAppColors.current
     val chevronRotation by animateFloatAsState(
@@ -1185,7 +1210,10 @@ private fun ProgramConfirmLoopBlock(
                                 },
                                 onUpdateAllSetsValue = { delta ->
                                     onUpdateExerciseSetsValue(exerciseIndex, delta)
-                                }
+                                },
+                                onUpdateWeightG = onUpdateSetWeightG,
+                                onUpdateDistanceCm = onUpdateSetDistanceCm,
+                                onUpdateAssistanceG = onUpdateSetAssistanceG
                             )
                         }
                     }
@@ -1193,4 +1221,126 @@ private fun ProgramConfirmLoopBlock(
             }
         }
     }
+}
+
+/**
+ * Confirm画面の各セット行下に表示する 距離/重量/アシスト 入力欄
+ * Exercise の各 *TrackingEnabled が true の項目のみ表示
+ */
+@Composable
+private fun ProgramConfirmTrackingInputs(
+    exercise: Exercise,
+    weightG: Int?,
+    distanceCm: Int?,
+    assistanceG: Int?,
+    onWeightChange: (Int?) -> Unit,
+    onDistanceChange: (Int?) -> Unit,
+    onAssistanceChange: (Int?) -> Unit
+) {
+    if (!exercise.distanceTrackingEnabled &&
+        !exercise.weightTrackingEnabled &&
+        !exercise.assistanceTrackingEnabled) return
+
+    var distanceStr by remember(distanceCm) {
+        mutableStateOf(distanceCm?.toString() ?: "")
+    }
+    var weightStr by remember(weightG) {
+        mutableStateOf(weightG?.let { "%.1f".format(it / 1000.0) } ?: "")
+    }
+    var assistanceStr by remember(assistanceG) {
+        mutableStateOf(assistanceG?.let { "%.1f".format(it / 1000.0) } ?: "")
+    }
+
+    Spacer(modifier = Modifier.height(6.dp))
+
+    if (exercise.distanceTrackingEnabled) {
+        OutlinedTextField(
+            value = distanceStr,
+            onValueChange = { value ->
+                val normalized = value
+                    .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                    .replace("．", ".").replace("－", "-")
+                if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
+                    distanceStr = normalized
+                    onDistanceChange(parseProgramDistanceCmValue(normalized))
+                }
+            },
+            label = { Text(stringResource(R.string.distance_input_label), fontSize = 12.sp) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Blue600,
+                focusedLabelColor = Blue600,
+                cursorColor = Blue600
+            )
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+    }
+
+    if (exercise.weightTrackingEnabled) {
+        OutlinedTextField(
+            value = weightStr,
+            onValueChange = { value ->
+                val normalized = value
+                    .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                    .replace("．", ".")
+                val isValid = normalized.isEmpty() || normalized == "." ||
+                    normalized.matches(Regex("^\\d*\\.?\\d?$"))
+                if (isValid) {
+                    weightStr = normalized
+                    onWeightChange(parseProgramWeightGValue(normalized))
+                }
+            },
+            label = { Text(stringResource(R.string.weight_input_label), fontSize = 12.sp) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Orange600,
+                focusedLabelColor = Orange600,
+                cursorColor = Orange600
+            )
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+    }
+
+    if (exercise.assistanceTrackingEnabled) {
+        OutlinedTextField(
+            value = assistanceStr,
+            onValueChange = { value ->
+                val normalized = value
+                    .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                    .replace("．", ".")
+                val isValid = normalized.isEmpty() || normalized == "." ||
+                    normalized.matches(Regex("^\\d*\\.?\\d?$"))
+                if (isValid) {
+                    assistanceStr = normalized
+                    onAssistanceChange(parseProgramWeightGValue(normalized))
+                }
+            },
+            label = { Text(stringResource(R.string.assistance_input_label), fontSize = 12.sp) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Amber500,
+                focusedLabelColor = Amber500,
+                cursorColor = Amber500
+            )
+        )
+    }
+}
+
+private fun parseProgramDistanceCmValue(input: String): Int? {
+    val trimmed = input.trim()
+    if (trimmed.isEmpty() || trimmed == "-") return null
+    return trimmed.toIntOrNull()
+}
+
+private fun parseProgramWeightGValue(input: String): Int? {
+    val trimmed = input.trim()
+    if (trimmed.isEmpty() || trimmed == ".") return null
+    val kg = trimmed.toDoubleOrNull() ?: return null
+    return (kg * 1000).toInt()
 }
