@@ -2,6 +2,10 @@ package io.github.gonbei774.calisthenicsmemory.ui.components.program
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,11 +18,18 @@ import androidx.compose.material3.*
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -29,6 +40,10 @@ import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
 import io.github.gonbei774.calisthenicsmemory.data.ProgramWorkoutSet
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 /**
  * ワークアウトナビゲーションモーダルボトムシート
@@ -44,12 +59,17 @@ fun ProgramNavigationSheet(
     onDismiss: () -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
+    onUpdateTargetValue: (Int, Int) -> Unit,
+    onUpdateActualValue: (Int, Int) -> Unit,
     onFinish: () -> Unit,
     onSaveAndExit: () -> Unit,
     onDiscard: () -> Unit
 ) {
     val appColors = LocalAppColors.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    // 編集中セットのインデックス。同じピル再タップで -1 に戻して閉じる。
+    var editingSetIndex by remember { mutableIntStateOf(-1) }
 
     // 進捗計算
     val completedSets = session.sets.count { it.isCompleted }
@@ -88,6 +108,16 @@ fun ProgramNavigationSheet(
             NavigationSetsList(
                 session = session,
                 currentSetIndex = currentSetIndex,
+                editingSetIndex = editingSetIndex,
+                onToggleEditing = { setIdx ->
+                    editingSetIndex = if (editingSetIndex == setIdx) -1 else setIdx
+                },
+                onUpdateTargetValue = { setIdx, newValue ->
+                    onUpdateTargetValue(setIdx, newValue)
+                },
+                onUpdateActualValue = { setIdx, newValue ->
+                    onUpdateActualValue(setIdx, newValue)
+                },
                 onJumpToSet = onJumpToSet,
                 onRedoSet = onRedoSet,
                 modifier = Modifier.weight(1f)
@@ -284,6 +314,10 @@ private fun buildNavigationItems(session: ProgramExecutionSession): Pair<List<Na
 private fun NavigationSetsList(
     session: ProgramExecutionSession,
     currentSetIndex: Int,
+    editingSetIndex: Int,
+    onToggleEditing: (Int) -> Unit,
+    onUpdateTargetValue: (Int, Int) -> Unit,
+    onUpdateActualValue: (Int, Int) -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
     modifier: Modifier = Modifier
@@ -333,6 +367,10 @@ private fun NavigationSetsList(
                         currentSetIndex = currentSetIndex,
                         totalSets = actualTotalSets,
                         isUnilateral = item.exercise.laterality == "Unilateral",
+                        editingSetIndex = editingSetIndex,
+                        onToggleEditing = onToggleEditing,
+                        onUpdateTargetValue = onUpdateTargetValue,
+                        onUpdateActualValue = onUpdateActualValue,
                         onJumpToSet = onJumpToSet,
                         onRedoSet = onRedoSet
                     )
@@ -345,6 +383,10 @@ private fun NavigationSetsList(
                         allSets = session.sets,
                         exercises = session.exercises,
                         currentSetIndex = currentSetIndex,
+                        editingSetIndex = editingSetIndex,
+                        onToggleEditing = onToggleEditing,
+                        onUpdateTargetValue = onUpdateTargetValue,
+                        onUpdateActualValue = onUpdateActualValue,
                         onJumpToSet = onJumpToSet,
                         onRedoSet = onRedoSet
                     )
@@ -365,6 +407,10 @@ private fun NavigationRoundCard(
     allSets: List<ProgramWorkoutSet>,
     exercises: List<Pair<io.github.gonbei774.calisthenicsmemory.data.ProgramExercise, io.github.gonbei774.calisthenicsmemory.data.Exercise>>,
     currentSetIndex: Int,
+    editingSetIndex: Int,
+    onToggleEditing: (Int) -> Unit,
+    onUpdateTargetValue: (Int, Int) -> Unit,
+    onUpdateActualValue: (Int, Int) -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit
 ) {
@@ -457,6 +503,8 @@ private fun NavigationRoundCard(
                 val isCurrent = setIndex == currentSetIndex
                 val exercise = exercises.getOrNull(set.exerciseIndex)?.second
                 val isIsometric = exercise?.type == "Isometric"
+                val isEditing = editingSetIndex == setIndex
+                val isEditorOpen = isEditing && !set.isSkipped
 
                 NavigationRoundSetRow(
                     set = set,
@@ -464,10 +512,22 @@ private fun NavigationRoundCard(
                     exerciseName = exercise?.name ?: "",
                     isCurrent = isCurrent,
                     isIsometric = isIsometric,
+                    isEditing = isEditing,
+                    onTogglePillEditing = onToggleEditing,
                     onJumpToSet = onJumpToSet,
                     onRedoSet = onRedoSet,
-                    isLast = index == sets.lastIndex
+                    isLast = index == sets.lastIndex && !isEditorOpen
                 )
+                if (isEditorOpen) {
+                    InlineBilateralEditor(
+                        set = set,
+                        setIndex = setIndex,
+                        isIsometric = isIsometric,
+                        onUpdateTargetValue = onUpdateTargetValue,
+                        onUpdateActualValue = onUpdateActualValue,
+                        isLast = index == sets.lastIndex
+                    )
+                }
             }
         }
     }
@@ -483,6 +543,8 @@ private fun NavigationRoundSetRow(
     exerciseName: String,
     isCurrent: Boolean,
     isIsometric: Boolean,
+    isEditing: Boolean,
+    onTogglePillEditing: (Int) -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
     isLast: Boolean
@@ -557,7 +619,11 @@ private fun NavigationRoundSetRow(
             SetValueText(
                 set = set,
                 status = setStatus,
-                isIsometric = isIsometric
+                isIsometric = isIsometric,
+                isEditing = isEditing,
+                onClick = if (setStatus != SetStatus.SKIPPED) {
+                    { onTogglePillEditing(setIndex) }
+                } else null
             )
         }
 
@@ -585,6 +651,10 @@ private fun NavigationExerciseCard(
     currentSetIndex: Int,
     totalSets: Int,
     isUnilateral: Boolean,
+    editingSetIndex: Int,
+    onToggleEditing: (Int) -> Unit,
+    onUpdateTargetValue: (Int, Int) -> Unit,
+    onUpdateActualValue: (Int, Int) -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit
 ) {
@@ -606,7 +676,8 @@ private fun NavigationExerciseCard(
             if (isUnilateral) {
                 // Unilateral: セット番号でグループ化
                 val setsByNumber = sets.groupBy { it.setNumber }
-                setsByNumber.forEach { (setNumber, sideSets) ->
+                val groupedEntries = setsByNumber.entries.toList()
+                groupedEntries.forEachIndexed { groupIndex, (setNumber, sideSets) ->
                     val rightSet = sideSets.find { it.side == "Right" }
                     val leftSet = sideSets.find { it.side == "Left" }
                     val rightSetIndex = rightSet?.let { allSets.indexOf(it) } ?: -1
@@ -614,6 +685,12 @@ private fun NavigationExerciseCard(
 
                     // どちらかが現在実行中かを判定
                     val isCurrent = rightSetIndex == currentSetIndex || leftSetIndex == currentSetIndex
+                    val isEditingRight = editingSetIndex == rightSetIndex && rightSetIndex >= 0
+                    val isEditingLeft = editingSetIndex == leftSetIndex && leftSetIndex >= 0
+                    val isEitherEditing = isEditingRight || isEditingLeft
+                    val pairSkipped = (rightSet?.isSkipped == true) || (leftSet?.isSkipped == true)
+                    val isEditorOpen = isEitherEditing && !pairSkipped
+                    val isLastGroup = groupIndex == groupedEntries.lastIndex
 
                     NavigationUnilateralSetRow(
                         setNumber = setNumber,
@@ -625,16 +702,33 @@ private fun NavigationExerciseCard(
                         leftSetIndex = leftSetIndex,
                         currentSetIndex = currentSetIndex,
                         isIsometric = exerciseType == "Isometric",
+                        editingRight = isEditingRight,
+                        editingLeft = isEditingLeft,
+                        onTogglePillEditing = onToggleEditing,
                         onJumpToSet = onJumpToSet,
                         onRedoSet = onRedoSet,
-                        isLast = setNumber == totalSets
+                        isLast = isLastGroup && !isEditorOpen
                     )
+                    if (isEditorOpen) {
+                        InlineUnilateralEditor(
+                            rightSet = rightSet,
+                            leftSet = leftSet,
+                            rightSetIndex = rightSetIndex,
+                            leftSetIndex = leftSetIndex,
+                            isIsometric = exerciseType == "Isometric",
+                            onUpdateTargetValue = onUpdateTargetValue,
+                            onUpdateActualValue = onUpdateActualValue,
+                            isLast = isLastGroup
+                        )
+                    }
                 }
             } else {
                 // Bilateral: 各セットを個別に表示
                 sets.forEachIndexed { index, set ->
                     val setIndex = allSets.indexOf(set)
                     val isCurrent = setIndex == currentSetIndex
+                    val isEditing = editingSetIndex == setIndex
+                    val isEditorOpen = isEditing && !set.isSkipped
 
                     NavigationBilateralSetRow(
                         set = set,
@@ -642,10 +736,22 @@ private fun NavigationExerciseCard(
                         totalSets = totalSets,
                         isCurrent = isCurrent,
                         isIsometric = exerciseType == "Isometric",
+                        isEditing = isEditing,
+                        onTogglePillEditing = onToggleEditing,
                         onJumpToSet = onJumpToSet,
                         onRedoSet = onRedoSet,
-                        isLast = index == sets.lastIndex
+                        isLast = index == sets.lastIndex && !isEditorOpen
                     )
+                    if (isEditorOpen) {
+                        InlineBilateralEditor(
+                            set = set,
+                            setIndex = setIndex,
+                            isIsometric = exerciseType == "Isometric",
+                            onUpdateTargetValue = onUpdateTargetValue,
+                            onUpdateActualValue = onUpdateActualValue,
+                            isLast = index == sets.lastIndex
+                        )
+                    }
                 }
             }
         }
@@ -764,6 +870,8 @@ private fun NavigationBilateralSetRow(
     totalSets: Int,
     isCurrent: Boolean,
     isIsometric: Boolean,
+    isEditing: Boolean,
+    onTogglePillEditing: (Int) -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
     isLast: Boolean
@@ -858,7 +966,11 @@ private fun NavigationBilateralSetRow(
             SetValueText(
                 set = set,
                 status = setStatus,
-                isIsometric = isIsometric
+                isIsometric = isIsometric,
+                isEditing = isEditing,
+                onClick = if (setStatus != SetStatus.SKIPPED) {
+                    { onTogglePillEditing(setIndex) }
+                } else null
             )
         }
 
@@ -886,6 +998,9 @@ private fun NavigationUnilateralSetRow(
     leftSetIndex: Int,
     currentSetIndex: Int,
     isIsometric: Boolean,
+    editingRight: Boolean,
+    editingLeft: Boolean,
+    onTogglePillEditing: (Int) -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
     isLast: Boolean
@@ -985,7 +1100,15 @@ private fun NavigationUnilateralSetRow(
                 status = setStatus,
                 isIsometric = isIsometric,
                 rightIsCurrent = rightSetIndex == currentSetIndex,
-                leftIsCurrent = leftSetIndex == currentSetIndex
+                leftIsCurrent = leftSetIndex == currentSetIndex,
+                editingRight = editingRight,
+                editingLeft = editingLeft,
+                onClickRight = if (rightSet != null && rightSet.isSkipped.not() && rightSetIndex >= 0) {
+                    { onTogglePillEditing(rightSetIndex) }
+                } else null,
+                onClickLeft = if (leftSet != null && leftSet.isSkipped.not() && leftSetIndex >= 0) {
+                    { onTogglePillEditing(leftSetIndex) }
+                } else null
             )
         }
 
@@ -1054,27 +1177,13 @@ private fun SetStatusIcon(status: SetStatus) {
 private fun SetValueText(
     set: ProgramWorkoutSet,
     status: SetStatus,
-    isIsometric: Boolean
+    isIsometric: Boolean,
+    isEditing: Boolean = false,
+    onClick: (() -> Unit)? = null
 ) {
-    val appColors = LocalAppColors.current
     val unit = stringResource(if (isIsometric) R.string.unit_seconds else R.string.unit_reps)
 
     when (status) {
-        SetStatus.COMPLETED -> {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "${set.actualValue}",
-                    fontSize = 13.sp,
-                    color = Green400
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = unit,
-                    fontSize = 11.sp,
-                    color = Slate500
-                )
-            }
-        }
         SetStatus.SKIPPED -> {
             Text(
                 text = stringResource(R.string.nav_skipped),
@@ -1083,35 +1192,57 @@ private fun SetValueText(
                 color = Slate500
             )
         }
-        SetStatus.CURRENT -> {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "${set.actualValue}/${set.targetValue}",
-                    fontSize = 13.sp,
-                    color = Slate400
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = unit,
-                    fontSize = 11.sp,
-                    color = Slate500
-                )
+        else -> {
+            val (valueText, valueColor) = when (status) {
+                SetStatus.COMPLETED -> "${set.actualValue}" to Green400
+                SetStatus.CURRENT -> "${set.actualValue}/${set.targetValue}" to Slate400
+                SetStatus.PENDING -> "${set.targetValue}" to Slate500
+                SetStatus.SKIPPED -> "" to Slate500
             }
+            ValuePill(
+                valueText = valueText,
+                valueColor = valueColor,
+                unit = unit,
+                isEditing = isEditing,
+                onClick = onClick
+            )
         }
-        SetStatus.PENDING -> {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "${set.targetValue}",
-                    fontSize = 13.sp,
-                    color = Slate500
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = unit,
-                    fontSize = 11.sp,
-                    color = Slate500
-                )
-            }
+    }
+}
+
+/**
+ * タップ可能な値ピル（破線風の細枠 + 編集アイコン）
+ */
+@Composable
+private fun ValuePill(
+    valueText: String,
+    valueColor: Color,
+    unit: String,
+    isEditing: Boolean,
+    onClick: (() -> Unit)?
+) {
+    val borderColor = if (isEditing) Green400 else Slate600
+    val pillModifier = Modifier
+        .border(1.dp, borderColor, RoundedCornerShape(6.dp))
+        .then(
+            if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier
+        )
+        .padding(horizontal = 8.dp, vertical = 3.dp)
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = pillModifier
+    ) {
+        Text(text = valueText, fontSize = 13.sp, color = valueColor)
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(text = unit, fontSize = 11.sp, color = Slate500)
+        if (onClick != null) {
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = "✎",
+                fontSize = 11.sp,
+                color = if (isEditing) Green400 else Slate500
+            )
         }
     }
 }
@@ -1126,174 +1257,84 @@ private fun UnilateralValueText(
     status: SetStatus,
     isIsometric: Boolean,
     rightIsCurrent: Boolean,
-    leftIsCurrent: Boolean
+    leftIsCurrent: Boolean,
+    editingRight: Boolean,
+    editingLeft: Boolean,
+    onClickRight: (() -> Unit)?,
+    onClickLeft: (() -> Unit)?
 ) {
-    val appColors = LocalAppColors.current
     val unit = stringResource(if (isIsometric) R.string.unit_seconds else R.string.unit_reps)
 
-    when (status) {
-        SetStatus.COMPLETED -> {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // Right
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "R:",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Slate500
-                    )
-                    Spacer(modifier = Modifier.width(3.dp))
-                    Text(
-                        text = "${rightSet?.actualValue ?: 0}",
-                        fontSize = 13.sp,
-                        color = Green400
-                    )
-                }
-                // Left
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "L:",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Slate500
-                    )
-                    Spacer(modifier = Modifier.width(3.dp))
-                    Text(
-                        text = "${leftSet?.actualValue ?: 0}",
-                        fontSize = 13.sp,
-                        color = Green400
-                    )
-                }
-                Text(
-                    text = unit,
-                    fontSize = 11.sp,
-                    color = Slate500
-                )
-            }
-        }
-        SetStatus.SKIPPED -> {
-            Text(
-                text = stringResource(R.string.nav_skipped),
-                fontSize = 13.sp,
-                fontStyle = FontStyle.Italic,
-                color = Slate500
-            )
-        }
-        SetStatus.CURRENT -> {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // Right
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "R:",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Slate500
-                    )
-                    Spacer(modifier = Modifier.width(3.dp))
-                    if (rightSet?.isCompleted == true) {
-                        Text(
-                            text = "${rightSet.actualValue}",
-                            fontSize = 13.sp,
-                            color = Green400
-                        )
-                    } else if (rightIsCurrent) {
-                        Text(
-                            text = "${rightSet?.actualValue ?: 0}/${rightSet?.targetValue ?: 0}",
-                            fontSize = 13.sp,
-                            color = Slate400
-                        )
-                    } else {
-                        Text(
-                            text = "-",
-                            fontSize = 13.sp,
-                            color = Slate500
-                        )
-                    }
-                }
-                // Left
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "L:",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Slate500
-                    )
-                    Spacer(modifier = Modifier.width(3.dp))
-                    if (leftSet?.isCompleted == true) {
-                        Text(
-                            text = "${leftSet.actualValue}",
-                            fontSize = 13.sp,
-                            color = Green400
-                        )
-                    } else if (leftIsCurrent) {
-                        Text(
-                            text = "${leftSet?.actualValue ?: 0}/${leftSet?.targetValue ?: 0}",
-                            fontSize = 13.sp,
-                            color = Slate400
-                        )
-                    } else {
-                        Text(
-                            text = "-",
-                            fontSize = 13.sp,
-                            color = Slate500
-                        )
-                    }
-                }
-                Text(
-                    text = unit,
-                    fontSize = 11.sp,
-                    color = Slate500
-                )
-            }
-        }
-        SetStatus.PENDING -> {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // Right
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "R:",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Slate500
-                    )
-                    Spacer(modifier = Modifier.width(3.dp))
-                    Text(
-                        text = "${rightSet?.targetValue ?: 0}",
-                        fontSize = 13.sp,
-                        color = Slate500
-                    )
-                }
-                // Left
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "L:",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Slate500
-                    )
-                    Spacer(modifier = Modifier.width(3.dp))
-                    Text(
-                        text = "${leftSet?.targetValue ?: 0}",
-                        fontSize = 13.sp,
-                        color = Slate500
-                    )
-                }
-                Text(
-                    text = unit,
-                    fontSize = 11.sp,
-                    color = Slate500
-                )
-            }
-        }
+    if (status == SetStatus.SKIPPED) {
+        Text(
+            text = stringResource(R.string.nav_skipped),
+            fontSize = 13.sp,
+            fontStyle = FontStyle.Italic,
+            color = Slate500
+        )
+        return
+    }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        UnilateralSidePill(
+            sideLabel = "R:",
+            set = rightSet,
+            isCurrent = rightIsCurrent,
+            unit = unit,
+            isEditing = editingRight,
+            onClick = onClickRight
+        )
+        UnilateralSidePill(
+            sideLabel = "L:",
+            set = leftSet,
+            isCurrent = leftIsCurrent,
+            unit = unit,
+            isEditing = editingLeft,
+            onClick = onClickLeft
+        )
+    }
+}
+
+@Composable
+private fun UnilateralSidePill(
+    sideLabel: String,
+    set: ProgramWorkoutSet?,
+    isCurrent: Boolean,
+    unit: String,
+    isEditing: Boolean,
+    onClick: (() -> Unit)?
+) {
+    val sideStatus = when {
+        set == null -> SetStatus.PENDING
+        set.isCompleted -> SetStatus.COMPLETED
+        set.isSkipped -> SetStatus.SKIPPED
+        isCurrent -> SetStatus.CURRENT
+        else -> SetStatus.PENDING
+    }
+    val (valueText, valueColor) = when (sideStatus) {
+        SetStatus.COMPLETED -> "${set?.actualValue ?: 0}" to Green400
+        SetStatus.CURRENT -> "${set?.actualValue ?: 0}/${set?.targetValue ?: 0}" to Slate400
+        SetStatus.PENDING -> "${set?.targetValue ?: 0}" to Slate500
+        SetStatus.SKIPPED -> "-" to Slate500
+    }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = sideLabel,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Slate500
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        ValuePill(
+            valueText = valueText,
+            valueColor = valueColor,
+            unit = unit,
+            isEditing = isEditing,
+            onClick = onClick
+        )
     }
 }
 
@@ -1466,5 +1507,262 @@ private fun getExerciseStatus(
         allCompleted -> ExerciseStatus.DONE
         hasCurrent -> ExerciseStatus.CURRENT
         else -> ExerciseStatus.PENDING
+    }
+}
+
+/**
+ * インライン値エディタ（Bilateral）: `−` 値 `+` の単一行
+ *
+ * 完了済み (COMPLETED) は actualValue、それ以外は targetValue を編集する。
+ */
+@Composable
+private fun InlineBilateralEditor(
+    set: ProgramWorkoutSet,
+    setIndex: Int,
+    isIsometric: Boolean,
+    onUpdateTargetValue: (Int, Int) -> Unit,
+    onUpdateActualValue: (Int, Int) -> Unit,
+    isLast: Boolean
+) {
+    val unit = stringResource(if (isIsometric) R.string.unit_seconds else R.string.unit_reps)
+    val isEditingActual = set.isCompleted
+    val currentValue = if (isEditingActual) set.actualValue else set.targetValue
+    val onChange: (Int) -> Unit = { newValue ->
+        if (isEditingActual) onUpdateActualValue(setIndex, newValue)
+        else onUpdateTargetValue(setIndex, newValue)
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Slate800.copy(alpha = 0.5f))
+            .then(
+                if (!isLast) {
+                    Modifier.drawBehind {
+                        drawLine(
+                            color = Slate700,
+                            start = Offset(0f, size.height),
+                            end = Offset(size.width, size.height),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+                } else Modifier
+            )
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        InlineValueEditorCore(
+            value = currentValue,
+            unit = unit,
+            onChange = onChange,
+            compact = false
+        )
+    }
+}
+
+/**
+ * インライン値エディタ（Unilateral）: R / L を独立して編集可能な2ブロック
+ */
+@Composable
+private fun InlineUnilateralEditor(
+    rightSet: ProgramWorkoutSet?,
+    leftSet: ProgramWorkoutSet?,
+    rightSetIndex: Int,
+    leftSetIndex: Int,
+    isIsometric: Boolean,
+    onUpdateTargetValue: (Int, Int) -> Unit,
+    onUpdateActualValue: (Int, Int) -> Unit,
+    isLast: Boolean
+) {
+    val unit = stringResource(if (isIsometric) R.string.unit_seconds else R.string.unit_reps)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Slate800.copy(alpha = 0.5f))
+            .then(
+                if (!isLast) {
+                    Modifier.drawBehind {
+                        drawLine(
+                            color = Slate700,
+                            start = Offset(0f, size.height),
+                            end = Offset(size.width, size.height),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+                } else Modifier
+            )
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (rightSet != null && rightSetIndex >= 0 && !rightSet.isSkipped) {
+            UnilateralEditorBlock(
+                sideLabel = "R",
+                set = rightSet,
+                setIndex = rightSetIndex,
+                unit = unit,
+                onUpdateTargetValue = onUpdateTargetValue,
+                onUpdateActualValue = onUpdateActualValue
+            )
+        }
+        if (leftSet != null && leftSetIndex >= 0 && !leftSet.isSkipped) {
+            UnilateralEditorBlock(
+                sideLabel = "L",
+                set = leftSet,
+                setIndex = leftSetIndex,
+                unit = unit,
+                onUpdateTargetValue = onUpdateTargetValue,
+                onUpdateActualValue = onUpdateActualValue
+            )
+        }
+    }
+}
+
+@Composable
+private fun UnilateralEditorBlock(
+    sideLabel: String,
+    set: ProgramWorkoutSet,
+    setIndex: Int,
+    unit: String,
+    onUpdateTargetValue: (Int, Int) -> Unit,
+    onUpdateActualValue: (Int, Int) -> Unit
+) {
+    val isEditingActual = set.isCompleted
+    val currentValue = if (isEditingActual) set.actualValue else set.targetValue
+    val onChange: (Int) -> Unit = { newValue ->
+        if (isEditingActual) onUpdateActualValue(setIndex, newValue)
+        else onUpdateTargetValue(setIndex, newValue)
+    }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = "$sideLabel:",
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Slate500
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        InlineValueEditorCore(
+            value = currentValue,
+            unit = unit,
+            onChange = onChange,
+            compact = true
+        )
+    }
+}
+
+/**
+ * 共通レイアウト: `−` ボタン / 値 / `+` ボタン
+ */
+@Composable
+private fun InlineValueEditorCore(
+    value: Int,
+    unit: String,
+    onChange: (Int) -> Unit,
+    compact: Boolean
+) {
+    val buttonSize = if (compact) 32.dp else 36.dp
+    val valueMinWidth = if (compact) 56.dp else 72.dp
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 12.dp)
+    ) {
+        RepeatableStepButton(
+            label = "−",
+            size = buttonSize,
+            enabled = value > 0,
+            contentDescription = stringResource(R.string.nav_step_decrement),
+            onStep = {
+                val next = (value - 1).coerceAtLeast(0)
+                if (next != value) {
+                    onChange(next); true
+                } else false
+            }
+        )
+        Box(
+            modifier = Modifier.widthIn(min = valueMinWidth),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    text = value.toString(),
+                    fontSize = if (compact) 16.sp else 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.width(3.dp))
+                Text(
+                    text = unit,
+                    fontSize = 11.sp,
+                    color = Slate500,
+                    modifier = Modifier.padding(bottom = 2.dp)
+                )
+            }
+        }
+        RepeatableStepButton(
+            label = "+",
+            size = buttonSize,
+            enabled = true,
+            contentDescription = stringResource(R.string.nav_step_increment),
+            onStep = {
+                onChange(value + 1); true
+            }
+        )
+    }
+}
+
+/**
+ * 長押しで連続発火する円形ステップボタン。
+ * - 単発タップは即座に1回発火（離してもOK）
+ * - 350ms 押し続けると連続モード突入、80ms 間隔で発火
+ * - onStep が false を返したら連続モード停止（これ以上動かせない場合に使用）
+ */
+@Composable
+private fun RepeatableStepButton(
+    label: String,
+    size: androidx.compose.ui.unit.Dp,
+    enabled: Boolean,
+    contentDescription: String,
+    onStep: () -> Boolean
+) {
+    val scope = rememberCoroutineScope()
+    // 値が変わるたびに onStep ラムダが新しくなるが、pointerInput は再起動させたくないので
+    // rememberUpdatedState で「常に最新」のラムダを参照する
+    val currentOnStep by rememberUpdatedState(onStep)
+    val containerColor = if (enabled) Green600 else Slate700
+    val textColor = if (enabled) Color.White else Slate500
+    Box(
+        modifier = Modifier
+            .size(size)
+            .background(containerColor, CircleShape)
+            .pointerInput(enabled) {
+                if (!enabled) return@pointerInput
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = false)
+                    val firstResult = currentOnStep()
+                    var repeatJob: Job? = null
+                    try {
+                        if (firstResult) {
+                            repeatJob = scope.launch {
+                                delay(350)
+                                while (isActive) {
+                                    if (!currentOnStep()) break
+                                    delay(80)
+                                }
+                            }
+                        }
+                        waitForUpOrCancellation()
+                    } finally {
+                        repeatJob?.cancel()
+                    }
+                }
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            fontSize = if (size <= 32.dp) 18.sp else 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = textColor
+        )
     }
 }
