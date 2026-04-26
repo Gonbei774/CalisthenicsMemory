@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -288,7 +289,8 @@ fun ProgramEditScreen(
         }
     }
 
-    val isValid = name.isNotBlank() && programExercises.isNotEmpty()
+    val hasIncompleteExercises = programExercises.any { it.sets == 0 || it.targetValue == 0 }
+    val isValid = name.isNotBlank() && programExercises.isNotEmpty() && !hasIncompleteExercises
 
     Scaffold(
         topBar = {
@@ -379,18 +381,49 @@ fun ProgramEditScreen(
                 }
             }
 
-            LazyColumn(
-                state = lazyListState,
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Program Name
-                item {
-                    OutlinedTextField(
-                        value = name,
+                if (hasIncompleteExercises) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = Red600
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = stringResource(R.string.program_validation_incomplete_sets_or_value),
+                                color = Color.White,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+
+                LazyColumn(
+                    state = lazyListState,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Program Name
+                    item {
+                        OutlinedTextField(
+                            value = name,
                         onValueChange = { name = it },
                         label = { Text(stringResource(R.string.program_name)) },
                         placeholder = { Text(stringResource(R.string.program_name_hint)) },
@@ -590,6 +623,7 @@ fun ProgramEditScreen(
                         }
                     }
                 }
+                }
             }
         }
     }
@@ -600,17 +634,22 @@ fun ProgramEditScreen(
             viewModel = viewModel,
             exercises = exercises,
             onDismiss = { showAddExerciseDialog = false },
-            onAdd = { selectedExercise, sets, targetValue, intervalSeconds ->
-                val newPe = ProgramExercise(
-                    id = System.currentTimeMillis(), // Temporary ID for new items
-                    programId = programId ?: 0L,
-                    exerciseId = selectedExercise.id,
-                    sortOrder = programExercises.size,
-                    sets = sets,
-                    targetValue = targetValue,
-                    intervalSeconds = intervalSeconds
-                )
-                programExercises = programExercises + newPe
+            onAdd = { selectedExercisesList ->
+                val defaultInterval = if (workoutPreferences.isSetIntervalEnabled())
+                    workoutPreferences.getSetInterval() else 0
+                val baseSortOrder = programExercises.size
+                val newPes = selectedExercisesList.mapIndexed { index, exercise ->
+                    ProgramExercise(
+                        id = System.currentTimeMillis() + index, // Temporary ID for new items
+                        programId = programId ?: 0L,
+                        exerciseId = exercise.id,
+                        sortOrder = baseSortOrder + index,
+                        sets = exercise.targetSets ?: 0,
+                        targetValue = exercise.targetValue ?: 0,
+                        intervalSeconds = exercise.restInterval ?: defaultInterval
+                    )
+                }
+                programExercises = programExercises + newPes
                 showAddExerciseDialog = false
                 // 追加後に最下部へスクロール
                 coroutineScope.launch {
@@ -768,20 +807,23 @@ fun ProgramEditScreen(
             viewModel = viewModel,
             exercises = exercises,
             onDismiss = { showAddExerciseToLoopDialog = null },
-            onAdd = { selectedExercise, sets, targetValue, intervalSeconds ->
-                // Calculate sortOrder within the loop
-                val loopExerciseCount = programExercises.count { it.loopId == targetLoop.id }
-                val newPe = ProgramExercise(
-                    id = System.currentTimeMillis(),
-                    programId = programId ?: 0L,
-                    exerciseId = selectedExercise.id,
-                    sortOrder = loopExerciseCount,
-                    sets = sets,
-                    targetValue = targetValue,
-                    intervalSeconds = intervalSeconds,
-                    loopId = targetLoop.id
-                )
-                programExercises = programExercises + newPe
+            onAdd = { selectedExercisesList ->
+                val defaultInterval = if (workoutPreferences.isSetIntervalEnabled())
+                    workoutPreferences.getSetInterval() else 0
+                val baseSortOrder = programExercises.count { it.loopId == targetLoop.id }
+                val newPes = selectedExercisesList.mapIndexed { index, exercise ->
+                    ProgramExercise(
+                        id = System.currentTimeMillis() + index,
+                        programId = programId ?: 0L,
+                        exerciseId = exercise.id,
+                        sortOrder = baseSortOrder + index,
+                        sets = exercise.targetSets ?: 0,
+                        targetValue = exercise.targetValue ?: 0,
+                        intervalSeconds = exercise.restInterval ?: defaultInterval,
+                        loopId = targetLoop.id
+                    )
+                }
+                programExercises = programExercises + newPes
                 showAddExerciseToLoopDialog = null
             }
         )

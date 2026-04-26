@@ -555,6 +555,7 @@
     <string name="program_saved">Program saved</string>
     <string name="program_name_required">Program name is required</string>
     <string name="program_exercises_required">Add at least one exercise</string>
+    <string name="program_validation_incomplete_sets_or_value">Some exercises are missing sets or target value</string>
     <string name="exercise_settings">Exercise Settings</string>
     <string name="sets_label">Sets</string>
     <string name="target_value_label">Target</string>
