@@ -139,7 +139,10 @@ fun buildProgramValueSets(
                         loopRestAfterSeconds = 0,  // Rightの後はLeftが来る
                         weightG = priorTracking?.weightG,
                         distanceCm = priorTracking?.distanceCm,
-                        assistanceG = priorTracking?.assistanceG
+                        assistanceG = priorTracking?.assistanceG,
+                        previousWeightG = priorTracking?.previousWeightG,
+                        previousDistanceCm = priorTracking?.previousDistanceCm,
+                        previousAssistanceG = priorTracking?.previousAssistanceG
                     ))
                     sets.add(ProgramWorkoutSet(
                         exerciseIndex = index,
@@ -154,7 +157,10 @@ fun buildProgramValueSets(
                         loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0,
                         weightG = priorTracking?.weightG,
                         distanceCm = priorTracking?.distanceCm,
-                        assistanceG = priorTracking?.assistanceG
+                        assistanceG = priorTracking?.assistanceG,
+                        previousWeightG = priorTracking?.previousWeightG,
+                        previousDistanceCm = priorTracking?.previousDistanceCm,
+                        previousAssistanceG = priorTracking?.previousAssistanceG
                     ))
                 } else {
                     val priorSet = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == null && it.roundNumber == round }
@@ -171,7 +177,10 @@ fun buildProgramValueSets(
                         loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0,
                         weightG = priorSet?.weightG,
                         distanceCm = priorSet?.distanceCm,
-                        assistanceG = priorSet?.assistanceG
+                        assistanceG = priorSet?.assistanceG,
+                        previousWeightG = priorSet?.previousWeightG,
+                        previousDistanceCm = priorSet?.previousDistanceCm,
+                        previousAssistanceG = priorSet?.previousAssistanceG
                     ))
                 }
             }
@@ -226,7 +235,10 @@ fun buildChallengeValueSets(
                         loopRestAfterSeconds = 0,  // Rightの後はLeftが来る
                         weightG = priorTracking?.weightG,
                         distanceCm = priorTracking?.distanceCm,
-                        assistanceG = priorTracking?.assistanceG
+                        assistanceG = priorTracking?.assistanceG,
+                        previousWeightG = priorTracking?.previousWeightG,
+                        previousDistanceCm = priorTracking?.previousDistanceCm,
+                        previousAssistanceG = priorTracking?.previousAssistanceG
                     ))
                     sets.add(ProgramWorkoutSet(
                         exerciseIndex = index,
@@ -241,7 +253,10 @@ fun buildChallengeValueSets(
                         loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0,
                         weightG = priorTracking?.weightG,
                         distanceCm = priorTracking?.distanceCm,
-                        assistanceG = priorTracking?.assistanceG
+                        assistanceG = priorTracking?.assistanceG,
+                        previousWeightG = priorTracking?.previousWeightG,
+                        previousDistanceCm = priorTracking?.previousDistanceCm,
+                        previousAssistanceG = priorTracking?.previousAssistanceG
                     ))
                 } else {
                     val priorSet = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == null && it.roundNumber == round }
@@ -258,7 +273,10 @@ fun buildChallengeValueSets(
                         loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0,
                         weightG = priorSet?.weightG,
                         distanceCm = priorSet?.distanceCm,
-                        assistanceG = priorSet?.assistanceG
+                        assistanceG = priorSet?.assistanceG,
+                        previousWeightG = priorSet?.previousWeightG,
+                        previousDistanceCm = priorSet?.previousDistanceCm,
+                        previousAssistanceG = priorSet?.previousAssistanceG
                     ))
                 }
             }

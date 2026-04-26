@@ -24,7 +24,11 @@ data class ProgramWorkoutSet(
     // セット別トラッキング値（種目の*TrackingEnabledがtrueの項目のみ使用）
     var weightG: Int? = null,     // 追加ウエイト（g）
     var distanceCm: Int? = null,  // 距離（cm）
-    var assistanceG: Int? = null  // アシスト量（g）
+    var assistanceG: Int? = null, // アシスト量（g）
+    // 前回値（表示用）
+    val previousWeightG: Int? = null,
+    val previousDistanceCm: Int? = null,
+    val previousAssistanceG: Int? = null
 )
 
 /**
