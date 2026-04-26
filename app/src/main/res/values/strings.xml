@@ -623,6 +623,8 @@
     <string name="nav_edit_actual">Edit actual</string>
     <string name="nav_step_decrement">Decrease</string>
     <string name="nav_step_increment">Increase</string>
+    <string name="nav_check_set">Mark set as complete</string>
+    <string name="nav_uncheck_set">Mark set as not done</string>
     <!-- Loop Feature -->
     <string name="add_loop">Add Loop</string>
     <string name="loop_label">Loop</string>

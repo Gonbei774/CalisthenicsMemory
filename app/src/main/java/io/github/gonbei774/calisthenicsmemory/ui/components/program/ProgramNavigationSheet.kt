@@ -62,6 +62,7 @@ fun ProgramNavigationSheet(
     onRedoSet: (Int) -> Unit,
     onUpdateTargetValue: (Int, Int) -> Unit,
     onUpdateActualValue: (Int, Int) -> Unit,
+    onToggleComplete: (Int) -> Unit,
     onFinish: () -> Unit,
     onSaveAndExit: () -> Unit,
     onDiscard: () -> Unit
@@ -119,6 +120,7 @@ fun ProgramNavigationSheet(
                     },
                     onJumpToSet = onJumpToSet,
                     onRedoSet = onRedoSet,
+                    onToggleComplete = onToggleComplete,
                     showFooter = !isFromResult,
                     onFinish = onFinish,
                     onSaveAndExit = onSaveAndExit,
@@ -315,6 +317,7 @@ private fun NavigationSetsList(
     onUpdateActualValue: (Int, Int) -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
+    onToggleComplete: (Int) -> Unit,
     showFooter: Boolean,
     onFinish: () -> Unit,
     onSaveAndExit: () -> Unit,
@@ -372,7 +375,8 @@ private fun NavigationSetsList(
                         onUpdateTargetValue = onUpdateTargetValue,
                         onUpdateActualValue = onUpdateActualValue,
                         onJumpToSet = onJumpToSet,
-                        onRedoSet = onRedoSet
+                        onRedoSet = onRedoSet,
+                        onToggleComplete = onToggleComplete
                     )
                 }
                 is NavigationDisplayItem.LoopRound -> {
@@ -388,7 +392,8 @@ private fun NavigationSetsList(
                         onUpdateTargetValue = onUpdateTargetValue,
                         onUpdateActualValue = onUpdateActualValue,
                         onJumpToSet = onJumpToSet,
-                        onRedoSet = onRedoSet
+                        onRedoSet = onRedoSet,
+                        onToggleComplete = onToggleComplete
                     )
                 }
             }
@@ -423,7 +428,8 @@ private fun NavigationRoundCard(
     onUpdateTargetValue: (Int, Int) -> Unit,
     onUpdateActualValue: (Int, Int) -> Unit,
     onJumpToSet: (Int) -> Unit,
-    onRedoSet: (Int) -> Unit
+    onRedoSet: (Int) -> Unit,
+    onToggleComplete: (Int) -> Unit
 ) {
     val appColors = LocalAppColors.current
     val roundStatus = when {
@@ -527,6 +533,7 @@ private fun NavigationRoundCard(
                     onTogglePillEditing = onToggleEditing,
                     onJumpToSet = onJumpToSet,
                     onRedoSet = onRedoSet,
+                    onToggleComplete = onToggleComplete,
                     isLast = index == sets.lastIndex && !isEditorOpen
                 )
                 if (isEditorOpen) {
@@ -558,6 +565,7 @@ private fun NavigationRoundSetRow(
     onTogglePillEditing: (Int) -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
+    onToggleComplete: (Int) -> Unit,
     isLast: Boolean
 ) {
     val appColors = LocalAppColors.current
@@ -610,7 +618,10 @@ private fun NavigationRoundSetRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         // ステータスアイコン
-        SetStatusIcon(status = setStatus)
+        SetStatusIcon(
+            status = setStatus,
+            onClick = { onToggleComplete(setIndex) }
+        )
 
         Spacer(modifier = Modifier.width(12.dp))
 
@@ -667,7 +678,8 @@ private fun NavigationExerciseCard(
     onUpdateTargetValue: (Int, Int) -> Unit,
     onUpdateActualValue: (Int, Int) -> Unit,
     onJumpToSet: (Int) -> Unit,
-    onRedoSet: (Int) -> Unit
+    onRedoSet: (Int) -> Unit,
+    onToggleComplete: (Int) -> Unit
 ) {
     val appColors = LocalAppColors.current
     Card(
@@ -718,6 +730,7 @@ private fun NavigationExerciseCard(
                         onTogglePillEditing = onToggleEditing,
                         onJumpToSet = onJumpToSet,
                         onRedoSet = onRedoSet,
+                        onToggleComplete = onToggleComplete,
                         isLast = isLastGroup && !isEditorOpen
                     )
                     if (isEditorOpen) {
@@ -753,6 +766,7 @@ private fun NavigationExerciseCard(
                         onTogglePillEditing = onToggleEditing,
                         onJumpToSet = onJumpToSet,
                         onRedoSet = onRedoSet,
+                        onToggleComplete = onToggleComplete,
                         isLast = index == sets.lastIndex && !isEditorOpen
                     )
                     if (isEditorOpen) {
@@ -887,6 +901,7 @@ private fun NavigationBilateralSetRow(
     onTogglePillEditing: (Int) -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
+    onToggleComplete: (Int) -> Unit,
     isLast: Boolean
 ) {
     val appColors = LocalAppColors.current
@@ -939,7 +954,10 @@ private fun NavigationBilateralSetRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         // ステータスアイコン
-        SetStatusIcon(status = setStatus)
+        SetStatusIcon(
+            status = setStatus,
+            onClick = { onToggleComplete(setIndex) }
+        )
 
         Spacer(modifier = Modifier.width(12.dp))
 
@@ -1016,6 +1034,7 @@ private fun NavigationUnilateralSetRow(
     onTogglePillEditing: (Int) -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
+    onToggleComplete: (Int) -> Unit,
     isLast: Boolean
 ) {
     val appColors = LocalAppColors.current
@@ -1069,7 +1088,19 @@ private fun NavigationUnilateralSetRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         // ステータスアイコン
-        SetStatusIcon(status = setStatus)
+        SetStatusIcon(
+            status = setStatus,
+            onClick = {
+                // currentSetIndex に一致する側を優先（CURRENT 判定を呼び出し側で正しく行うため）
+                val targetIdx = when {
+                    rightSetIndex == currentSetIndex -> rightSetIndex
+                    leftSetIndex == currentSetIndex -> leftSetIndex
+                    rightSetIndex >= 0 -> rightSetIndex
+                    else -> leftSetIndex
+                }
+                onToggleComplete(targetIdx)
+            }
+        )
 
         Spacer(modifier = Modifier.width(12.dp))
 
@@ -1137,48 +1168,65 @@ private fun NavigationUnilateralSetRow(
 
 /**
  * セットステータスアイコン
+ *
+ * onClick が指定されれば、32dp のタッチターゲット内でタップ可能。
+ * COMPLETED の場合は「未実行に戻す」、それ以外は「完了にする」として a11y 描述。
  */
 @Composable
-private fun SetStatusIcon(status: SetStatus) {
+private fun SetStatusIcon(
+    status: SetStatus,
+    onClick: (() -> Unit)? = null
+) {
     val appColors = LocalAppColors.current
+    val description = stringResource(
+        if (status == SetStatus.COMPLETED) R.string.nav_uncheck_set
+        else R.string.nav_check_set
+    )
     Box(
         modifier = Modifier
-            .size(22.dp)
-            .then(
-                when (status) {
-                    SetStatus.COMPLETED -> Modifier.background(Green600, CircleShape)
-                    SetStatus.CURRENT -> Modifier.background(Orange600, CircleShape)
-                    SetStatus.PENDING -> Modifier.border(2.dp, Slate600, CircleShape)
-                    SetStatus.SKIPPED -> Modifier.background(Slate600, CircleShape)
-                }
-            ),
+            .size(32.dp)
+            .then(if (onClick != null) Modifier.clickable(onClickLabel = description) { onClick() } else Modifier),
         contentAlignment = Alignment.Center
     ) {
-        when (status) {
-            SetStatus.COMPLETED -> {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = null,
-                    tint = appColors.textPrimary,
-                    modifier = Modifier.size(14.dp)
-                )
+        Box(
+            modifier = Modifier
+                .size(22.dp)
+                .then(
+                    when (status) {
+                        SetStatus.COMPLETED -> Modifier.background(Green600, CircleShape)
+                        SetStatus.CURRENT -> Modifier.background(Orange600, CircleShape)
+                        SetStatus.PENDING -> Modifier.border(2.dp, Slate600, CircleShape)
+                        SetStatus.SKIPPED -> Modifier.background(Slate600, CircleShape)
+                    }
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            when (status) {
+                SetStatus.COMPLETED -> {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null,
+                        tint = appColors.textPrimary,
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
+                SetStatus.CURRENT -> {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(Color.White, CircleShape)
+                    )
+                }
+                SetStatus.SKIPPED -> {
+                    Text(
+                        text = "−",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Slate400
+                    )
+                }
+                SetStatus.PENDING -> { /* 空 */ }
             }
-            SetStatus.CURRENT -> {
-                Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .background(Color.White, CircleShape)
-                )
-            }
-            SetStatus.SKIPPED -> {
-                Text(
-                    text = "−",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Slate400
-                )
-            }
-            SetStatus.PENDING -> { /* 空 */ }
         }
     }
 }
