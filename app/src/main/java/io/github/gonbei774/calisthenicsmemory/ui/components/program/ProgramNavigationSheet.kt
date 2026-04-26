@@ -35,6 +35,8 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
 import io.github.gonbei774.calisthenicsmemory.data.ProgramWorkoutSet
@@ -46,11 +48,10 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
- * ワークアウトナビゲーションモーダルボトムシート
+ * ワークアウトナビゲーション全画面ダイアログ
  *
  * プログラム実行中に全体を俯瞰し、セット単位でスキップ・やり直しを可能にする
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProgramNavigationSheet(
     session: ProgramExecutionSession,
@@ -66,7 +67,6 @@ fun ProgramNavigationSheet(
     onDiscard: () -> Unit
 ) {
     val appColors = LocalAppColors.current
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     // 編集中セットのインデックス。同じピル再タップで -1 に戻して閉じる。
     var editingSetIndex by remember { mutableIntStateOf(-1) }
@@ -76,59 +76,54 @@ fun ProgramNavigationSheet(
     val totalSets = session.sets.size
     val progress = if (totalSets > 0) completedSets.toFloat() / totalSets else 0f
 
-    ModalBottomSheet(
+    Dialog(
         onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = appColors.background,
-        dragHandle = {
-            // ドラッグハンドル
-            Box(
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .width(40.dp)
-                    .height(4.dp)
-                    .background(Slate600, RoundedCornerShape(2.dp))
-            )
-        }
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnClickOutside = false,
+            decorFitsSystemWindows = false
+        )
     ) {
-        Column(
-            modifier = Modifier.fillMaxHeight(0.85f)
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = appColors.background
         ) {
-            // ヘッダー
-            NavigationSheetHeader(onDismiss = onDismiss)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .windowInsetsPadding(WindowInsets.systemBars)
+            ) {
+                // ヘッダー
+                NavigationSheetHeader(onDismiss = onDismiss)
 
-            // 進捗セクション
-            NavigationProgressSection(
-                completedSets = completedSets,
-                totalSets = totalSets,
-                progress = progress
-            )
+                // 進捗セクション
+                NavigationProgressSection(
+                    completedSets = completedSets,
+                    totalSets = totalSets,
+                    progress = progress
+                )
 
-            // セットリスト
-            NavigationSetsList(
-                session = session,
-                currentSetIndex = currentSetIndex,
-                editingSetIndex = editingSetIndex,
-                onToggleEditing = { setIdx ->
-                    editingSetIndex = if (editingSetIndex == setIdx) -1 else setIdx
-                },
-                onUpdateTargetValue = { setIdx, newValue ->
-                    onUpdateTargetValue(setIdx, newValue)
-                },
-                onUpdateActualValue = { setIdx, newValue ->
-                    onUpdateActualValue(setIdx, newValue)
-                },
-                onJumpToSet = onJumpToSet,
-                onRedoSet = onRedoSet,
-                modifier = Modifier.weight(1f)
-            )
-
-            // フッター（Result画面では非表示）
-            if (!isFromResult) {
-                NavigationSheetFooter(
+                // セットリスト + フッター（リスト末尾に配置してスクロールで到達）
+                NavigationSetsList(
+                    session = session,
+                    currentSetIndex = currentSetIndex,
+                    editingSetIndex = editingSetIndex,
+                    onToggleEditing = { setIdx ->
+                        editingSetIndex = if (editingSetIndex == setIdx) -1 else setIdx
+                    },
+                    onUpdateTargetValue = { setIdx, newValue ->
+                        onUpdateTargetValue(setIdx, newValue)
+                    },
+                    onUpdateActualValue = { setIdx, newValue ->
+                        onUpdateActualValue(setIdx, newValue)
+                    },
+                    onJumpToSet = onJumpToSet,
+                    onRedoSet = onRedoSet,
+                    showFooter = !isFromResult,
                     onFinish = onFinish,
                     onSaveAndExit = onSaveAndExit,
-                    onDiscard = onDiscard
+                    onDiscard = onDiscard,
+                    modifier = Modifier.weight(1f)
                 )
             }
         }
@@ -320,6 +315,10 @@ private fun NavigationSetsList(
     onUpdateActualValue: (Int, Int) -> Unit,
     onJumpToSet: (Int) -> Unit,
     onRedoSet: (Int) -> Unit,
+    showFooter: Boolean,
+    onFinish: () -> Unit,
+    onSaveAndExit: () -> Unit,
+    onDiscard: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val lazyListState = rememberLazyListState()
@@ -347,7 +346,8 @@ private fun NavigationSetsList(
 
     LazyColumn(
         state = lazyListState,
-        modifier = modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+        modifier = modifier.padding(horizontal = 20.dp),
+        contentPadding = PaddingValues(top = 16.dp, bottom = 96.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(displayItems.size) { index ->
@@ -391,6 +391,17 @@ private fun NavigationSetsList(
                         onRedoSet = onRedoSet
                     )
                 }
+            }
+        }
+        if (showFooter) {
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                NavigationSheetFooter(
+                    onFinish = onFinish,
+                    onSaveAndExit = onSaveAndExit,
+                    onDiscard = onDiscard,
+                    showTopDivider = false
+                )
             }
         }
     }
@@ -1410,21 +1421,26 @@ private fun SetActionButton(
 private fun NavigationSheetFooter(
     onFinish: () -> Unit,
     onSaveAndExit: () -> Unit,
-    onDiscard: () -> Unit
+    onDiscard: () -> Unit,
+    showTopDivider: Boolean = true
 ) {
     val appColors = LocalAppColors.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .drawBehind {
-                drawLine(
-                    color = Slate700,
-                    start = Offset(0f, 0f),
-                    end = Offset(size.width, 0f),
-                    strokeWidth = 1.dp.toPx()
-                )
-            }
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+            .then(
+                if (showTopDivider) {
+                    Modifier.drawBehind {
+                        drawLine(
+                            color = Slate700,
+                            start = Offset(0f, 0f),
+                            end = Offset(size.width, 0f),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+                } else Modifier
+            )
+            .padding(vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // Finish (Result画面へ)
