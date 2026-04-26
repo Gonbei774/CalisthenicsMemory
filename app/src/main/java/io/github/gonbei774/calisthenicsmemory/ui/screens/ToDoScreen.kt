@@ -50,6 +50,7 @@ import io.github.gonbei774.calisthenicsmemory.data.IntervalProgram
 import io.github.gonbei774.calisthenicsmemory.data.Program
 import io.github.gonbei774.calisthenicsmemory.data.TodoTask
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.util.ProgramTimeEstimator
 import io.github.gonbei774.calisthenicsmemory.util.SearchUtils
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import sh.calvin.reorderable.ReorderableColumn
@@ -117,6 +118,20 @@ fun ToDoScreen(
                 val exs = viewModel.getIntervalProgramExercisesSync(program.id)
                 intervalExerciseCounts[program.id] = exs.size
             }
+        }
+    }
+
+    // Pre-compute estimated seconds per program (for ProgramTaskCard display).
+    val programEstimatedSeconds = remember { mutableStateMapOf<Long, Int>() }
+    LaunchedEffect(programs, exerciseMap) {
+        programs.forEach { program ->
+            val pes = viewModel.getProgramExercisesSync(program.id)
+            val loops = viewModel.getProgramLoopsSync(program.id)
+            val subMap = pes.mapNotNull { pe ->
+                exerciseMap[pe.exerciseId]?.let { pe.exerciseId to it }
+            }.toMap()
+            programEstimatedSeconds[program.id] =
+                ProgramTimeEstimator.estimateSeconds(pes, loops, subMap, startCountdownSeconds = 0)
         }
     }
 
@@ -271,6 +286,7 @@ fun ToDoScreen(
                                         groupExercisesMap = groupExercisesMap,
                                         groupExerciseCompletions = groupExerciseCompletions,
                                         programMap = programMap,
+                                        programEstimatedSeconds = programEstimatedSeconds,
                                         intervalProgramMap = intervalProgramMap,
                                         intervalExerciseCounts = intervalExerciseCounts,
                                         isDragging = isDragging,
@@ -336,6 +352,7 @@ fun ToDoScreen(
                                     groupExercisesMap = groupExercisesMap,
                                     groupExerciseCompletions = groupExerciseCompletions,
                                     programMap = programMap,
+                                    programEstimatedSeconds = programEstimatedSeconds,
                                     intervalProgramMap = intervalProgramMap,
                                     intervalExerciseCounts = intervalExerciseCounts,
                                     onLongClick = { repeatDialogTask = task }
@@ -413,6 +430,7 @@ private fun ActiveTaskContent(
     groupExercisesMap: Map<Long, List<Exercise>>,
     groupExerciseCompletions: Map<Long, Set<Long>>,
     programMap: Map<Long, Program>,
+    programEstimatedSeconds: Map<Long, Int>,
     intervalProgramMap: Map<Long, IntervalProgram>,
     intervalExerciseCounts: Map<Long, Int>,
     isDragging: Boolean,
@@ -522,6 +540,7 @@ private fun ActiveTaskContent(
             if (program != null) {
                 ProgramTaskCard(
                     program = program,
+                    estimatedSeconds = programEstimatedSeconds[program.id],
                     repeatDays = task.repeatDays,
                     isDragging = isDragging,
                     elevation = elevation,
@@ -558,6 +577,7 @@ private fun InactiveTaskContent(
     groupExercisesMap: Map<Long, List<Exercise>>,
     groupExerciseCompletions: Map<Long, Set<Long>>,
     programMap: Map<Long, Program>,
+    programEstimatedSeconds: Map<Long, Int>,
     intervalProgramMap: Map<Long, IntervalProgram>,
     intervalExerciseCounts: Map<Long, Int>,
     onLongClick: () -> Unit
@@ -602,6 +622,7 @@ private fun InactiveTaskContent(
                 if (program != null) {
                     ProgramTaskCard(
                         program = program,
+                        estimatedSeconds = programEstimatedSeconds[program.id],
                         repeatDays = task.repeatDays,
                         isDragging = false,
                         elevation = 0.dp,
@@ -703,6 +724,25 @@ private fun GroupTaskCard(
                             fontWeight = FontWeight.Bold,
                             color = if (completedCount == totalCount && totalCount > 0) Green600 else appColors.textSecondary
                         )
+                        val groupTotalSeconds = remember(groupExercises, completedExerciseIds) {
+                            groupExercises
+                                .filter { it.id !in completedExerciseIds }
+                                .sumOf { ProgramTimeEstimator.estimateExerciseSeconds(it) ?: 0 }
+                        }
+                        val hasAnyEstimable = remember(groupExercises, completedExerciseIds) {
+                            groupExercises.any {
+                                it.id !in completedExerciseIds &&
+                                    ProgramTimeEstimator.estimateExerciseSeconds(it) != null
+                            }
+                        }
+                        if (hasAnyEstimable) {
+                            Text(
+                                text = ProgramTimeEstimator.formatHmmss(groupTotalSeconds),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Cyan600
+                            )
+                        }
                     }
                     RepeatDaysLabel(repeatDays = repeatDays)
                 }
@@ -747,6 +787,18 @@ private fun GroupTaskCard(
                                     .weight(1f)
                                     .alpha(if (isCompleted) 0.4f else 1f)
                             )
+                            val memberEstSeconds = ProgramTimeEstimator.estimateExerciseSeconds(exercise)
+                            if (memberEstSeconds != null) {
+                                Text(
+                                    text = ProgramTimeEstimator.formatHmmss(memberEstSeconds),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Cyan600,
+                                    modifier = Modifier
+                                        .padding(end = 8.dp)
+                                        .alpha(if (isCompleted) 0.4f else 1f)
+                                )
+                            }
                             if (isCompleted) {
                                 Text(
                                     text = "\u2713",
@@ -900,6 +952,15 @@ private fun ExerciseTaskCard(
                     if (exercise.laterality == "Unilateral") {
                         Text(text = stringResource(R.string.one_sided), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Purple600)
                     }
+                    val estSeconds = ProgramTimeEstimator.estimateExerciseSeconds(exercise)
+                    if (estSeconds != null) {
+                        Text(
+                            text = ProgramTimeEstimator.formatHmmss(estSeconds),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Cyan600
+                        )
+                    }
                 }
                 if (exercise.targetSets != null && exercise.targetValue != null) {
                     Text(
@@ -936,6 +997,7 @@ private fun ExerciseTaskCard(
 @Composable
 private fun ProgramTaskCard(
     program: Program,
+    estimatedSeconds: Int?,
     repeatDays: String,
     isDragging: Boolean,
     elevation: androidx.compose.ui.unit.Dp,
@@ -980,13 +1042,26 @@ private fun ProgramTaskCard(
                     fontWeight = FontWeight.Medium,
                     color = appColors.textPrimary
                 )
-                Text(
-                    text = stringResource(R.string.todo_tab_programs),
-                    fontSize = 11.sp,
-                    color = Orange600,
-                    fontWeight = FontWeight.Bold,
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(top = 2.dp)
-                )
+                ) {
+                    Text(
+                        text = stringResource(R.string.todo_tab_programs),
+                        fontSize = 11.sp,
+                        color = Orange600,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (estimatedSeconds != null && estimatedSeconds > 0) {
+                        Text(
+                            text = ProgramTimeEstimator.formatHmmss(estimatedSeconds),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Cyan600
+                        )
+                    }
+                }
                 RepeatDaysLabel(repeatDays = repeatDays)
             }
 
@@ -1067,6 +1142,18 @@ private fun IntervalTaskCard(
                     color = appColors.textSecondary,
                     modifier = Modifier.padding(top = 2.dp)
                 )
+                if (exerciseCount > 0) {
+                    val intervalEst = ProgramTimeEstimator.estimateIntervalSeconds(intervalProgram, exerciseCount)
+                    if (intervalEst > 0) {
+                        Text(
+                            text = ProgramTimeEstimator.formatHmmss(intervalEst),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Cyan600,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
+                    }
+                }
                 RepeatDaysLabel(repeatDays = repeatDays)
             }
 
