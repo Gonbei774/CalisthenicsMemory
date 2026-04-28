@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -23,9 +24,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -900,136 +904,96 @@ fun WorkoutInputScreen(
                                 appColors = appColors
                             )
 
-                            // 右側入力
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            // 回数/秒数（左右別）グループ
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                val rightCurrent = setValuesRight.getOrElse(index) { "" }.toIntOrNull() ?: 0
-                                RepeatableStepButton(
-                                    label = "−",
-                                    size = 36.dp,
-                                    enabled = rightCurrent > 0,
-                                    contentDescription = stringResource(R.string.nav_step_decrement),
-                                    onStep = {
-                                        val current = setValuesRight.getOrElse(index) { "" }.toIntOrNull() ?: 0
-                                        val next = (current - 1).coerceAtLeast(0)
-                                        if (next == current) return@RepeatableStepButton false
-                                        val newList = setValuesRight.toMutableList()
-                                        while (newList.size <= index) newList.add("")
-                                        newList[index] = next.toString()
-                                        setValuesRight = newList
-                                        true
-                                    }
+                                Text(
+                                    text = stringResource(if (exercise.type == "Dynamic") R.string.reps_label else R.string.time_label),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = appColors.textSecondary
                                 )
-                                OutlinedTextField(
-                                    value = setValuesRight.getOrElse(index) { "" },
-                                    onValueChange = { value ->
-                                        if (value.isEmpty() || value.all { it.isDigit() }) {
+                                Column(
+                                    modifier = Modifier.padding(start = 12.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    val rightCurrent = setValuesRight.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                                    InlineStepperRow(
+                                        label = stringResource(R.string.right),
+                                        value = setValuesRight.getOrElse(index) { "" },
+                                        onValueChange = { value ->
+                                            if (value.isEmpty() || value.all { it.isDigit() }) {
+                                                val newList = setValuesRight.toMutableList()
+                                                while (newList.size <= index) {
+                                                    newList.add("")
+                                                }
+                                                newList[index] = value
+                                                setValuesRight = newList
+                                            }
+                                        },
+                                        keyboardType = KeyboardType.Number,
+                                        accentColor = Green600,
+                                        decrementEnabled = rightCurrent > 0,
+                                        onDecrement = {
+                                            val current = setValuesRight.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                                            val next = (current - 1).coerceAtLeast(0)
+                                            if (next == current) return@InlineStepperRow false
                                             val newList = setValuesRight.toMutableList()
-                                            while (newList.size <= index) {
-                                                newList.add("")
-                                            }
-                                            newList[index] = value
+                                            while (newList.size <= index) newList.add("")
+                                            newList[index] = next.toString()
                                             setValuesRight = newList
-                                        }
-                                    },
-                                    label = { Text(stringResource(R.string.right_value, if (exercise.type == "Dynamic") stringResource(R.string.reps_label) else stringResource(R.string.time_label))) },
-                                    modifier = Modifier.weight(1f),
-                                    singleLine = true,
-                                    keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Number
-                                    ),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = Green600,
-                                        unfocusedBorderColor = appColors.border,
-                                        focusedLabelColor = Green600,
-                                        unfocusedLabelColor = appColors.textSecondary,
-                                        cursorColor = Green600,
-                                        focusedTextColor = appColors.textPrimary,
-                                        unfocusedTextColor = appColors.textPrimary
+                                            true
+                                        },
+                                        onIncrement = {
+                                            val current = setValuesRight.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                                            val newList = setValuesRight.toMutableList()
+                                            while (newList.size <= index) newList.add("")
+                                            newList[index] = (current + 1).toString()
+                                            setValuesRight = newList
+                                            true
+                                        },
+                                        appColors = appColors
                                     )
-                                )
-                                RepeatableStepButton(
-                                    label = "+",
-                                    size = 36.dp,
-                                    enabled = true,
-                                    contentDescription = stringResource(R.string.nav_step_increment),
-                                    onStep = {
-                                        val current = setValuesRight.getOrElse(index) { "" }.toIntOrNull() ?: 0
-                                        val newList = setValuesRight.toMutableList()
-                                        while (newList.size <= index) newList.add("")
-                                        newList[index] = (current + 1).toString()
-                                        setValuesRight = newList
-                                        true
-                                    }
-                                )
-                            }
 
-                            // 左側入力
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                val leftCurrent = setValuesLeft.getOrElse(index) { "" }.toIntOrNull() ?: 0
-                                RepeatableStepButton(
-                                    label = "−",
-                                    size = 36.dp,
-                                    enabled = leftCurrent > 0,
-                                    contentDescription = stringResource(R.string.nav_step_decrement),
-                                    onStep = {
-                                        val current = setValuesLeft.getOrElse(index) { "" }.toIntOrNull() ?: 0
-                                        val next = (current - 1).coerceAtLeast(0)
-                                        if (next == current) return@RepeatableStepButton false
-                                        val newList = setValuesLeft.toMutableList()
-                                        while (newList.size <= index) newList.add("")
-                                        newList[index] = next.toString()
-                                        setValuesLeft = newList
-                                        true
-                                    }
-                                )
-                                OutlinedTextField(
-                                    value = setValuesLeft.getOrElse(index) { "" },
-                                    onValueChange = { value ->
-                                        if (value.isEmpty() || value.all { it.isDigit() }) {
-                                            val newList = setValuesLeft.toMutableList()
-                                            while (newList.size <= index) {
-                                                newList.add("")
+                                    val leftCurrent = setValuesLeft.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                                    InlineStepperRow(
+                                        label = stringResource(R.string.left),
+                                        value = setValuesLeft.getOrElse(index) { "" },
+                                        onValueChange = { value ->
+                                            if (value.isEmpty() || value.all { it.isDigit() }) {
+                                                val newList = setValuesLeft.toMutableList()
+                                                while (newList.size <= index) {
+                                                    newList.add("")
+                                                }
+                                                newList[index] = value
+                                                setValuesLeft = newList
                                             }
-                                            newList[index] = value
+                                        },
+                                        keyboardType = KeyboardType.Number,
+                                        accentColor = Purple600,
+                                        decrementEnabled = leftCurrent > 0,
+                                        onDecrement = {
+                                            val current = setValuesLeft.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                                            val next = (current - 1).coerceAtLeast(0)
+                                            if (next == current) return@InlineStepperRow false
+                                            val newList = setValuesLeft.toMutableList()
+                                            while (newList.size <= index) newList.add("")
+                                            newList[index] = next.toString()
                                             setValuesLeft = newList
-                                        }
-                                    },
-                                    label = { Text(stringResource(R.string.left_value, if (exercise.type == "Dynamic") stringResource(R.string.reps_label) else stringResource(R.string.time_label))) },
-                                    modifier = Modifier.weight(1f),
-                                    singleLine = true,
-                                    keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Number
-                                    ),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = Purple600,
-                                        unfocusedBorderColor = appColors.border,
-                                        focusedLabelColor = Purple600,
-                                        unfocusedLabelColor = appColors.textSecondary,
-                                        cursorColor = Purple600,
-                                        focusedTextColor = appColors.textPrimary,
-                                        unfocusedTextColor = appColors.textPrimary
+                                            true
+                                        },
+                                        onIncrement = {
+                                            val current = setValuesLeft.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                                            val newList = setValuesLeft.toMutableList()
+                                            while (newList.size <= index) newList.add("")
+                                            newList[index] = (current + 1).toString()
+                                            setValuesLeft = newList
+                                            true
+                                        },
+                                        appColors = appColors
                                     )
-                                )
-                                RepeatableStepButton(
-                                    label = "+",
-                                    size = 36.dp,
-                                    enabled = true,
-                                    contentDescription = stringResource(R.string.nav_step_increment),
-                                    onStep = {
-                                        val current = setValuesLeft.getOrElse(index) { "" }.toIntOrNull() ?: 0
-                                        val newList = setValuesLeft.toMutableList()
-                                        while (newList.size <= index) newList.add("")
-                                        newList[index] = (current + 1).toString()
-                                        setValuesLeft = newList
-                                        true
-                                    }
-                                )
+                                }
                             }
 
                             // セット別 距離/荷重/アシスト入力
@@ -1073,57 +1037,30 @@ fun WorkoutInputScreen(
                                 onRemove = { removeSetAt(index) },
                                 appColors = appColors
                             )
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
+                            run {
                                 val biCurrent = setValues.getOrElse(index) { "" }.toIntOrNull() ?: 0
-                                RepeatableStepButton(
-                                    label = "−",
-                                    size = 36.dp,
-                                    enabled = biCurrent > 0,
-                                    contentDescription = stringResource(R.string.nav_step_decrement),
-                                    onStep = {
-                                        val current = setValues.getOrElse(index) { "" }.toIntOrNull() ?: 0
-                                        val next = (current - 1).coerceAtLeast(0)
-                                        if (next == current) return@RepeatableStepButton false
-                                        onSetValueChange(index, next.toString())
-                                        true
-                                    }
-                                )
-                                OutlinedTextField(
+                                InlineStepperRow(
+                                    label = stringResource(if (exercise.type == "Dynamic") R.string.reps_label else R.string.time_label),
                                     value = setValues.getOrElse(index) { "" },
                                     onValueChange = { value ->
                                         onSetValueChange(index, value)
                                     },
-                                    label = {
-                                        Text(stringResource(if (exercise.type == "Dynamic") R.string.reps_label else R.string.time_label))
+                                    keyboardType = KeyboardType.Number,
+                                    accentColor = Green600,
+                                    decrementEnabled = biCurrent > 0,
+                                    onDecrement = {
+                                        val current = setValues.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                                        val next = (current - 1).coerceAtLeast(0)
+                                        if (next == current) return@InlineStepperRow false
+                                        onSetValueChange(index, next.toString())
+                                        true
                                     },
-                                    modifier = Modifier.weight(1f),
-                                    singleLine = true,
-                                    keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Number
-                                    ),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = Green600,
-                                        unfocusedBorderColor = appColors.border,
-                                        focusedLabelColor = Green600,
-                                        unfocusedLabelColor = appColors.textSecondary,
-                                        cursorColor = Green600,
-                                        focusedTextColor = appColors.textPrimary,
-                                        unfocusedTextColor = appColors.textPrimary
-                                    )
-                                )
-                                RepeatableStepButton(
-                                    label = "+",
-                                    size = 36.dp,
-                                    enabled = true,
-                                    contentDescription = stringResource(R.string.nav_step_increment),
-                                    onStep = {
+                                    onIncrement = {
                                         val current = setValues.getOrElse(index) { "" }.toIntOrNull() ?: 0
                                         onSetValueChange(index, (current + 1).toString())
                                         true
-                                    }
+                                    },
+                                    appColors = appColors
                                 )
                             }
 
@@ -1408,182 +1345,107 @@ private fun PerSetTrackingFields(
 ) {
     // 距離
     if (exercise.distanceTrackingEnabled) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            val distanceCurrent = distanceInputs.getOrElse(index) { "" }.toIntOrNull() ?: 0
-            RepeatableStepButton(
-                label = "−",
-                size = 36.dp,
-                enabled = distanceCurrent > 0,
-                contentDescription = stringResource(R.string.nav_step_decrement),
-                onStep = {
-                    val current = distanceInputs.getOrElse(index) { "" }.toIntOrNull() ?: 0
-                    val next = (current - 1).coerceAtLeast(0)
-                    if (next == current) return@RepeatableStepButton false
-                    onDistanceChange(index, next.toString())
-                    true
+        val distanceCurrent = distanceInputs.getOrElse(index) { "" }.toIntOrNull() ?: 0
+        InlineStepperRow(
+            label = stringResource(R.string.distance_input_label),
+            value = distanceInputs.getOrElse(index) { "" },
+            onValueChange = { value ->
+                val normalized = value
+                    .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                    .replace("．", ".").replace("－", "-")
+                if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
+                    onDistanceChange(index, normalized)
                 }
-            )
-            OutlinedTextField(
-                value = distanceInputs.getOrElse(index) { "" },
-                onValueChange = { value ->
-                    val normalized = value
-                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
-                        .replace("．", ".").replace("－", "-")
-                    if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
-                        onDistanceChange(index, normalized)
-                    }
-                },
-                label = { Text(stringResource(R.string.distance_input_label)) },
-                modifier = Modifier.weight(1f),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Blue600,
-                    unfocusedBorderColor = appColors.border,
-                    focusedLabelColor = Blue600,
-                    unfocusedLabelColor = appColors.textSecondary,
-                    cursorColor = Blue600,
-                    focusedTextColor = appColors.textPrimary,
-                    unfocusedTextColor = appColors.textPrimary
-                )
-            )
-            RepeatableStepButton(
-                label = "+",
-                size = 36.dp,
-                enabled = true,
-                contentDescription = stringResource(R.string.nav_step_increment),
-                onStep = {
-                    val current = distanceInputs.getOrElse(index) { "" }.toIntOrNull() ?: 0
-                    onDistanceChange(index, (current + 1).toString())
-                    true
-                }
-            )
-        }
+            },
+            keyboardType = KeyboardType.Number,
+            accentColor = Blue600,
+            decrementEnabled = distanceCurrent > 0,
+            onDecrement = {
+                val current = distanceInputs.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                val next = (current - 1).coerceAtLeast(0)
+                if (next == current) return@InlineStepperRow false
+                onDistanceChange(index, next.toString())
+                true
+            },
+            onIncrement = {
+                val current = distanceInputs.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                onDistanceChange(index, (current + 1).toString())
+                true
+            },
+            appColors = appColors
+        )
     }
 
     // 荷重（kg）
     if (exercise.weightTrackingEnabled) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            val weightCurrent = weightInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
-            RepeatableStepButton(
-                label = "−",
-                size = 36.dp,
-                enabled = weightCurrent > 0.0,
-                contentDescription = stringResource(R.string.nav_step_decrement),
-                onStep = {
-                    val current = weightInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
-                    val next = (current - 1.0).coerceAtLeast(0.0)
-                    if (next == current) return@RepeatableStepButton false
-                    onWeightChange(index, formatStepKg(next))
-                    true
+        val weightCurrent = weightInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
+        InlineStepperRow(
+            label = stringResource(R.string.weight_input_label),
+            value = weightInputs.getOrElse(index) { "" },
+            onValueChange = { value ->
+                val normalized = value
+                    .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                    .replace("．", ".")
+                val isValidDecimal = normalized.isEmpty() ||
+                    normalized == "." ||
+                    normalized.matches(Regex("^\\d*\\.?\\d?$"))
+                if (isValidDecimal) {
+                    onWeightChange(index, normalized)
                 }
-            )
-            OutlinedTextField(
-                value = weightInputs.getOrElse(index) { "" },
-                onValueChange = { value ->
-                    val normalized = value
-                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
-                        .replace("．", ".")
-                    val isValidDecimal = normalized.isEmpty() ||
-                        normalized == "." ||
-                        normalized.matches(Regex("^\\d*\\.?\\d?$"))
-                    if (isValidDecimal) {
-                        onWeightChange(index, normalized)
-                    }
-                },
-                label = { Text(stringResource(R.string.weight_input_label)) },
-                modifier = Modifier.weight(1f),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Orange600,
-                    unfocusedBorderColor = appColors.border,
-                    focusedLabelColor = Orange600,
-                    unfocusedLabelColor = appColors.textSecondary,
-                    cursorColor = Orange600,
-                    focusedTextColor = appColors.textPrimary,
-                    unfocusedTextColor = appColors.textPrimary
-                )
-            )
-            RepeatableStepButton(
-                label = "+",
-                size = 36.dp,
-                enabled = true,
-                contentDescription = stringResource(R.string.nav_step_increment),
-                onStep = {
-                    val current = weightInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
-                    onWeightChange(index, formatStepKg(current + 1.0))
-                    true
-                }
-            )
-        }
+            },
+            keyboardType = KeyboardType.Decimal,
+            accentColor = Orange600,
+            decrementEnabled = weightCurrent > 0.0,
+            onDecrement = {
+                val current = weightInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
+                val next = (current - 1.0).coerceAtLeast(0.0)
+                if (next == current) return@InlineStepperRow false
+                onWeightChange(index, formatStepKg(next))
+                true
+            },
+            onIncrement = {
+                val current = weightInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
+                onWeightChange(index, formatStepKg(current + 1.0))
+                true
+            },
+            appColors = appColors
+        )
     }
 
     // アシスト（kg）
     if (exercise.assistanceTrackingEnabled) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            val assistCurrent = assistanceInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
-            RepeatableStepButton(
-                label = "−",
-                size = 36.dp,
-                enabled = assistCurrent > 0.0,
-                contentDescription = stringResource(R.string.nav_step_decrement),
-                onStep = {
-                    val current = assistanceInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
-                    val next = (current - 1.0).coerceAtLeast(0.0)
-                    if (next == current) return@RepeatableStepButton false
-                    onAssistanceChange(index, formatStepKg(next))
-                    true
+        val assistCurrent = assistanceInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
+        InlineStepperRow(
+            label = stringResource(R.string.assistance_input_label),
+            value = assistanceInputs.getOrElse(index) { "" },
+            onValueChange = { value ->
+                val normalized = value
+                    .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                    .replace("．", ".")
+                val isValidDecimal = normalized.isEmpty() ||
+                    normalized == "." ||
+                    normalized.matches(Regex("^\\d*\\.?\\d?$"))
+                if (isValidDecimal) {
+                    onAssistanceChange(index, normalized)
                 }
-            )
-            OutlinedTextField(
-                value = assistanceInputs.getOrElse(index) { "" },
-                onValueChange = { value ->
-                    val normalized = value
-                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
-                        .replace("．", ".")
-                    val isValidDecimal = normalized.isEmpty() ||
-                        normalized == "." ||
-                        normalized.matches(Regex("^\\d*\\.?\\d?$"))
-                    if (isValidDecimal) {
-                        onAssistanceChange(index, normalized)
-                    }
-                },
-                label = { Text(stringResource(R.string.assistance_input_label)) },
-                modifier = Modifier.weight(1f),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Amber500,
-                    unfocusedBorderColor = appColors.border,
-                    focusedLabelColor = Amber500,
-                    unfocusedLabelColor = appColors.textSecondary,
-                    cursorColor = Amber500,
-                    focusedTextColor = appColors.textPrimary,
-                    unfocusedTextColor = appColors.textPrimary
-                )
-            )
-            RepeatableStepButton(
-                label = "+",
-                size = 36.dp,
-                enabled = true,
-                contentDescription = stringResource(R.string.nav_step_increment),
-                onStep = {
-                    val current = assistanceInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
-                    onAssistanceChange(index, formatStepKg(current + 1.0))
-                    true
-                }
-            )
-        }
+            },
+            keyboardType = KeyboardType.Decimal,
+            accentColor = Amber500,
+            decrementEnabled = assistCurrent > 0.0,
+            onDecrement = {
+                val current = assistanceInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
+                val next = (current - 1.0).coerceAtLeast(0.0)
+                if (next == current) return@InlineStepperRow false
+                onAssistanceChange(index, formatStepKg(next))
+                true
+            },
+            onIncrement = {
+                val current = assistanceInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
+                onAssistanceChange(index, formatStepKg(current + 1.0))
+                true
+            },
+            appColors = appColors
+        )
     }
 }
 
@@ -1698,6 +1560,62 @@ private fun RepeatableStepButton(
             fontSize = if (size <= 32.dp) 18.sp else 20.sp,
             fontWeight = FontWeight.Bold,
             color = textColor
+        )
+    }
+}
+
+@Composable
+private fun InlineStepperRow(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    keyboardType: KeyboardType,
+    accentColor: Color,
+    decrementEnabled: Boolean,
+    onDecrement: () -> Boolean,
+    onIncrement: () -> Boolean,
+    appColors: io.github.gonbei774.calisthenicsmemory.ui.theme.AppColors
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            color = appColors.textSecondary,
+            modifier = Modifier.weight(1f)
+        )
+        RepeatableStepButton(
+            label = "−",
+            size = 36.dp,
+            enabled = decrementEnabled,
+            contentDescription = stringResource(R.string.nav_step_decrement),
+            onStep = onDecrement
+        )
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier
+                .width(72.dp)
+                .padding(horizontal = 4.dp),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            textStyle = TextStyle(
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = appColors.textPrimary,
+                textAlign = TextAlign.Center
+            ),
+            cursorBrush = SolidColor(accentColor)
+        )
+        RepeatableStepButton(
+            label = "+",
+            size = 36.dp,
+            enabled = true,
+            contentDescription = stringResource(R.string.nav_step_increment),
+            onStep = onIncrement
         )
     }
 }
