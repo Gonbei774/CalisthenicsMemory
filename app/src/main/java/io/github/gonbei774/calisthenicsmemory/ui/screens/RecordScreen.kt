@@ -1,9 +1,15 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -18,9 +24,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
@@ -32,6 +43,9 @@ import io.github.gonbei774.calisthenicsmemory.data.WorkoutPreferences
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.util.SearchUtils
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
@@ -190,6 +204,18 @@ fun RecordScreen(
                         }
                         newList[index] = value
                         setValues = newList
+                    }
+                },
+                onSetRemove = { index ->
+                    if (numberOfSets > 1 && index in setValues.indices) {
+                        setValues = setValues.toMutableList().also { it.removeAt(index) }
+                        numberOfSets -= 1
+                    }
+                },
+                onAddSet = {
+                    if (numberOfSets < 10) {
+                        setValues = setValues + (setValues.lastOrNull() ?: "")
+                        numberOfSets += 1
                     }
                 },
                 onCommentChange = { comment = it },
@@ -627,6 +653,8 @@ fun WorkoutInputScreen(
     onNavigateBack: () -> Unit,
     onNumberOfSetsChange: (Int) -> Unit,
     onSetValueChange: (Int, String) -> Unit,
+    onSetRemove: (Int) -> Unit,
+    onAddSet: () -> Unit,
     onCommentChange: (String) -> Unit,
     onShowDatePicker: (Boolean) -> Unit,
     onShowTimePicker: (Boolean) -> Unit,
@@ -721,6 +749,18 @@ fun WorkoutInputScreen(
         setValues.any { it.isNotBlank() && it.toIntOrNull() != null && it.toInt() >= 0 }
     }
 
+    // 指定セットを全リストから削除（ローカル状態 + 親の setValues/numberOfSets）
+    val removeSetAt: (Int) -> Unit = { idx ->
+        if (numberOfSets > 1) {
+            setValuesRight = setValuesRight.toMutableList().also { if (idx in it.indices) it.removeAt(idx) }
+            setValuesLeft = setValuesLeft.toMutableList().also { if (idx in it.indices) it.removeAt(idx) }
+            distanceInputs = distanceInputs.toMutableList().also { if (idx in it.indices) it.removeAt(idx) }
+            weightInputs = weightInputs.toMutableList().also { if (idx in it.indices) it.removeAt(idx) }
+            assistanceInputs = assistanceInputs.toMutableList().also { if (idx in it.indices) it.removeAt(idx) }
+            onSetRemove(idx)
+        }
+    }
+
     Scaffold(
         topBar = {
             Surface(
@@ -792,85 +832,6 @@ fun WorkoutInputScreen(
                 }
             }
 
-            // セット数選択
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = appColors.cardBackground
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = stringResource(R.string.sets_count),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = appColors.textPrimary,
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Button(
-                                onClick = {
-                                    if (numberOfSets > 1) {
-                                        onNumberOfSetsChange(numberOfSets - 1)
-                                    }
-                                },
-                                enabled = numberOfSets > 1,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Green600,
-                                    disabledContainerColor = appColors.cardBackgroundDisabled
-                                )
-                            ) {
-                                Text(
-                                    text = "−",
-                                    fontSize = 24.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.width(16.dp))
-
-                            Text(
-                                text = numberOfSets.toString(),
-                                fontSize = 48.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Green400
-                            )
-
-                            Spacer(modifier = Modifier.width(16.dp))
-
-                            Button(
-                                onClick = {
-                                    if (numberOfSets < 10) {
-                                        onNumberOfSetsChange(numberOfSets + 1)
-                                    }
-                                },
-                                enabled = numberOfSets < 10,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Green600,
-                                    disabledContainerColor = appColors.cardBackgroundDisabled
-                                )
-                            ) {
-                                Text(
-                                    text = "＋",
-                                    fontSize = 24.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
             // 緑ボタン: 種目設定を適用
             if (exercise.targetSets != null || exercise.targetValue != null) {
                 item {
@@ -936,76 +897,103 @@ fun WorkoutInputScreen(
                             modifier = Modifier.padding(16.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Text(
-                                text = stringResource(R.string.set_number_format, index + 1),
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = appColors.textPrimary
+                            SetCardHeader(
+                                index = index,
+                                canRemove = numberOfSets > 1,
+                                onRemove = { removeSetAt(index) },
+                                appColors = appColors
                             )
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            // 回数/秒数（左右別）グループ
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                // 右側入力
-                                OutlinedTextField(
-                                    value = setValuesRight.getOrElse(index) { "" },
-                                    onValueChange = { value ->
-                                        if (value.isEmpty() || value.all { it.isDigit() }) {
+                                Text(
+                                    text = stringResource(if (exercise.type == "Dynamic") R.string.reps_label else R.string.time_label),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = appColors.textSecondary
+                                )
+                                Column(
+                                    modifier = Modifier.padding(start = 12.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    val rightCurrent = setValuesRight.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                                    InlineStepperRow(
+                                        label = stringResource(R.string.right),
+                                        value = setValuesRight.getOrElse(index) { "" },
+                                        onValueChange = { value ->
+                                            if (value.isEmpty() || value.all { it.isDigit() }) {
+                                                val newList = setValuesRight.toMutableList()
+                                                while (newList.size <= index) {
+                                                    newList.add("")
+                                                }
+                                                newList[index] = value
+                                                setValuesRight = newList
+                                            }
+                                        },
+                                        keyboardType = KeyboardType.Number,
+                                        accentColor = Green600,
+                                        decrementEnabled = rightCurrent > 0,
+                                        onDecrement = {
+                                            val current = setValuesRight.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                                            val next = (current - 1).coerceAtLeast(0)
+                                            if (next == current) return@InlineStepperRow false
                                             val newList = setValuesRight.toMutableList()
-                                            while (newList.size <= index) {
-                                                newList.add("")
-                                            }
-                                            newList[index] = value
+                                            while (newList.size <= index) newList.add("")
+                                            newList[index] = next.toString()
                                             setValuesRight = newList
-                                        }
-                                    },
-                                    label = { Text(stringResource(R.string.right_value, if (exercise.type == "Dynamic") stringResource(R.string.reps_label) else stringResource(R.string.time_label))) },
-                                    modifier = Modifier.weight(1f),
-                                    singleLine = true,
-                                    keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Number
-                                    ),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = Green600,
-                                        unfocusedBorderColor = appColors.border,
-                                        focusedLabelColor = Green600,
-                                        unfocusedLabelColor = appColors.textSecondary,
-                                        cursorColor = Green600,
-                                        focusedTextColor = appColors.textPrimary,
-                                        unfocusedTextColor = appColors.textPrimary
+                                            true
+                                        },
+                                        onIncrement = {
+                                            val current = setValuesRight.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                                            val newList = setValuesRight.toMutableList()
+                                            while (newList.size <= index) newList.add("")
+                                            newList[index] = (current + 1).toString()
+                                            setValuesRight = newList
+                                            true
+                                        },
+                                        appColors = appColors
                                     )
-                                )
 
-                                // 左側入力
-                                OutlinedTextField(
-                                    value = setValuesLeft.getOrElse(index) { "" },
-                                    onValueChange = { value ->
-                                        if (value.isEmpty() || value.all { it.isDigit() }) {
-                                            val newList = setValuesLeft.toMutableList()
-                                            while (newList.size <= index) {
-                                                newList.add("")
+                                    val leftCurrent = setValuesLeft.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                                    InlineStepperRow(
+                                        label = stringResource(R.string.left),
+                                        value = setValuesLeft.getOrElse(index) { "" },
+                                        onValueChange = { value ->
+                                            if (value.isEmpty() || value.all { it.isDigit() }) {
+                                                val newList = setValuesLeft.toMutableList()
+                                                while (newList.size <= index) {
+                                                    newList.add("")
+                                                }
+                                                newList[index] = value
+                                                setValuesLeft = newList
                                             }
-                                            newList[index] = value
+                                        },
+                                        keyboardType = KeyboardType.Number,
+                                        accentColor = Purple600,
+                                        decrementEnabled = leftCurrent > 0,
+                                        onDecrement = {
+                                            val current = setValuesLeft.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                                            val next = (current - 1).coerceAtLeast(0)
+                                            if (next == current) return@InlineStepperRow false
+                                            val newList = setValuesLeft.toMutableList()
+                                            while (newList.size <= index) newList.add("")
+                                            newList[index] = next.toString()
                                             setValuesLeft = newList
-                                        }
-                                    },
-                                    label = { Text(stringResource(R.string.left_value, if (exercise.type == "Dynamic") stringResource(R.string.reps_label) else stringResource(R.string.time_label))) },
-                                    modifier = Modifier.weight(1f),
-                                    singleLine = true,
-                                    keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Number
-                                    ),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = Purple600,
-                                        unfocusedBorderColor = appColors.border,
-                                        focusedLabelColor = Purple600,
-                                        unfocusedLabelColor = appColors.textSecondary,
-                                        cursorColor = Purple600,
-                                        focusedTextColor = appColors.textPrimary,
-                                        unfocusedTextColor = appColors.textPrimary
+                                            true
+                                        },
+                                        onIncrement = {
+                                            val current = setValuesLeft.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                                            val newList = setValuesLeft.toMutableList()
+                                            while (newList.size <= index) newList.add("")
+                                            newList[index] = (current + 1).toString()
+                                            setValuesLeft = newList
+                                            true
+                                        },
+                                        appColors = appColors
                                     )
-                                )
+                                }
                             }
 
                             // セット別 距離/荷重/アシスト入力
@@ -1043,29 +1031,38 @@ fun WorkoutInputScreen(
                             modifier = Modifier.padding(16.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            OutlinedTextField(
-                                value = setValues.getOrElse(index) { "" },
-                                onValueChange = { value ->
-                                    onSetValueChange(index, value)
-                                },
-                                label = {
-                                    Text(stringResource(R.string.set_number_with_unit, index + 1, if (exercise.type == "Dynamic") stringResource(R.string.reps_label) else stringResource(R.string.time_label)))
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                singleLine = true,
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Number
-                                ),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Green600,
-                                    unfocusedBorderColor = appColors.border,
-                                    focusedLabelColor = Green600,
-                                    unfocusedLabelColor = appColors.textSecondary,
-                                    cursorColor = Green600,
-                                    focusedTextColor = appColors.textPrimary,
-                                    unfocusedTextColor = appColors.textPrimary
-                                )
+                            SetCardHeader(
+                                index = index,
+                                canRemove = numberOfSets > 1,
+                                onRemove = { removeSetAt(index) },
+                                appColors = appColors
                             )
+                            run {
+                                val biCurrent = setValues.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                                InlineStepperRow(
+                                    label = stringResource(if (exercise.type == "Dynamic") R.string.reps_label else R.string.time_label),
+                                    value = setValues.getOrElse(index) { "" },
+                                    onValueChange = { value ->
+                                        onSetValueChange(index, value)
+                                    },
+                                    keyboardType = KeyboardType.Number,
+                                    accentColor = Green600,
+                                    decrementEnabled = biCurrent > 0,
+                                    onDecrement = {
+                                        val current = setValues.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                                        val next = (current - 1).coerceAtLeast(0)
+                                        if (next == current) return@InlineStepperRow false
+                                        onSetValueChange(index, next.toString())
+                                        true
+                                    },
+                                    onIncrement = {
+                                        val current = setValues.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                                        onSetValueChange(index, (current + 1).toString())
+                                        true
+                                    },
+                                    appColors = appColors
+                                )
+                            }
 
                             // セット別 距離/荷重/アシスト入力
                             PerSetTrackingFields(
@@ -1086,6 +1083,33 @@ fun WorkoutInputScreen(
                                 appColors = appColors
                             )
                         }
+                    }
+                }
+            }
+
+            // セット追加ボタン
+            if (numberOfSets < 10) {
+                item {
+                    OutlinedButton(
+                        onClick = {
+                            // ローカル状態にも最後の値をコピーしてから親に通知
+                            setValuesRight = setValuesRight + (setValuesRight.lastOrNull() ?: "")
+                            setValuesLeft = setValuesLeft + (setValuesLeft.lastOrNull() ?: "")
+                            distanceInputs = distanceInputs + (distanceInputs.lastOrNull() ?: "")
+                            weightInputs = weightInputs + (weightInputs.lastOrNull() ?: "")
+                            assistanceInputs = assistanceInputs + (assistanceInputs.lastOrNull() ?: "")
+                            onAddSet()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = Green600
+                        )
+                    ) {
+                        Text(
+                            text = "+ " + stringResource(R.string.add_extra_set_button),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
@@ -1321,7 +1345,9 @@ private fun PerSetTrackingFields(
 ) {
     // 距離
     if (exercise.distanceTrackingEnabled) {
-        OutlinedTextField(
+        val distanceCurrent = distanceInputs.getOrElse(index) { "" }.toIntOrNull() ?: 0
+        InlineStepperRow(
+            label = stringResource(R.string.distance_input_label),
             value = distanceInputs.getOrElse(index) { "" },
             onValueChange = { value ->
                 val normalized = value
@@ -1331,25 +1357,30 @@ private fun PerSetTrackingFields(
                     onDistanceChange(index, normalized)
                 }
             },
-            label = { Text(stringResource(R.string.distance_input_label)) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Blue600,
-                unfocusedBorderColor = appColors.border,
-                focusedLabelColor = Blue600,
-                unfocusedLabelColor = appColors.textSecondary,
-                cursorColor = Blue600,
-                focusedTextColor = appColors.textPrimary,
-                unfocusedTextColor = appColors.textPrimary
-            )
+            keyboardType = KeyboardType.Number,
+            accentColor = Blue600,
+            decrementEnabled = distanceCurrent > 0,
+            onDecrement = {
+                val current = distanceInputs.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                val next = (current - 1).coerceAtLeast(0)
+                if (next == current) return@InlineStepperRow false
+                onDistanceChange(index, next.toString())
+                true
+            },
+            onIncrement = {
+                val current = distanceInputs.getOrElse(index) { "" }.toIntOrNull() ?: 0
+                onDistanceChange(index, (current + 1).toString())
+                true
+            },
+            appColors = appColors
         )
     }
 
     // 荷重（kg）
     if (exercise.weightTrackingEnabled) {
-        OutlinedTextField(
+        val weightCurrent = weightInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
+        InlineStepperRow(
+            label = stringResource(R.string.weight_input_label),
             value = weightInputs.getOrElse(index) { "" },
             onValueChange = { value ->
                 val normalized = value
@@ -1362,25 +1393,30 @@ private fun PerSetTrackingFields(
                     onWeightChange(index, normalized)
                 }
             },
-            label = { Text(stringResource(R.string.weight_input_label)) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Orange600,
-                unfocusedBorderColor = appColors.border,
-                focusedLabelColor = Orange600,
-                unfocusedLabelColor = appColors.textSecondary,
-                cursorColor = Orange600,
-                focusedTextColor = appColors.textPrimary,
-                unfocusedTextColor = appColors.textPrimary
-            )
+            keyboardType = KeyboardType.Decimal,
+            accentColor = Orange600,
+            decrementEnabled = weightCurrent > 0.0,
+            onDecrement = {
+                val current = weightInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
+                val next = (current - 1.0).coerceAtLeast(0.0)
+                if (next == current) return@InlineStepperRow false
+                onWeightChange(index, formatStepKg(next))
+                true
+            },
+            onIncrement = {
+                val current = weightInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
+                onWeightChange(index, formatStepKg(current + 1.0))
+                true
+            },
+            appColors = appColors
         )
     }
 
     // アシスト（kg）
     if (exercise.assistanceTrackingEnabled) {
-        OutlinedTextField(
+        val assistCurrent = assistanceInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
+        InlineStepperRow(
+            label = stringResource(R.string.assistance_input_label),
             value = assistanceInputs.getOrElse(index) { "" },
             onValueChange = { value ->
                 val normalized = value
@@ -1393,21 +1429,28 @@ private fun PerSetTrackingFields(
                     onAssistanceChange(index, normalized)
                 }
             },
-            label = { Text(stringResource(R.string.assistance_input_label)) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Amber500,
-                unfocusedBorderColor = appColors.border,
-                focusedLabelColor = Amber500,
-                unfocusedLabelColor = appColors.textSecondary,
-                cursorColor = Amber500,
-                focusedTextColor = appColors.textPrimary,
-                unfocusedTextColor = appColors.textPrimary
-            )
+            keyboardType = KeyboardType.Decimal,
+            accentColor = Amber500,
+            decrementEnabled = assistCurrent > 0.0,
+            onDecrement = {
+                val current = assistanceInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
+                val next = (current - 1.0).coerceAtLeast(0.0)
+                if (next == current) return@InlineStepperRow false
+                onAssistanceChange(index, formatStepKg(next))
+                true
+            },
+            onIncrement = {
+                val current = assistanceInputs.getOrElse(index) { "" }.toDoubleOrNull() ?: 0.0
+                onAssistanceChange(index, formatStepKg(current + 1.0))
+                true
+            },
+            appColors = appColors
         )
     }
+}
+
+private fun formatStepKg(kg: Double): String {
+    return if (kg == kg.toLong().toDouble()) kg.toLong().toString() else "%.1f".format(kg)
 }
 
 /**
@@ -1428,4 +1471,151 @@ private fun parseWeightG(input: String): Int? {
     if (trimmed.isEmpty() || trimmed == ".") return null
     val kg = trimmed.toDoubleOrNull() ?: return null
     return (kg * 1000).toInt()
+}
+
+/**
+ * セットカード上部のヘッダー。セット番号と削除アイコン（X）。
+ */
+@Composable
+private fun SetCardHeader(
+    index: Int,
+    canRemove: Boolean,
+    onRemove: () -> Unit,
+    appColors: io.github.gonbei774.calisthenicsmemory.ui.theme.AppColors
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.set_number_format, index + 1),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = appColors.textPrimary,
+            modifier = Modifier.weight(1f)
+        )
+        IconButton(
+            onClick = onRemove,
+            enabled = canRemove,
+            modifier = Modifier.size(36.dp)
+        ) {
+            Icon(
+                Icons.Default.Clear,
+                contentDescription = stringResource(R.string.delete),
+                tint = if (canRemove) appColors.textSecondary else appColors.cardBackgroundDisabled,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+/**
+ * 長押しで連続発火する円形ステップボタン（ナビゲーションモードと同じ見た目）。
+ * - 単発タップは即座に1回発火
+ * - 350ms 押し続けると連続モード突入、80ms 間隔で発火
+ * - onStep が false を返したら連続モード停止（下限到達など）
+ */
+@Composable
+private fun RepeatableStepButton(
+    label: String,
+    size: Dp,
+    enabled: Boolean,
+    contentDescription: String,
+    onStep: () -> Boolean
+) {
+    val scope = rememberCoroutineScope()
+    val currentOnStep by rememberUpdatedState(onStep)
+    val containerColor = if (enabled) Green600 else Slate700
+    val textColor = if (enabled) Color.White else Slate500
+    Box(
+        modifier = Modifier
+            .size(size)
+            .background(containerColor, CircleShape)
+            .pointerInput(enabled) {
+                if (!enabled) return@pointerInput
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = false)
+                    val firstResult = currentOnStep()
+                    var repeatJob: Job? = null
+                    try {
+                        if (firstResult) {
+                            repeatJob = scope.launch {
+                                delay(350)
+                                while (isActive) {
+                                    if (!currentOnStep()) break
+                                    delay(80)
+                                }
+                            }
+                        }
+                        waitForUpOrCancellation()
+                    } finally {
+                        repeatJob?.cancel()
+                    }
+                }
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            fontSize = if (size <= 32.dp) 18.sp else 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = textColor
+        )
+    }
+}
+
+@Composable
+private fun InlineStepperRow(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    keyboardType: KeyboardType,
+    accentColor: Color,
+    decrementEnabled: Boolean,
+    onDecrement: () -> Boolean,
+    onIncrement: () -> Boolean,
+    appColors: io.github.gonbei774.calisthenicsmemory.ui.theme.AppColors
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            color = appColors.textSecondary,
+            modifier = Modifier.weight(1f)
+        )
+        RepeatableStepButton(
+            label = "−",
+            size = 36.dp,
+            enabled = decrementEnabled,
+            contentDescription = stringResource(R.string.nav_step_decrement),
+            onStep = onDecrement
+        )
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier
+                .width(72.dp)
+                .padding(horizontal = 4.dp),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            textStyle = TextStyle(
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = appColors.textPrimary,
+                textAlign = TextAlign.Center
+            ),
+            cursorBrush = SolidColor(accentColor)
+        )
+        RepeatableStepButton(
+            label = "+",
+            size = 36.dp,
+            enabled = true,
+            contentDescription = stringResource(R.string.nav_step_increment),
+            onStep = onIncrement
+        )
+    }
 }
