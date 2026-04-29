@@ -2195,7 +2195,7 @@ private fun RepeatableStepButton(
     // 値が変わるたびに onStep ラムダが新しくなるが、pointerInput は再起動させたくないので
     // rememberUpdatedState で「常に最新」のラムダを参照する
     val currentOnStep by rememberUpdatedState(onStep)
-    val containerColor = if (enabled) Green600 else Slate700
+    val containerColor = if (enabled) Orange600 else Slate700
     val textColor = if (enabled) Color.White else Slate500
     Box(
         modifier = Modifier
