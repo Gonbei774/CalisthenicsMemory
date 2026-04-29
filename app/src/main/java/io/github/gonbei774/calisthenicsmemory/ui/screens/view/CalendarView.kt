@@ -143,28 +143,30 @@ fun CalendarView(
         }
     } else {
         // 月間表示（通常・1ヶ月・3ヶ月）
-        val months = remember(items) {
-            val now = YearMonth.now()
-            if (items.isEmpty()) {
-                listOf(now)
-            } else {
-                val dates = items.mapNotNull { item ->
-                    try {
-                        LocalDate.parse(item.date)
-                    } catch (e: Exception) {
-                        null
-                    }
-                }
-                if (dates.isEmpty()) {
-                    listOf(now)
-                } else {
-                    val earliest = YearMonth.from(dates.min())
-                    val latest = maxOf(YearMonth.from(dates.max()), now)
-                    generateSequence(earliest) { it.plusMonths(1) }
-                        .takeWhile { it <= latest }
-                        .toList()
+        val months = remember(items, selectedPeriod, today) {
+            val now = YearMonth.from(today)
+            val dataDates = items.mapNotNull { item ->
+                try {
+                    LocalDate.parse(item.date)
+                } catch (e: Exception) {
+                    null
                 }
             }
+            val periodStart = selectedPeriod?.let {
+                YearMonth.from(today.minusDays(it.days.toLong() - 1))
+            }
+            val earliest = when {
+                periodStart != null -> periodStart
+                dataDates.isNotEmpty() -> YearMonth.from(dataDates.min())
+                else -> now
+            }
+            val latest = maxOf(
+                dataDates.maxOfOrNull { YearMonth.from(it) } ?: now,
+                now
+            )
+            generateSequence(earliest) { it.plusMonths(1) }
+                .takeWhile { it <= latest }
+                .toList()
         }
 
         val listState = rememberLazyListState()
