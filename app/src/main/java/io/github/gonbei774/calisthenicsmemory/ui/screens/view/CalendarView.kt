@@ -1,5 +1,6 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens.view
 
+import android.text.format.DateUtils
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -30,6 +32,7 @@ import org.json.JSONArray
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.ZoneId
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -465,15 +468,18 @@ private fun StatsRow(
     }
 }
 
+@Composable
 private fun formatStatsRange(start: LocalDate, end: LocalDate): String {
-    val startStr = "${start.year}/${start.monthValue}/${start.dayOfMonth}"
-    if (start == end) return startStr
-    val endStr = if (start.year == end.year) {
-        "${end.monthValue}/${end.dayOfMonth}"
-    } else {
-        "${end.year}/${end.monthValue}/${end.dayOfMonth}"
-    }
-    return "$startStr 〜 $endStr"
+    val context = LocalContext.current
+    val zone = ZoneId.systemDefault()
+    val startMillis = start.atStartOfDay(zone).toInstant().toEpochMilli()
+    val endMillis = end.atStartOfDay(zone).toInstant().toEpochMilli()
+    return DateUtils.formatDateRange(
+        context,
+        startMillis,
+        endMillis,
+        DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_MONTH or DateUtils.FORMAT_SHOW_YEAR
+    )
 }
 
 @Composable
