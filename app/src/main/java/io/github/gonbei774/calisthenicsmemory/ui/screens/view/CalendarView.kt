@@ -68,6 +68,41 @@ fun CalendarView(
     val today = remember { LocalDate.now() }
     val exerciseMap = remember(exercises) { exercises.associateBy { it.id } }
 
+    val statsRange = remember(items, selectedPeriod, selectedDate, today) {
+        when {
+            selectedDate != null -> selectedDate!! to selectedDate!!
+            selectedPeriod != null -> today.minusDays(selectedPeriod.days.toLong() - 1) to today
+            else -> {
+                val earliest = items.mapNotNull {
+                    try { LocalDate.parse(it.date) } catch (_: Exception) { null }
+                }.minOrNull() ?: today
+                earliest to today
+            }
+        }
+    }
+
+    val stats = remember(items, selectedExerciseFilter, selectedDate) {
+        val targetItems = selectedDate?.let { d ->
+            val key = d.toString()
+            items.filter { it.date == key }
+        } ?: items
+        val sessions = targetItems.filterIsInstance<RecordItem.Session>()
+        val totalSets = sessions.sumOf { it.session.records.size }
+        val exerciseCount = sessions.map { it.session.exerciseId }.distinct().size
+        val intervalCount = targetItems.count { it is RecordItem.Interval }
+        val totalValue = if (selectedExerciseFilter != null) {
+            sessions.sumOf { s ->
+                s.session.records.sumOf { r -> r.valueRight + (r.valueLeft ?: 0) }
+            }
+        } else 0
+        StatsSummary(
+            totalSets = totalSets,
+            exerciseCount = exerciseCount,
+            intervalCount = intervalCount,
+            totalValue = totalValue
+        )
+    }
+
     if (selectedPeriod == Period.OneWeek) {
         // 週間表示（1週間フィルター時）
         val weekDays = remember(today) {
@@ -106,6 +141,16 @@ fun CalendarView(
                         )
                     }
                 }
+            }
+
+            item(key = "week-stats") {
+                StatsCard(
+                    stats = stats,
+                    selectedExercise = selectedExerciseFilter,
+                    rangeStart = statsRange.first,
+                    rangeEnd = statsRange.second,
+                    appColors = appColors
+                )
             }
 
             // 選択日の記録サマリー
@@ -194,13 +239,24 @@ fun CalendarView(
                     },
                     appColors = appColors
                 )
+            }
 
-                val selected = selectedDate
-                if (selected != null && YearMonth.from(selected) == yearMonth) {
-                    val dateKey = selected.toString()
-                    val dayItems = dayInfoMap[dateKey]?.items
-                    if (!dayItems.isNullOrEmpty()) {
-                        Spacer(modifier = Modifier.height(8.dp))
+            item(key = "month-stats") {
+                StatsCard(
+                    stats = stats,
+                    selectedExercise = selectedExerciseFilter,
+                    rangeStart = statsRange.first,
+                    rangeEnd = statsRange.second,
+                    appColors = appColors
+                )
+            }
+
+            // 選択日の記録サマリー
+            val selected = selectedDate
+            if (selected != null) {
+                val dayItems = dayInfoMap[selected.toString()]?.items
+                if (!dayItems.isNullOrEmpty()) {
+                    item(key = "month-selected-summary") {
                         DayRecordSummary(
                             date = selected,
                             items = dayItems,
@@ -333,6 +389,97 @@ private data class DayInfo(
     val score: Double,
     val items: List<RecordItem>
 )
+
+private data class StatsSummary(
+    val totalSets: Int,
+    val exerciseCount: Int,
+    val intervalCount: Int,
+    val totalValue: Int
+)
+
+@Composable
+private fun StatsCard(
+    stats: StatsSummary,
+    selectedExercise: Exercise?,
+    rangeStart: LocalDate,
+    rangeEnd: LocalDate,
+    appColors: AppColors
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = formatStatsRange(rangeStart, rangeEnd),
+                fontSize = 12.sp,
+                color = appColors.textTertiary
+            )
+            StatsRow(label = "合計セット数", value = stats.totalSets.toString(), appColors = appColors)
+            if (selectedExercise == null) {
+                StatsRow(label = "種目数", value = stats.exerciseCount.toString(), appColors = appColors)
+                StatsRow(label = "合計インターバル数", value = stats.intervalCount.toString(), appColors = appColors)
+            } else {
+                if (selectedExercise.type == "Isometric") {
+                    StatsRow(label = "合計時間", value = formatTotalSeconds(stats.totalValue), appColors = appColors)
+                } else {
+                    StatsRow(label = "合計レップ数", value = stats.totalValue.toString(), appColors = appColors)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatsRow(
+    label: String,
+    value: String,
+    appColors: AppColors
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(appColors.cardBackgroundSecondary)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            color = appColors.textSecondary
+        )
+        Text(
+            text = value,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = appColors.textPrimary
+        )
+    }
+}
+
+private fun formatStatsRange(start: LocalDate, end: LocalDate): String {
+    val startStr = "${start.year}/${start.monthValue}/${start.dayOfMonth}"
+    if (start == end) return startStr
+    val endStr = if (start.year == end.year) {
+        "${end.monthValue}/${end.dayOfMonth}"
+    } else {
+        "${end.year}/${end.monthValue}/${end.dayOfMonth}"
+    }
+    return "$startStr 〜 $endStr"
+}
+
+private fun formatTotalSeconds(totalSeconds: Int): String {
+    if (totalSeconds < 60) return "${totalSeconds}秒"
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return if (seconds == 0) "${minutes}分" else "${minutes}分${seconds}秒"
+}
 
 @Composable
 private fun DayCell(
