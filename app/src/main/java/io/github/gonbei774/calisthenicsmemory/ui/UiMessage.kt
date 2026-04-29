@@ -40,6 +40,9 @@ sealed class UiMessage {
     /** セットが記録された */
     data class SetsRecorded(val count: Int) : UiMessage()
 
+    /** プログラムモードのセット記録完了（複数種目の合計） */
+    data class ProgramSetsRecorded(val totalCount: Int) : UiMessage()
+
     /** 記録が更新された */
     object RecordUpdated : UiMessage()
 

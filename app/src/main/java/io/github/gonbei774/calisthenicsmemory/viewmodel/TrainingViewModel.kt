@@ -351,7 +351,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         comment: String,
         distancesCm: List<Int?> = emptyList(),   // セット別距離（cm）
         weightsG: List<Int?> = emptyList(),      // セット別追加ウエイト（g）
-        assistancesG: List<Int?> = emptyList()   // セット別アシスト量（g）
+        assistancesG: List<Int?> = emptyList(),  // セット別アシスト量（g）
+        emitMessage: Boolean = true              // false の場合スナックバー通知を抑制（プログラムモードで合計を1回だけ流すため）
     ) {
         viewModelScope.launch {
             try {
@@ -370,7 +371,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     )
                 }
                 recordDao.insertRecords(records)
-                _snackbarMessage.value = UiMessage.SetsRecorded(values.size)
+                if (emitMessage) {
+                    _snackbarMessage.value = UiMessage.SetsRecorded(values.size)
+                }
             } catch (e: Exception) {
                 _snackbarMessage.value = UiMessage.ErrorOccurred
             }
@@ -387,7 +390,8 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         comment: String,
         distancesCm: List<Int?> = emptyList(),   // セット別距離（cm）
         weightsG: List<Int?> = emptyList(),      // セット別追加ウエイト（g）
-        assistancesG: List<Int?> = emptyList()   // セット別アシスト量（g）
+        assistancesG: List<Int?> = emptyList(),  // セット別アシスト量（g）
+        emitMessage: Boolean = true              // false の場合スナックバー通知を抑制（プログラムモードで合計を1回だけ流すため）
     ) {
         viewModelScope.launch {
             try {
@@ -407,11 +411,18 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                     )
                 }
                 recordDao.insertRecords(records)
-                _snackbarMessage.value = UiMessage.SetsRecorded(valuesRight.size)
+                if (emitMessage) {
+                    _snackbarMessage.value = UiMessage.SetsRecorded(valuesRight.size)
+                }
             } catch (e: Exception) {
                 _snackbarMessage.value = UiMessage.ErrorOccurred
             }
         }
+    }
+
+    /** プログラムモード保存完了の通知（合計セット数を1回だけ流す） */
+    fun notifyProgramSetsRecorded(totalSets: Int) {
+        _snackbarMessage.value = UiMessage.ProgramSetsRecorded(totalSets)
     }
 
     fun updateRecord(record: TrainingRecord) {

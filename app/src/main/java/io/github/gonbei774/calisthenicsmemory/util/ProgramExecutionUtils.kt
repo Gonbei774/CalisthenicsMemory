@@ -25,6 +25,8 @@ fun saveProgramResults(
         .mapIndexed { index, pair -> index to pair }
         .groupBy { (_, pair) -> pair.second.id }
 
+    var totalSetsRecorded = 0
+
     groupedByExerciseId.forEach { (exerciseId, exerciseInfoList) ->
         val exercise = exerciseInfoList.first().second.second
 
@@ -70,8 +72,10 @@ fun saveProgramResults(
                     comment = session.comment,
                     distancesCm = distancesCm,
                     weightsG = weightsG,
-                    assistancesG = assistancesG
+                    assistancesG = assistancesG,
+                    emitMessage = false
                 )
+                totalSetsRecorded += valuesRight.size
             }
         } else {
             // 両側種目: 0のセットは除外
@@ -90,10 +94,16 @@ fun saveProgramResults(
                     comment = session.comment,
                     distancesCm = distancesCm,
                     weightsG = weightsG,
-                    assistancesG = assistancesG
+                    assistancesG = assistancesG,
+                    emitMessage = false
                 )
+                totalSetsRecorded += values.size
             }
         }
+    }
+
+    if (totalSetsRecorded > 0) {
+        viewModel.notifyProgramSetsRecorded(totalSetsRecorded)
     }
 }
 
