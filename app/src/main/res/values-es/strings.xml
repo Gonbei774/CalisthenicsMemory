@@ -744,4 +744,14 @@
     <string name="share_import_count_skipped">%1$d omitidos</string>
     <string name="exercise_type_dynamic_description">Por ejemplo: flexiones, dominadas. Registradas por repeticiones.</string>
     <string name="exercise_type_isometric_description">Por ejemplo, plancha, sentadilla en L. Registrado por tiempo de mantenimiento.</string>
+    <string name="add_extra_set_button">Añadir otra serie</string>
+    <string name="add_extra_set_title">Añadir conjunto</string>
+    <string name="add_extra_set_confirm">Añadir</string>
+    <string name="program_validation_incomplete_sets_or_value">A algunos ejercicios les faltan series o el valor objetivo</string>
+    <string name="nav_edit_target">Editar destino</string>
+    <string name="nav_edit_actual">Editar el valor actual</string>
+    <string name="nav_step_decrement">Disminuir</string>
+    <string name="nav_step_increment">Aumentar</string>
+    <string name="nav_check_set">Marcar como completado</string>
+    <string name="nav_uncheck_set">Marcar como no completado</string>
 </resources>
