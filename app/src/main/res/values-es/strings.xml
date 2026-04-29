@@ -754,4 +754,12 @@
     <string name="nav_step_increment">Aumentar</string>
     <string name="nav_check_set">Marcar como completado</string>
     <string name="nav_uncheck_set">Marcar como no completado</string>
+    <string name="stats_exercise_count">Ejercicios</string>
+    <string name="stats_total_intervals">Total de intervalos</string>
+    <string name="stats_total_time">Duración total</string>
+    <string name="stats_total_reps">Repeticiones totales</string>
+    <string name="stats_total_seconds_format">%d seg</string>
+    <string name="stats_total_minutes_format">%d min</string>
+    <string name="stats_total_min_sec_format">%1$d min %2$d seg</string>
+    <string name="stats_total_sets">Total de conjuntos</string>
 </resources>
