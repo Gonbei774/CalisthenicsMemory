@@ -211,7 +211,13 @@ fun ProgramExecutionScreen(
                             loopId = loopId,
                             roundNumber = roundNumber,
                             totalRounds = totalRounds,
-                            loopRestAfterSeconds = 0  // Rightの後はLeftが来るので0
+                            loopRestAfterSeconds = 0,  // Rightの後はLeftが来るので0
+                            weightG = matchingRecord?.weightG,
+                            distanceCm = matchingRecord?.distanceCm,
+                            assistanceG = matchingRecord?.assistanceG,
+                            previousWeightG = matchingRecord?.weightG,
+                            previousDistanceCm = matchingRecord?.distanceCm,
+                            previousAssistanceG = matchingRecord?.assistanceG
                         )
                     )
                     allSets.add(
@@ -225,7 +231,13 @@ fun ProgramExecutionScreen(
                             loopId = loopId,
                             roundNumber = roundNumber,
                             totalRounds = totalRounds,
-                            loopRestAfterSeconds = actualLoopRestAfter
+                            loopRestAfterSeconds = actualLoopRestAfter,
+                            weightG = matchingRecord?.weightG,
+                            distanceCm = matchingRecord?.distanceCm,
+                            assistanceG = matchingRecord?.assistanceG,
+                            previousWeightG = matchingRecord?.weightG,
+                            previousDistanceCm = matchingRecord?.distanceCm,
+                            previousAssistanceG = matchingRecord?.assistanceG
                         )
                     )
                 } else {
@@ -242,7 +254,13 @@ fun ProgramExecutionScreen(
                             loopId = loopId,
                             roundNumber = roundNumber,
                             totalRounds = totalRounds,
-                            loopRestAfterSeconds = actualLoopRestAfter
+                            loopRestAfterSeconds = actualLoopRestAfter,
+                            weightG = matchingRecord?.weightG,
+                            distanceCm = matchingRecord?.distanceCm,
+                            assistanceG = matchingRecord?.assistanceG,
+                            previousWeightG = matchingRecord?.weightG,
+                            previousDistanceCm = matchingRecord?.distanceCm,
+                            previousAssistanceG = matchingRecord?.assistanceG
                         )
                     )
                 }
@@ -567,8 +585,15 @@ fun ProgramExecutionScreen(
                         ProgramConfirmStep(
                             session = step.session,
                             onUpdateTargetValue = { setIndex, newValue ->
+                                if (setIndex !in step.session.sets.indices) return@ProgramConfirmStep
+                                val target = step.session.sets[setIndex]
+                                // 同じ exerciseIndex + setNumber の全行（R/L 両側 + 全ラウンド）に伝播
                                 val newSets = step.session.sets.toMutableList()
-                                newSets[setIndex] = newSets[setIndex].copy(targetValue = newValue)
+                                newSets.forEachIndexed { i, s ->
+                                    if (s.exerciseIndex == target.exerciseIndex && s.setNumber == target.setNumber) {
+                                        newSets[i] = s.copy(targetValue = newValue)
+                                    }
+                                }
                                 currentStep = ProgramExecutionStep.Confirm(step.session.copy(sets = newSets))
                             },
                             onUpdateInterval = { exerciseIndex, newInterval ->
@@ -582,13 +607,37 @@ fun ProgramExecutionScreen(
                                 // 再構成をトリガー（新しいセッションオブジェクトを作成）
                                 currentStep = ProgramExecutionStep.Confirm(step.session.copy())
                             },
-                            onUpdateExerciseSetsValue = { exerciseIndex, delta ->
-                                // この種目の全セットの値を一括更新
+                            onUpdateSetWeightG = { setIndex, newValue ->
+                                if (setIndex !in step.session.sets.indices) return@ProgramConfirmStep
+                                val target = step.session.sets[setIndex]
+                                // 同じ exerciseIndex + setNumber の全行（R/L 両側 + 全ラウンド）に伝播
+                                // Confirm 画面はラウンド1のみ表示するため、編集は全ラウンドに反映
                                 val newSets = step.session.sets.toMutableList()
-                                newSets.forEachIndexed { index, set ->
-                                    if (set.exerciseIndex == exerciseIndex) {
-                                        val newValue = (set.targetValue + delta).coerceAtLeast(0)
-                                        newSets[index] = set.copy(targetValue = newValue)
+                                newSets.forEachIndexed { i, s ->
+                                    if (s.exerciseIndex == target.exerciseIndex && s.setNumber == target.setNumber) {
+                                        newSets[i] = s.copy(weightG = newValue)
+                                    }
+                                }
+                                currentStep = ProgramExecutionStep.Confirm(step.session.copy(sets = newSets))
+                            },
+                            onUpdateSetDistanceCm = { setIndex, newValue ->
+                                if (setIndex !in step.session.sets.indices) return@ProgramConfirmStep
+                                val target = step.session.sets[setIndex]
+                                val newSets = step.session.sets.toMutableList()
+                                newSets.forEachIndexed { i, s ->
+                                    if (s.exerciseIndex == target.exerciseIndex && s.setNumber == target.setNumber) {
+                                        newSets[i] = s.copy(distanceCm = newValue)
+                                    }
+                                }
+                                currentStep = ProgramExecutionStep.Confirm(step.session.copy(sets = newSets))
+                            },
+                            onUpdateSetAssistanceG = { setIndex, newValue ->
+                                if (setIndex !in step.session.sets.indices) return@ProgramConfirmStep
+                                val target = step.session.sets[setIndex]
+                                val newSets = step.session.sets.toMutableList()
+                                newSets.forEachIndexed { i, s ->
+                                    if (s.exerciseIndex == target.exerciseIndex && s.setNumber == target.setNumber) {
+                                        newSets[i] = s.copy(assistanceG = newValue)
                                     }
                                 }
                                 currentStep = ProgramExecutionStep.Confirm(step.session.copy(sets = newSets))
@@ -617,6 +666,10 @@ fun ProgramExecutionScreen(
                                 val lastSetOfFirstRound = firstRoundSets.lastOrNull()
                                 val interval = lastSetOfFirstRound?.intervalSeconds ?: pe.intervalSeconds
                                 val targetValue = lastSetOfFirstRound?.targetValue ?: pe.targetValue
+                                // 新セットの荷重/距離/アシストは最後のセットから転記（無ければ null）
+                                val lastWeightG = lastSetOfFirstRound?.weightG
+                                val lastDistanceCm = lastSetOfFirstRound?.distanceCm
+                                val lastAssistanceG = lastSetOfFirstRound?.assistanceG
 
                                 // 他の種目のセットはそのまま、この種目のセットのみ再構築
                                 val newSets = mutableListOf<ProgramWorkoutSet>()
@@ -637,6 +690,11 @@ fun ProgramExecutionScreen(
                                                 val existingBilateral = existingRoundSets.find { it.setNumber == setNum && it.side == null }
 
                                                 if (ex.laterality == "Unilateral") {
+                                                    val existingTracking = existingRight ?: existingLeft
+                                                    val isNewSet = existingTracking == null
+                                                    val carriedWeightG = if (isNewSet) lastWeightG else existingTracking?.weightG
+                                                    val carriedDistanceCm = if (isNewSet) lastDistanceCm else existingTracking?.distanceCm
+                                                    val carriedAssistanceG = if (isNewSet) lastAssistanceG else existingTracking?.assistanceG
                                                     newSets.add(ProgramWorkoutSet(
                                                         exerciseIndex = idx,
                                                         setNumber = setNum,
@@ -647,7 +705,13 @@ fun ProgramExecutionScreen(
                                                         loopId = loopId,
                                                         roundNumber = round,
                                                         totalRounds = totalRounds,
-                                                        loopRestAfterSeconds = 0  // Rightの後はLeftが来る
+                                                        loopRestAfterSeconds = 0,  // Rightの後はLeftが来る
+                                                        weightG = carriedWeightG,
+                                                        distanceCm = carriedDistanceCm,
+                                                        assistanceG = carriedAssistanceG,
+                                                        previousWeightG = existingTracking?.previousWeightG,
+                                                        previousDistanceCm = existingTracking?.previousDistanceCm,
+                                                        previousAssistanceG = existingTracking?.previousAssistanceG
                                                     ))
                                                     newSets.add(ProgramWorkoutSet(
                                                         exerciseIndex = idx,
@@ -659,9 +723,16 @@ fun ProgramExecutionScreen(
                                                         loopId = loopId,
                                                         roundNumber = round,
                                                         totalRounds = totalRounds,
-                                                        loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0
+                                                        loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0,
+                                                        weightG = carriedWeightG,
+                                                        distanceCm = carriedDistanceCm,
+                                                        assistanceG = carriedAssistanceG,
+                                                        previousWeightG = existingTracking?.previousWeightG,
+                                                        previousDistanceCm = existingTracking?.previousDistanceCm,
+                                                        previousAssistanceG = existingTracking?.previousAssistanceG
                                                     ))
                                                 } else {
+                                                    val isNewSet = existingBilateral == null
                                                     newSets.add(ProgramWorkoutSet(
                                                         exerciseIndex = idx,
                                                         setNumber = setNum,
@@ -672,7 +743,13 @@ fun ProgramExecutionScreen(
                                                         loopId = loopId,
                                                         roundNumber = round,
                                                         totalRounds = totalRounds,
-                                                        loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0
+                                                        loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0,
+                                                        weightG = if (isNewSet) lastWeightG else existingBilateral?.weightG,
+                                                        distanceCm = if (isNewSet) lastDistanceCm else existingBilateral?.distanceCm,
+                                                        assistanceG = if (isNewSet) lastAssistanceG else existingBilateral?.assistanceG,
+                                                        previousWeightG = existingBilateral?.previousWeightG,
+                                                        previousDistanceCm = existingBilateral?.previousDistanceCm,
+                                                        previousAssistanceG = existingBilateral?.previousAssistanceG
                                                     ))
                                                 }
                                             }
@@ -738,7 +815,13 @@ fun ProgramExecutionScreen(
                                                             loopId = loopId,
                                                             roundNumber = round,
                                                             totalRounds = totalRounds,
-                                                            loopRestAfterSeconds = 0  // Rightの後はLeftが来る
+                                                            loopRestAfterSeconds = 0,  // Rightの後はLeftが来る
+                                                            weightG = record.weightG,
+                                                            distanceCm = record.distanceCm,
+                                                            assistanceG = record.assistanceG,
+                                                            previousWeightG = record.weightG,
+                                                            previousDistanceCm = record.distanceCm,
+                                                            previousAssistanceG = record.assistanceG
                                                         ))
                                                         newSets.add(ProgramWorkoutSet(
                                                             exerciseIndex = index,
@@ -750,7 +833,13 @@ fun ProgramExecutionScreen(
                                                             loopId = loopId,
                                                             roundNumber = round,
                                                             totalRounds = totalRounds,
-                                                            loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0
+                                                            loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0,
+                                                            weightG = record.weightG,
+                                                            distanceCm = record.distanceCm,
+                                                            assistanceG = record.assistanceG,
+                                                            previousWeightG = record.weightG,
+                                                            previousDistanceCm = record.distanceCm,
+                                                            previousAssistanceG = record.assistanceG
                                                         ))
                                                     } else {
                                                         newSets.add(ProgramWorkoutSet(
@@ -763,7 +852,13 @@ fun ProgramExecutionScreen(
                                                             loopId = loopId,
                                                             roundNumber = round,
                                                             totalRounds = totalRounds,
-                                                            loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0
+                                                            loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0,
+                                                            weightG = record.weightG,
+                                                            distanceCm = record.distanceCm,
+                                                            assistanceG = record.assistanceG,
+                                                            previousWeightG = record.weightG,
+                                                            previousDistanceCm = record.distanceCm,
+                                                            previousAssistanceG = record.assistanceG
                                                         ))
                                                     }
                                                 }
@@ -772,19 +867,26 @@ fun ProgramExecutionScreen(
                                                 for (setNum in 1..pe.sets) {
                                                     val isLastSetOfRound = setNum == pe.sets
                                                     if (exercise.laterality == "Unilateral") {
-                                                        val prevRight = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Right" && it.roundNumber == round }?.previousValue
-                                                        val prevLeft = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Left" && it.roundNumber == round }?.previousValue
+                                                        val priorRight = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Right" && it.roundNumber == round }
+                                                        val priorLeft = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Left" && it.roundNumber == round }
+                                                        val priorTracking = priorRight ?: priorLeft
                                                         newSets.add(ProgramWorkoutSet(
                                                             exerciseIndex = index,
                                                             setNumber = setNum,
                                                             side = "Right",
                                                             targetValue = pe.targetValue,
                                                             intervalSeconds = pe.intervalSeconds,
-                                                            previousValue = prevRight,
+                                                            previousValue = priorRight?.previousValue,
                                                             loopId = loopId,
                                                             roundNumber = round,
                                                             totalRounds = totalRounds,
-                                                            loopRestAfterSeconds = 0  // Rightの後はLeftが来る
+                                                            loopRestAfterSeconds = 0,  // Rightの後はLeftが来る
+                                                            weightG = priorTracking?.weightG,
+                                                            distanceCm = priorTracking?.distanceCm,
+                                                            assistanceG = priorTracking?.assistanceG,
+                                                            previousWeightG = priorTracking?.previousWeightG,
+                                                            previousDistanceCm = priorTracking?.previousDistanceCm,
+                                                            previousAssistanceG = priorTracking?.previousAssistanceG
                                                         ))
                                                         newSets.add(ProgramWorkoutSet(
                                                             exerciseIndex = index,
@@ -792,25 +894,37 @@ fun ProgramExecutionScreen(
                                                             side = "Left",
                                                             targetValue = pe.targetValue,
                                                             intervalSeconds = pe.intervalSeconds,
-                                                            previousValue = prevLeft,
+                                                            previousValue = priorLeft?.previousValue,
                                                             loopId = loopId,
                                                             roundNumber = round,
                                                             totalRounds = totalRounds,
-                                                            loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0
+                                                            loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0,
+                                                            weightG = priorTracking?.weightG,
+                                                            distanceCm = priorTracking?.distanceCm,
+                                                            assistanceG = priorTracking?.assistanceG,
+                                                            previousWeightG = priorTracking?.previousWeightG,
+                                                            previousDistanceCm = priorTracking?.previousDistanceCm,
+                                                            previousAssistanceG = priorTracking?.previousAssistanceG
                                                         ))
                                                     } else {
-                                                        val prevValue = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == null && it.roundNumber == round }?.previousValue
+                                                        val priorSet = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == null && it.roundNumber == round }
                                                         newSets.add(ProgramWorkoutSet(
                                                             exerciseIndex = index,
                                                             setNumber = setNum,
                                                             side = null,
                                                             targetValue = pe.targetValue,
                                                             intervalSeconds = pe.intervalSeconds,
-                                                            previousValue = prevValue,
+                                                            previousValue = priorSet?.previousValue,
                                                             loopId = loopId,
                                                             roundNumber = round,
                                                             totalRounds = totalRounds,
-                                                            loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0
+                                                            loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0,
+                                                            weightG = priorSet?.weightG,
+                                                            distanceCm = priorSet?.distanceCm,
+                                                            assistanceG = priorSet?.assistanceG,
+                                                            previousWeightG = priorSet?.previousWeightG,
+                                                            previousDistanceCm = priorSet?.previousDistanceCm,
+                                                            previousAssistanceG = priorSet?.previousAssistanceG
                                                         ))
                                                     }
                                                 }
@@ -969,12 +1083,31 @@ fun ProgramExecutionScreen(
                                         if (nextIndex < sets.size) {
                                             if (completedSet.intervalSeconds > 0 || completedSet.loopRestAfterSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                            } else if (isRedoMode) {
+                                                var nextIncompleteIndex = -1
+                                                for (i in nextIndex until sets.size) {
+                                                    if (!sets[i].isCompleted) {
+                                                        nextIncompleteIndex = i
+                                                        break
+                                                    }
+                                                }
+                                                isRedoMode = false
+                                                if (nextIncompleteIndex >= 0) {
+                                                    if (startCountdownSeconds > 0) {
+                                                        currentStep = ProgramExecutionStep.StartInterval(step.session, nextIncompleteIndex)
+                                                    } else {
+                                                        currentStep = ProgramExecutionStep.Executing(step.session, nextIncompleteIndex)
+                                                    }
+                                                } else {
+                                                    currentStep = ProgramExecutionStep.Result(step.session)
+                                                }
                                             } else if (startCountdownSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                             } else {
                                                 currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
                                             }
                                         } else {
+                                            if (isRedoMode) isRedoMode = false
                                             currentStep = ProgramExecutionStep.Result(step.session)
                                         }
                                     },
@@ -1005,12 +1138,31 @@ fun ProgramExecutionScreen(
                                         if (nextIndex < sets.size) {
                                             if (completedSet.intervalSeconds > 0 || completedSet.loopRestAfterSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.Interval(step.session, step.currentSetIndex)
+                                            } else if (isRedoMode) {
+                                                var nextIncompleteIndex = -1
+                                                for (i in nextIndex until sets.size) {
+                                                    if (!sets[i].isCompleted) {
+                                                        nextIncompleteIndex = i
+                                                        break
+                                                    }
+                                                }
+                                                isRedoMode = false
+                                                if (nextIncompleteIndex >= 0) {
+                                                    if (startCountdownSeconds > 0) {
+                                                        currentStep = ProgramExecutionStep.StartInterval(step.session, nextIncompleteIndex)
+                                                    } else {
+                                                        currentStep = ProgramExecutionStep.Executing(step.session, nextIncompleteIndex)
+                                                    }
+                                                } else {
+                                                    currentStep = ProgramExecutionStep.Result(step.session)
+                                                }
                                             } else if (startCountdownSeconds > 0) {
                                                 currentStep = ProgramExecutionStep.StartInterval(step.session, nextIndex)
                                             } else {
                                                 currentStep = ProgramExecutionStep.Executing(step.session, nextIndex)
                                             }
                                         } else {
+                                            if (isRedoMode) isRedoMode = false
                                             currentStep = ProgramExecutionStep.Result(step.session)
                                         }
                                     },
@@ -1313,12 +1465,22 @@ fun ProgramExecutionScreen(
         is ProgramExecutionStep.Result -> step.session
         else -> null
     }
-    val navCurrentSetIndex = when (step) {
+    val baseNavSetIndex = when (step) {
         is ProgramExecutionStep.Executing -> step.currentSetIndex
         is ProgramExecutionStep.Interval -> step.currentSetIndex + 1  // 次のセット
         is ProgramExecutionStep.StartInterval -> step.currentSetIndex
         is ProgramExecutionStep.Result -> -1  // Result画面では「現在セット」なし
         else -> 0
+    }
+    // ナビ内で手動チェックされた完了済み/スキップを飛ばして次の有効セットを「現在」として表示
+    val navCurrentSetIndex = if (baseNavSetIndex < 0 || navSession == null) {
+        -1
+    } else {
+        var i = baseNavSetIndex.coerceIn(0, navSession.sets.size - 1)
+        while (i < navSession.sets.size && (navSession.sets[i].isCompleted || navSession.sets[i].isSkipped)) {
+            i++
+        }
+        if (i >= navSession.sets.size) -1 else i
     }
     val isFromResult = step is ProgramExecutionStep.Result
     if (showNavigationSheet && navSession != null) {
@@ -1326,7 +1488,31 @@ fun ProgramExecutionScreen(
             session = navSession,
             currentSetIndex = if (navCurrentSetIndex >= 0) navCurrentSetIndex.coerceIn(0, navSession.sets.size - 1) else -1,
             isFromResult = isFromResult,
-            onDismiss = { showNavigationSheet = false },
+            onDismiss = {
+                // ナビ内のチェック操作で「現在のセット」が完了済みになっていたら次の未完了セットへ進める
+                val sets = navSession.sets
+                val stepIndex = when (val s = currentStep) {
+                    is ProgramExecutionStep.Executing -> s.currentSetIndex
+                    is ProgramExecutionStep.StartInterval -> s.currentSetIndex
+                    else -> -1
+                }
+                if (stepIndex in sets.indices && (sets[stepIndex].isCompleted || sets[stepIndex].isSkipped)) {
+                    var nextIncomplete = stepIndex + 1
+                    while (nextIncomplete < sets.size && (sets[nextIncomplete].isCompleted || sets[nextIncomplete].isSkipped)) {
+                        nextIncomplete++
+                    }
+                    currentStep = if (nextIncomplete < sets.size) {
+                        if (startCountdownSeconds > 0) {
+                            ProgramExecutionStep.StartInterval(navSession, nextIncomplete)
+                        } else {
+                            ProgramExecutionStep.Executing(navSession, nextIncomplete)
+                        }
+                    } else {
+                        ProgramExecutionStep.Result(navSession)
+                    }
+                }
+                showNavigationSheet = false
+            },
             onJumpToSet = { targetIndex ->
                 // Jumpでも次の未完了セットを探すようにする（完了済みセットをスキップ）
                 isRedoMode = true
@@ -1377,6 +1563,194 @@ fun ProgramExecutionScreen(
                     currentStep = ProgramExecutionStep.Executing(navSession, targetIndex)
                 }
                 showNavigationSheet = false
+            },
+            onUpdateTargetValue = { setIndex, newValue ->
+                if (setIndex in navSession.sets.indices) {
+                    val newSets = navSession.sets.toMutableList()
+                    newSets[setIndex] = newSets[setIndex].copy(targetValue = newValue)
+                    val newSession = navSession.copy(sets = newSets)
+                    currentStep = when (val s = currentStep) {
+                        is ProgramExecutionStep.Confirm -> s.copy(session = newSession)
+                        is ProgramExecutionStep.StartInterval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Executing -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Interval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Result -> s.copy(session = newSession)
+                        null -> null
+                    }
+                }
+            },
+            onUpdateActualValue = { setIndex, newValue ->
+                if (setIndex in navSession.sets.indices) {
+                    val newSets = navSession.sets.toMutableList()
+                    newSets[setIndex] = newSets[setIndex].copy(actualValue = newValue)
+                    val newSession = navSession.copy(sets = newSets)
+                    currentStep = when (val s = currentStep) {
+                        is ProgramExecutionStep.Confirm -> s.copy(session = newSession)
+                        is ProgramExecutionStep.StartInterval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Executing -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Interval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Result -> s.copy(session = newSession)
+                        null -> null
+                    }
+                }
+            },
+            onUpdateSetWeightG = { setIndex, newValue ->
+                if (setIndex in navSession.sets.indices) {
+                    val target = navSession.sets[setIndex]
+                    val newSets = navSession.sets.toMutableList()
+                    // 対象セット + Unilateral の R/L ペアのみに反映（ラウンド間は伝播しない）
+                    newSets[setIndex] = target.copy(weightG = newValue)
+                    if (target.side != null) {
+                        val pairIndex = if (target.side == "Right") setIndex + 1 else setIndex - 1
+                        if (pairIndex in newSets.indices) {
+                            val pair = newSets[pairIndex]
+                            if (pair.exerciseIndex == target.exerciseIndex
+                                && pair.setNumber == target.setNumber
+                                && pair.roundNumber == target.roundNumber
+                                && pair.side != null && pair.side != target.side) {
+                                newSets[pairIndex] = pair.copy(weightG = newValue)
+                            }
+                        }
+                    }
+                    val newSession = navSession.copy(sets = newSets)
+                    currentStep = when (val s = currentStep) {
+                        is ProgramExecutionStep.Confirm -> s.copy(session = newSession)
+                        is ProgramExecutionStep.StartInterval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Executing -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Interval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Result -> s.copy(session = newSession)
+                        null -> null
+                    }
+                }
+            },
+            onUpdateSetDistanceCm = { setIndex, newValue ->
+                if (setIndex in navSession.sets.indices) {
+                    val target = navSession.sets[setIndex]
+                    val newSets = navSession.sets.toMutableList()
+                    newSets[setIndex] = target.copy(distanceCm = newValue)
+                    if (target.side != null) {
+                        val pairIndex = if (target.side == "Right") setIndex + 1 else setIndex - 1
+                        if (pairIndex in newSets.indices) {
+                            val pair = newSets[pairIndex]
+                            if (pair.exerciseIndex == target.exerciseIndex
+                                && pair.setNumber == target.setNumber
+                                && pair.roundNumber == target.roundNumber
+                                && pair.side != null && pair.side != target.side) {
+                                newSets[pairIndex] = pair.copy(distanceCm = newValue)
+                            }
+                        }
+                    }
+                    val newSession = navSession.copy(sets = newSets)
+                    currentStep = when (val s = currentStep) {
+                        is ProgramExecutionStep.Confirm -> s.copy(session = newSession)
+                        is ProgramExecutionStep.StartInterval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Executing -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Interval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Result -> s.copy(session = newSession)
+                        null -> null
+                    }
+                }
+            },
+            onUpdateSetAssistanceG = { setIndex, newValue ->
+                if (setIndex in navSession.sets.indices) {
+                    val target = navSession.sets[setIndex]
+                    val newSets = navSession.sets.toMutableList()
+                    newSets[setIndex] = target.copy(assistanceG = newValue)
+                    if (target.side != null) {
+                        val pairIndex = if (target.side == "Right") setIndex + 1 else setIndex - 1
+                        if (pairIndex in newSets.indices) {
+                            val pair = newSets[pairIndex]
+                            if (pair.exerciseIndex == target.exerciseIndex
+                                && pair.setNumber == target.setNumber
+                                && pair.roundNumber == target.roundNumber
+                                && pair.side != null && pair.side != target.side) {
+                                newSets[pairIndex] = pair.copy(assistanceG = newValue)
+                            }
+                        }
+                    }
+                    val newSession = navSession.copy(sets = newSets)
+                    currentStep = when (val s = currentStep) {
+                        is ProgramExecutionStep.Confirm -> s.copy(session = newSession)
+                        is ProgramExecutionStep.StartInterval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Executing -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Interval -> s.copy(session = newSession)
+                        is ProgramExecutionStep.Result -> s.copy(session = newSession)
+                        null -> null
+                    }
+                }
+            },
+            onToggleComplete = { setIndex ->
+                if (setIndex in navSession.sets.indices) {
+                    val target = navSession.sets[setIndex]
+                    val newSets = navSession.sets.toMutableList()
+                    if (target.isCompleted) {
+                        // チェック外す → PENDING へ
+                        newSets[setIndex] = target.copy(
+                            isCompleted = false,
+                            isSkipped = false,
+                            actualValue = 0
+                        )
+                        if (target.side != null) {
+                            val pairIndex = if (target.side == "Right") setIndex + 1 else setIndex - 1
+                            if (pairIndex in newSets.indices) {
+                                val pairSet = newSets[pairIndex]
+                                if (pairSet.exerciseIndex == target.exerciseIndex
+                                    && pairSet.setNumber == target.setNumber
+                                    && pairSet.side != null && pairSet.side != target.side) {
+                                    newSets[pairIndex] = pairSet.copy(
+                                        isCompleted = false,
+                                        isSkipped = false,
+                                        actualValue = 0
+                                    )
+                                }
+                            }
+                        }
+                        val newSession = navSession.copy(sets = newSets)
+                        currentStep = when (val s = currentStep) {
+                            is ProgramExecutionStep.Confirm -> s.copy(session = newSession)
+                            is ProgramExecutionStep.StartInterval -> s.copy(session = newSession)
+                            is ProgramExecutionStep.Executing -> s.copy(session = newSession)
+                            is ProgramExecutionStep.Interval -> s.copy(session = newSession)
+                            is ProgramExecutionStep.Result -> s.copy(session = newSession)
+                            null -> null
+                        }
+                    } else {
+                        // チェック入れる → COMPLETED へ
+                        newSets[setIndex] = target.copy(
+                            isCompleted = true,
+                            isSkipped = false,
+                            actualValue = target.targetValue
+                        )
+                        if (target.side != null) {
+                            val pairIndex = if (target.side == "Right") setIndex + 1 else setIndex - 1
+                            if (pairIndex in newSets.indices) {
+                                val pairSet = newSets[pairIndex]
+                                if (pairSet.exerciseIndex == target.exerciseIndex
+                                    && pairSet.setNumber == target.setNumber
+                                    && pairSet.side != null && pairSet.side != target.side
+                                    && !pairSet.isCompleted) {
+                                    newSets[pairIndex] = pairSet.copy(
+                                        isCompleted = true,
+                                        isSkipped = false,
+                                        actualValue = pairSet.targetValue
+                                    )
+                                }
+                            }
+                        }
+                        val newSession = navSession.copy(sets = newSets)
+                        // ナビで完了済みにしたセットは自然な進行で飛ばすため Redo モードを有効化
+                        isRedoMode = true
+                        // チェック操作はセッションを書き換えるだけ。画面遷移は X 押下（onDismiss）で行う
+                        currentStep = when (val s = currentStep) {
+                            is ProgramExecutionStep.Confirm -> s.copy(session = newSession)
+                            is ProgramExecutionStep.StartInterval -> s.copy(session = newSession)
+                            is ProgramExecutionStep.Executing -> s.copy(session = newSession)
+                            is ProgramExecutionStep.Interval -> s.copy(session = newSession)
+                            is ProgramExecutionStep.Result -> s.copy(session = newSession)
+                            null -> null
+                        }
+                    }
+                }
             },
             onFinish = {
                 // 結果画面に遷移（完了したセットのみ保存される）

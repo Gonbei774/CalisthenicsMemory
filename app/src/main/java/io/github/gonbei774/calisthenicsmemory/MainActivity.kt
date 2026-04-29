@@ -166,6 +166,7 @@ fun UiMessage.toMessageString(): String {
             stringResource(R.string.already_in_use_format, name, typeLabel)
         }
         is UiMessage.SetsRecorded -> stringResource(R.string.sets_recorded, count)
+        is UiMessage.ProgramSetsRecorded -> stringResource(R.string.sets_recorded, totalCount)
         is UiMessage.RecordUpdated -> stringResource(R.string.record_updated)
         is UiMessage.RecordDeleted -> stringResource(R.string.record_deleted)
         is UiMessage.GroupCreated -> stringResource(R.string.group_created)

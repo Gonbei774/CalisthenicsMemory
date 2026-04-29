@@ -1,6 +1,7 @@
 package io.github.gonbei774.calisthenicsmemory.util
 
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
+import io.github.gonbei774.calisthenicsmemory.data.IntervalProgram
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
 import io.github.gonbei774.calisthenicsmemory.data.ProgramLoop
@@ -54,6 +55,34 @@ object ProgramTimeEstimator {
 
     fun formatMinutes(seconds: Int): Int =
         (seconds / 60.0).roundToInt().coerceAtLeast(1)
+
+    fun estimateExerciseSeconds(exercise: Exercise): Int? {
+        val sets = exercise.targetSets ?: return null
+        val targetValue = exercise.targetValue ?: return null
+        val rest = exercise.restInterval ?: 0
+        val sides = if (exercise.laterality == "Unilateral") 2 else 1
+        val work = workSecondsFor(exercise, targetValue)
+        val totalUnits = sets * sides
+        return totalUnits * work + (totalUnits - 1).coerceAtLeast(0) * rest
+    }
+
+    fun estimateIntervalSeconds(interval: IntervalProgram, exerciseCount: Int): Int {
+        if (exerciseCount <= 0 || interval.rounds <= 0) return 0
+        val perRoundWork = exerciseCount * interval.workSeconds
+        val perRoundRest = (exerciseCount - 1).coerceAtLeast(0) * interval.restSeconds
+        val rounds = interval.rounds
+        return rounds * (perRoundWork + perRoundRest) +
+            (rounds - 1).coerceAtLeast(0) * interval.roundRestSeconds
+    }
+
+    fun formatHmmss(seconds: Int): String {
+        val s = seconds.coerceAtLeast(0)
+        val h = s / 3600
+        val m = (s % 3600) / 60
+        val sec = s % 60
+        return if (h > 0) "%d:%02d:%02d".format(h, m, sec)
+        else "%d:%02d".format(m, sec)
+    }
 
     private data class FlatSet(
         val workSeconds: Int,

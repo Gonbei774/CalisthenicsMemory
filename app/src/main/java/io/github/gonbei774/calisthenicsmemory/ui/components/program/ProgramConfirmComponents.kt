@@ -7,9 +7,13 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,12 +24,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExercise
@@ -62,7 +71,9 @@ internal fun ProgramConfirmStep(
     onUpdateTargetValue: (Int, Int) -> Unit,
     onUpdateInterval: (Int, Int) -> Unit,  // exerciseIndex, newInterval
     onUpdateSetCount: (Int, Int) -> Unit,  // exerciseIndex, newSetCount
-    onUpdateExerciseSetsValue: (Int, Int) -> Unit,  // exerciseIndex, delta - 種目内の全セット一括更新
+    onUpdateSetWeightG: (Int, Int?) -> Unit,
+    onUpdateSetDistanceCm: (Int, Int?) -> Unit,
+    onUpdateSetAssistanceG: (Int, Int?) -> Unit,
     onUseAllProgramValues: () -> Unit,
     onUseAllChallengeValues: () -> Unit,
     onUseAllPreviousRecordValues: () -> Unit,
@@ -261,29 +272,16 @@ internal fun ProgramConfirmStep(
                                     expandedExercises + exerciseIndex
                                 }
                             },
-                            onUpdateValue = { setIndex, newValue ->
-                                onUpdateTargetValue(setIndex, newValue)
-                                if (exercise.laterality == "Unilateral") {
-                                    val rightSet = session.sets[setIndex]
-                                    val leftSetIndex = session.sets.indexOfFirst {
-                                        it.exerciseIndex == exerciseIndex &&
-                                        it.setNumber == rightSet.setNumber &&
-                                        it.side == "Left"
-                                    }
-                                    if (leftSetIndex >= 0) {
-                                        onUpdateTargetValue(leftSetIndex, newValue)
-                                    }
-                                }
-                            },
+                            onUpdateValue = onUpdateTargetValue,
                             onUpdateInterval = { newInterval ->
                                 onUpdateInterval(exerciseIndex, newInterval)
                             },
                             onUpdateSetCount = { newSetCount ->
                                 onUpdateSetCount(exerciseIndex, newSetCount)
                             },
-                            onUpdateAllSetsValue = { delta ->
-                                onUpdateExerciseSetsValue(exerciseIndex, delta)
-                            }
+                            onUpdateWeightG = onUpdateSetWeightG,
+                            onUpdateDistanceCm = onUpdateSetDistanceCm,
+                            onUpdateAssistanceG = onUpdateSetAssistanceG
                         )
                     }
                     is ConfirmListItem.Loop -> {
@@ -314,7 +312,9 @@ internal fun ProgramConfirmStep(
                             onUpdateTargetValue = onUpdateTargetValue,
                             onUpdateInterval = onUpdateInterval,
                             onUpdateSetCount = onUpdateSetCount,
-                            onUpdateExerciseSetsValue = onUpdateExerciseSetsValue
+                            onUpdateSetWeightG = onUpdateSetWeightG,
+                            onUpdateSetDistanceCm = onUpdateSetDistanceCm,
+                            onUpdateSetAssistanceG = onUpdateSetAssistanceG
                         )
                     }
                 }
@@ -630,11 +630,11 @@ internal fun ProgramConfirmExerciseCard(
     onUpdateValue: (Int, Int) -> Unit,
     onUpdateInterval: (Int) -> Unit,
     onUpdateSetCount: (Int) -> Unit,
-    onUpdateAllSetsValue: (Int) -> Unit
+    onUpdateWeightG: (Int, Int?) -> Unit,
+    onUpdateDistanceCm: (Int, Int?) -> Unit,
+    onUpdateAssistanceG: (Int, Int?) -> Unit
 ) {
     val appColors = LocalAppColors.current
-    val unit = stringResource(if (exercise.type == "Isometric") R.string.unit_seconds else R.string.unit_reps)
-
     // 現在のセット数とインターバルを取得
     val currentSetCount = sets.maxOfOrNull { it.setNumber } ?: programExercise.sets
     val currentInterval = sets.firstOrNull()?.intervalSeconds ?: programExercise.intervalSeconds
@@ -773,163 +773,171 @@ internal fun ProgramConfirmExerciseCard(
                         }
                     }
 
-                    // カラムヘッダー（目標±ボタン付き / 前回）
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // 空（セットラベル用スペース）- 固定幅でコンパクトに
-                        Spacer(modifier = Modifier.width(72.dp))
+                    // セットごとの値（統一行レイアウト）
+                    sets.forEachIndexed { index, set ->
+                        // オブジェクト参照ではなくセマンティックに検索（copy()で参照が変わるため）
+                        // roundNumberも含めて正確にマッチング（ループ内種目の重複防止）
+                        val setIndex = allSets.indexOfFirst {
+                            it.exerciseIndex == set.exerciseIndex &&
+                            it.setNumber == set.setNumber &&
+                            it.side == set.side &&
+                            it.roundNumber == set.roundNumber
+                        }
+                        if (setIndex < 0) return@forEachIndexed
+                        val currentSet = allSets[setIndex]
 
-                        // 目標（±ボタン付き）
+                        if (index > 0) Spacer(modifier = Modifier.height(10.dp))
+
+                        // セット見出し（1セット目だけ右に「前回値」カラムラベル）
                         Row(
-                            modifier = Modifier.weight(1f),
-                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp, bottom = 2.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // −ボタン
-                            Box(
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .clickable { onUpdateAllSetsValue(-1) },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text("−", fontSize = 14.sp, color = appColors.textSecondary)
-                            }
-                            Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = stringResource(R.string.target_value_label),
-                                fontSize = 12.sp,
-                                color = Slate500,
-                                textAlign = TextAlign.Center
+                                text = stringResource(R.string.set_number_format, set.setNumber),
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = appColors.textPrimary,
+                                modifier = Modifier.weight(1f)
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            // +ボタン
-                            Box(
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .clickable { onUpdateAllSetsValue(1) },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text("+", fontSize = 14.sp, color = appColors.textSecondary)
+                            if (index == 0) {
+                                Text(
+                                    text = stringResource(R.string.program_use_previous),
+                                    fontSize = 11.sp,
+                                    color = Slate500,
+                                    modifier = Modifier.width(60.dp),
+                                    textAlign = TextAlign.End
+                                )
                             }
                         }
 
-                        // 前回
-                        Text(
-                            text = stringResource(R.string.program_use_previous),
-                            fontSize = 12.sp,
-                            color = Slate500,
-                            modifier = Modifier.width(70.dp),
-                            textAlign = TextAlign.Center
+                        // 回数 / 時間
+                        var repsText by remember(setIndex, currentSet.targetValue) {
+                            mutableStateOf(currentSet.targetValue.toString())
+                        }
+                        UnifiedStepperRow(
+                            label = stringResource(
+                                if (exercise.type == "Isometric") R.string.time_label
+                                else R.string.reps_label
+                            ),
+                            valueText = repsText,
+                            onValueTextChange = { newValue ->
+                                if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
+                                    repsText = newValue
+                                    newValue.toIntOrNull()?.let { onUpdateValue(setIndex, it) }
+                                }
+                            },
+                            keyboardType = KeyboardType.Number,
+                            previousText = set.previousValue?.toString() ?: "-",
+                            onMinus = {
+                                val newValue = (currentSet.targetValue - 1).coerceAtLeast(0)
+                                onUpdateValue(setIndex, newValue)
+                            },
+                            onPlus = {
+                                onUpdateValue(setIndex, currentSet.targetValue + 1)
+                            },
+                            minusEnabled = currentSet.targetValue > 0
                         )
-                    }
 
-                    // セットごとの値
-                    sets.forEach { set ->
-                // オブジェクト参照ではなくセマンティックに検索（copy()で参照が変わるため）
-                // roundNumberも含めて正確にマッチング（ループ内種目の重複防止）
-                val setIndex = allSets.indexOfFirst {
-                    it.exerciseIndex == set.exerciseIndex &&
-                    it.setNumber == set.setNumber &&
-                    it.side == set.side &&
-                    it.roundNumber == set.roundNumber
-                }
-                if (setIndex < 0) return@forEach
-
-                val currentSet = allSets[setIndex]
-                var textValue by remember(setIndex, currentSet.targetValue) {
-                    mutableStateOf(currentSet.targetValue.toString())
-                }
-
-                // 現在の種目の実際のセット数（Program/Challenge切り替え後も正しい値）
-                val actualTotalSets = sets.maxOfOrNull { it.setNumber } ?: programExercise.sets
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // セットラベル（固定幅）
-                    Text(
-                        text = stringResource(R.string.set_format, set.setNumber, actualTotalSets),
-                        fontSize = 14.sp,
-                        color = appColors.textTertiary,
-                        modifier = Modifier.width(72.dp)
-                    )
-
-                    // 目標値入力（中央配置）
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .width(56.dp)
-                                .height(32.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            BasicTextField(
-                                value = textValue,
-                                onValueChange = { newValue ->
-                                    if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
-                                        textValue = newValue
-                                        newValue.toIntOrNull()?.let { onUpdateValue(setIndex, it) }
+                        // 距離（cm）
+                        if (exercise.distanceTrackingEnabled) {
+                            var distanceStr by remember(setIndex, currentSet.distanceCm) {
+                                mutableStateOf(currentSet.distanceCm?.toString() ?: "")
+                            }
+                            UnifiedStepperRow(
+                                label = stringResource(R.string.distance_input_label),
+                                valueText = distanceStr,
+                                onValueTextChange = { value ->
+                                    val normalized = value
+                                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                        .replace("．", ".").replace("－", "-")
+                                    if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
+                                        distanceStr = normalized
+                                        onUpdateDistanceCm(setIndex, parseProgramDistanceCmValue(normalized))
                                     }
                                 },
-                                modifier = Modifier.fillMaxWidth(),
-                                singleLine = true,
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                textStyle = androidx.compose.ui.text.TextStyle(
-                                    fontSize = 16.sp,
-                                    textAlign = TextAlign.Center,
-                                    color = appColors.textPrimary
-                                ),
-                                decorationBox = { innerTextField ->
-                                    Column {
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .weight(1f),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            innerTextField()
-                                        }
-                                        // 下線
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(1.dp)
-                                                .padding(horizontal = 4.dp)
-                                                .then(Modifier.drawBehind {
-                                                    drawLine(
-                                                        color = appColors.textSecondary,
-                                                        start = androidx.compose.ui.geometry.Offset(0f, 0f),
-                                                        end = androidx.compose.ui.geometry.Offset(size.width, 0f),
-                                                        strokeWidth = 1.dp.toPx()
-                                                    )
-                                                })
-                                        )
+                                keyboardType = KeyboardType.Number,
+                                previousText = currentSet.previousDistanceCm?.toString() ?: "-",
+                                onMinus = {
+                                    val newCm = ((currentSet.distanceCm ?: 0) - 1).coerceAtLeast(0)
+                                    onUpdateDistanceCm(setIndex, newCm)
+                                },
+                                onPlus = {
+                                    val newCm = ((currentSet.distanceCm ?: 0) + 1).coerceAtLeast(0)
+                                    onUpdateDistanceCm(setIndex, newCm)
+                                },
+                                minusEnabled = (currentSet.distanceCm ?: 0) > 0
+                            )
+                        }
+
+                        // 荷重（kg）
+                        if (exercise.weightTrackingEnabled) {
+                            var weightStr by remember(setIndex, currentSet.weightG) {
+                                mutableStateOf(currentSet.weightG?.let { "%.1f".format(it / 1000.0) } ?: "")
+                            }
+                            UnifiedStepperRow(
+                                label = stringResource(R.string.weight_input_label),
+                                valueText = weightStr,
+                                onValueTextChange = { value ->
+                                    val normalized = value
+                                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                        .replace("．", ".")
+                                    val isValid = normalized.isEmpty() || normalized == "." ||
+                                        normalized.matches(Regex("^\\d*\\.?\\d?$"))
+                                    if (isValid) {
+                                        weightStr = normalized
+                                        onUpdateWeightG(setIndex, parseProgramWeightGValue(normalized))
                                     }
-                                }
+                                },
+                                keyboardType = KeyboardType.Decimal,
+                                previousText = currentSet.previousWeightG?.let { "%.1f".format(it / 1000.0) } ?: "-",
+                                onMinus = {
+                                    val newG = ((currentSet.weightG ?: 0) - 1000).coerceAtLeast(0)
+                                    onUpdateWeightG(setIndex, newG)
+                                },
+                                onPlus = {
+                                    val newG = ((currentSet.weightG ?: 0) + 1000).coerceAtLeast(0)
+                                    onUpdateWeightG(setIndex, newG)
+                                },
+                                minusEnabled = (currentSet.weightG ?: 0) > 0
+                            )
+                        }
+
+                        // アシスト（kg）
+                        if (exercise.assistanceTrackingEnabled) {
+                            var assistanceStr by remember(setIndex, currentSet.assistanceG) {
+                                mutableStateOf(currentSet.assistanceG?.let { "%.1f".format(it / 1000.0) } ?: "")
+                            }
+                            UnifiedStepperRow(
+                                label = stringResource(R.string.assistance_input_label),
+                                valueText = assistanceStr,
+                                onValueTextChange = { value ->
+                                    val normalized = value
+                                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                        .replace("．", ".")
+                                    val isValid = normalized.isEmpty() || normalized == "." ||
+                                        normalized.matches(Regex("^\\d*\\.?\\d?$"))
+                                    if (isValid) {
+                                        assistanceStr = normalized
+                                        onUpdateAssistanceG(setIndex, parseProgramWeightGValue(normalized))
+                                    }
+                                },
+                                keyboardType = KeyboardType.Decimal,
+                                previousText = currentSet.previousAssistanceG?.let { "%.1f".format(it / 1000.0) } ?: "-",
+                                onMinus = {
+                                    val newG = ((currentSet.assistanceG ?: 0) - 1000).coerceAtLeast(0)
+                                    onUpdateAssistanceG(setIndex, newG)
+                                },
+                                onPlus = {
+                                    val newG = ((currentSet.assistanceG ?: 0) + 1000).coerceAtLeast(0)
+                                    onUpdateAssistanceG(setIndex, newG)
+                                },
+                                minusEnabled = (currentSet.assistanceG ?: 0) > 0
                             )
                         }
                     }
-
-                    // 前回値（70dp）
-                    Text(
-                        text = set.previousValue?.toString() ?: "-",
-                        fontSize = 13.sp,
-                        color = Slate500,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.width(70.dp)
-                    )
-                }
-            }
 
                     // 休憩時間
                     Row(
@@ -1041,7 +1049,9 @@ private fun ProgramConfirmLoopBlock(
     onUpdateTargetValue: (Int, Int) -> Unit,
     onUpdateInterval: (Int, Int) -> Unit,
     onUpdateSetCount: (Int, Int) -> Unit,
-    onUpdateExerciseSetsValue: (Int, Int) -> Unit
+    onUpdateSetWeightG: (Int, Int?) -> Unit,
+    onUpdateSetDistanceCm: (Int, Int?) -> Unit,
+    onUpdateSetAssistanceG: (Int, Int?) -> Unit
 ) {
     val appColors = LocalAppColors.current
     val chevronRotation by animateFloatAsState(
@@ -1163,34 +1173,147 @@ private fun ProgramConfirmLoopBlock(
                                 isExpanded = exerciseIndex in expandedExercises,
                                 loopRounds = null,  // ループヘッダーで表示するのでここでは不要
                                 onToggleExpanded = { onToggleExerciseExpanded(exerciseIndex) },
-                                onUpdateValue = { setIndex, newValue ->
-                                    onUpdateTargetValue(setIndex, newValue)
-                                    if (exercise.laterality == "Unilateral") {
-                                        val rightSet = session.sets[setIndex]
-                                        val leftSetIndex = session.sets.indexOfFirst {
-                                            it.exerciseIndex == exerciseIndex &&
-                                            it.setNumber == rightSet.setNumber &&
-                                            it.side == "Left"
-                                        }
-                                        if (leftSetIndex >= 0) {
-                                            onUpdateTargetValue(leftSetIndex, newValue)
-                                        }
-                                    }
-                                },
+                                onUpdateValue = onUpdateTargetValue,
                                 onUpdateInterval = { newInterval ->
                                     onUpdateInterval(exerciseIndex, newInterval)
                                 },
                                 onUpdateSetCount = { newSetCount ->
                                     onUpdateSetCount(exerciseIndex, newSetCount)
                                 },
-                                onUpdateAllSetsValue = { delta ->
-                                    onUpdateExerciseSetsValue(exerciseIndex, delta)
-                                }
+                                onUpdateWeightG = onUpdateSetWeightG,
+                                onUpdateDistanceCm = onUpdateSetDistanceCm,
+                                onUpdateAssistanceG = onUpdateSetAssistanceG
                             )
                         }
                     }
                 }
             }
         }
+    }
+}
+
+
+private fun parseProgramDistanceCmValue(input: String): Int? {
+    val trimmed = input.trim()
+    if (trimmed.isEmpty() || trimmed == "-") return null
+    return trimmed.toIntOrNull()
+}
+
+private fun parseProgramWeightGValue(input: String): Int? {
+    val trimmed = input.trim()
+    if (trimmed.isEmpty() || trimmed == ".") return null
+    val kg = trimmed.toDoubleOrNull() ?: return null
+    return (kg * 1000).toInt()
+}
+
+@Composable
+private fun OrangeCircleStepButton(
+    label: String,
+    enabled: Boolean = true,
+    onStep: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val currentOnStep by rememberUpdatedState(onStep)
+    val bgColor = if (enabled) Orange600 else Color(0xFF4A5B70)
+    val labelColor = if (enabled) Color.White else Color(0xFF8696AA)
+    Box(
+        modifier = Modifier
+            .size(30.dp)
+            .background(bgColor, CircleShape)
+            .then(
+                if (enabled) {
+                    Modifier.pointerInput(Unit) {
+                        awaitEachGesture {
+                            awaitFirstDown(requireUnconsumed = false)
+                            currentOnStep()
+                            var repeatJob: Job? = null
+                            try {
+                                repeatJob = scope.launch {
+                                    delay(350)
+                                    while (isActive) {
+                                        currentOnStep()
+                                        delay(80)
+                                    }
+                                }
+                                waitForUpOrCancellation()
+                            } finally {
+                                repeatJob?.cancel()
+                            }
+                        }
+                    }
+                } else Modifier
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = labelColor
+        )
+    }
+}
+
+@Composable
+private fun UnifiedStepperRow(
+    label: String,
+    valueText: String,
+    onValueTextChange: (String) -> Unit,
+    keyboardType: KeyboardType,
+    previousText: String,
+    onMinus: () -> Unit,
+    onPlus: () -> Unit,
+    minusEnabled: Boolean = true
+) {
+    val appColors = LocalAppColors.current
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            fontSize = 13.sp,
+            color = appColors.textSecondary,
+            modifier = Modifier.width(96.dp)
+        )
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OrangeCircleStepButton(
+                label = "−",
+                enabled = minusEnabled,
+                onStep = onMinus
+            )
+            Spacer(modifier = Modifier.width(14.dp))
+            BasicTextField(
+                value = valueText,
+                onValueChange = onValueTextChange,
+                modifier = Modifier.width(60.dp),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                textStyle = androidx.compose.ui.text.TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    color = appColors.textPrimary
+                )
+            )
+            Spacer(modifier = Modifier.width(14.dp))
+            OrangeCircleStepButton(
+                label = "+",
+                onStep = onPlus
+            )
+        }
+        Text(
+            text = previousText,
+            fontSize = 13.sp,
+            color = Slate500,
+            textAlign = TextAlign.End,
+            modifier = Modifier.width(60.dp)
+        )
     }
 }

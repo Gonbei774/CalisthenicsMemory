@@ -15,6 +15,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.R
+import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.ProgramExecutionSession
 import io.github.gonbei774.calisthenicsmemory.data.ProgramWorkoutSet
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
@@ -125,7 +126,7 @@ internal fun ProgramResultStep(
                                     setNumber = setNumber,
                                     rightSet = rightSet,
                                     leftSet = leftSet,
-                                    exerciseType = exercise.type
+                                    exercise = exercise
                                 )
                             }
                         }
@@ -135,7 +136,7 @@ internal fun ProgramResultStep(
                             item(key = "exercise-$exerciseIndex-round-$roundNumber-set-${set.setNumber}") {
                                 ProgramBilateralSetItem(
                                     set = set,
-                                    exerciseType = exercise.type
+                                    exercise = exercise
                                 )
                             }
                         }
@@ -186,9 +187,10 @@ internal fun ProgramUnilateralSetItem(
     setNumber: Int,
     rightSet: ProgramWorkoutSet?,
     leftSet: ProgramWorkoutSet?,
-    exerciseType: String
+    exercise: Exercise
 ) {
     val appColors = LocalAppColors.current
+    val exerciseType = exercise.type
     var rightValue by remember(rightSet) { mutableStateOf(rightSet?.actualValue?.toString() ?: "0") }
     var leftValue by remember(leftSet) { mutableStateOf(leftSet?.actualValue?.toString() ?: "0") }
 
@@ -281,6 +283,16 @@ internal fun ProgramUnilateralSetItem(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
             }
+
+            ProgramResultTrackingInputs(
+                exercise = exercise,
+                weightG = rightSet?.weightG ?: leftSet?.weightG,
+                distanceCm = rightSet?.distanceCm ?: leftSet?.distanceCm,
+                assistanceG = rightSet?.assistanceG ?: leftSet?.assistanceG,
+                onWeightChange = { rightSet?.weightG = it; leftSet?.weightG = it },
+                onDistanceChange = { rightSet?.distanceCm = it; leftSet?.distanceCm = it },
+                onAssistanceChange = { rightSet?.assistanceG = it; leftSet?.assistanceG = it }
+            )
         }
     }
 }
@@ -289,9 +301,10 @@ internal fun ProgramUnilateralSetItem(
 @Composable
 internal fun ProgramBilateralSetItem(
     set: ProgramWorkoutSet,
-    exerciseType: String
+    exercise: Exercise
 ) {
     val appColors = LocalAppColors.current
+    val exerciseType = exercise.type
     var value by remember(set) { mutableStateOf(set.actualValue.toString()) }
 
     Card(
@@ -301,47 +314,183 @@ internal fun ProgramBilateralSetItem(
         ),
         shape = RoundedCornerShape(8.dp)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(12.dp)
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.set_label, set.setNumber),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = appColors.textPrimary
-                )
-                if (set.isSkipped) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = stringResource(R.string.skipped_label),
-                        fontSize = 12.sp,
-                        color = appColors.textSecondary
+                        text = stringResource(R.string.set_label, set.setNumber),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = appColors.textPrimary
                     )
+                    if (set.isSkipped) {
+                        Text(
+                            text = stringResource(R.string.skipped_label),
+                            fontSize = 12.sp,
+                            color = appColors.textSecondary
+                        )
+                    }
                 }
+
+                OutlinedTextField(
+                    value = value,
+                    onValueChange = { newValue ->
+                        if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
+                            value = newValue
+                            newValue.toIntOrNull()?.let { set.actualValue = it }
+                        }
+                    },
+                    label = {
+                        Text(
+                            stringResource(if (exerciseType == "Dynamic") R.string.reps_input else R.string.seconds_input),
+                            fontSize = 12.sp
+                        )
+                    },
+                    modifier = Modifier.width(100.dp),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
             }
 
-            OutlinedTextField(
-                value = value,
-                onValueChange = { newValue ->
-                    if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
-                        value = newValue
-                        newValue.toIntOrNull()?.let { set.actualValue = it }
-                    }
-                },
-                label = {
-                    Text(
-                        stringResource(if (exerciseType == "Dynamic") R.string.reps_input else R.string.seconds_input),
-                        fontSize = 12.sp
-                    )
-                },
-                modifier = Modifier.width(100.dp),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            ProgramResultTrackingInputs(
+                exercise = exercise,
+                weightG = set.weightG,
+                distanceCm = set.distanceCm,
+                assistanceG = set.assistanceG,
+                onWeightChange = { set.weightG = it },
+                onDistanceChange = { set.distanceCm = it },
+                onAssistanceChange = { set.assistanceG = it }
             )
         }
     }
+}
+
+/**
+ * Result画面の各セットカード内に表示する 距離/重量/アシスト 入力欄
+ * Exercise の各 *TrackingEnabled が true の項目のみ表示
+ */
+@Composable
+private fun ProgramResultTrackingInputs(
+    exercise: Exercise,
+    weightG: Int?,
+    distanceCm: Int?,
+    assistanceG: Int?,
+    onWeightChange: (Int?) -> Unit,
+    onDistanceChange: (Int?) -> Unit,
+    onAssistanceChange: (Int?) -> Unit
+) {
+    if (!exercise.distanceTrackingEnabled &&
+        !exercise.weightTrackingEnabled &&
+        !exercise.assistanceTrackingEnabled) return
+
+    var distanceStr by remember(distanceCm) {
+        mutableStateOf(distanceCm?.toString() ?: "")
+    }
+    var weightStr by remember(weightG) {
+        mutableStateOf(weightG?.let { "%.1f".format(it / 1000.0) } ?: "")
+    }
+    var assistanceStr by remember(assistanceG) {
+        mutableStateOf(assistanceG?.let { "%.1f".format(it / 1000.0) } ?: "")
+    }
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    if (exercise.distanceTrackingEnabled) {
+        OutlinedTextField(
+            value = distanceStr,
+            onValueChange = { value ->
+                val normalized = value
+                    .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                    .replace("．", ".").replace("－", "-")
+                if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
+                    distanceStr = normalized
+                    onDistanceChange(parseResultDistanceCmValue(normalized))
+                }
+            },
+            label = { Text(stringResource(R.string.distance_input_label), fontSize = 12.sp) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Blue600,
+                focusedLabelColor = Blue600,
+                cursorColor = Blue600
+            )
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+    }
+
+    if (exercise.weightTrackingEnabled) {
+        OutlinedTextField(
+            value = weightStr,
+            onValueChange = { value ->
+                val normalized = value
+                    .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                    .replace("．", ".")
+                val isValid = normalized.isEmpty() || normalized == "." ||
+                    normalized.matches(Regex("^\\d*\\.?\\d?$"))
+                if (isValid) {
+                    weightStr = normalized
+                    onWeightChange(parseResultWeightGValue(normalized))
+                }
+            },
+            label = { Text(stringResource(R.string.weight_input_label), fontSize = 12.sp) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Orange600,
+                focusedLabelColor = Orange600,
+                cursorColor = Orange600
+            )
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+    }
+
+    if (exercise.assistanceTrackingEnabled) {
+        OutlinedTextField(
+            value = assistanceStr,
+            onValueChange = { value ->
+                val normalized = value
+                    .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                    .replace("．", ".")
+                val isValid = normalized.isEmpty() || normalized == "." ||
+                    normalized.matches(Regex("^\\d*\\.?\\d?$"))
+                if (isValid) {
+                    assistanceStr = normalized
+                    onAssistanceChange(parseResultWeightGValue(normalized))
+                }
+            },
+            label = { Text(stringResource(R.string.assistance_input_label), fontSize = 12.sp) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Amber500,
+                focusedLabelColor = Amber500,
+                cursorColor = Amber500
+            )
+        )
+    }
+}
+
+private fun parseResultDistanceCmValue(input: String): Int? {
+    val trimmed = input.trim()
+    if (trimmed.isEmpty() || trimmed == "-") return null
+    return trimmed.toIntOrNull()
+}
+
+private fun parseResultWeightGValue(input: String): Int? {
+    val trimmed = input.trim()
+    if (trimmed.isEmpty() || trimmed == ".") return null
+    val kg = trimmed.toDoubleOrNull() ?: return null
+    return (kg * 1000).toInt()
 }

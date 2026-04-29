@@ -238,6 +238,9 @@
     <string name="program_result_zero_warning">0のセットが存在します。両側種目の0セット、および片側種目の両側0セットは保存されません。</string>
     <string name="comment_label">コメント</string>
     <string name="record_workout">記録する</string>
+    <string name="add_extra_set_button">もう1セット追加</string>
+    <string name="add_extra_set_title">セットを追加</string>
+    <string name="add_extra_set_confirm">追加</string>
     <string name="set_number">セット %d</string>
     <string name="skipped_label">スキップ</string>
     <string name="right_label">右:</string>
@@ -259,6 +262,14 @@
     <string name="tab_graph">グラフ</string>
     <string name="tab_challenge">課題</string>
     <string name="tab_calendar">カレンダー</string>
+    <string name="stats_total_sets">合計セット数</string>
+    <string name="stats_exercise_count">種目数</string>
+    <string name="stats_total_intervals">合計インターバル数</string>
+    <string name="stats_total_time">合計時間</string>
+    <string name="stats_total_reps">合計レップ数</string>
+    <string name="stats_total_seconds_format">%d秒</string>
+    <string name="stats_total_minutes_format">%d分</string>
+    <string name="stats_total_min_sec_format">%1$d分%2$d秒</string>
     <string name="search_placeholder">検索</string>
     <string name="no_results">結果が見つかりません</string>
     <string name="clear">クリア</string>
@@ -536,6 +547,7 @@
     <string name="program_saved">プログラムを保存しました</string>
     <string name="program_name_required">プログラム名を入力してください</string>
     <string name="program_exercises_required">種目を1つ以上追加してください</string>
+    <string name="program_validation_incomplete_sets_or_value">セット数または目標値が未設定の種目があります</string>
     <string name="exercise_settings">種目設定</string>
     <string name="sets_label">セット数</string>
     <string name="target_value_label">目標</string>
@@ -611,6 +623,10 @@
     <string name="nav_skipped">スキップ</string>
     <string name="nav_type_dynamic_short">回数</string>
     <string name="nav_type_isometric_short">静止</string>
+    <string name="nav_edit_target">目標を編集</string>
+    <string name="nav_edit_actual">実績を編集</string>
+    <string name="nav_step_decrement">減らす</string>
+    <string name="nav_step_increment">増やす</string>
     <!-- Loop Feature -->
     <string name="loop_round_rest">ラウンド休憩</string>
     <string name="loop_round_current">ラウンド %1$d/%2$d</string>
@@ -751,5 +767,7 @@
     <string name="share_import_errors">エラー (%1$d)</string>
     <string name="share_import_count_reused">%1$d 再利用</string>
     <string name="share_import_count_skipped">%1$d スキップ</string>
+    <string name="nav_check_set">セットを完了にする</string>
+    <string name="nav_uncheck_set">セットを未実行に戻す</string>
 
 </resources>

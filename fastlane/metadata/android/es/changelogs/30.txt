@@ -1,0 +1,17 @@
+Añadido:
+- Calendario: mapa de calor + tarjeta de estadísticas
+- Peso/distancia/asistencia en modo programa
+- Edición en línea + tocar para completar
+- Selección múltiple al añadir ejercicios
+- Tiempo estimado en tarjetas To Do
+- Vista de registros por defecto a 1 semana
+
+Mejorado:
+- UX de entrada renovada
+- Botones stepper con color del tema (TalkBack)
+- Calendario cubre el período filtrado completo
+
+Corregido:
+- Cuenta de series en resultado del programa
+
+Contributors: @gallegonovato, @SomeTr

@@ -1,0 +1,17 @@
+Hinzugefügt:
+- Kalender: Aktivitäts-Heatmap + Statistikkarte
+- Gewicht/Distanz/Assistenz im Programmmodus
+- Inline-Bearbeitung + Tippen zum Abschließen
+- Mehrfachauswahl beim Übungen-Hinzufügen
+- Geschätzte Zeit auf To-Do-Karten
+- Aufzeichnungsansicht standardmäßig 1 Woche
+
+Verbessert:
+- Eingabe-UX überarbeitet
+- Stepper-Buttons in Themenfarbe (mit TalkBack)
+- Kalender deckt gesamten Zeitraum ab
+
+Behoben:
+- Falsche Satzanzahl im Programm-Ergebnis
+
+Contributors: @gallegonovato, @SomeTr

@@ -1,0 +1,17 @@
+Ajouté :
+- Calendrier : carte de chaleur + carte stats
+- Poids/distance/assistance en mode programme
+- Édition en ligne + toucher pour compléter
+- Sélection multiple à l'ajout d'exercices
+- Durée estimée sur les cartes To Do
+- Vue des enregistrements à 1 semaine par défaut
+
+Amélioré :
+- UX de saisie refondue
+- Boutons stepper aux couleurs du thème (TalkBack)
+- Calendrier couvre toute la période filtrée
+
+Corrigé :
+- Nombre de séries dans le résultat
+
+Contributors: @gallegonovato, @SomeTr

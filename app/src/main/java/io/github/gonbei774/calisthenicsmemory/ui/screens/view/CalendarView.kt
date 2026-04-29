@@ -1,5 +1,6 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens.view
 
+import android.text.format.DateUtils
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,18 +15,24 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.IntervalRecord
+import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import org.json.JSONArray
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.ZoneId
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -39,12 +46,24 @@ fun CalendarView(
 ) {
     val appColors = LocalAppColors.current
 
-    // 各日の記録タイプを判定（ドット色用）
-    val dayInfoMap = remember(items) {
+    // 種目ID → Lv (sortOrder) マップ
+    val exerciseLevelMap = remember(exercises) {
+        exercises.associate { it.id to it.sortOrder }
+    }
+
+    // 各日の活動量スコアと記録タイプを集計
+    val dayInfoMap = remember(items, exerciseLevelMap) {
         items.groupBy { it.date }.mapValues { (_, dayItems) ->
+            val sessionScore = dayItems.filterIsInstance<RecordItem.Session>()
+                .sumOf { sItem ->
+                    sItem.session.records.sumOf { r -> calcSessionScore(r, exerciseLevelMap) }
+                }
+            val intervalScore = dayItems.filterIsInstance<RecordItem.Interval>()
+                .sumOf { calcIntervalScore(it.record) }
             DayInfo(
                 hasSession = dayItems.any { it is RecordItem.Session },
                 hasInterval = dayItems.any { it is RecordItem.Interval },
+                score = sessionScore + intervalScore,
                 items = dayItems
             )
         }
@@ -53,6 +72,41 @@ fun CalendarView(
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
     val today = remember { LocalDate.now() }
     val exerciseMap = remember(exercises) { exercises.associateBy { it.id } }
+
+    val statsRange = remember(items, selectedPeriod, selectedDate, today) {
+        when {
+            selectedDate != null -> selectedDate!! to selectedDate!!
+            selectedPeriod != null -> today.minusDays(selectedPeriod.days.toLong() - 1) to today
+            else -> {
+                val earliest = items.mapNotNull {
+                    try { LocalDate.parse(it.date) } catch (_: Exception) { null }
+                }.minOrNull() ?: today
+                earliest to today
+            }
+        }
+    }
+
+    val stats = remember(items, selectedExerciseFilter, selectedDate) {
+        val targetItems = selectedDate?.let { d ->
+            val key = d.toString()
+            items.filter { it.date == key }
+        } ?: items
+        val sessions = targetItems.filterIsInstance<RecordItem.Session>()
+        val totalSets = sessions.sumOf { it.session.records.size }
+        val exerciseCount = sessions.map { it.session.exerciseId }.distinct().size
+        val intervalCount = targetItems.count { it is RecordItem.Interval }
+        val totalValue = if (selectedExerciseFilter != null) {
+            sessions.sumOf { s ->
+                s.session.records.sumOf { r -> r.valueRight + (r.valueLeft ?: 0) }
+            }
+        } else 0
+        StatsSummary(
+            totalSets = totalSets,
+            exerciseCount = exerciseCount,
+            intervalCount = intervalCount,
+            totalValue = totalValue
+        )
+    }
 
     if (selectedPeriod == Period.OneWeek) {
         // 週間表示（1週間フィルター時）
@@ -82,7 +136,7 @@ fun CalendarView(
                             date = date,
                             isToday = isToday,
                             isSelected = isSelected,
-                            hasSession = dayInfo?.hasSession == true,
+                            level = scoreToLevel(dayInfo?.score ?: 0.0),
                             hasInterval = dayInfo?.hasInterval == true,
                             onClick = {
                                 selectedDate = if (selectedDate == date) null else date
@@ -92,6 +146,16 @@ fun CalendarView(
                         )
                     }
                 }
+            }
+
+            item(key = "week-stats") {
+                StatsCard(
+                    stats = stats,
+                    selectedExercise = selectedExerciseFilter,
+                    rangeStart = statsRange.first,
+                    rangeEnd = statsRange.second,
+                    appColors = appColors
+                )
             }
 
             // 選択日の記録サマリー
@@ -129,28 +193,30 @@ fun CalendarView(
         }
     } else {
         // 月間表示（通常・1ヶ月・3ヶ月）
-        val months = remember(items) {
-            val now = YearMonth.now()
-            if (items.isEmpty()) {
-                listOf(now)
-            } else {
-                val dates = items.mapNotNull { item ->
-                    try {
-                        LocalDate.parse(item.date)
-                    } catch (e: Exception) {
-                        null
-                    }
-                }
-                if (dates.isEmpty()) {
-                    listOf(now)
-                } else {
-                    val earliest = YearMonth.from(dates.min())
-                    val latest = maxOf(YearMonth.from(dates.max()), now)
-                    generateSequence(earliest) { it.plusMonths(1) }
-                        .takeWhile { it <= latest }
-                        .toList()
+        val months = remember(items, selectedPeriod, today) {
+            val now = YearMonth.from(today)
+            val dataDates = items.mapNotNull { item ->
+                try {
+                    LocalDate.parse(item.date)
+                } catch (e: Exception) {
+                    null
                 }
             }
+            val periodStart = selectedPeriod?.let {
+                YearMonth.from(today.minusDays(it.days.toLong() - 1))
+            }
+            val earliest = when {
+                periodStart != null -> periodStart
+                dataDates.isNotEmpty() -> YearMonth.from(dataDates.min())
+                else -> now
+            }
+            val latest = maxOf(
+                dataDates.maxOfOrNull { YearMonth.from(it) } ?: now,
+                now
+            )
+            generateSequence(earliest) { it.plusMonths(1) }
+                .takeWhile { it <= latest }
+                .toList()
         }
 
         val listState = rememberLazyListState()
@@ -178,13 +244,24 @@ fun CalendarView(
                     },
                     appColors = appColors
                 )
+            }
 
-                val selected = selectedDate
-                if (selected != null && YearMonth.from(selected) == yearMonth) {
-                    val dateKey = selected.toString()
-                    val dayItems = dayInfoMap[dateKey]?.items
-                    if (!dayItems.isNullOrEmpty()) {
-                        Spacer(modifier = Modifier.height(8.dp))
+            item(key = "month-stats") {
+                StatsCard(
+                    stats = stats,
+                    selectedExercise = selectedExerciseFilter,
+                    rangeStart = statsRange.first,
+                    rangeEnd = statsRange.second,
+                    appColors = appColors
+                )
+            }
+
+            // 選択日の記録サマリー
+            val selected = selectedDate
+            if (selected != null) {
+                val dayItems = dayInfoMap[selected.toString()]?.items
+                if (!dayItems.isNullOrEmpty()) {
+                    item(key = "month-selected-summary") {
                         DayRecordSummary(
                             date = selected,
                             items = dayItems,
@@ -291,7 +368,7 @@ private fun MonthGrid(
                             isToday = isToday,
                             isSelected = isSelected,
                             isOutOfRange = isOutOfRange,
-                            hasSession = dayInfo?.hasSession == true,
+                            level = scoreToLevel(dayInfo?.score ?: 0.0),
                             hasInterval = dayInfo?.hasInterval == true,
                             onClick = { onDateClick(date) },
                             appColors = appColors,
@@ -314,8 +391,108 @@ private fun MonthGrid(
 private data class DayInfo(
     val hasSession: Boolean,
     val hasInterval: Boolean,
+    val score: Double,
     val items: List<RecordItem>
 )
+
+private data class StatsSummary(
+    val totalSets: Int,
+    val exerciseCount: Int,
+    val intervalCount: Int,
+    val totalValue: Int
+)
+
+@Composable
+private fun StatsCard(
+    stats: StatsSummary,
+    selectedExercise: Exercise?,
+    rangeStart: LocalDate,
+    rangeEnd: LocalDate,
+    appColors: AppColors
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = appColors.cardBackground),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = formatStatsRange(rangeStart, rangeEnd),
+                fontSize = 12.sp,
+                color = appColors.textTertiary
+            )
+            StatsRow(label = stringResource(R.string.stats_total_sets), value = stats.totalSets.toString(), appColors = appColors)
+            if (selectedExercise == null) {
+                StatsRow(label = stringResource(R.string.stats_exercise_count), value = stats.exerciseCount.toString(), appColors = appColors)
+                StatsRow(label = stringResource(R.string.stats_total_intervals), value = stats.intervalCount.toString(), appColors = appColors)
+            } else {
+                if (selectedExercise.type == "Isometric") {
+                    StatsRow(label = stringResource(R.string.stats_total_time), value = formatTotalSeconds(stats.totalValue), appColors = appColors)
+                } else {
+                    StatsRow(label = stringResource(R.string.stats_total_reps), value = stats.totalValue.toString(), appColors = appColors)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatsRow(
+    label: String,
+    value: String,
+    appColors: AppColors
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(appColors.cardBackgroundSecondary)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            color = appColors.textSecondary
+        )
+        Text(
+            text = value,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = appColors.textPrimary
+        )
+    }
+}
+
+@Composable
+private fun formatStatsRange(start: LocalDate, end: LocalDate): String {
+    val context = LocalContext.current
+    val zone = ZoneId.systemDefault()
+    val startMillis = start.atStartOfDay(zone).toInstant().toEpochMilli()
+    val endMillis = end.atStartOfDay(zone).toInstant().toEpochMilli()
+    return DateUtils.formatDateRange(
+        context,
+        startMillis,
+        endMillis,
+        DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_MONTH or DateUtils.FORMAT_SHOW_YEAR
+    )
+}
+
+@Composable
+private fun formatTotalSeconds(totalSeconds: Int): String {
+    if (totalSeconds < 60) return stringResource(R.string.stats_total_seconds_format, totalSeconds)
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return if (seconds == 0) {
+        stringResource(R.string.stats_total_minutes_format, minutes)
+    } else {
+        stringResource(R.string.stats_total_min_sec_format, minutes, seconds)
+    }
+}
 
 @Composable
 private fun DayCell(
@@ -323,66 +500,49 @@ private fun DayCell(
     isToday: Boolean,
     isSelected: Boolean,
     isOutOfRange: Boolean = false,
-    hasSession: Boolean,
+    level: Int,
     hasInterval: Boolean,
     onClick: () -> Unit,
     appColors: AppColors,
     modifier: Modifier = Modifier
 ) {
+    val showHeatmap = level > 0 && !isOutOfRange
     val textColor = when {
         isOutOfRange -> appColors.textTertiary.copy(alpha = 0.3f)
-        isToday -> Purple600
+        isToday && !showHeatmap -> Purple600
         else -> appColors.textPrimary
     }
 
-    Column(
+    Box(
         modifier = modifier
             .aspectRatio(1f)
-            .border(0.5.dp, appColors.textTertiary.copy(alpha = 0.2f))
-            .clip(CircleShape)
-            .then(
-                if (isSelected) {
-                    Modifier.background(Purple600.copy(alpha = 0.15f), CircleShape)
-                } else {
-                    Modifier
-                }
+            .background(
+                if (showHeatmap) Purple600.copy(alpha = levelToAlpha(level)) else Color.Transparent
             )
-            .clickable(onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .border(0.5.dp, appColors.textTertiary.copy(alpha = 0.2f))
+            .then(
+                if (isSelected) Modifier.border(2.dp, appColors.textPrimary) else Modifier
+            )
+            .clickable(onClick = onClick)
     ) {
+        // 日付テキスト（中央）
         Text(
             text = dayOfMonth.toString(),
             fontSize = 14.sp,
             fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
             color = textColor,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.align(Alignment.Center)
         )
-
-        // ドット表示
-        if (hasSession || hasInterval) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
-                modifier = Modifier.padding(top = 1.dp)
-            ) {
-                if (hasSession) {
-                    Box(
-                        modifier = Modifier
-                            .size(5.dp)
-                            .background(Purple600, CircleShape)
-                    )
-                }
-                if (hasInterval) {
-                    Box(
-                        modifier = Modifier
-                            .size(5.dp)
-                            .background(Orange600, CircleShape)
-                    )
-                }
-            }
-        } else {
-            // ドットがないときもスペース確保で高さを揃える
-            Spacer(modifier = Modifier.height(6.dp))
+        // インターバルマーカー（右上）
+        if (hasInterval) {
+            Box(
+                modifier = Modifier
+                    .size(6.dp)
+                    .align(Alignment.TopEnd)
+                    .offset(x = (-3).dp, y = 3.dp)
+                    .background(Orange600, CircleShape)
+            )
         }
     }
 }
@@ -392,7 +552,7 @@ private fun WeekDayCell(
     date: LocalDate,
     isToday: Boolean,
     isSelected: Boolean,
-    hasSession: Boolean,
+    level: Int,
     hasInterval: Boolean,
     onClick: () -> Unit,
     appColors: AppColors,
@@ -400,60 +560,53 @@ private fun WeekDayCell(
 ) {
     val locale = Locale.getDefault()
     val dayOfWeekText = date.dayOfWeek.getDisplayName(TextStyle.SHORT, locale)
+    val shape = RoundedCornerShape(8.dp)
 
-    Column(
+    Box(
         modifier = modifier
-            .border(0.5.dp, appColors.textTertiary.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
-            .clip(RoundedCornerShape(8.dp))
+            .background(
+                if (level > 0) Purple600.copy(alpha = levelToAlpha(level)) else Color.Transparent,
+                shape
+            )
+            .border(0.5.dp, appColors.textTertiary.copy(alpha = 0.2f), shape)
             .then(
-                if (isSelected) {
-                    Modifier.background(Purple600.copy(alpha = 0.15f))
-                } else {
-                    Modifier
-                }
+                if (isSelected) Modifier.border(2.dp, appColors.textPrimary, shape) else Modifier
             )
             .clickable(onClick = onClick)
-            .padding(vertical = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+            .padding(vertical = 8.dp)
     ) {
-        // 曜日
-        Text(
-            text = dayOfWeekText,
-            fontSize = 11.sp,
-            color = appColors.textTertiary,
-            textAlign = TextAlign.Center
-        )
-        // 日付（大きめ）
-        Text(
-            text = date.dayOfMonth.toString(),
-            fontSize = 20.sp,
-            fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-            color = if (isToday) Purple600 else appColors.textPrimary,
-            textAlign = TextAlign.Center
-        )
-        // ドット
-        if (hasSession || hasInterval) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                if (hasSession) {
-                    Box(
-                        modifier = Modifier
-                            .size(6.dp)
-                            .background(Purple600, CircleShape)
-                    )
-                }
-                if (hasInterval) {
-                    Box(
-                        modifier = Modifier
-                            .size(6.dp)
-                            .background(Orange600, CircleShape)
-                    )
-                }
-            }
-        } else {
-            Spacer(modifier = Modifier.height(6.dp))
+        // 曜日 + 日付（中央）
+        Column(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = dayOfWeekText,
+                fontSize = 11.sp,
+                color = appColors.textTertiary,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = date.dayOfMonth.toString(),
+                fontSize = 20.sp,
+                fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+                color = when {
+                    isToday && level == 0 -> Purple600
+                    else -> appColors.textPrimary
+                },
+                textAlign = TextAlign.Center
+            )
+        }
+        // インターバルマーカー（右上）
+        if (hasInterval) {
+            Box(
+                modifier = Modifier
+                    .size(6.dp)
+                    .align(Alignment.TopEnd)
+                    .offset(x = (-4).dp, y = 4.dp)
+                    .background(Orange600, CircleShape)
+            )
         }
     }
 }
@@ -618,6 +771,38 @@ private fun IntervalSummaryRow(
             fontWeight = if (isFullCompletion) FontWeight.Bold else FontWeight.Normal
         )
     }
+}
+
+private fun calcSessionScore(record: TrainingRecord, levelMap: Map<Long, Int>): Double {
+    val lv = (levelMap[record.exerciseId] ?: 0).coerceAtLeast(1)
+    val base = record.valueRight + (record.valueLeft ?: 0)
+    return base * Math.pow(1.3, (lv - 1).toDouble())
+}
+
+private fun calcIntervalScore(record: IntervalRecord): Double {
+    val exerciseCount = try {
+        JSONArray(record.exercisesJson).length()
+    } catch (e: Exception) {
+        0
+    }
+    return record.workSeconds.toDouble() *
+        (record.completedRounds * exerciseCount + record.completedExercisesInLastRound)
+}
+
+private fun scoreToLevel(score: Double): Int = when {
+    score <= 0.0 -> 0
+    score <= 100.0 -> 1
+    score <= 300.0 -> 2
+    score <= 700.0 -> 3
+    else -> 4
+}
+
+private fun levelToAlpha(level: Int): Float = when (level) {
+    1 -> 0.15f
+    2 -> 0.35f
+    3 -> 0.6f
+    4 -> 0.9f
+    else -> 0f
 }
 
 private fun formatYearMonth(yearMonth: YearMonth): String {

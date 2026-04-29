@@ -1,0 +1,17 @@
+Aggiunto:
+- Calendario: heatmap attività + scheda statistiche
+- Peso/distanza/assistenza in modalità programma
+- Modifica inline + tap per completare
+- Selezione multipla per aggiungere esercizi
+- Tempo stimato sulle schede To Do
+- Vista registrazioni predefinita a 1 settimana
+
+Migliorato:
+- UX di input rinnovata
+- Pulsanti stepper colori del tema (TalkBack)
+- Calendario copre tutto il periodo filtrato
+
+Corretto:
+- Numero di serie nel risultato
+
+Contributors: @gallegonovato, @SomeTr
