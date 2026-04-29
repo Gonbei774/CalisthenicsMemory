@@ -82,7 +82,7 @@ fun ViewScreen(
 
     // フィルター関連の状態
     var selectedExerciseFilter by remember { mutableStateOf<Exercise?>(null) }
-    var selectedPeriod by remember { mutableStateOf<Period?>(null) }
+    var selectedPeriod by remember { mutableStateOf<Period?>(Period.OneWeek) }
     var showFilterBottomSheet by remember { mutableStateOf(false) }
 
     // 既存の状態変数
