@@ -268,6 +268,14 @@
     <string name="tab_graph">Graph</string>
     <string name="tab_challenge">Challenge</string>
     <string name="tab_calendar">Calendar</string>
+    <string name="stats_total_sets">Total Sets</string>
+    <string name="stats_exercise_count">Exercises</string>
+    <string name="stats_total_intervals">Total Intervals</string>
+    <string name="stats_total_time">Total Time</string>
+    <string name="stats_total_reps">Total Reps</string>
+    <string name="stats_total_seconds_format">%d sec</string>
+    <string name="stats_total_minutes_format">%d min</string>
+    <string name="stats_total_min_sec_format">%1$d min %2$d sec</string>
     <string name="search_placeholder">Search</string>
     <string name="clear">Clear</string>
     <string name="no_results">No results found</string>
