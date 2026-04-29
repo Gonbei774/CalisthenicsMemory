@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.IntervalRecord
+import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import org.json.JSONArray
 import java.time.DayOfWeek
@@ -39,12 +41,24 @@ fun CalendarView(
 ) {
     val appColors = LocalAppColors.current
 
-    // 各日の記録タイプを判定（ドット色用）
-    val dayInfoMap = remember(items) {
+    // 種目ID → Lv (sortOrder) マップ
+    val exerciseLevelMap = remember(exercises) {
+        exercises.associate { it.id to it.sortOrder }
+    }
+
+    // 各日の活動量スコアと記録タイプを集計
+    val dayInfoMap = remember(items, exerciseLevelMap) {
         items.groupBy { it.date }.mapValues { (_, dayItems) ->
+            val sessionScore = dayItems.filterIsInstance<RecordItem.Session>()
+                .sumOf { sItem ->
+                    sItem.session.records.sumOf { r -> calcSessionScore(r, exerciseLevelMap) }
+                }
+            val intervalScore = dayItems.filterIsInstance<RecordItem.Interval>()
+                .sumOf { calcIntervalScore(it.record) }
             DayInfo(
                 hasSession = dayItems.any { it is RecordItem.Session },
                 hasInterval = dayItems.any { it is RecordItem.Interval },
+                score = sessionScore + intervalScore,
                 items = dayItems
             )
         }
@@ -82,7 +96,7 @@ fun CalendarView(
                             date = date,
                             isToday = isToday,
                             isSelected = isSelected,
-                            hasSession = dayInfo?.hasSession == true,
+                            level = scoreToLevel(dayInfo?.score ?: 0.0),
                             hasInterval = dayInfo?.hasInterval == true,
                             onClick = {
                                 selectedDate = if (selectedDate == date) null else date
@@ -291,7 +305,7 @@ private fun MonthGrid(
                             isToday = isToday,
                             isSelected = isSelected,
                             isOutOfRange = isOutOfRange,
-                            hasSession = dayInfo?.hasSession == true,
+                            level = scoreToLevel(dayInfo?.score ?: 0.0),
                             hasInterval = dayInfo?.hasInterval == true,
                             onClick = { onDateClick(date) },
                             appColors = appColors,
@@ -314,6 +328,7 @@ private fun MonthGrid(
 private data class DayInfo(
     val hasSession: Boolean,
     val hasInterval: Boolean,
+    val score: Double,
     val items: List<RecordItem>
 )
 
@@ -323,66 +338,49 @@ private fun DayCell(
     isToday: Boolean,
     isSelected: Boolean,
     isOutOfRange: Boolean = false,
-    hasSession: Boolean,
+    level: Int,
     hasInterval: Boolean,
     onClick: () -> Unit,
     appColors: AppColors,
     modifier: Modifier = Modifier
 ) {
+    val showHeatmap = level > 0 && !isOutOfRange
     val textColor = when {
         isOutOfRange -> appColors.textTertiary.copy(alpha = 0.3f)
-        isToday -> Purple600
+        isToday && !showHeatmap -> Purple600
         else -> appColors.textPrimary
     }
 
-    Column(
+    Box(
         modifier = modifier
             .aspectRatio(1f)
-            .border(0.5.dp, appColors.textTertiary.copy(alpha = 0.2f))
-            .clip(CircleShape)
-            .then(
-                if (isSelected) {
-                    Modifier.background(Purple600.copy(alpha = 0.15f), CircleShape)
-                } else {
-                    Modifier
-                }
+            .background(
+                if (showHeatmap) Purple600.copy(alpha = levelToAlpha(level)) else Color.Transparent
             )
-            .clickable(onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .border(0.5.dp, appColors.textTertiary.copy(alpha = 0.2f))
+            .then(
+                if (isSelected) Modifier.border(2.dp, appColors.textPrimary) else Modifier
+            )
+            .clickable(onClick = onClick)
     ) {
+        // 日付テキスト（中央）
         Text(
             text = dayOfMonth.toString(),
             fontSize = 14.sp,
             fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
             color = textColor,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.align(Alignment.Center)
         )
-
-        // ドット表示
-        if (hasSession || hasInterval) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
-                modifier = Modifier.padding(top = 1.dp)
-            ) {
-                if (hasSession) {
-                    Box(
-                        modifier = Modifier
-                            .size(5.dp)
-                            .background(Purple600, CircleShape)
-                    )
-                }
-                if (hasInterval) {
-                    Box(
-                        modifier = Modifier
-                            .size(5.dp)
-                            .background(Orange600, CircleShape)
-                    )
-                }
-            }
-        } else {
-            // ドットがないときもスペース確保で高さを揃える
-            Spacer(modifier = Modifier.height(6.dp))
+        // インターバルマーカー（右上）
+        if (hasInterval) {
+            Box(
+                modifier = Modifier
+                    .size(6.dp)
+                    .align(Alignment.TopEnd)
+                    .offset(x = (-3).dp, y = 3.dp)
+                    .background(Orange600, CircleShape)
+            )
         }
     }
 }
@@ -392,7 +390,7 @@ private fun WeekDayCell(
     date: LocalDate,
     isToday: Boolean,
     isSelected: Boolean,
-    hasSession: Boolean,
+    level: Int,
     hasInterval: Boolean,
     onClick: () -> Unit,
     appColors: AppColors,
@@ -400,60 +398,53 @@ private fun WeekDayCell(
 ) {
     val locale = Locale.getDefault()
     val dayOfWeekText = date.dayOfWeek.getDisplayName(TextStyle.SHORT, locale)
+    val shape = RoundedCornerShape(8.dp)
 
-    Column(
+    Box(
         modifier = modifier
-            .border(0.5.dp, appColors.textTertiary.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
-            .clip(RoundedCornerShape(8.dp))
+            .background(
+                if (level > 0) Purple600.copy(alpha = levelToAlpha(level)) else Color.Transparent,
+                shape
+            )
+            .border(0.5.dp, appColors.textTertiary.copy(alpha = 0.2f), shape)
             .then(
-                if (isSelected) {
-                    Modifier.background(Purple600.copy(alpha = 0.15f))
-                } else {
-                    Modifier
-                }
+                if (isSelected) Modifier.border(2.dp, appColors.textPrimary, shape) else Modifier
             )
             .clickable(onClick = onClick)
-            .padding(vertical = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+            .padding(vertical = 8.dp)
     ) {
-        // 曜日
-        Text(
-            text = dayOfWeekText,
-            fontSize = 11.sp,
-            color = appColors.textTertiary,
-            textAlign = TextAlign.Center
-        )
-        // 日付（大きめ）
-        Text(
-            text = date.dayOfMonth.toString(),
-            fontSize = 20.sp,
-            fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-            color = if (isToday) Purple600 else appColors.textPrimary,
-            textAlign = TextAlign.Center
-        )
-        // ドット
-        if (hasSession || hasInterval) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                if (hasSession) {
-                    Box(
-                        modifier = Modifier
-                            .size(6.dp)
-                            .background(Purple600, CircleShape)
-                    )
-                }
-                if (hasInterval) {
-                    Box(
-                        modifier = Modifier
-                            .size(6.dp)
-                            .background(Orange600, CircleShape)
-                    )
-                }
-            }
-        } else {
-            Spacer(modifier = Modifier.height(6.dp))
+        // 曜日 + 日付（中央）
+        Column(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = dayOfWeekText,
+                fontSize = 11.sp,
+                color = appColors.textTertiary,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = date.dayOfMonth.toString(),
+                fontSize = 20.sp,
+                fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+                color = when {
+                    isToday && level == 0 -> Purple600
+                    else -> appColors.textPrimary
+                },
+                textAlign = TextAlign.Center
+            )
+        }
+        // インターバルマーカー（右上）
+        if (hasInterval) {
+            Box(
+                modifier = Modifier
+                    .size(6.dp)
+                    .align(Alignment.TopEnd)
+                    .offset(x = (-4).dp, y = 4.dp)
+                    .background(Orange600, CircleShape)
+            )
         }
     }
 }
@@ -618,6 +609,38 @@ private fun IntervalSummaryRow(
             fontWeight = if (isFullCompletion) FontWeight.Bold else FontWeight.Normal
         )
     }
+}
+
+private fun calcSessionScore(record: TrainingRecord, levelMap: Map<Long, Int>): Double {
+    val lv = (levelMap[record.exerciseId] ?: 0).coerceAtLeast(1)
+    val base = record.valueRight + (record.valueLeft ?: 0)
+    return base * Math.pow(1.3, (lv - 1).toDouble())
+}
+
+private fun calcIntervalScore(record: IntervalRecord): Double {
+    val exerciseCount = try {
+        JSONArray(record.exercisesJson).length()
+    } catch (e: Exception) {
+        0
+    }
+    return record.workSeconds.toDouble() *
+        (record.completedRounds * exerciseCount + record.completedExercisesInLastRound)
+}
+
+private fun scoreToLevel(score: Double): Int = when {
+    score <= 0.0 -> 0
+    score <= 100.0 -> 1
+    score <= 300.0 -> 2
+    score <= 700.0 -> 3
+    else -> 4
+}
+
+private fun levelToAlpha(level: Int): Float = when (level) {
+    1 -> 0.15f
+    2 -> 0.35f
+    3 -> 0.6f
+    4 -> 0.9f
+    else -> 0f
 }
 
 private fun formatYearMonth(yearMonth: YearMonth): String {
