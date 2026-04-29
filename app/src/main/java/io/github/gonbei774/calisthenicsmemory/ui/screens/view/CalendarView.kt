@@ -15,11 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
 import io.github.gonbei774.calisthenicsmemory.data.IntervalRecord
 import io.github.gonbei774.calisthenicsmemory.data.TrainingRecord
@@ -419,15 +421,15 @@ private fun StatsCard(
                 fontSize = 12.sp,
                 color = appColors.textTertiary
             )
-            StatsRow(label = "合計セット数", value = stats.totalSets.toString(), appColors = appColors)
+            StatsRow(label = stringResource(R.string.stats_total_sets), value = stats.totalSets.toString(), appColors = appColors)
             if (selectedExercise == null) {
-                StatsRow(label = "種目数", value = stats.exerciseCount.toString(), appColors = appColors)
-                StatsRow(label = "合計インターバル数", value = stats.intervalCount.toString(), appColors = appColors)
+                StatsRow(label = stringResource(R.string.stats_exercise_count), value = stats.exerciseCount.toString(), appColors = appColors)
+                StatsRow(label = stringResource(R.string.stats_total_intervals), value = stats.intervalCount.toString(), appColors = appColors)
             } else {
                 if (selectedExercise.type == "Isometric") {
-                    StatsRow(label = "合計時間", value = formatTotalSeconds(stats.totalValue), appColors = appColors)
+                    StatsRow(label = stringResource(R.string.stats_total_time), value = formatTotalSeconds(stats.totalValue), appColors = appColors)
                 } else {
-                    StatsRow(label = "合計レップ数", value = stats.totalValue.toString(), appColors = appColors)
+                    StatsRow(label = stringResource(R.string.stats_total_reps), value = stats.totalValue.toString(), appColors = appColors)
                 }
             }
         }
@@ -474,11 +476,16 @@ private fun formatStatsRange(start: LocalDate, end: LocalDate): String {
     return "$startStr 〜 $endStr"
 }
 
+@Composable
 private fun formatTotalSeconds(totalSeconds: Int): String {
-    if (totalSeconds < 60) return "${totalSeconds}秒"
+    if (totalSeconds < 60) return stringResource(R.string.stats_total_seconds_format, totalSeconds)
     val minutes = totalSeconds / 60
     val seconds = totalSeconds % 60
-    return if (seconds == 0) "${minutes}分" else "${minutes}分${seconds}秒"
+    return if (seconds == 0) {
+        stringResource(R.string.stats_total_minutes_format, minutes)
+    } else {
+        stringResource(R.string.stats_total_min_sec_format, minutes, seconds)
+    }
 }
 
 @Composable
