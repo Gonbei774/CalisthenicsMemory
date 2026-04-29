@@ -701,4 +701,12 @@
     <string name="nav_edit_actual">Редагувати фактичне</string>
     <string name="nav_check_set">Позначити як завершений</string>
     <string name="nav_uncheck_set">Позначити як незавершений</string>
+    <string name="stats_total_seconds_format">%d с</string>
+    <string name="stats_total_minutes_format">%d хв</string>
+    <string name="stats_total_min_sec_format">%1$d хв %2$d с</string>
+    <string name="stats_total_sets">Усього підходів</string>
+    <string name="stats_total_time">Усього часу</string>
+    <string name="stats_total_reps">Усього повторень</string>
+    <string name="stats_exercise_count">Вправи</string>
+    <string name="stats_total_intervals">Усього інтервалів</string>
 </resources>
