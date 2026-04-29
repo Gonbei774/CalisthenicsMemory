@@ -1,0 +1,17 @@
+Added:
+- Calendar: daily activity heatmap + stats card
+- Weight/distance/assistance in program mode
+- Inline value edit + tap-to-complete in program nav
+- Multi-select bulk add in program edit
+- Estimated time on To Do cards
+- Default record view to 1 week
+
+Improved:
+- Record/program input UX refresh
+- Theme-color stepper buttons (with TalkBack)
+- Calendar covers full filtered period
+
+Fixed:
+- Wrong set count on program result
+
+Contributors: @gallegonovato, @SomeTr

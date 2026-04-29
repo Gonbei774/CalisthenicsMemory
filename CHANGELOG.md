@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.22.0] - 2026-04-30
+
+### Added
+- **Calendar heatmap** showing daily activity intensity in record view
+- **Calendar stats summary card** with totals for the filtered period
+- **Calendar covers the full filtered period** in monthly grid
+- **Default record view** changed to one week on open
+- **Weight/distance/assistance input** in program mode (Confirm/Result/Navigation screens)
+- **Inline value editing** in program navigation sheet
+- **Tap status icons** in program navigation to toggle completion
+- **Multi-select bulk exercise add** in program edit screen
+- **Estimated time** displayed on To Do cards
+
+### Improved
+- Refreshed input UX for record mode and program confirm screen (label placement, auto-scroll, value carry-over)
+- Unified navigation stepper button color with theme color
+- TalkBack accessibility on stepper buttons
+- Calendar stats card fully localized (i18n)
+
+### Fixed
+- Incorrect total set count on program mode result screen
+
+This release includes translation contributions from @gallegonovato (Spanish) and @SomeTr (Ukrainian).
+
 ## [1.21.0] - 2026-04-21
 
 ### Added
@@ -472,6 +496,7 @@ This release includes contributions from @unsealed211, @SomeTr, and @balaraz.
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.22.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.22.0
 [1.21.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.21.0
 [1.20.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.20.0
 [1.19.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.19.0
