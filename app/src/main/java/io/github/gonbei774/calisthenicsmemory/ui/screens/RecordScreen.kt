@@ -14,6 +14,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -667,6 +668,10 @@ fun WorkoutInputScreen(
     // Unilateral判定
     val isUnilateral = exercise.laterality == "Unilateral"
 
+    // セット追加時に新セットへ自動スクロールするための状態
+    val recordListState = rememberLazyListState()
+    var pendingScrollToNewSet by remember { mutableStateOf(false) }
+
     // Unilateral用の左右別の値管理（プリフィルデータで初期化）
     var setValuesRight by remember(prefillData) {
         mutableStateOf(
@@ -740,6 +745,18 @@ fun WorkoutInputScreen(
         assistanceInputs = List(numberOfSets) { index -> assistanceInputs.getOrElse(index) { "" } }
     }
 
+    // 「セットを追加」ボタンで増えた新セットへ自動スクロール
+    LaunchedEffect(numberOfSets) {
+        if (pendingScrollToNewSet) {
+            val hasTargetCard = exercise.targetSets != null && exercise.targetValue != null
+            val hasApplyButton = exercise.targetSets != null || exercise.targetValue != null
+            val headerCount = (if (hasTargetCard) 1 else 0) + (if (hasApplyButton) 1 else 0)
+            val newSetIndex = headerCount + numberOfSets - 1
+            recordListState.animateScrollToItem(newSetIndex)
+            pendingScrollToNewSet = false
+        }
+    }
+
     // バリデーション
     val hasValidValues = if (isUnilateral) {
         // Unilateral: 右側に少なくとも1つ有効な値があればOK（0を含む）
@@ -793,6 +810,7 @@ fun WorkoutInputScreen(
         }
     ) { paddingValues ->
         LazyColumn(
+            state = recordListState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -1090,7 +1108,7 @@ fun WorkoutInputScreen(
             // セット追加ボタン
             if (numberOfSets < 10) {
                 item {
-                    OutlinedButton(
+                    Button(
                         onClick = {
                             // ローカル状態にも最後の値をコピーしてから親に通知
                             setValuesRight = setValuesRight + (setValuesRight.lastOrNull() ?: "")
@@ -1098,18 +1116,19 @@ fun WorkoutInputScreen(
                             distanceInputs = distanceInputs + (distanceInputs.lastOrNull() ?: "")
                             weightInputs = weightInputs + (weightInputs.lastOrNull() ?: "")
                             assistanceInputs = assistanceInputs + (assistanceInputs.lastOrNull() ?: "")
+                            pendingScrollToNewSet = true
                             onAddSet()
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = Green600
-                        )
+                        colors = ButtonDefaults.buttonColors(containerColor = Green600)
                     ) {
-                        Text(
-                            text = "+ " + stringResource(R.string.add_extra_set_button),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
                         )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(stringResource(R.string.add_extra_set_button))
                     }
                 }
             }
