@@ -666,6 +666,10 @@ fun ProgramExecutionScreen(
                                 val lastSetOfFirstRound = firstRoundSets.lastOrNull()
                                 val interval = lastSetOfFirstRound?.intervalSeconds ?: pe.intervalSeconds
                                 val targetValue = lastSetOfFirstRound?.targetValue ?: pe.targetValue
+                                // 新セットの荷重/距離/アシストは最後のセットから転記（無ければ null）
+                                val lastWeightG = lastSetOfFirstRound?.weightG
+                                val lastDistanceCm = lastSetOfFirstRound?.distanceCm
+                                val lastAssistanceG = lastSetOfFirstRound?.assistanceG
 
                                 // 他の種目のセットはそのまま、この種目のセットのみ再構築
                                 val newSets = mutableListOf<ProgramWorkoutSet>()
@@ -687,6 +691,10 @@ fun ProgramExecutionScreen(
 
                                                 if (ex.laterality == "Unilateral") {
                                                     val existingTracking = existingRight ?: existingLeft
+                                                    val isNewSet = existingTracking == null
+                                                    val carriedWeightG = if (isNewSet) lastWeightG else existingTracking?.weightG
+                                                    val carriedDistanceCm = if (isNewSet) lastDistanceCm else existingTracking?.distanceCm
+                                                    val carriedAssistanceG = if (isNewSet) lastAssistanceG else existingTracking?.assistanceG
                                                     newSets.add(ProgramWorkoutSet(
                                                         exerciseIndex = idx,
                                                         setNumber = setNum,
@@ -698,9 +706,9 @@ fun ProgramExecutionScreen(
                                                         roundNumber = round,
                                                         totalRounds = totalRounds,
                                                         loopRestAfterSeconds = 0,  // Rightの後はLeftが来る
-                                                        weightG = existingTracking?.weightG,
-                                                        distanceCm = existingTracking?.distanceCm,
-                                                        assistanceG = existingTracking?.assistanceG,
+                                                        weightG = carriedWeightG,
+                                                        distanceCm = carriedDistanceCm,
+                                                        assistanceG = carriedAssistanceG,
                                                         previousWeightG = existingTracking?.previousWeightG,
                                                         previousDistanceCm = existingTracking?.previousDistanceCm,
                                                         previousAssistanceG = existingTracking?.previousAssistanceG
@@ -716,14 +724,15 @@ fun ProgramExecutionScreen(
                                                         roundNumber = round,
                                                         totalRounds = totalRounds,
                                                         loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0,
-                                                        weightG = existingTracking?.weightG,
-                                                        distanceCm = existingTracking?.distanceCm,
-                                                        assistanceG = existingTracking?.assistanceG,
+                                                        weightG = carriedWeightG,
+                                                        distanceCm = carriedDistanceCm,
+                                                        assistanceG = carriedAssistanceG,
                                                         previousWeightG = existingTracking?.previousWeightG,
                                                         previousDistanceCm = existingTracking?.previousDistanceCm,
                                                         previousAssistanceG = existingTracking?.previousAssistanceG
                                                     ))
                                                 } else {
+                                                    val isNewSet = existingBilateral == null
                                                     newSets.add(ProgramWorkoutSet(
                                                         exerciseIndex = idx,
                                                         setNumber = setNum,
@@ -735,9 +744,9 @@ fun ProgramExecutionScreen(
                                                         roundNumber = round,
                                                         totalRounds = totalRounds,
                                                         loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0,
-                                                        weightG = existingBilateral?.weightG,
-                                                        distanceCm = existingBilateral?.distanceCm,
-                                                        assistanceG = existingBilateral?.assistanceG,
+                                                        weightG = if (isNewSet) lastWeightG else existingBilateral?.weightG,
+                                                        distanceCm = if (isNewSet) lastDistanceCm else existingBilateral?.distanceCm,
+                                                        assistanceG = if (isNewSet) lastAssistanceG else existingBilateral?.assistanceG,
                                                         previousWeightG = existingBilateral?.previousWeightG,
                                                         previousDistanceCm = existingBilateral?.previousDistanceCm,
                                                         previousAssistanceG = existingBilateral?.previousAssistanceG
