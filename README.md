@@ -12,6 +12,7 @@
   <img src="https://img.shields.io/badge/Android-8.0%2B-green.svg" alt="Android 8.0+">
   <img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0">
   <a href="https://shields.rbtlog.dev/io.github.gonbei774.calisthenicsmemory"><img src="https://shields.rbtlog.dev/simple/io.github.gonbei774.calisthenicsmemory" alt="Reproducible Builds"></a>
+  <a href="https://translate.codeberg.org/engage/calisthenics-memory/"><img src="https://translate.codeberg.org/widget/calisthenics-memory/svg-badge.svg" alt="Translation status"></a>
 </p>
 
 ## About
@@ -94,6 +95,14 @@ See [IzzyOnDroid Permissions](https://android.izzysoft.de/applists/perms) for de
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Translations
+
+Help translate the app on [Weblate](https://translate.codeberg.org/engage/calisthenics-memory/):
+
+<a href="https://translate.codeberg.org/engage/calisthenics-memory/">
+<img src="https://translate.codeberg.org/widget/calisthenics-memory/multi-auto.svg" alt="Translation status" />
+</a>
 
 ## Wiki
 
