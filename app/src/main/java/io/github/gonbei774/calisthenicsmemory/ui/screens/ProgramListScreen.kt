@@ -10,9 +10,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,6 +31,7 @@ import io.github.gonbei774.calisthenicsmemory.R
 import io.github.gonbei774.calisthenicsmemory.data.Program
 import io.github.gonbei774.calisthenicsmemory.data.SavedWorkoutState
 import io.github.gonbei774.calisthenicsmemory.ui.theme.*
+import io.github.gonbei774.calisthenicsmemory.util.SearchUtils
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import androidx.compose.ui.platform.LocalContext
 
@@ -103,26 +106,91 @@ fun ProgramListScreen(
         } else {
             // Program list with swipe-to-delete
             val copySuffix = stringResource(R.string.program_copy_suffix)
-            LazyColumn(
+            var searchQuery by remember { mutableStateOf("") }
+            val filteredPrograms = remember(programs, searchQuery) {
+                SearchUtils.searchPrograms(programs, searchQuery)
+            }
+
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(16.dp)
             ) {
-                items(
-                    items = programs,
-                    key = { it.id }
-                ) { program ->
-                    ProgramListItem(
-                        program = program,
-                        hasSavedState = savedProgramId == program.id,
-                        onEdit = { onNavigateToEdit(program.id) },
-                        onExecute = { onNavigateToExecute(program.id) },
-                        onResume = { onNavigateToResume(program.id) },
-                        onDelete = { viewModel.deleteProgram(program.id) },
-                        onDuplicate = { viewModel.duplicateProgram(program.id, copySuffix) }
-                    )
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                    placeholder = {
+                        Text(
+                            text = stringResource(R.string.search_placeholder),
+                            color = appColors.textSecondary
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Search,
+                            contentDescription = null,
+                            tint = appColors.textSecondary
+                        )
+                    },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(
+                                    Icons.Default.Clear,
+                                    contentDescription = stringResource(R.string.clear),
+                                    tint = appColors.textSecondary
+                                )
+                            }
+                        }
+                    },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = appColors.textPrimary,
+                        unfocusedTextColor = appColors.textPrimary,
+                        focusedContainerColor = appColors.cardBackground,
+                        unfocusedContainerColor = appColors.cardBackground,
+                        focusedBorderColor = Orange600,
+                        unfocusedBorderColor = appColors.border,
+                        cursorColor = Orange600
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                )
+
+                if (filteredPrograms.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.no_results),
+                            fontSize = 14.sp,
+                            color = appColors.textSecondary
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            items = filteredPrograms,
+                            key = { it.id }
+                        ) { program ->
+                            ProgramListItem(
+                                program = program,
+                                hasSavedState = savedProgramId == program.id,
+                                onEdit = { onNavigateToEdit(program.id) },
+                                onExecute = { onNavigateToExecute(program.id) },
+                                onResume = { onNavigateToResume(program.id) },
+                                onDelete = { viewModel.deleteProgram(program.id) },
+                                onDuplicate = { viewModel.duplicateProgram(program.id, copySuffix) }
+                            )
+                        }
+                    }
                 }
             }
         }
