@@ -1,6 +1,8 @@
 package io.github.gonbei774.calisthenicsmemory.util
 
 import io.github.gonbei774.calisthenicsmemory.data.Exercise
+import io.github.gonbei774.calisthenicsmemory.data.IntervalProgram
+import io.github.gonbei774.calisthenicsmemory.data.Program
 
 /**
  * Search utility functions for ranking and filtering exercises
@@ -68,6 +70,40 @@ object SearchUtils {
                 exercises = filteredExercises
             )
         }.filter { it.exercises.isNotEmpty() }
+    }
+
+    /**
+     * Search programs by name with ranking by relevance.
+     * Empty query returns the original list unchanged.
+     */
+    fun searchPrograms(programs: List<Program>, query: String): List<Program> {
+        if (query.isBlank()) return programs
+
+        val queryLower = query.lowercase()
+
+        return programs.mapNotNull { program ->
+            val score = calculateRelevanceScore(program.name.lowercase(), queryLower)
+            if (score > 0) program to score else null
+        }
+            .sortedWith(compareByDescending<Pair<Program, Int>> { it.second }.thenBy { it.first.name })
+            .map { it.first }
+    }
+
+    /**
+     * Search interval programs by name with ranking by relevance.
+     * Empty query returns the original list unchanged.
+     */
+    fun searchIntervalPrograms(programs: List<IntervalProgram>, query: String): List<IntervalProgram> {
+        if (query.isBlank()) return programs
+
+        val queryLower = query.lowercase()
+
+        return programs.mapNotNull { program ->
+            val score = calculateRelevanceScore(program.name.lowercase(), queryLower)
+            if (score > 0) program to score else null
+        }
+            .sortedWith(compareByDescending<Pair<IntervalProgram, Int>> { it.second }.thenBy { it.first.name })
+            .map { it.first }
     }
 
     /**
