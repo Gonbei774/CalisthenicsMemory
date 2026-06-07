@@ -395,15 +395,58 @@ fun CreateScreen(
 
     // 種目削除確認ダイアログ
     showDeleteDialog?.let { exercise ->
+        val deleteImpact by viewModel.deleteImpact.collectAsState()
+        LaunchedEffect(exercise.id) { viewModel.loadDeleteImpact(exercise) }
+
+        val dismiss = {
+            showDeleteDialog = null
+            viewModel.clearDeleteImpact()
+        }
         AlertDialog(
-            onDismissRequest = { showDeleteDialog = null },
+            onDismissRequest = dismiss,
             title = { Text(stringResource(R.string.delete_confirmation)) },
-            text = { Text(stringResource(R.string.delete_exercise_confirm_message, exercise.name)) },
+            text = {
+                Column {
+                    Text(stringResource(R.string.delete_exercise_confirm_title, exercise.name))
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        stringResource(
+                            R.string.delete_exercise_record_count,
+                            deleteImpact?.recordCount ?: 0
+                        )
+                    )
+
+                    val programNames = deleteImpact?.programNames ?: emptyList()
+                    val intervalNames = deleteImpact?.intervalNames ?: emptyList()
+                    if (programNames.isNotEmpty() || intervalNames.isNotEmpty()) {
+                        Spacer(Modifier.height(12.dp))
+                        Text(stringResource(R.string.delete_exercise_in_use))
+                        if (programNames.isNotEmpty()) {
+                            Text(
+                                stringResource(
+                                    R.string.delete_exercise_used_in_programs,
+                                    programNames.joinToString(", ")
+                                )
+                            )
+                        }
+                        if (intervalNames.isNotEmpty()) {
+                            Text(
+                                stringResource(
+                                    R.string.delete_exercise_used_in_intervals,
+                                    intervalNames.joinToString(", ")
+                                )
+                            )
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Text(stringResource(R.string.delete_exercise_removed_note))
+                    }
+                }
+            },
             confirmButton = {
                 TextButton(
                     onClick = {
                         viewModel.deleteExercise(exercise)
-                        showDeleteDialog = null
+                        dismiss()
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = Red600)
                 ) {
@@ -411,7 +454,7 @@ fun CreateScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = null }) {
+                TextButton(onClick = dismiss) {
                     Text(stringResource(R.string.cancel))
                 }
             }

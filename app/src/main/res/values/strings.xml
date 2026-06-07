@@ -312,6 +312,12 @@
     <string name="no_exercises_add_with_plus">No exercises yet\nAdd one using the + button below</string>
     <string name="delete_group_confirm_message">Delete \"%s\"?\nExercises in this group will be moved to \"No Group\".</string>
     <string name="delete_exercise_confirm_message">Delete \"%s\"?\nAll records for this exercise will also be deleted.</string>
+    <string name="delete_exercise_confirm_title">Delete \"%s\"?</string>
+    <string name="delete_exercise_record_count">Records to be deleted: %d</string>
+    <string name="delete_exercise_in_use">This exercise is in use:</string>
+    <string name="delete_exercise_used_in_programs">• Programs: %s</string>
+    <string name="delete_exercise_used_in_intervals">• Intervals: %s</string>
+    <string name="delete_exercise_removed_note">It will also be removed from these.</string>
     <string name="duplicate_exercise_name">This exercise name is already in use</string>
     <string name="duplicate_group_name">This group name is already in use</string>
     <string name="bilateral_with_parenthesis">Bilateral</string>

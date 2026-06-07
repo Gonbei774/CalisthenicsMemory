@@ -168,6 +168,13 @@ data class ExportTodoTask(
     val lastCompletedDate: String? = null
 )
 
+// 種目削除の影響範囲
+data class ExerciseDeleteImpact(
+    val recordCount: Int,
+    val programNames: List<String>,
+    val intervalNames: List<String>
+)
+
 class TrainingViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database = AppDatabase.getDatabase(application)
@@ -313,6 +320,24 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 _snackbarMessage.value = UiMessage.ErrorOccurred
             }
         }
+    }
+
+    // 種目削除の影響範囲（確認ダイアログ用）
+    private val _deleteImpact = MutableStateFlow<ExerciseDeleteImpact?>(null)
+    val deleteImpact: StateFlow<ExerciseDeleteImpact?> = _deleteImpact.asStateFlow()
+
+    fun loadDeleteImpact(exercise: Exercise) {
+        _deleteImpact.value = null
+        viewModelScope.launch {
+            val recordCount = recordDao.countByExercise(exercise.id)
+            val programNames = programExerciseDao.getProgramNamesUsingExercise(exercise.id)
+            val intervalNames = intervalProgramExerciseDao.getProgramNamesUsingExercise(exercise.id)
+            _deleteImpact.value = ExerciseDeleteImpact(recordCount, programNames, intervalNames)
+        }
+    }
+
+    fun clearDeleteImpact() {
+        _deleteImpact.value = null
     }
 
     fun deleteExercise(exercise: Exercise) {

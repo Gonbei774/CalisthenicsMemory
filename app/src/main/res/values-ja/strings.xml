@@ -294,6 +294,12 @@
     <string name="no_exercises_add_with_plus">種目がまだありません\n右下の + ボタンから追加してください</string>
     <string name="delete_group_confirm_message">「%s」を削除しますか？\nこのグループの種目は「グループなし」に移動します。</string>
     <string name="delete_exercise_confirm_message">「%s」を削除しますか？\nこの種目の記録も全て削除されます。</string>
+    <string name="delete_exercise_confirm_title">「%s」を削除しますか？</string>
+    <string name="delete_exercise_record_count">削除される記録: %d件</string>
+    <string name="delete_exercise_in_use">この種目を使用中:</string>
+    <string name="delete_exercise_used_in_programs">・プログラム: %s</string>
+    <string name="delete_exercise_used_in_intervals">・インターバル: %s</string>
+    <string name="delete_exercise_removed_note">これらからも種目が取り除かれます。</string>
     <string name="duplicate_exercise_name">この種目名は既に使用されています</string>
     <string name="duplicate_group_name">このグループ名は既に使用されています</string>
     <string name="bilateral_with_parenthesis">両側 (Bilateral)</string>
