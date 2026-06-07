@@ -709,4 +709,13 @@
     <string name="stats_total_reps">Усього повторень</string>
     <string name="stats_exercise_count">Вправи</string>
     <string name="stats_total_intervals">Усього інтервалів</string>
+    <string name="record_done_count">%1$d/%2$d</string>
+    <string name="record_incomplete_title">Незавершені підходи</string>
+    <string name="set_complete_button">Завершити підхід %1$d</string>
+    <string name="set_done_label">ГОТОВО</string>
+    <string name="set_now_badge">ЗАРАЗ</string>
+    <string name="set_uncheck_desc">Позначити підхід як незавершений</string>
+    <string name="previous_value_label">Попереднє</string>
+    <string name="record_incomplete_message">%2$d з %1$d підходів не завершено. Записати лише %3$d завершених наборів?</string>
+    <string name="set_status_check_desc">Стан завершення підходу</string>
 </resources>
