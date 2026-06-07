@@ -59,6 +59,12 @@ data class AssistanceDataPoint(
     val assistanceKg: Float        // アシスト量（kg）
 )
 
+// 最大重量グラフ用データクラス
+data class WeightDataPoint(
+    val date: String,
+    val maxWeightKg: Float          // その日の最大重量（kg）
+)
+
 enum class Period(val days: Int, val displayNameResId: Int) {
     OneWeek(7, R.string.period_one_week),
     OneMonth(30, R.string.period_one_month),
@@ -272,6 +278,53 @@ fun GraphView(
                     data = volumeData,
                     period = selectedPeriod,
                     allTimeVolumeMax = allTimeVolumeMax
+                )
+            }
+
+            // 最大重量グラフ（荷重トラッキング有効時のみ）
+            item {
+                val weightData = remember(selectedExerciseFilter, records, selectedPeriod) {
+                    prepareWeightData(
+                        exercise = selectedExerciseFilter,
+                        records = records,
+                        period = selectedPeriod
+                    )
+                }
+
+                val allTimeWeightRange = remember(selectedExerciseFilter, records) {
+                    val allWeightData = prepareWeightData(
+                        exercise = selectedExerciseFilter,
+                        records = records,
+                        period = null
+                    )
+                    if (allWeightData.isNotEmpty()) {
+                        Pair(
+                            allWeightData.minOf { it.maxWeightKg },
+                            allWeightData.maxOf { it.maxWeightKg }
+                        )
+                    } else {
+                        Pair(0f, 0f)
+                    }
+                }
+
+                // 全記録の日付範囲を計算（メインチャートと同じX軸範囲にするため）
+                val allRecordsDateRange = remember(selectedExerciseFilter, records) {
+                    val exerciseRecords = records.filter { it.exerciseId == selectedExerciseFilter.id }
+                    if (exerciseRecords.isNotEmpty()) {
+                        val dates = exerciseRecords.mapNotNull {
+                            try { LocalDate.parse(it.date) } catch (e: Exception) { null }
+                        }
+                        if (dates.isNotEmpty()) {
+                            Pair(dates.minOrNull()!!, dates.maxOrNull()!!)
+                        } else null
+                    } else null
+                }
+
+                WeightChart(
+                    data = weightData,
+                    period = selectedPeriod,
+                    allTimeWeightRange = allTimeWeightRange,
+                    allRecordsDateRange = allRecordsDateRange
                 )
             }
         }
@@ -596,6 +649,66 @@ fun prepareAssistanceData(
         AssistanceDataPoint(
             date = date,
             assistanceKg = assistanceKg
+        )
+    }.sortedBy { it.date }
+}
+
+// 最大重量データ準備関数
+fun prepareWeightData(
+    exercise: Exercise,
+    records: List<TrainingRecord>,
+    period: Period?
+): List<WeightDataPoint> {
+    // 荷重トラッキングが無効な場合は空リスト
+    if (!exercise.weightTrackingEnabled) {
+        return emptyList()
+    }
+
+    // 対象種目の記録を抽出
+    val exerciseRecords = records.filter { it.exerciseId == exercise.id }
+
+    if (exerciseRecords.isEmpty()) {
+        return emptyList()
+    }
+
+    // 期間でフィルター（nullの場合は全期間）
+    val today = LocalDate.now()
+    val filteredRecords = if (period == null) {
+        exerciseRecords
+    } else {
+        val cutoffDate = today.minusDays(period.days.toLong() - 1)
+        exerciseRecords.filter { record ->
+            try {
+                val recordDate = LocalDate.parse(record.date)
+                recordDate >= cutoffDate && recordDate <= today
+            } catch (e: Exception) {
+                false
+            }
+        }
+    }
+
+    if (filteredRecords.isEmpty()) {
+        return emptyList()
+    }
+
+    // 荷重データがあるレコードのみ抽出
+    val recordsWithWeight = filteredRecords.filter { it.weightG != null && it.weightG > 0 }
+    if (recordsWithWeight.isEmpty()) {
+        return emptyList()
+    }
+
+    // 日付ごとにグループ化してその日の最大重量を取得
+    val maxWeightByDate = recordsWithWeight
+        .groupBy { it.date }
+        .mapValues { (_, sessionRecords) ->
+            (sessionRecords.maxOf { it.weightG ?: 0 }) / 1000f
+        }
+
+    // データポイントを作成
+    return maxWeightByDate.map { (date, maxWeightKg) ->
+        WeightDataPoint(
+            date = date,
+            maxWeightKg = maxWeightKg
         )
     }.sortedBy { it.date }
 }
@@ -1600,6 +1713,251 @@ fun calculateAssistanceYAxisLabels(min: Float, max: Float): List<Float> {
     // 0kgから均等に配置（0を含む）
     return (0..4).map { i ->
         adjustedMax * i / 4f
+    }
+}
+
+// 最大重量グラフコンポーネント
+@Composable
+fun WeightChart(
+    data: List<WeightDataPoint>,
+    period: Period?,
+    allTimeWeightRange: Pair<Float, Float>,
+    allRecordsDateRange: Pair<LocalDate, LocalDate>? = null
+) {
+    val appColors = LocalAppColors.current
+    val weightLabel = stringResource(R.string.max_weight)
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = appColors.cardBackground
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.weight(1f)) {
+                if (data.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.no_data),
+                                fontSize = 16.sp,
+                                color = appColors.textSecondary
+                            )
+                            Text(
+                                text = stringResource(R.string.record_weight_for_graph),
+                                fontSize = 14.sp,
+                                color = appColors.textSecondary
+                            )
+                        }
+                    }
+                } else {
+                    SimpleWeightChart(
+                        data = data,
+                        period = period,
+                        allTimeWeightRange = allTimeWeightRange,
+                        allRecordsDateRange = allRecordsDateRange
+                    )
+                }
+            }
+
+            // 凡例
+            if (data.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(Pink600, CircleShape)
+                    )
+                    Text(
+                        text = " $weightLabel",
+                        fontSize = 12.sp,
+                        color = appColors.textSecondary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SimpleWeightChart(
+    data: List<WeightDataPoint>,
+    period: Period?,
+    allTimeWeightRange: Pair<Float, Float>,
+    allRecordsDateRange: Pair<LocalDate, LocalDate>? = null
+) {
+    val appColors = LocalAppColors.current
+    Canvas(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        if (data.isEmpty()) return@Canvas
+
+        // Y軸スケール: 0kg基準（ボリューム/アシストチャートと統一）
+        val yLabels = calculateWeightYAxisLabels(allTimeWeightRange.first, allTimeWeightRange.second)
+        val adjustedMin = yLabels.first()  // 0kg
+        val adjustedMax = yLabels.last()
+        val range = (adjustedMax - adjustedMin).coerceAtLeast(1f)
+
+        val leftPadding = 50.dp.toPx()
+        val bottomPadding = 16.dp.toPx()
+        val topPadding = 32.dp.toPx()
+        val rightPadding = 30.dp.toPx()
+
+        val graphWidth = size.width - leftPadding - rightPadding
+        val graphHeight = size.height - topPadding - bottomPadding
+
+        val textPaint = Paint().apply {
+            color = android.graphics.Color.parseColor("#94A3B8")
+            textSize = 11.sp.toPx()
+            isAntiAlias = true
+        }
+
+        val today = LocalDate.now()
+        // X軸の日付範囲: 全記録の範囲を使用（メインチャートと同じ）
+        val startDate = if (period == null) {
+            allRecordsDateRange?.first ?: try {
+                LocalDate.parse(data.minOf { it.date })
+            } catch (e: Exception) {
+                today.minusDays(30)
+            }
+        } else {
+            today.minusDays(period.days.toLong() - 1)
+        }
+        val endDate = today
+
+        val totalDays = ChronoUnit.DAYS.between(startDate, endDate).toInt() + 1
+
+        // Y軸グリッド線とラベル
+        yLabels.forEach { labelValue ->
+            val y = topPadding + graphHeight - ((labelValue - adjustedMin) / range * graphHeight)
+
+            drawLine(
+                color = appColors.border.copy(alpha = 0.3f),
+                start = Offset(leftPadding, y),
+                end = Offset(size.width - rightPadding, y),
+                strokeWidth = 1.dp.toPx()
+            )
+
+            val labelText = String.format("%.1fkg", labelValue)
+
+            drawContext.canvas.nativeCanvas.drawText(
+                labelText,
+                leftPadding - 8.dp.toPx(),
+                y + 4.dp.toPx(),
+                textPaint.apply {
+                    textAlign = Paint.Align.RIGHT
+                }
+            )
+        }
+
+        // 線の描画（Pink600）
+        val path = Path()
+        var isFirstPoint = true
+
+        data.forEach { point ->
+            try {
+                val pointDate = LocalDate.parse(point.date)
+                val daysFromStart = ChronoUnit.DAYS.between(startDate, pointDate).toInt()
+
+                val x = leftPadding + (daysFromStart.toFloat() / (totalDays - 1).coerceAtLeast(1)) * graphWidth
+                val y = topPadding + graphHeight - ((point.maxWeightKg - adjustedMin) / range * graphHeight)
+
+                if (isFirstPoint) {
+                    path.moveTo(x, y)
+                    isFirstPoint = false
+                } else {
+                    path.lineTo(x, y)
+                }
+            } catch (e: Exception) {
+                // ignore
+            }
+        }
+
+        drawPath(
+            path = path,
+            color = Pink600,
+            style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+        )
+
+        // ポイント描画
+        data.forEach { point ->
+            try {
+                val pointDate = LocalDate.parse(point.date)
+                val daysFromStart = ChronoUnit.DAYS.between(startDate, pointDate).toInt()
+
+                val x = leftPadding + (daysFromStart.toFloat() / (totalDays - 1).coerceAtLeast(1)) * graphWidth
+                val y = topPadding + graphHeight - ((point.maxWeightKg - adjustedMin) / range * graphHeight)
+
+                drawCircle(
+                    color = appColors.textPrimary.copy(alpha = 0.4f),
+                    radius = 6.dp.toPx(),
+                    center = Offset(x, y)
+                )
+
+                drawCircle(
+                    color = Pink600.copy(alpha = 0.6f),
+                    radius = 4.dp.toPx(),
+                    center = Offset(x, y)
+                )
+            } catch (e: Exception) {
+                // ignore
+            }
+        }
+
+        // X軸ラベル
+        val displayDates = calculateXAxisDisplayDates(startDate, endDate, period)
+
+        displayDates.forEach { date ->
+            val daysFromStart = ChronoUnit.DAYS.between(startDate, date).toInt()
+            val x = leftPadding + (daysFromStart.toFloat() / (totalDays - 1).coerceAtLeast(1)) * graphWidth
+            val y = size.height - bottomPadding + 20.dp.toPx()
+
+            val dateText = "${date.monthValue}/${date.dayOfMonth}"
+
+            drawContext.canvas.nativeCanvas.drawText(
+                dateText,
+                x,
+                y,
+                textPaint.apply {
+                    textAlign = Paint.Align.CENTER
+                }
+            )
+        }
+    }
+}
+
+// 最大重量Y軸用のラベル計算（0kg基準・ボリューム/アシストと統一）
+fun calculateWeightYAxisLabels(min: Float, max: Float): List<Float> {
+    val interval = when {
+        max < 5 -> 1f
+        max < 10 -> 2f
+        max < 25 -> 5f
+        max < 50 -> 10f
+        else -> 25f
+    }
+
+    val adjustedMax = ((max / interval).toInt() + 1) * interval
+
+    // 0kgから均等に配置（0を含む）
+    return (0..5).map { i ->
+        adjustedMax * i / 5f
     }
 }
 
