@@ -1,0 +1,16 @@
+Added:
+- Redesigned executing screens (single & program)
+- Max weight progression chart
+- Search bar on program/interval lists
+- Per-set indicator on record screen
+- Delete dialog shows record count & usage
+- "Add New Exercise to Group" menu item
+- Arabic translation template
+
+Fixed:
+- CSV: RFC 4180 quoted fields
+- Calendar: merge same-exercise sessions/day
+- Program confirm: default to Previous tab
+- Max weight chart Y-axis at 0
+
+Contributors: @gallegonovato, @SomeTr, @nautilusx, @unsealed211

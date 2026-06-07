@@ -24,6 +24,7 @@
   <img src="https://img.shields.io/badge/Android-8.0%2B-green.svg" alt="Android 8.0+">
   <img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg" alt="License: GPL-3.0">
   <a href="https://shields.rbtlog.dev/io.github.gonbei774.calisthenicsmemory"><img src="https://shields.rbtlog.dev/simple/io.github.gonbei774.calisthenicsmemory" alt="Reproducible Builds"></a>
+  <a href="https://translate.codeberg.org/engage/calisthenics-memory/"><img src="https://translate.codeberg.org/widget/calisthenics-memory/svg-badge.svg" alt="翻訳ステータス"></a>
 </p>
 
 ## 概要
@@ -106,6 +107,14 @@ sha256sum -c app-release.apk.sha256
 ## コントリビュート
 
 ガイドラインは [CONTRIBUTING.md](../../CONTRIBUTING.md) を参照。
+
+### 翻訳
+
+[Weblate](https://translate.codeberg.org/engage/calisthenics-memory/) で翻訳に協力できます:
+
+<a href="https://translate.codeberg.org/engage/calisthenics-memory/">
+<img src="https://translate.codeberg.org/widget/calisthenics-memory/multi-auto.svg" alt="翻訳ステータス" />
+</a>
 
 ## Wiki
 

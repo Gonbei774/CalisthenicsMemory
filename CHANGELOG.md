@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.23.0] - 2026-06-08
+
+### Added
+- **Redesigned workout executing screens** for both single and program modes
+- **Max weight progression chart** in the graph view
+- **Search bar** on program and interval list screens
+- **Per-set current-set indicator** on the record screen
+- **Exercise delete dialog** now shows record count and program/interval usage
+- **"Add New Exercise to Group"** menu item in the group menu
+- **Arabic (ar) translation template**
+
+### Fixed
+- Support RFC 4180 quoted fields in CSV import/export (#93)
+- Default to the Previous tab on program confirm when prefill is applied (#89)
+- Merge same-exercise sessions per day in calendar summary
+- Use 0 kg baseline for the max weight chart Y-axis
+
+This release includes contributions from @gallegonovato, @SomeTr, @nautilusx, and @unsealed211.
+
 ## [1.22.0] - 2026-04-30
 
 ### Added
@@ -496,6 +515,7 @@ This release includes contributions from @unsealed211, @SomeTr, and @balaraz.
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.23.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.23.0
 [1.22.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.22.0
 [1.21.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.21.0
 [1.20.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.20.0

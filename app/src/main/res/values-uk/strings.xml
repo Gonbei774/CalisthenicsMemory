@@ -709,4 +709,23 @@
     <string name="stats_total_reps">Усього повторень</string>
     <string name="stats_exercise_count">Вправи</string>
     <string name="stats_total_intervals">Усього інтервалів</string>
+    <string name="record_done_count">%1$d/%2$d</string>
+    <string name="record_incomplete_title">Незавершені підходи</string>
+    <string name="set_complete_button">Завершити підхід %1$d</string>
+    <string name="set_done_label">ГОТОВО</string>
+    <string name="set_now_badge">ЗАРАЗ</string>
+    <string name="set_uncheck_desc">Позначити підхід як незавершений</string>
+    <string name="previous_value_label">Попереднє</string>
+    <string name="record_incomplete_message">%2$d з %1$d підходів не завершено. Записати лише %3$d завершених наборів?</string>
+    <string name="set_status_check_desc">Стан завершення підходу</string>
+    <string name="delete_exercise_confirm_title">Видалити «%s»?</string>
+    <string name="delete_exercise_used_in_programs">• Програми: %s</string>
+    <string name="delete_exercise_used_in_intervals">• Інтервали: %s</string>
+    <string name="stat_target_label">Мета</string>
+    <string name="rep_pace_format">Темп: %d с/раз</string>
+    <string name="record_confirm_title">Зберегти цей запис?</string>
+    <string name="delete_exercise_in_use">Ця вправа використовується:</string>
+    <string name="stat_previous_label">Попереднє</string>
+    <string name="delete_exercise_record_count">Буде видалено записів: %d</string>
+    <string name="delete_exercise_removed_note">звідки її також буде видалено.</string>
 </resources>

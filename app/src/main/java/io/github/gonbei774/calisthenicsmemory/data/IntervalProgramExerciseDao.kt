@@ -12,6 +12,14 @@ interface IntervalProgramExerciseDao {
     @Query("SELECT * FROM interval_program_exercises WHERE programId = :programId ORDER BY sortOrder ASC")
     suspend fun getExercisesForProgramSync(programId: Long): List<IntervalProgramExercise>
 
+    @Query("""
+        SELECT DISTINCT ip.name FROM interval_programs ip
+        INNER JOIN interval_program_exercises ipe ON ip.id = ipe.programId
+        WHERE ipe.exerciseId = :exerciseId
+        ORDER BY ip.name ASC
+    """)
+    suspend fun getProgramNamesUsingExercise(exerciseId: Long): List<String>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(exercise: IntervalProgramExercise): Long
 

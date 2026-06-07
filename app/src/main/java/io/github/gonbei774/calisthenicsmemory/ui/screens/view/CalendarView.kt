@@ -636,23 +636,29 @@ private fun DayRecordSummary(
                 color = appColors.textSecondary
             )
 
-            items.forEach { item ->
-                when (item) {
-                    is RecordItem.Session -> {
-                        SessionSummaryRow(
-                            session = item.session,
-                            exerciseMap = exerciseMap,
-                            appColors = appColors,
-                            onExerciseClick = onExerciseClick
-                        )
-                    }
-                    is RecordItem.Interval -> {
-                        IntervalSummaryRow(
-                            record = item.record,
-                            appColors = appColors
-                        )
-                    }
+            // 同じ種目のセッションは1行に集約し、合計set数を表示する
+            // （種目の初出順を維持。groupBy は LinkedHashMap で挿入順を保つ）
+            val aggregatedSessions = items
+                .filterIsInstance<RecordItem.Session>()
+                .groupBy { it.session.exerciseId }
+                .map { (exerciseId, sessionItems) ->
+                    exerciseId to sessionItems.sumOf { it.session.records.size }
                 }
+            aggregatedSessions.forEach { (exerciseId, setCount) ->
+                SessionSummaryRow(
+                    exerciseId = exerciseId,
+                    setCount = setCount,
+                    exerciseMap = exerciseMap,
+                    appColors = appColors,
+                    onExerciseClick = onExerciseClick
+                )
+            }
+
+            items.filterIsInstance<RecordItem.Interval>().forEach { item ->
+                IntervalSummaryRow(
+                    record = item.record,
+                    appColors = appColors
+                )
             }
         }
     }
@@ -660,14 +666,14 @@ private fun DayRecordSummary(
 
 @Composable
 private fun SessionSummaryRow(
-    session: SessionInfo,
+    exerciseId: Long,
+    setCount: Int,
     exerciseMap: Map<Long, Exercise>,
     appColors: AppColors,
     onExerciseClick: (Exercise) -> Unit
 ) {
-    val exercise = exerciseMap[session.exerciseId]
+    val exercise = exerciseMap[exerciseId]
     val exerciseName = exercise?.name ?: "?"
-    val setCount = session.records.size
 
     Row(
         modifier = Modifier

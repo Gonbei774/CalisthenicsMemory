@@ -77,6 +77,8 @@ internal fun ProgramConfirmStep(
     onUseAllProgramValues: () -> Unit,
     onUseAllChallengeValues: () -> Unit,
     onUseAllPreviousRecordValues: () -> Unit,
+    // 前回値プリフィル設定が有効か（タブ初期選択の判定に使用）
+    isPrefillEnabled: Boolean,
     // 音声設定
     isAutoMode: Boolean,
     startCountdownSeconds: Int,
@@ -143,7 +145,14 @@ internal fun ProgramConfirmStep(
     }
 
     // 一括適用タブの選択状態
-    var selectedBulkTab by remember { mutableIntStateOf(0) } // 0=Program, 1=Challenge, 2=Previous
+    // 0=Program, 1=Challenge, 2=Previous（課題種目が無い場合は Previous=1）
+    // プリフィル有効かつ実際に前回値を持つセットがある場合、初期値で前回値が表示されているため Previous を選択状態にする
+    val initialBulkTab = if (isPrefillEnabled && session.sets.any { it.previousValue != null }) {
+        if (hasChallengeExercise) 2 else 1
+    } else {
+        0
+    }
+    var selectedBulkTab by remember { mutableIntStateOf(initialBulkTab) }
 
     // 全てスクロール可能なリストとして表示
     LazyColumn(

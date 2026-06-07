@@ -64,6 +64,7 @@
     <string name="exercise">Exercise</string>
     <string name="group_name">Group Name</string>
     <string name="already_exists">This %s name already exists</string>
+    <string name="add_exercise_to_group">Add New Exercise to Group</string>
     <string name="rename_group">Rename Group</string>
     <string name="delete_group">Delete Group</string>
     <string name="delete_group_warning">Delete \"%s\"?\nExercises in this group will be moved to \"No Group\".</string>
@@ -93,6 +94,16 @@
     <string name="date_format">Date: %s</string>
     <string name="time_format">Time: %s</string>
     <string name="record_button">Record</string>
+    <!-- Set indicator (current / done / pending) -->
+    <string name="set_now_badge">NOW</string>
+    <string name="set_done_label">DONE</string>
+    <string name="set_complete_button">Complete Set %1$d</string>
+    <string name="previous_value_label">Prev</string>
+    <string name="set_status_check_desc">Set completion status</string>
+    <string name="set_uncheck_desc">Mark set as not done</string>
+    <string name="record_done_count">%1$d/%2$d</string>
+    <string name="record_incomplete_title">Incomplete sets</string>
+    <string name="record_incomplete_message">%2$d of %1$d sets are not completed. Record only the %3$d completed set(s)?</string>
     <string name="reps_label">Reps</string>
     <string name="time_label">Time</string>
     <string name="dynamic_type">Reps</string>
@@ -302,6 +313,12 @@
     <string name="no_exercises_add_with_plus">No exercises yet\nAdd one using the + button below</string>
     <string name="delete_group_confirm_message">Delete \"%s\"?\nExercises in this group will be moved to \"No Group\".</string>
     <string name="delete_exercise_confirm_message">Delete \"%s\"?\nAll records for this exercise will also be deleted.</string>
+    <string name="delete_exercise_confirm_title">Delete \"%s\"?</string>
+    <string name="delete_exercise_record_count">Records to be deleted: %d</string>
+    <string name="delete_exercise_in_use">This exercise is in use:</string>
+    <string name="delete_exercise_used_in_programs">• Programs: %s</string>
+    <string name="delete_exercise_used_in_intervals">• Intervals: %s</string>
+    <string name="delete_exercise_removed_note">It will also be removed from these.</string>
     <string name="duplicate_exercise_name">This exercise name is already in use</string>
     <string name="duplicate_group_name">This group name is already in use</string>
     <string name="bilateral_with_parenthesis">Bilateral</string>
@@ -595,6 +612,11 @@
     <string name="previous_value_format">Previous: %d</string>
     <string name="previous_reps_format">Previous: %d reps</string>
     <string name="previous_time_format">Previous: %ds</string>
+    <!-- Executing screen: previous/target stats and rep pace -->
+    <string name="stat_previous_label">Previous</string>
+    <string name="stat_target_label">Target</string>
+    <string name="rep_pace_format">Pace: %d s / rep</string>
+    <string name="record_confirm_title">Save this record?</string>
     <!-- Exit Workout Confirmation -->
     <string name="exit_workout_title">Exit workout?</string>
     <string name="exit_workout_message">Progress will not be saved.</string>

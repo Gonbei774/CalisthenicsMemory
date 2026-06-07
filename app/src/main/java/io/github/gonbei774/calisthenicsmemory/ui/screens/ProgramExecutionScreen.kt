@@ -584,6 +584,7 @@ fun ProgramExecutionScreen(
                     is ProgramExecutionStep.Confirm -> {
                         ProgramConfirmStep(
                             session = step.session,
+                            isPrefillEnabled = workoutPreferences.isPrefillPreviousRecordEnabled(),
                             onUpdateTargetValue = { setIndex, newValue ->
                                 if (setIndex !in step.session.sets.indices) return@ProgramConfirmStep
                                 val target = step.session.sets[setIndex]

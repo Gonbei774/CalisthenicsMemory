@@ -1,0 +1,16 @@
+Añadido:
+- Pantallas de ejecución rediseñadas
+- Gráfico de peso máximo
+- Búsqueda en listas de programa/intervalo
+- Indicador de serie actual
+- Borrado: muestra recuento y uso
+- Opción "Añadir ejercicio al grupo"
+- Plantilla de traducción al árabe
+
+Corregido:
+- CSV: campos entre comillas RFC 4180
+- Calendario: une mismo ejercicio por día
+- Confirmación: pestaña "Anterior" por defecto
+- Eje Y del gráfico de peso máximo en 0
+
+Contributors: @gallegonovato, @SomeTr, @nautilusx, @unsealed211

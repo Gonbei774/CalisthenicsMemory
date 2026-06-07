@@ -50,6 +50,7 @@ fun CreateScreen(
 
     var showAddDialog by remember { mutableStateOf(false) }
     var editingExercise by remember { mutableStateOf<Exercise?>(null) }
+    var addToGroup by remember { mutableStateOf<String?>(null) }
     var showDeleteDialog by remember { mutableStateOf<Exercise?>(null) }
     var showGroupMenu by remember { mutableStateOf<String?>(null) }
     var showGroupEditDialog by remember { mutableStateOf<String?>(null) }
@@ -325,10 +326,12 @@ fun CreateScreen(
     if (showAddDialog) {
         UnifiedAddDialog(
             exercise = editingExercise,
+            presetGroup = addToGroup,
             viewModel = viewModel,
             onDismiss = {
                 showAddDialog = false
                 editingExercise = null
+                addToGroup = null
             }
         )
     }
@@ -339,6 +342,16 @@ fun CreateScreen(
             expanded = true,
             onDismissRequest = { showGroupMenu = null }
         ) {
+            if (groupName != TrainingViewModel.FAVORITE_GROUP_KEY) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.add_exercise_to_group)) },
+                    onClick = {
+                        addToGroup = groupName
+                        showAddDialog = true
+                        showGroupMenu = null
+                    }
+                )
+            }
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.rename_group)) },
                 onClick = {
@@ -395,15 +408,58 @@ fun CreateScreen(
 
     // 種目削除確認ダイアログ
     showDeleteDialog?.let { exercise ->
+        val deleteImpact by viewModel.deleteImpact.collectAsState()
+        LaunchedEffect(exercise.id) { viewModel.loadDeleteImpact(exercise) }
+
+        val dismiss = {
+            showDeleteDialog = null
+            viewModel.clearDeleteImpact()
+        }
         AlertDialog(
-            onDismissRequest = { showDeleteDialog = null },
+            onDismissRequest = dismiss,
             title = { Text(stringResource(R.string.delete_confirmation)) },
-            text = { Text(stringResource(R.string.delete_exercise_confirm_message, exercise.name)) },
+            text = {
+                Column {
+                    Text(stringResource(R.string.delete_exercise_confirm_title, exercise.name))
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        stringResource(
+                            R.string.delete_exercise_record_count,
+                            deleteImpact?.recordCount ?: 0
+                        )
+                    )
+
+                    val programNames = deleteImpact?.programNames ?: emptyList()
+                    val intervalNames = deleteImpact?.intervalNames ?: emptyList()
+                    if (programNames.isNotEmpty() || intervalNames.isNotEmpty()) {
+                        Spacer(Modifier.height(12.dp))
+                        Text(stringResource(R.string.delete_exercise_in_use))
+                        if (programNames.isNotEmpty()) {
+                            Text(
+                                stringResource(
+                                    R.string.delete_exercise_used_in_programs,
+                                    programNames.joinToString(", ")
+                                )
+                            )
+                        }
+                        if (intervalNames.isNotEmpty()) {
+                            Text(
+                                stringResource(
+                                    R.string.delete_exercise_used_in_intervals,
+                                    intervalNames.joinToString(", ")
+                                )
+                            )
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Text(stringResource(R.string.delete_exercise_removed_note))
+                    }
+                }
+            },
             confirmButton = {
                 TextButton(
                     onClick = {
                         viewModel.deleteExercise(exercise)
-                        showDeleteDialog = null
+                        dismiss()
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = Red600)
                 ) {
@@ -411,7 +467,7 @@ fun CreateScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = null }) {
+                TextButton(onClick = dismiss) {
                     Text(stringResource(R.string.cancel))
                 }
             }
@@ -685,6 +741,7 @@ fun ExerciseItemCompactContent(
 @Composable
 fun UnifiedAddDialog(
     exercise: Exercise?,
+    presetGroup: String? = null,
     viewModel: TrainingViewModel,
     onDismiss: () -> Unit
 ) {
@@ -700,7 +757,7 @@ fun UnifiedAddDialog(
     var exerciseName by remember { mutableStateOf(exercise?.name ?: "") }
     var selectedType by remember { mutableStateOf(exercise?.type ?: "Dynamic") }
     var selectedLaterality by remember { mutableStateOf(exercise?.laterality ?: "Bilateral") }
-    var selectedGroup by remember { mutableStateOf(exercise?.group) }
+    var selectedGroup by remember { mutableStateOf(exercise?.group ?: presetGroup) }
     var selectedLevel by remember { mutableStateOf(exercise?.sortOrder?.coerceIn(1, 10) ?: 5) }
     var showGroupDropdown by remember { mutableStateOf(false) }
     var newGroupName by remember { mutableStateOf("") }

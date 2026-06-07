@@ -1,5 +1,6 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -23,6 +24,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -93,6 +95,9 @@ fun RecordScreen(
     // 前回セッションのプリフィル用データ
     var prefillData by remember { mutableStateOf<List<TrainingRecord>?>(null) }
 
+    // 前回セッション（「前回」表示用。プリフィル設定とは独立して常に取得する）
+    var previousSession by remember { mutableStateOf<List<TrainingRecord>?>(null) }
+
     // Date and Time with pickers
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var selectedTime by remember { mutableStateOf(LocalTime.now()) }
@@ -106,12 +111,15 @@ fun RecordScreen(
 
     // initialExerciseから来た場合（ToDo経由）のプリフィル
     LaunchedEffect(initialExercise) {
-        if (initialExercise != null && workoutPreferences.isPrefillPreviousRecordEnabled()) {
-            val previousSession = viewModel.getLatestSession(initialExercise.id)
-            if (previousSession.isNotEmpty()) {
-                numberOfSets = previousSession.size
-                setValues = previousSession.map { it.valueRight.toString() }
-                prefillData = previousSession
+        if (initialExercise != null) {
+            val session = viewModel.getLatestSession(initialExercise.id)
+            // 「前回」表示用は設定に関係なく保持
+            previousSession = session.ifEmpty { null }
+            // 入力欄へのプリフィルは設定が有効なときのみ
+            if (workoutPreferences.isPrefillPreviousRecordEnabled() && session.isNotEmpty()) {
+                numberOfSets = session.size
+                setValues = session.map { it.valueRight.toString() }
+                prefillData = session
             }
         }
     }
@@ -139,30 +147,21 @@ fun RecordScreen(
                     selectedDate = LocalDate.now()
                     selectedTime = LocalTime.now()
 
-                    // プリフィル設定が有効な場合、前回セッションを取得
-                    if (workoutPreferences.isPrefillPreviousRecordEnabled()) {
-                        coroutineScope.launch {
-                            val previousSession = viewModel.getLatestSession(exercise.id)
-                            if (previousSession.isNotEmpty()) {
-                                // セット数をプリフィル
-                                numberOfSets = previousSession.size
-                                // Bilateral用の値をプリフィル
-                                setValues = previousSession.map { it.valueRight.toString() }
-                                // Unilateral用のプリフィルデータを保存
-                                prefillData = previousSession
-                            } else {
-                                // 前回記録がない場合はデフォルト
-                                numberOfSets = 1
-                                setValues = List(1) { "" }
-                                prefillData = null
-                            }
-                            currentStep = RecordStep.InputWorkout
+                    // 前回セッションを取得（「前回」表示は設定に関係なく常に行う）
+                    coroutineScope.launch {
+                        val session = viewModel.getLatestSession(exercise.id)
+                        previousSession = session.ifEmpty { null }
+                        if (workoutPreferences.isPrefillPreviousRecordEnabled() && session.isNotEmpty()) {
+                            // セット数・値を入力欄へプリフィル
+                            numberOfSets = session.size
+                            setValues = session.map { it.valueRight.toString() }
+                            prefillData = session
+                        } else {
+                            // プリフィル無効 or 前回記録なし → デフォルト
+                            numberOfSets = 1
+                            setValues = List(1) { "" }
+                            prefillData = null
                         }
-                    } else {
-                        // プリフィル無効の場合は従来通り
-                        numberOfSets = 1
-                        setValues = List(1) { "" }
-                        prefillData = null
                         currentStep = RecordStep.InputWorkout
                     }
                 }
@@ -176,6 +175,7 @@ fun RecordScreen(
                 numberOfSets = numberOfSets,
                 setValues = setValues,
                 prefillData = prefillData,
+                previousSession = previousSession,
                 selectedDate = selectedDate,
                 selectedTime = selectedTime,
                 comment = comment,
@@ -642,6 +642,7 @@ fun WorkoutInputScreen(
     numberOfSets: Int,
     setValues: List<String>,
     prefillData: List<TrainingRecord>? = null,
+    previousSession: List<TrainingRecord>? = null,
     selectedDate: LocalDate,
     selectedTime: LocalTime,
     comment: String,
@@ -729,6 +730,171 @@ fun WorkoutInputScreen(
         )
     }
 
+    // セット状態（DONE/CURRENT/PENDING）。セッション限定の UI 状態で DB には保存しない。
+    // 初期状態は「セット1が実行中、残りは未着手」。
+    var setStatuses by remember(prefillData) {
+        mutableStateOf(
+            List(numberOfSets) { i -> if (i == 0) SetStatus.CURRENT else SetStatus.PENDING }
+        )
+    }
+
+    // 指定セットを実行中(CURRENT)にする。既存の CURRENT は未着手(PENDING)へ戻す。
+    val markCurrent: (Int) -> Unit = { idx ->
+        setStatuses = setStatuses.mapIndexed { i, s ->
+            when {
+                i == idx -> SetStatus.CURRENT
+                s == SetStatus.CURRENT -> SetStatus.PENDING
+                else -> s
+            }
+        }
+    }
+
+    // 実行中セットを完了(DONE)にし、次の未着手があれば実行中へ昇格。
+    val completeCurrent: () -> Unit = {
+        val ci = setStatuses.indexOfFirst { it == SetStatus.CURRENT }
+        if (ci >= 0) {
+            setStatuses = setStatuses.mapIndexed { i, s ->
+                when {
+                    i == ci -> SetStatus.DONE
+                    i == ci + 1 && s == SetStatus.PENDING -> SetStatus.CURRENT
+                    else -> s
+                }
+            }
+        }
+    }
+
+    // 完了済みセットを未完了に戻す（誤タップ復帰）。実行中が居なければそのセットを実行中に。
+    val uncomplete: (Int) -> Unit = { idx ->
+        val hasCurrent = setStatuses.any { it == SetStatus.CURRENT }
+        setStatuses = setStatuses.mapIndexed { i, s ->
+            if (i != idx) s else if (hasCurrent) SetStatus.PENDING else SetStatus.CURRENT
+        }
+    }
+
+    // メイン値（回数/秒数）が有効か（「完了」ボタンの有効条件）
+    val mainValueValid: (Int) -> Boolean = { index ->
+        val v = if (isUnilateral) setValuesRight.getOrElse(index) { "" } else setValues.getOrElse(index) { "" }
+        v.isNotBlank() && v.toIntOrNull()?.let { it >= 0 } == true
+    }
+
+    // 保存対象 = 「完了(DONE)」かつメイン値が有効なセットのみ（✓が入ったセットだけ保存）
+    val savableCount = (0 until numberOfSets).count { i ->
+        setStatuses.getOrElse(i) { SetStatus.PENDING } == SetStatus.DONE && mainValueValid(i)
+    }
+
+    // --- 未保存の変更検知（戻る時の破棄確認用） ---
+    // 全入力欄の現在値を1つの文字列にまとめ、開いた時点との差分で「変更あり」を判定する。
+    fun computeInputSignature(): String = listOf(
+        numberOfSets.toString(),
+        setValues.joinToString(","),
+        setValuesRight.joinToString(","),
+        setValuesLeft.joinToString(","),
+        distanceInputs.joinToString(","),
+        weightInputs.joinToString(","),
+        assistanceInputs.joinToString(","),
+        comment
+    ).joinToString("|")
+
+    // 画面を開いた時点（プリフィル適用後）の初期シグネチャ
+    val initialInputSignature = remember(prefillData) { computeInputSignature() }
+
+    // 値を入力/変更した、または完了済みセットがある → 未保存変更ありとみなす
+    val isDirty = setStatuses.any { it == SetStatus.DONE } ||
+        computeInputSignature() != initialInputSignature
+
+    var showDiscardDialog by remember { mutableStateOf(false) }
+    // 戻る操作の共通ハンドラ：変更ありなら破棄確認、なければそのまま戻る
+    val handleBack: () -> Unit = {
+        if (isDirty) showDiscardDialog = true else onNavigateBack()
+    }
+    // システム戻る・スワイプ戻りを横取り（最内の BackHandler が優先される）
+    BackHandler { handleBack() }
+
+    // 記録処理（完了(DONE)かつ有効なセットのみ保存）。直接でも確認ダイアログ経由でも呼ぶ。
+    val doRecord: () -> Unit = {
+        if (isUnilateral) {
+            // Unilateral: 完了(DONE)かつ有効なセットのindexを決定 → 全リストを同じindexでフィルタ
+            val validIndices = (0 until numberOfSets).filter { i ->
+                val s = setValuesRight.getOrElse(i) { "" }
+                setStatuses.getOrElse(i) { SetStatus.PENDING } == SetStatus.DONE &&
+                    s.isNotBlank() && s.toIntOrNull()?.let { it >= 0 } == true
+            }
+
+            if (validIndices.isNotEmpty()) {
+                val valuesRight = validIndices.map { setValuesRight[it].toInt() }
+                val valuesLeft: List<Int?> = validIndices.map { i ->
+                    setValuesLeft.getOrElse(i) { "" }
+                        .takeIf { it.isNotBlank() }
+                        ?.toIntOrNull()
+                        ?.takeIf { it >= 0 }
+                }
+                val distancesCm = validIndices.map { i ->
+                    parseDistanceCm(distanceInputs.getOrElse(i) { "" })
+                }
+                val weightsG = validIndices.map { i ->
+                    parseWeightG(weightInputs.getOrElse(i) { "" })
+                }
+                val assistancesG = validIndices.map { i ->
+                    parseWeightG(assistanceInputs.getOrElse(i) { "" })
+                }
+
+                viewModel.addTrainingRecordsUnilateral(
+                    exerciseId = exercise.id,
+                    valuesRight = valuesRight,
+                    valuesLeft = valuesLeft,
+                    date = selectedDate.format(dateFormatter),
+                    time = selectedTime.format(timeFormatter),
+                    comment = comment,
+                    distancesCm = distancesCm,
+                    weightsG = weightsG,
+                    assistancesG = assistancesG
+                )
+                if (fromToDo) {
+                    viewModel.completeTodoTaskByReference(TodoTask.TYPE_EXERCISE, exercise.id)
+                }
+                onNavigateBack()
+            }
+        } else {
+            // Bilateral: 完了(DONE)かつ有効なセットのindexを決定 → 全リストを同じindexでフィルタ
+            val validIndices = (0 until numberOfSets).filter { i ->
+                val s = setValues.getOrElse(i) { "" }
+                setStatuses.getOrElse(i) { SetStatus.PENDING } == SetStatus.DONE &&
+                    s.isNotBlank() && s.toIntOrNull()?.let { it >= 0 } == true
+            }
+
+            if (validIndices.isNotEmpty()) {
+                val values = validIndices.map { setValues[it].toInt() }
+                val distancesCm = validIndices.map { i ->
+                    parseDistanceCm(distanceInputs.getOrElse(i) { "" })
+                }
+                val weightsG = validIndices.map { i ->
+                    parseWeightG(weightInputs.getOrElse(i) { "" })
+                }
+                val assistancesG = validIndices.map { i ->
+                    parseWeightG(assistanceInputs.getOrElse(i) { "" })
+                }
+
+                viewModel.addTrainingRecords(
+                    exerciseId = exercise.id,
+                    values = values,
+                    date = selectedDate.format(dateFormatter),
+                    time = selectedTime.format(timeFormatter),
+                    comment = comment,
+                    distancesCm = distancesCm,
+                    weightsG = weightsG,
+                    assistancesG = assistancesG
+                )
+                if (fromToDo) {
+                    viewModel.completeTodoTaskByReference(TodoTask.TYPE_EXERCISE, exercise.id)
+                }
+                onNavigateBack()
+            }
+        }
+    }
+
+    // 未完了セットがある状態で記録しようとしたときの確認ダイアログ表示フラグ
+    var showIncompleteDialog by remember { mutableStateOf(false) }
+
     // セット数変更時の処理
     LaunchedEffect(numberOfSets) {
         if (isUnilateral) {
@@ -743,6 +909,14 @@ fun WorkoutInputScreen(
         distanceInputs = List(numberOfSets) { index -> distanceInputs.getOrElse(index) { "" } }
         weightInputs = List(numberOfSets) { index -> weightInputs.getOrElse(index) { "" } }
         assistanceInputs = List(numberOfSets) { index -> assistanceInputs.getOrElse(index) { "" } }
+        // セット状態もリサイズ（既存は維持、新規は未着手）。実行中が居なくなったら先頭の未着手を昇格。
+        val resized = List(numberOfSets) { index -> setStatuses.getOrElse(index) { SetStatus.PENDING } }
+        setStatuses = if (resized.none { it == SetStatus.CURRENT }) {
+            val firstPending = resized.indexOfFirst { it == SetStatus.PENDING }
+            if (firstPending >= 0) {
+                resized.mapIndexed { i, s -> if (i == firstPending) SetStatus.CURRENT else s }
+            } else resized
+        } else resized
     }
 
     // 「セットを追加」ボタンで増えた新セットへ自動スクロール
@@ -757,15 +931,6 @@ fun WorkoutInputScreen(
         }
     }
 
-    // バリデーション
-    val hasValidValues = if (isUnilateral) {
-        // Unilateral: 右側に少なくとも1つ有効な値があればOK（0を含む）
-        setValuesRight.any { it.isNotBlank() && it.toIntOrNull() != null && it.toInt() >= 0 }
-    } else {
-        // Bilateral: 従来通り（0を含む）
-        setValues.any { it.isNotBlank() && it.toIntOrNull() != null && it.toInt() >= 0 }
-    }
-
     // 指定セットを全リストから削除（ローカル状態 + 親の setValues/numberOfSets）
     val removeSetAt: (Int) -> Unit = { idx ->
         if (numberOfSets > 1) {
@@ -774,6 +939,15 @@ fun WorkoutInputScreen(
             distanceInputs = distanceInputs.toMutableList().also { if (idx in it.indices) it.removeAt(idx) }
             weightInputs = weightInputs.toMutableList().also { if (idx in it.indices) it.removeAt(idx) }
             assistanceInputs = assistanceInputs.toMutableList().also { if (idx in it.indices) it.removeAt(idx) }
+            // セット状態からも削除。実行中を消した場合は次の未着手（無ければ末尾）を昇格。
+            val wasCurrent = setStatuses.getOrNull(idx) == SetStatus.CURRENT
+            val newStatuses = setStatuses.toMutableList().also { if (idx in it.indices) it.removeAt(idx) }
+            if (wasCurrent && newStatuses.none { it == SetStatus.CURRENT } && newStatuses.isNotEmpty()) {
+                val promote = newStatuses.indexOfFirst { it == SetStatus.PENDING }
+                    .let { if (it >= 0) it else newStatuses.lastIndex }
+                newStatuses[promote] = SetStatus.CURRENT
+            }
+            setStatuses = newStatuses
             onSetRemove(idx)
         }
     }
@@ -792,7 +966,7 @@ fun WorkoutInputScreen(
                         .padding(horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = handleBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back),
@@ -904,12 +1078,11 @@ fun WorkoutInputScreen(
             if (isUnilateral) {
                 // Unilateral: 左右2つの入力フィールド
                 items(numberOfSets) { index ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = appColors.cardBackground
-                        ),
-                        shape = RoundedCornerShape(12.dp)
+                    val status = setStatuses.getOrElse(index) { SetStatus.PENDING }
+                    SetCardContainer(
+                        status = status,
+                        onActivate = { markCurrent(index) },
+                        appColors = appColors
                     ) {
                         Column(
                             modifier = Modifier.padding(16.dp),
@@ -917,8 +1090,17 @@ fun WorkoutInputScreen(
                         ) {
                             SetCardHeader(
                                 index = index,
+                                status = status,
                                 canRemove = numberOfSets > 1,
+                                canComplete = mainValueValid(index),
                                 onRemove = { removeSetAt(index) },
+                                onToggleCheck = {
+                                    when (status) {
+                                        SetStatus.DONE -> uncomplete(index)
+                                        SetStatus.CURRENT -> completeCurrent()
+                                        SetStatus.PENDING -> {}
+                                    }
+                                },
                                 appColors = appColors
                             )
 
@@ -971,7 +1153,10 @@ fun WorkoutInputScreen(
                                             setValuesRight = newList
                                             true
                                         },
-                                        appColors = appColors
+                                        appColors = appColors,
+                                        previousText = previousAnnotation(
+                                            previousSession?.let { it.getOrNull(index)?.valueRight?.toString() ?: "—" }
+                                        )
                                     )
 
                                     val leftCurrent = setValuesLeft.getOrElse(index) { "" }.toIntOrNull() ?: 0
@@ -1009,7 +1194,10 @@ fun WorkoutInputScreen(
                                             setValuesLeft = newList
                                             true
                                         },
-                                        appColors = appColors
+                                        appColors = appColors,
+                                        previousText = previousAnnotation(
+                                            previousSession?.let { it.getOrNull(index)?.valueLeft?.toString() ?: "—" }
+                                        )
                                     )
                                 }
                             }
@@ -1030,20 +1218,28 @@ fun WorkoutInputScreen(
                                 onAssistanceChange = { i, v ->
                                     assistanceInputs = assistanceInputs.toMutableList().also { it[i] = v }
                                 },
-                                appColors = appColors
+                                appColors = appColors,
+                                previousSession = previousSession
                             )
+
+                            if (status == SetStatus.CURRENT) {
+                                SetCompleteButton(
+                                    setNumber = index + 1,
+                                    enabled = mainValueValid(index),
+                                    onClick = { completeCurrent() }
+                                )
+                            }
                         }
                     }
                 }
             } else {
                 // Bilateral: 従来通り1つの入力フィールド（セット別トラッキング有効時はCard内にまとめる）
                 items(numberOfSets) { index ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = appColors.cardBackground
-                        ),
-                        shape = RoundedCornerShape(12.dp)
+                    val status = setStatuses.getOrElse(index) { SetStatus.PENDING }
+                    SetCardContainer(
+                        status = status,
+                        onActivate = { markCurrent(index) },
+                        appColors = appColors
                     ) {
                         Column(
                             modifier = Modifier.padding(16.dp),
@@ -1051,8 +1247,17 @@ fun WorkoutInputScreen(
                         ) {
                             SetCardHeader(
                                 index = index,
+                                status = status,
                                 canRemove = numberOfSets > 1,
+                                canComplete = mainValueValid(index),
                                 onRemove = { removeSetAt(index) },
+                                onToggleCheck = {
+                                    when (status) {
+                                        SetStatus.DONE -> uncomplete(index)
+                                        SetStatus.CURRENT -> completeCurrent()
+                                        SetStatus.PENDING -> {}
+                                    }
+                                },
                                 appColors = appColors
                             )
                             run {
@@ -1078,7 +1283,10 @@ fun WorkoutInputScreen(
                                         onSetValueChange(index, (current + 1).toString())
                                         true
                                     },
-                                    appColors = appColors
+                                    appColors = appColors,
+                                    previousText = previousAnnotation(
+                                        previousSession?.let { it.getOrNull(index)?.valueRight?.toString() ?: "—" }
+                                    )
                                 )
                             }
 
@@ -1098,8 +1306,17 @@ fun WorkoutInputScreen(
                                 onAssistanceChange = { i, v ->
                                     assistanceInputs = assistanceInputs.toMutableList().also { it[i] = v }
                                 },
-                                appColors = appColors
+                                appColors = appColors,
+                                previousSession = previousSession
                             )
+
+                            if (status == SetStatus.CURRENT) {
+                                SetCompleteButton(
+                                    setNumber = index + 1,
+                                    enabled = mainValueValid(index),
+                                    onClick = { completeCurrent() }
+                                )
+                            }
                         }
                     }
                 }
@@ -1185,89 +1402,17 @@ fun WorkoutInputScreen(
             item {
                 Button(
                     onClick = {
-                        if (isUnilateral) {
-                            // Unilateral: 有効セットのindexを先に決定 → 全リストを同じindexでフィルタ
-                            val validIndices = (0 until numberOfSets).filter { i ->
-                                val s = setValuesRight.getOrElse(i) { "" }
-                                s.isNotBlank() && s.toIntOrNull()?.let { it >= 0 } == true
-                            }
-
-                            if (validIndices.isNotEmpty()) {
-                                val valuesRight = validIndices.map { setValuesRight[it].toInt() }
-                                val valuesLeft: List<Int?> = validIndices.map { i ->
-                                    setValuesLeft.getOrElse(i) { "" }
-                                        .takeIf { it.isNotBlank() }
-                                        ?.toIntOrNull()
-                                        ?.takeIf { it >= 0 }
-                                }
-                                val distancesCm = validIndices.map { i ->
-                                    parseDistanceCm(distanceInputs.getOrElse(i) { "" })
-                                }
-                                val weightsG = validIndices.map { i ->
-                                    parseWeightG(weightInputs.getOrElse(i) { "" })
-                                }
-                                val assistancesG = validIndices.map { i ->
-                                    parseWeightG(assistanceInputs.getOrElse(i) { "" })
-                                }
-
-                                viewModel.addTrainingRecordsUnilateral(
-                                    exerciseId = exercise.id,
-                                    valuesRight = valuesRight,
-                                    valuesLeft = valuesLeft,
-                                    date = selectedDate.format(dateFormatter),
-                                    time = selectedTime.format(timeFormatter),
-                                    comment = comment,
-                                    distancesCm = distancesCm,
-                                    weightsG = weightsG,
-                                    assistancesG = assistancesG
-                                )
-                                // Delete todo task if from ToDo
-                                if (fromToDo) {
-                                    viewModel.completeTodoTaskByReference(TodoTask.TYPE_EXERCISE, exercise.id)
-                                }
-                                onNavigateBack()
-                            }
+                        // 未完了セットが残っている場合は確認、全完了ならそのまま記録
+                        if (savableCount < numberOfSets) {
+                            showIncompleteDialog = true
                         } else {
-                            // Bilateral: 有効セットのindexを先に決定 → 全リストを同じindexでフィルタ
-                            val validIndices = (0 until numberOfSets).filter { i ->
-                                val s = setValues.getOrElse(i) { "" }
-                                s.isNotBlank() && s.toIntOrNull()?.let { it >= 0 } == true
-                            }
-
-                            if (validIndices.isNotEmpty()) {
-                                val values = validIndices.map { setValues[it].toInt() }
-                                val distancesCm = validIndices.map { i ->
-                                    parseDistanceCm(distanceInputs.getOrElse(i) { "" })
-                                }
-                                val weightsG = validIndices.map { i ->
-                                    parseWeightG(weightInputs.getOrElse(i) { "" })
-                                }
-                                val assistancesG = validIndices.map { i ->
-                                    parseWeightG(assistanceInputs.getOrElse(i) { "" })
-                                }
-
-                                viewModel.addTrainingRecords(
-                                    exerciseId = exercise.id,
-                                    values = values,
-                                    date = selectedDate.format(dateFormatter),
-                                    time = selectedTime.format(timeFormatter),
-                                    comment = comment,
-                                    distancesCm = distancesCm,
-                                    weightsG = weightsG,
-                                    assistancesG = assistancesG
-                                )
-                                // Delete todo task if from ToDo
-                                if (fromToDo) {
-                                    viewModel.completeTodoTaskByReference(TodoTask.TYPE_EXERCISE, exercise.id)
-                                }
-                                onNavigateBack()
-                            }
+                            doRecord()
                         }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    enabled = hasValidValues,
+                    enabled = savableCount > 0,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Green600,
                         disabledContainerColor = appColors.cardBackgroundDisabled
@@ -1284,9 +1429,100 @@ fun WorkoutInputScreen(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(999.dp))
+                            .background(Color.White.copy(alpha = 0.25f))
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.record_done_count, savableCount, numberOfSets),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
                 }
             }
         }
+    }
+
+    // 破棄確認ダイアログ（未保存の変更があるまま戻ろうとしたとき）
+    if (showDiscardDialog) {
+        AlertDialog(
+            onDismissRequest = { showDiscardDialog = false },
+            containerColor = appColors.cardBackground,
+            title = {
+                Text(
+                    text = stringResource(R.string.discard_changes_title),
+                    color = appColors.textPrimary,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.discard_changes_message),
+                    color = appColors.textTertiary
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDiscardDialog = false
+                        onNavigateBack()
+                    }
+                ) {
+                    Text(stringResource(R.string.discard), color = Red600)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDiscardDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    // 未完了セットがある状態で「記録する」を押したときの確認
+    if (showIncompleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showIncompleteDialog = false },
+            containerColor = appColors.cardBackground,
+            title = {
+                Text(
+                    text = stringResource(R.string.record_incomplete_title),
+                    color = appColors.textPrimary,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(
+                        R.string.record_incomplete_message,
+                        numberOfSets,
+                        numberOfSets - savableCount,
+                        savableCount
+                    ),
+                    color = appColors.textTertiary
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showIncompleteDialog = false
+                        doRecord()
+                    }
+                ) {
+                    Text(stringResource(R.string.record_button), color = Green600)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showIncompleteDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 
     // Date Picker Dialog
@@ -1360,7 +1596,8 @@ private fun PerSetTrackingFields(
     onDistanceChange: (Int, String) -> Unit,
     onWeightChange: (Int, String) -> Unit,
     onAssistanceChange: (Int, String) -> Unit,
-    appColors: io.github.gonbei774.calisthenicsmemory.ui.theme.AppColors
+    appColors: io.github.gonbei774.calisthenicsmemory.ui.theme.AppColors,
+    previousSession: List<TrainingRecord>? = null
 ) {
     // 距離
     if (exercise.distanceTrackingEnabled) {
@@ -1391,7 +1628,10 @@ private fun PerSetTrackingFields(
                 onDistanceChange(index, (current + 1).toString())
                 true
             },
-            appColors = appColors
+            appColors = appColors,
+            previousText = previousAnnotation(
+                previousSession?.let { it.getOrNull(index)?.distanceCm?.toString() ?: "—" }
+            )
         )
     }
 
@@ -1427,7 +1667,10 @@ private fun PerSetTrackingFields(
                 onWeightChange(index, formatStepKg(current + 1.0))
                 true
             },
-            appColors = appColors
+            appColors = appColors,
+            previousText = previousAnnotation(
+                previousSession?.let { it.getOrNull(index)?.weightG?.let { g -> formatStepKg(g / 1000.0) } ?: "—" }
+            )
         )
     }
 
@@ -1463,7 +1706,10 @@ private fun PerSetTrackingFields(
                 onAssistanceChange(index, formatStepKg(current + 1.0))
                 true
             },
-            appColors = appColors
+            appColors = appColors,
+            previousText = previousAnnotation(
+                previousSession?.let { it.getOrNull(index)?.assistanceG?.let { g -> formatStepKg(g / 1000.0) } ?: "—" }
+            )
         )
     }
 }
@@ -1493,40 +1739,75 @@ private fun parseWeightG(input: String): Int? {
 }
 
 /**
- * セットカード上部のヘッダー。セット番号と削除アイコン（X）。
+ * セットカード上部のヘッダー。
+ * チェックトグル + セット番号 + 状態表示（NOW / 完了） + 削除アイコン（X、完了時は非表示）。
  */
 @Composable
 private fun SetCardHeader(
     index: Int,
+    status: SetStatus,
     canRemove: Boolean,
+    canComplete: Boolean,
     onRemove: () -> Unit,
+    onToggleCheck: () -> Unit,
     appColors: io.github.gonbei774.calisthenicsmemory.ui.theme.AppColors
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        SetCheckToggle(
+            checked = status == SetStatus.DONE,
+            // DONE は常にトグル可（未完了に戻す）。CURRENT はメイン値がある時だけ完了可。
+            enabled = status == SetStatus.DONE || (status == SetStatus.CURRENT && canComplete),
+            onClick = onToggleCheck
+        )
+        Spacer(modifier = Modifier.width(10.dp))
         Text(
             text = stringResource(R.string.set_number_format, index + 1),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            color = appColors.textPrimary,
-            modifier = Modifier.weight(1f)
+            color = if (status == SetStatus.PENDING) appColors.textSecondary else appColors.textPrimary
         )
-        IconButton(
-            onClick = onRemove,
-            enabled = canRemove,
-            modifier = Modifier.size(36.dp)
-        ) {
-            Icon(
-                Icons.Default.Clear,
-                contentDescription = stringResource(R.string.delete),
-                tint = if (canRemove) appColors.textSecondary else appColors.cardBackgroundDisabled,
-                modifier = Modifier.size(20.dp)
+        Spacer(modifier = Modifier.width(8.dp))
+        when (status) {
+            SetStatus.CURRENT -> NowBadge()
+            SetStatus.DONE -> Text(
+                text = stringResource(R.string.set_done_label),
+                color = Green600,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 1.2.sp
             )
+            SetStatus.PENDING -> {}
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        // 完了済みセットでは X を非表示（チェックトグルで未完了に戻してから削除）
+        if (status != SetStatus.DONE) {
+            IconButton(
+                onClick = onRemove,
+                enabled = canRemove,
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(
+                    Icons.Default.Clear,
+                    contentDescription = stringResource(R.string.delete),
+                    tint = if (canRemove) appColors.textSecondary else appColors.cardBackgroundDisabled,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }
+
+/**
+ * 「前回」値の注釈テキストを組み立てる。
+ * value が null なら null を返し（前回が存在しない＝列を出さない）、値があれば「前回 X」を返す。
+ */
+@Composable
+private fun previousAnnotation(value: String?): String? =
+    if (value == null) null
+    else stringResource(R.string.previous_value_label) + " " + value
 
 /**
  * 長押しで連続発火する円形ステップボタン（ナビゲーションモードと同じ見た目）。
@@ -1593,7 +1874,8 @@ private fun InlineStepperRow(
     decrementEnabled: Boolean,
     onDecrement: () -> Boolean,
     onIncrement: () -> Boolean,
-    appColors: io.github.gonbei774.calisthenicsmemory.ui.theme.AppColors
+    appColors: io.github.gonbei774.calisthenicsmemory.ui.theme.AppColors,
+    previousText: String? = null
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -1636,5 +1918,16 @@ private fun InlineStepperRow(
             contentDescription = stringResource(R.string.nav_step_increment),
             onStep = onIncrement
         )
+        // 「前回」値（読み取り専用の参考表示）。null のときは表示しない。
+        if (previousText != null) {
+            Text(
+                text = previousText,
+                fontSize = 12.sp,
+                color = appColors.textTertiary,
+                textAlign = TextAlign.End,
+                maxLines = 1,
+                modifier = Modifier.widthIn(min = 56.dp)
+            )
+        }
     }
 }

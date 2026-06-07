@@ -1,0 +1,16 @@
+Ajouté :
+- Écrans d'exécution redessinés
+- Graphique du poids max
+- Recherche dans listes programme/intervalle
+- Indicateur de série en cours
+- Suppression : nombre et usage
+- Option « Ajouter un exercice au groupe »
+- Modèle de traduction en arabe
+
+Corrigé :
+- CSV : champs entre guillemets RFC 4180
+- Calendrier : fusion même exercice par jour
+- Confirmation : onglet « Précédent » par défaut
+- Axe Y du graphique de poids max à 0
+
+Contributors: @gallegonovato, @SomeTr, @nautilusx, @unsealed211

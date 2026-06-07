@@ -168,6 +168,13 @@ data class ExportTodoTask(
     val lastCompletedDate: String? = null
 )
 
+// 種目削除の影響範囲
+data class ExerciseDeleteImpact(
+    val recordCount: Int,
+    val programNames: List<String>,
+    val intervalNames: List<String>
+)
+
 class TrainingViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database = AppDatabase.getDatabase(application)
@@ -313,6 +320,24 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                 _snackbarMessage.value = UiMessage.ErrorOccurred
             }
         }
+    }
+
+    // 種目削除の影響範囲（確認ダイアログ用）
+    private val _deleteImpact = MutableStateFlow<ExerciseDeleteImpact?>(null)
+    val deleteImpact: StateFlow<ExerciseDeleteImpact?> = _deleteImpact.asStateFlow()
+
+    fun loadDeleteImpact(exercise: Exercise) {
+        _deleteImpact.value = null
+        viewModelScope.launch {
+            val recordCount = recordDao.countByExercise(exercise.id)
+            val programNames = programExerciseDao.getProgramNamesUsingExercise(exercise.id)
+            val intervalNames = intervalProgramExerciseDao.getProgramNamesUsingExercise(exercise.id)
+            _deleteImpact.value = ExerciseDeleteImpact(recordCount, programNames, intervalNames)
+        }
+    }
+
+    fun clearDeleteImpact() {
+        _deleteImpact.value = null
     }
 
     fun deleteExercise(exercise: Exercise) {
@@ -1073,7 +1098,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             csvBuilder.appendLine("name")
 
             currentGroups.forEach { group ->
-                csvBuilder.appendLine(group.name)
+                csvBuilder.appendLine(csvEscape(group.name))
             }
 
             withContext(Dispatchers.Main) {
@@ -1101,12 +1126,23 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
             currentExercises.forEach { exercise ->
                 csvBuilder.appendLine(
-                    "${exercise.name},${exercise.type},${exercise.group ?: ""}," +
-                    "${exercise.sortOrder},${exercise.laterality}," +
-                    "${exercise.targetSets ?: ""},${exercise.targetValue ?: ""},${exercise.isFavorite}," +
-                    "${exercise.displayOrder},${exercise.restInterval ?: ""},${exercise.repDuration ?: ""}," +
-                    "${exercise.distanceTrackingEnabled},${exercise.weightTrackingEnabled},${exercise.assistanceTrackingEnabled}," +
-                    (exercise.description ?: "")
+                    csvRow(
+                        exercise.name,
+                        exercise.type,
+                        exercise.group ?: "",
+                        exercise.sortOrder.toString(),
+                        exercise.laterality,
+                        exercise.targetSets?.toString() ?: "",
+                        exercise.targetValue?.toString() ?: "",
+                        exercise.isFavorite.toString(),
+                        exercise.displayOrder.toString(),
+                        exercise.restInterval?.toString() ?: "",
+                        exercise.repDuration?.toString() ?: "",
+                        exercise.distanceTrackingEnabled.toString(),
+                        exercise.weightTrackingEnabled.toString(),
+                        exercise.assistanceTrackingEnabled.toString(),
+                        exercise.description ?: ""
+                    )
                 )
             }
 
@@ -1152,7 +1188,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
 
             // 種目リスト（空欄テンプレート）
             currentExercises.forEach { exercise ->
-                csvBuilder.appendLine("${exercise.name},${exercise.type},,,,,,,,,")
+                csvBuilder.appendLine(csvRow(exercise.name, exercise.type) + ",,,,,,,,,")
             }
 
             withContext(Dispatchers.Main) {
@@ -1195,9 +1231,19 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         val weightG = record.weightG?.toString() ?: ""
                         val assistanceG = record.assistanceG?.toString() ?: ""
                         csvBuilder.appendLine(
-                            "${exercise.name},${exercise.type},${record.date},${record.time}," +
-                            "${record.setNumber},${record.valueRight},$valueLeft,${record.comment}," +
-                            "$distanceCm,$weightG,$assistanceG"
+                            csvRow(
+                                exercise.name,
+                                exercise.type,
+                                record.date,
+                                record.time,
+                                record.setNumber.toString(),
+                                record.valueRight.toString(),
+                                valueLeft,
+                                record.comment,
+                                distanceCm,
+                                weightG,
+                                assistanceG
+                            )
                         )
                     }
                 }
@@ -1226,10 +1272,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         val errors = mutableListOf<String>()
 
         try {
-            val lines = csvString.lines()
-                .filter { it.isNotBlank() && !it.startsWith("#") }
+            val records = parseCsvRecords(csvString)
 
-            if (lines.isEmpty()) {
+            if (records.isEmpty()) {
                 withContext(Dispatchers.Main) {
                     _snackbarMessage.value = UiMessage.CsvEmpty
                 }
@@ -1237,11 +1282,11 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             }
 
             // ヘッダー行をスキップ
-            val dataLines = lines.drop(1)
+            val dataRecords = records.drop(1)
 
-            dataLines.forEachIndexed { index, line ->
+            dataRecords.forEachIndexed { index, record ->
                 try {
-                    val name = line.trim()
+                    val name = record.firstOrNull()?.trim() ?: ""
 
                     if (name.isEmpty()) {
                         errors.add("Line ${index + 2}: Group name is empty")
@@ -1290,10 +1335,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         val errors = mutableListOf<String>()
 
         try {
-            val lines = csvString.lines()
-                .filter { it.isNotBlank() && !it.startsWith("#") }
+            val records = parseCsvRecords(csvString)
 
-            if (lines.isEmpty()) {
+            if (records.isEmpty()) {
                 withContext(Dispatchers.Main) {
                     _snackbarMessage.value = UiMessage.CsvEmpty
                 }
@@ -1301,11 +1345,10 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             }
 
             // ヘッダー行をスキップ
-            val dataLines = lines.drop(1)
+            val dataRecords = records.drop(1)
 
-            dataLines.forEachIndexed { index, line ->
+            dataRecords.forEachIndexed { index, columns ->
                 try {
-                    val columns = line.split(",")
                     // 8列（旧フォーマット）または11列（新フォーマット）を許容
                     if (columns.size < 8) {
                         errors.add("Line ${index + 2}: Invalid format (expected at least 8 columns, got ${columns.size})")
@@ -1446,10 +1489,9 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
         val errors = mutableListOf<String>()
 
         try {
-            val lines = csvString.lines()
-                .filter { it.isNotBlank() && !it.startsWith("#") }
+            val csvRecords = parseCsvRecords(csvString)
 
-            if (lines.isEmpty()) {
+            if (csvRecords.isEmpty()) {
                 withContext(Dispatchers.Main) {
                     _snackbarMessage.value = UiMessage.CsvEmpty
                 }
@@ -1457,11 +1499,10 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
             }
 
             // ヘッダー行をスキップ
-            val dataLines = lines.drop(1)
+            val dataRecords = csvRecords.drop(1)
 
-            dataLines.forEachIndexed { index, line ->
+            dataRecords.forEachIndexed { index, columns ->
                 try {
-                    val columns = line.split(",")
                     if (columns.size < 8) {
                         errors.add("Line ${index + 2}: Invalid format (not enough columns)")
                         errorCount++

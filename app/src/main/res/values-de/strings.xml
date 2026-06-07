@@ -743,4 +743,5 @@
     <string name="share_import_count_skipped">%1$d übersprungen</string>
     <string name="exercise_type_dynamic_description">z. B. Liegestütze, Klimmzüge. Aufgezeichnet nach Wiederholungen.</string>
     <string name="exercise_type_isometric_description">z. B. Plank, L-Sit. Aufzeichnung nach Haltezeit.</string>
+    <string name="add_extra_set_confirm">Hinzufügen</string>
 </resources>
