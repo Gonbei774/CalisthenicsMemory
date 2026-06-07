@@ -63,6 +63,7 @@
     <string name="exercise">種目</string>
     <string name="group_name">グループ名</string>
     <string name="already_exists">この%s名は既に使用されています</string>
+    <string name="add_exercise_to_group">グループに新しい種目を追加</string>
     <string name="rename_group">グループ名を編集</string>
     <string name="delete_group">グループを削除</string>
     <string name="delete_group_warning">「%s」を削除しますか？\nこのグループの種目は「グループなし」に移動します。</string>
