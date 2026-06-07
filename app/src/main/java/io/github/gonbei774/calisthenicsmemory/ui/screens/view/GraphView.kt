@@ -1809,9 +1809,9 @@ fun SimpleWeightChart(
     ) {
         if (data.isEmpty()) return@Canvas
 
-        // Y軸スケール: 重量の伸びが見えるよう、最小値付近を基準にする
+        // Y軸スケール: 0kg基準（ボリューム/アシストチャートと統一）
         val yLabels = calculateWeightYAxisLabels(allTimeWeightRange.first, allTimeWeightRange.second)
-        val adjustedMin = yLabels.first()
+        val adjustedMin = yLabels.first()  // 0kg
         val adjustedMax = yLabels.last()
         val range = (adjustedMax - adjustedMin).coerceAtLeast(1f)
 
@@ -1943,22 +1943,21 @@ fun SimpleWeightChart(
     }
 }
 
-// 最大重量Y軸用のラベル計算（最小値付近を基準にして伸びを見やすく）
+// 最大重量Y軸用のラベル計算（0kg基準・ボリューム/アシストと統一）
 fun calculateWeightYAxisLabels(min: Float, max: Float): List<Float> {
-    val range = (max - min).coerceAtLeast(1f)
     val interval = when {
-        range < 5 -> 1f
-        range < 10 -> 2f
-        range < 25 -> 5f
-        range < 50 -> 10f
+        max < 5 -> 1f
+        max < 10 -> 2f
+        max < 25 -> 5f
+        max < 50 -> 10f
         else -> 25f
     }
 
-    val adjustedMin = (min / interval).toInt() * interval
     val adjustedMax = ((max / interval).toInt() + 1) * interval
 
+    // 0kgから均等に配置（0を含む）
     return (0..5).map { i ->
-        adjustedMin + (adjustedMax - adjustedMin) * i / 5f
+        adjustedMax * i / 5f
     }
 }
 
