@@ -605,6 +605,11 @@
     <string name="previous_value_format">Previous: %d</string>
     <string name="previous_reps_format">Previous: %d reps</string>
     <string name="previous_time_format">Previous: %ds</string>
+    <!-- Executing screen: previous/target stats and rep pace -->
+    <string name="stat_previous_label">Previous</string>
+    <string name="stat_target_label">Target</string>
+    <string name="rep_pace_format">Pace: %d s / rep</string>
+    <string name="record_confirm_title">Save this record?</string>
     <!-- Exit Workout Confirmation -->
     <string name="exit_workout_title">Exit workout?</string>
     <string name="exit_workout_message">Progress will not be saved.</string>

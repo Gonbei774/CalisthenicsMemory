@@ -21,6 +21,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.gonbei774.calisthenicsmemory.R
+import io.github.gonbei774.calisthenicsmemory.ui.components.common.PreviousTargetRow
+import io.github.gonbei774.calisthenicsmemory.ui.components.common.RecordAdjustDialog
+import io.github.gonbei774.calisthenicsmemory.ui.components.common.RepPaceIndicator
 import io.github.gonbei774.calisthenicsmemory.ui.screens.NextSetText
 import io.github.gonbei774.calisthenicsmemory.ui.screens.WorkoutSession
 import io.github.gonbei774.calisthenicsmemory.util.FlashController
@@ -49,34 +52,29 @@ fun SingleExecutingStepDynamicManual(
 ) {
     val appColors = LocalAppColors.current
     val currentSet = session.sets.getOrNull(currentSetIndex) ?: return
-    val repDuration = session.repDuration ?: 5
+    val repDuration = (session.repDuration ?: 5).coerceAtLeast(1)
 
     var elapsedTime by remember(currentSetIndex) { mutableIntStateOf(0) }
     var isPaused by remember(currentSetIndex) { mutableStateOf(false) }
     var currentCount by remember(currentSetIndex) { mutableIntStateOf(0) }
-    var adjustedReps by remember(currentSetIndex) { mutableIntStateOf(0) }
 
     // ナビゲーション表示中は強制的に一時停止
     val effectivelyPaused = isPaused || isNavigationOpen
 
-    val recordValue = (currentCount + adjustedReps).coerceAtLeast(0)
+    val recordValue = currentCount
     val repTimeElapsed = elapsedTime % repDuration
-    val progress = repTimeElapsed.toFloat() / repDuration
     val isTimerComplete = currentCount >= currentSet.targetValue
-
-    val activeColor = if (isTimerComplete) Green600 else Orange600
-    val statusColor = if (effectivelyPaused) Slate400 else activeColor
 
     LaunchedEffect(currentSetIndex, effectivelyPaused) {
         while (true) {
-            if (!effectivelyPaused && currentCount < currentSet.targetValue) {
+            if (!effectivelyPaused) {
                 delay(1000L)
                 elapsedTime++
 
                 if (elapsedTime % repDuration == 0) {
                     currentCount++
 
-                    if (currentCount >= currentSet.targetValue) {
+                    if (currentCount == currentSet.targetValue) {
                         if (isFlashEnabled) {
                             launch { flashController.flashSetComplete() }
                         }
@@ -132,125 +130,60 @@ fun SingleExecutingStepDynamicManual(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 円形タイマー（タップで一時停止/再開）
+        // 大きなレップ数（タップで一時停止/再開）
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(240.dp)
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() }
                 ) { isPaused = !isPaused }
         ) {
-            Canvas(modifier = Modifier.size(240.dp)) {
-                drawArc(
-                    color = appColors.timerTrack,
-                    startAngle = -90f,
-                    sweepAngle = 360f,
-                    useCenter = false,
-                    style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
-                )
-                drawArc(
-                    color = activeColor.copy(alpha = if (effectivelyPaused) 0.3f else 1f),
-                    startAngle = -90f,
-                    sweepAngle = 360f * progress,
-                    useCenter = false,
-                    style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
-                )
-            }
-            Text(
-                text = "$repTimeElapsed",
-                fontSize = 80.sp,
-                fontWeight = FontWeight.Bold,
-                color = appColors.textPrimary,
-                modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
-            )
-            if (effectivelyPaused) {
-                val iconColor = appColors.textPrimary
-                Canvas(modifier = Modifier.size(56.dp)) {
-                    val path = Path().apply {
-                        moveTo(size.width * 0.25f, size.height * 0.15f)
-                        lineTo(size.width * 0.85f, size.height * 0.5f)
-                        lineTo(size.width * 0.25f, size.height * 0.85f)
-                        close()
-                    }
-                    drawPath(path, color = iconColor.copy(alpha = 0.9f))
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // レップカウント表示（+/- ボタン付き）
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = { adjustedReps-- },
-                modifier = Modifier.size(48.dp)
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = Color.Transparent,
-                    border = BorderStroke(2.dp, Slate500)
-                ) {
-                    Box(
-                        modifier = Modifier.size(48.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "-", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
-                    }
-                }
-            }
-
-            Box(
-                modifier = Modifier.width(220.dp),
-                contentAlignment = Alignment.Center
-            ) {
+            Row(verticalAlignment = Alignment.Bottom) {
                 Text(
-                    text = stringResource(R.string.reps_count, recordValue),
-                    fontSize = 48.sp,
+                    text = "$recordValue",
+                    fontSize = 96.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Green400,
-                    textAlign = TextAlign.Center
+                    color = if (isTimerComplete) Green400 else appColors.textPrimary,
+                    modifier = Modifier.alpha(if (effectivelyPaused) 0.3f else 1f)
                 )
-            }
-
-            IconButton(
-                onClick = { adjustedReps++ },
-                modifier = Modifier.size(48.dp)
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = Color.Transparent,
-                    border = BorderStroke(2.dp, Slate500)
-                ) {
-                    Box(
-                        modifier = Modifier.size(48.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "+", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
-                    }
-                }
+                Text(
+                    text = " " + stringResource(R.string.unit_reps),
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = appColors.textSecondary,
+                    modifier = Modifier.padding(bottom = 14.dp)
+                )
             }
         }
 
-        Text(
-            text = stringResource(R.string.target_reps_format, currentSet.targetValue) +
-                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_reps_format, it) } ?: ""),
-            fontSize = 14.sp,
-            color = appColors.textSecondary
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // レップ内ペース表示（ドット or 横バー）
+        RepPaceIndicator(
+            repDuration = repDuration,
+            secondsInRep = repTimeElapsed,
+            paused = effectivelyPaused,
+            modifier = Modifier.fillMaxWidth(0.7f)
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // 完了ボタン
+        // 前回 ｜ 目標
+        PreviousTargetRow(
+            previous = currentSet.previousValue,
+            target = currentSet.targetValue,
+            unit = stringResource(R.string.unit_reps)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // 完了ボタン（押下で記録確認シートを表示）
+        var showConfirm by remember(currentSetIndex) { mutableStateOf(false) }
         Button(
             onClick = {
-                currentSet.actualValue = recordValue
-                currentSet.isCompleted = true
-                onSetComplete(session)
+                isPaused = true
+                showConfirm = true
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -262,6 +195,23 @@ fun SingleExecutingStepDynamicManual(
                 text = stringResource(R.string.complete_with_reps, recordValue),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
+            )
+        }
+
+        if (showConfirm) {
+            RecordAdjustDialog(
+                initialValue = recordValue,
+                unit = stringResource(R.string.unit_reps),
+                onConfirm = { adjusted ->
+                    currentSet.actualValue = adjusted
+                    currentSet.isCompleted = true
+                    showConfirm = false
+                    onSetComplete(session)
+                },
+                onDismiss = {
+                    showConfirm = false
+                    isPaused = false
+                }
             )
         }
 
@@ -288,22 +238,18 @@ fun SingleExecutingStepDynamicAuto(
 ) {
     val appColors = LocalAppColors.current
     val currentSet = session.sets.getOrNull(currentSetIndex) ?: return
-    val repDuration = session.repDuration ?: 5
+    val repDuration = (session.repDuration ?: 5).coerceAtLeast(1)
 
     var elapsedTime by remember(currentSetIndex) { mutableIntStateOf(0) }
     var isPaused by remember(currentSetIndex) { mutableStateOf(false) }
     var currentCount by remember(currentSetIndex) { mutableIntStateOf(0) }
-    var adjustedReps by remember(currentSetIndex) { mutableIntStateOf(0) }
 
     // ナビゲーション表示中は強制的に一時停止
     val effectivelyPaused = isPaused || isNavigationOpen
 
-    val recordValue = (currentCount + adjustedReps).coerceAtLeast(0)
+    val recordValue = currentCount
     val repTimeElapsed = elapsedTime % repDuration
-    val progress = repTimeElapsed.toFloat() / repDuration
-
-    val activeColor = Orange600
-    val statusColor = if (effectivelyPaused) Slate400 else activeColor
+    val isTimerComplete = currentCount >= currentSet.targetValue
 
     LaunchedEffect(currentSetIndex, effectivelyPaused) {
         while (true) {
@@ -319,7 +265,7 @@ fun SingleExecutingStepDynamicAuto(
                             launch { flashController.flashSetComplete() }
                         }
                         soundPlayer.playSetComplete()
-                        currentSet.actualValue = currentCount + adjustedReps
+                        currentSet.actualValue = currentCount
                         currentSet.isCompleted = true
                         onSetComplete(session)
                         return@LaunchedEffect
@@ -372,117 +318,53 @@ fun SingleExecutingStepDynamicAuto(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 円形タイマー（タップで一時停止/再開）
+        // 大きなレップ数（タップで一時停止/再開）
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(240.dp)
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() }
                 ) { isPaused = !isPaused }
         ) {
-            Canvas(modifier = Modifier.size(240.dp)) {
-                drawArc(
-                    color = appColors.timerTrack,
-                    startAngle = -90f,
-                    sweepAngle = 360f,
-                    useCenter = false,
-                    style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
-                )
-                drawArc(
-                    color = activeColor.copy(alpha = if (effectivelyPaused) 0.3f else 1f),
-                    startAngle = -90f,
-                    sweepAngle = 360f * progress,
-                    useCenter = false,
-                    style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
-                )
-            }
-            Text(
-                text = "$repTimeElapsed",
-                fontSize = 80.sp,
-                fontWeight = FontWeight.Bold,
-                color = appColors.textPrimary,
-                modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
-            )
-            if (effectivelyPaused) {
-                val iconColor = appColors.textPrimary
-                Canvas(modifier = Modifier.size(56.dp)) {
-                    val path = Path().apply {
-                        moveTo(size.width * 0.25f, size.height * 0.15f)
-                        lineTo(size.width * 0.85f, size.height * 0.5f)
-                        lineTo(size.width * 0.25f, size.height * 0.85f)
-                        close()
-                    }
-                    drawPath(path, color = iconColor.copy(alpha = 0.9f))
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = { adjustedReps-- },
-                modifier = Modifier.size(48.dp)
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = Color.Transparent,
-                    border = BorderStroke(2.dp, Slate500)
-                ) {
-                    Box(
-                        modifier = Modifier.size(48.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "-", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
-                    }
-                }
-            }
-
-            Box(
-                modifier = Modifier.width(220.dp),
-                contentAlignment = Alignment.Center
-            ) {
+            Row(verticalAlignment = Alignment.Bottom) {
                 Text(
-                    text = stringResource(R.string.reps_count, recordValue),
-                    fontSize = 48.sp,
+                    text = "$recordValue",
+                    fontSize = 96.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Green400,
-                    textAlign = TextAlign.Center
+                    color = if (isTimerComplete) Green400 else appColors.textPrimary,
+                    modifier = Modifier.alpha(if (effectivelyPaused) 0.3f else 1f)
                 )
-            }
-
-            IconButton(
-                onClick = { adjustedReps++ },
-                modifier = Modifier.size(48.dp)
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = Color.Transparent,
-                    border = BorderStroke(2.dp, Slate500)
-                ) {
-                    Box(
-                        modifier = Modifier.size(48.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "+", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
-                    }
-                }
+                Text(
+                    text = " " + stringResource(R.string.unit_reps),
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = appColors.textSecondary,
+                    modifier = Modifier.padding(bottom = 14.dp)
+                )
             }
         }
 
-        Text(
-            text = stringResource(R.string.target_reps_format, currentSet.targetValue) +
-                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_reps_format, it) } ?: ""),
-            fontSize = 14.sp,
-            color = appColors.textSecondary
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // レップ内ペース表示（ドット or 横バー）
+        RepPaceIndicator(
+            repDuration = repDuration,
+            secondsInRep = repTimeElapsed,
+            paused = effectivelyPaused,
+            modifier = Modifier.fillMaxWidth(0.7f)
         )
 
         Spacer(modifier = Modifier.weight(1f))
+
+        // 前回 ｜ 目標
+        PreviousTargetRow(
+            previous = currentSet.previousValue,
+            target = currentSet.targetValue,
+            unit = stringResource(R.string.unit_reps)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
 
         // 完了ボタン（早期完了用）
         Button(
@@ -614,14 +496,16 @@ fun SingleExecutingStepDynamicSimple(
             }
         }
 
-        Text(
-            text = stringResource(R.string.target_reps_format, currentSet.targetValue) +
-                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_reps_format, it) } ?: ""),
-            fontSize = 14.sp,
-            color = appColors.textSecondary
+        Spacer(modifier = Modifier.weight(1f))
+
+        // 前回 ｜ 目標
+        PreviousTargetRow(
+            previous = currentSet.previousValue,
+            target = currentSet.targetValue,
+            unit = stringResource(R.string.unit_reps)
         )
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(20.dp))
 
         Button(
             onClick = {
@@ -672,13 +556,12 @@ fun SingleExecutingStepIsometricManual(
 
     var elapsedTime by remember(currentSetIndex) { mutableIntStateOf(0) }
     var isPaused by remember(currentSetIndex) { mutableStateOf(false) }
-    var adjustedSeconds by remember(currentSetIndex) { mutableIntStateOf(0) }
     var hasPlayedCompletionBeep by remember(currentSetIndex) { mutableStateOf(false) }
 
     // ナビゲーション表示中は強制的に一時停止
     val effectivelyPaused = isPaused || isNavigationOpen
 
-    val recordValue = (elapsedTime + adjustedSeconds).coerceAtLeast(0)
+    val recordValue = elapsedTime
     val remainingTime = (currentSet.targetValue - elapsedTime).coerceAtLeast(0)
     val progress = if (currentSet.targetValue > 0) remainingTime.toFloat() / currentSet.targetValue else 0f
     val isTimerComplete = elapsedTime >= currentSet.targetValue
@@ -688,7 +571,7 @@ fun SingleExecutingStepIsometricManual(
 
     LaunchedEffect(currentSetIndex, effectivelyPaused) {
         while (true) {
-            if (!effectivelyPaused && elapsedTime < currentSet.targetValue) {
+            if (!effectivelyPaused) {
                 delay(1000L)
                 elapsedTime++
 
@@ -747,114 +630,70 @@ fun SingleExecutingStepIsometricManual(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // タイマーと+/-ボタン（プログラムモードと同じレイアウト）
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.Bottom
+        // 円形タイマー（タップで一時停止/再開）
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(240.dp)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { isPaused = !isPaused }
         ) {
-            IconButton(
-                onClick = { adjustedSeconds-- },
-                modifier = Modifier
-                    .size(48.dp)
-                    .offset(y = (-20).dp)
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = Color.Transparent,
-                    border = BorderStroke(2.dp, Slate500)
-                ) {
-                    Box(
-                        modifier = Modifier.size(48.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "-", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
-                    }
-                }
-            }
-
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(240.dp)
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() }
-                    ) { isPaused = !isPaused }
-            ) {
-                Canvas(modifier = Modifier.size(240.dp)) {
-                    drawArc(
-                        color = Slate600,
-                        startAngle = -90f,
-                        sweepAngle = 360f,
-                        useCenter = false,
-                        style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
-                    )
-                    drawArc(
-                        color = activeColor.copy(alpha = if (effectivelyPaused) 0.3f else 1f),
-                        startAngle = -90f,
-                        sweepAngle = 360f * progress,
-                        useCenter = false,
-                        style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
-                    )
-                }
-                Text(
-                    text = "$remainingTime",
-                    fontSize = 80.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = appColors.textPrimary,
-                    modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
+            Canvas(modifier = Modifier.size(240.dp)) {
+                drawArc(
+                    color = Slate600,
+                    startAngle = -90f,
+                    sweepAngle = 360f,
+                    useCenter = false,
+                    style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                 )
-                if (effectivelyPaused) {
-                    val iconColor = appColors.textPrimary
-                    Canvas(modifier = Modifier.size(56.dp)) {
-                        val path = Path().apply {
-                            moveTo(size.width * 0.25f, size.height * 0.15f)
-                            lineTo(size.width * 0.85f, size.height * 0.5f)
-                            lineTo(size.width * 0.25f, size.height * 0.85f)
-                            close()
-                        }
-                        drawPath(path, color = iconColor.copy(alpha = 0.9f))
-                    }
-                }
+                drawArc(
+                    color = activeColor.copy(alpha = if (effectivelyPaused) 0.3f else 1f),
+                    startAngle = -90f,
+                    sweepAngle = 360f * progress,
+                    useCenter = false,
+                    style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
+                )
             }
-
-            IconButton(
-                onClick = { adjustedSeconds++ },
-                modifier = Modifier
-                    .size(48.dp)
-                    .offset(y = (-20).dp)
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = Color.Transparent,
-                    border = BorderStroke(2.dp, Slate500)
-                ) {
-                    Box(
-                        modifier = Modifier.size(48.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "+", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
+            Text(
+                text = "$remainingTime",
+                fontSize = 80.sp,
+                fontWeight = FontWeight.Bold,
+                color = appColors.textPrimary,
+                modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
+            )
+            if (effectivelyPaused) {
+                val iconColor = appColors.textPrimary
+                Canvas(modifier = Modifier.size(56.dp)) {
+                    val path = Path().apply {
+                        moveTo(size.width * 0.25f, size.height * 0.15f)
+                        lineTo(size.width * 0.85f, size.height * 0.5f)
+                        lineTo(size.width * 0.25f, size.height * 0.85f)
+                        close()
                     }
+                    drawPath(path, color = iconColor.copy(alpha = 0.9f))
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = stringResource(R.string.elapsed_target_format, recordValue, currentSet.targetValue) +
-                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_time_format, it) } ?: ""),
-            fontSize = 14.sp,
-            color = appColors.textSecondary
-        )
-
         Spacer(modifier = Modifier.weight(1f))
 
+        // 前回 ｜ 目標
+        PreviousTargetRow(
+            previous = currentSet.previousValue,
+            target = currentSet.targetValue,
+            unit = stringResource(R.string.unit_seconds_short)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // 完了ボタン（押下で記録確認シートを表示）
+        var showConfirm by remember(currentSetIndex) { mutableStateOf(false) }
         Button(
             onClick = {
-                currentSet.actualValue = recordValue
-                currentSet.isCompleted = true
-                onSetComplete(session)
+                isPaused = true
+                showConfirm = true
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -866,6 +705,23 @@ fun SingleExecutingStepIsometricManual(
                 text = stringResource(R.string.complete_with_time, recordValue),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
+            )
+        }
+
+        if (showConfirm) {
+            RecordAdjustDialog(
+                initialValue = recordValue,
+                unit = stringResource(R.string.unit_seconds_short),
+                onConfirm = { adjusted ->
+                    currentSet.actualValue = adjusted
+                    currentSet.isCompleted = true
+                    showConfirm = false
+                    onSetComplete(session)
+                },
+                onDismiss = {
+                    showConfirm = false
+                    isPaused = false
+                }
             )
         }
 
@@ -896,12 +752,11 @@ fun SingleExecutingStepIsometricAuto(
 
     var elapsedTime by remember(currentSetIndex) { mutableIntStateOf(0) }
     var isPaused by remember(currentSetIndex) { mutableStateOf(false) }
-    var adjustedSeconds by remember(currentSetIndex) { mutableIntStateOf(0) }
 
     // ナビゲーション表示中は強制的に一時停止
     val effectivelyPaused = isPaused || isNavigationOpen
 
-    val recordValue = (elapsedTime + adjustedSeconds).coerceAtLeast(0)
+    val recordValue = elapsedTime
     val remainingTime = (currentSet.targetValue - elapsedTime).coerceAtLeast(0)
     val progress = if (currentSet.targetValue > 0) remainingTime.toFloat() / currentSet.targetValue else 0f
 
@@ -927,7 +782,7 @@ fun SingleExecutingStepIsometricAuto(
                         launch { flashController.flashSetComplete() }
                     }
                     soundPlayer.playSetComplete()
-                    currentSet.actualValue = elapsedTime + adjustedSeconds
+                    currentSet.actualValue = elapsedTime
                     currentSet.isCompleted = true
                     onSetComplete(session)
                     return@LaunchedEffect
@@ -972,108 +827,63 @@ fun SingleExecutingStepIsometricAuto(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // タイマーと+/-ボタン（プログラムモードと同じレイアウト）
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.Bottom
+        // 円形タイマー（タップで一時停止/再開）
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(240.dp)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { isPaused = !isPaused }
         ) {
-            IconButton(
-                onClick = { adjustedSeconds-- },
-                modifier = Modifier
-                    .size(48.dp)
-                    .offset(y = (-20).dp)
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = Color.Transparent,
-                    border = BorderStroke(2.dp, Slate500)
-                ) {
-                    Box(
-                        modifier = Modifier.size(48.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "-", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
-                    }
-                }
-            }
-
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(240.dp)
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() }
-                    ) { isPaused = !isPaused }
-            ) {
-                Canvas(modifier = Modifier.size(240.dp)) {
-                    drawArc(
-                        color = Slate600,
-                        startAngle = -90f,
-                        sweepAngle = 360f,
-                        useCenter = false,
-                        style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
-                    )
-                    drawArc(
-                        color = activeColor.copy(alpha = if (effectivelyPaused) 0.3f else 1f),
-                        startAngle = -90f,
-                        sweepAngle = 360f * progress,
-                        useCenter = false,
-                        style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
-                    )
-                }
-                Text(
-                    text = "$remainingTime",
-                    fontSize = 80.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = appColors.textPrimary,
-                    modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
+            Canvas(modifier = Modifier.size(240.dp)) {
+                drawArc(
+                    color = Slate600,
+                    startAngle = -90f,
+                    sweepAngle = 360f,
+                    useCenter = false,
+                    style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                 )
-                if (effectivelyPaused) {
-                    val iconColor = appColors.textPrimary
-                    Canvas(modifier = Modifier.size(56.dp)) {
-                        val path = Path().apply {
-                            moveTo(size.width * 0.25f, size.height * 0.15f)
-                            lineTo(size.width * 0.85f, size.height * 0.5f)
-                            lineTo(size.width * 0.25f, size.height * 0.85f)
-                            close()
-                        }
-                        drawPath(path, color = iconColor.copy(alpha = 0.9f))
-                    }
-                }
+                drawArc(
+                    color = activeColor.copy(alpha = if (effectivelyPaused) 0.3f else 1f),
+                    startAngle = -90f,
+                    sweepAngle = 360f * progress,
+                    useCenter = false,
+                    style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
+                )
             }
-
-            IconButton(
-                onClick = { adjustedSeconds++ },
-                modifier = Modifier
-                    .size(48.dp)
-                    .offset(y = (-20).dp)
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = Color.Transparent,
-                    border = BorderStroke(2.dp, Slate500)
-                ) {
-                    Box(
-                        modifier = Modifier.size(48.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "+", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = appColors.textPrimary)
+            Text(
+                text = "$remainingTime",
+                fontSize = 80.sp,
+                fontWeight = FontWeight.Bold,
+                color = appColors.textPrimary,
+                modifier = Modifier.alpha(if (effectivelyPaused) 0.2f else 1f)
+            )
+            if (effectivelyPaused) {
+                val iconColor = appColors.textPrimary
+                Canvas(modifier = Modifier.size(56.dp)) {
+                    val path = Path().apply {
+                        moveTo(size.width * 0.25f, size.height * 0.15f)
+                        lineTo(size.width * 0.85f, size.height * 0.5f)
+                        lineTo(size.width * 0.25f, size.height * 0.85f)
+                        close()
                     }
+                    drawPath(path, color = iconColor.copy(alpha = 0.9f))
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
-        Text(
-            text = stringResource(R.string.elapsed_target_format, recordValue, currentSet.targetValue) +
-                (currentSet.previousValue?.let { " " + stringResource(R.string.previous_time_format, it) } ?: ""),
-            fontSize = 14.sp,
-            color = appColors.textSecondary
+        // 前回 ｜ 目標
+        PreviousTargetRow(
+            previous = currentSet.previousValue,
+            target = currentSet.targetValue,
+            unit = stringResource(R.string.unit_seconds_short)
         )
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(20.dp))
 
         // 完了ボタン（早期完了用）
         Button(

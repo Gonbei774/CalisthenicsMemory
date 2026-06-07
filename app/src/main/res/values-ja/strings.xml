@@ -598,6 +598,11 @@
     <string name="previous_value_format">前回: %d</string>
     <string name="previous_reps_format">前回: %d回</string>
     <string name="previous_time_format">前回: %d秒</string>
+    <!-- Executing screen: previous/target stats and rep pace -->
+    <string name="stat_previous_label">前回</string>
+    <string name="stat_target_label">目標</string>
+    <string name="rep_pace_format">ペース %d秒 / レップ</string>
+    <string name="record_confirm_title">記録しますか？</string>
     <!-- Sound Settings (Program Confirm) -->
     <string name="sound_settings_section">サウンド設定</string>
     <string name="dynamic_count_sound_label">カウント音</string>
