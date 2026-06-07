@@ -1,0 +1,16 @@
+Aggiunto:
+- Schermate di esecuzione ridisegnate
+- Grafico del peso massimo
+- Ricerca in elenchi programma/intervallo
+- Indicatore della serie corrente
+- Eliminazione: conteggio e uso
+- Menu "Aggiungi esercizio al gruppo"
+- Modello di traduzione in arabo
+
+Corretto:
+- CSV: campi tra virgolette RFC 4180
+- Calendario: unisce esercizio per giorno
+- Conferma: scheda "Precedente" predefinita
+- Asse Y del grafico del peso massimo a 0
+
+Contributors: @gallegonovato, @SomeTr, @nautilusx, @unsealed211
