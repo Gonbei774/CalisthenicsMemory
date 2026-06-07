@@ -92,6 +92,16 @@
     <string name="date_format">日付: %s</string>
     <string name="time_format">時刻: %s</string>
     <string name="record_button">記録する</string>
+    <!-- セットインジケーター（実行中 / 完了 / 未着手） -->
+    <string name="set_now_badge">NOW</string>
+    <string name="set_done_label">完了</string>
+    <string name="set_complete_button">セット %1$d を完了</string>
+    <string name="previous_value_label">前回</string>
+    <string name="set_status_check_desc">セットの完了状態</string>
+    <string name="set_uncheck_desc">完了を取り消す</string>
+    <string name="record_done_count">%1$d/%2$d</string>
+    <string name="record_incomplete_title">未完了のセットがあります</string>
+    <string name="record_incomplete_message">%1$d セット中 %2$d セットが未完了です。完了済みの %3$d セットだけ記録しますか？</string>
     <string name="reps_label">回数</string>
     <string name="time_label">秒数</string>
     <string name="dynamic_type">回数制</string>

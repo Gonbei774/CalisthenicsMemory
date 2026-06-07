@@ -93,6 +93,16 @@
     <string name="date_format">Date: %s</string>
     <string name="time_format">Time: %s</string>
     <string name="record_button">Record</string>
+    <!-- Set indicator (current / done / pending) -->
+    <string name="set_now_badge">NOW</string>
+    <string name="set_done_label">DONE</string>
+    <string name="set_complete_button">Complete Set %1$d</string>
+    <string name="previous_value_label">Prev</string>
+    <string name="set_status_check_desc">Set completion status</string>
+    <string name="set_uncheck_desc">Mark set as not done</string>
+    <string name="record_done_count">%1$d/%2$d</string>
+    <string name="record_incomplete_title">Incomplete sets</string>
+    <string name="record_incomplete_message">%2$d of %1$d sets are not completed. Record only the %3$d completed set(s)?</string>
     <string name="reps_label">Reps</string>
     <string name="time_label">Time</string>
     <string name="dynamic_type">Reps</string>
