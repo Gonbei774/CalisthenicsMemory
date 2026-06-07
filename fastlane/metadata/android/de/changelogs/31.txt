@@ -1,0 +1,16 @@
+Neu:
+- Neue Ausführungsbildschirme (Einzel & Programm)
+- Diagramm des Maximalgewichts
+- Suche in Programm-/Intervalllisten
+- Aktueller Satz in der Aufnahme
+- Löschdialog zeigt Anzahl & Verwendung
+- Menüpunkt „Übung zur Gruppe"
+- Arabische Übersetzungsvorlage
+
+Behoben:
+- CSV: RFC-4180-Felder in Anführungszeichen
+- Kalender: gleiche Übung pro Tag vereinen
+- Programm: Tab „Vorherige" als Standard
+- Y-Achse des Gewichtsdiagramms bei 0
+
+Contributors: @gallegonovato, @SomeTr, @nautilusx, @unsealed211
