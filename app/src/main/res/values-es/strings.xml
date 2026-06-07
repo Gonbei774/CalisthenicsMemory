@@ -771,4 +771,8 @@
     <string name="record_done_count">%1$d/%2$d</string>
     <string name="record_incomplete_title">Establecer incompleto</string>
     <string name="record_incomplete_message">%2$d de %1$d conjuntos no están completos. ¿Quieres guardar solo los %3$d conjuntos completados?</string>
+    <string name="stat_previous_label">Anterior</string>
+    <string name="stat_target_label">Objetivo</string>
+    <string name="rep_pace_format">Ritmo: %d s / rep</string>
+    <string name="record_confirm_title">¿Guardar este registro?</string>
 </resources>
