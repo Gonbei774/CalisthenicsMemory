@@ -775,4 +775,11 @@
     <string name="stat_target_label">Objetivo</string>
     <string name="rep_pace_format">Ritmo: %d s / rep</string>
     <string name="record_confirm_title">¿Guardar este registro?</string>
+    <string name="delete_exercise_confirm_title">¿Borrar \"%s\"?</string>
+    <string name="delete_exercise_record_count">Registros que se van a eliminar: %d</string>
+    <string name="delete_exercise_in_use">Este ejercicio está en uso:</string>
+    <string name="delete_exercise_used_in_programs">• Programas: %s</string>
+    <string name="delete_exercise_used_in_intervals">• Intervalos: %s</string>
+    <string name="delete_exercise_removed_note">También se eliminará de estos.</string>
+    <string name="add_exercise_to_group">Añadir un nuevo ejercicio al grupo</string>
 </resources>
