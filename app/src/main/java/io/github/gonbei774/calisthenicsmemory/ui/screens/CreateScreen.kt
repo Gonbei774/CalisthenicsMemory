@@ -50,6 +50,7 @@ fun CreateScreen(
 
     var showAddDialog by remember { mutableStateOf(false) }
     var editingExercise by remember { mutableStateOf<Exercise?>(null) }
+    var addToGroup by remember { mutableStateOf<String?>(null) }
     var showDeleteDialog by remember { mutableStateOf<Exercise?>(null) }
     var showGroupMenu by remember { mutableStateOf<String?>(null) }
     var showGroupEditDialog by remember { mutableStateOf<String?>(null) }
@@ -325,10 +326,12 @@ fun CreateScreen(
     if (showAddDialog) {
         UnifiedAddDialog(
             exercise = editingExercise,
+            presetGroup = addToGroup,
             viewModel = viewModel,
             onDismiss = {
                 showAddDialog = false
                 editingExercise = null
+                addToGroup = null
             }
         )
     }
@@ -339,6 +342,16 @@ fun CreateScreen(
             expanded = true,
             onDismissRequest = { showGroupMenu = null }
         ) {
+            if (groupName != TrainingViewModel.FAVORITE_GROUP_KEY) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.add_exercise_to_group)) },
+                    onClick = {
+                        addToGroup = groupName
+                        showAddDialog = true
+                        showGroupMenu = null
+                    }
+                )
+            }
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.rename_group)) },
                 onClick = {
@@ -728,6 +741,7 @@ fun ExerciseItemCompactContent(
 @Composable
 fun UnifiedAddDialog(
     exercise: Exercise?,
+    presetGroup: String? = null,
     viewModel: TrainingViewModel,
     onDismiss: () -> Unit
 ) {
@@ -743,7 +757,7 @@ fun UnifiedAddDialog(
     var exerciseName by remember { mutableStateOf(exercise?.name ?: "") }
     var selectedType by remember { mutableStateOf(exercise?.type ?: "Dynamic") }
     var selectedLaterality by remember { mutableStateOf(exercise?.laterality ?: "Bilateral") }
-    var selectedGroup by remember { mutableStateOf(exercise?.group) }
+    var selectedGroup by remember { mutableStateOf(exercise?.group ?: presetGroup) }
     var selectedLevel by remember { mutableStateOf(exercise?.sortOrder?.coerceIn(1, 10) ?: 5) }
     var showGroupDropdown by remember { mutableStateOf(false) }
     var newGroupName by remember { mutableStateOf("") }

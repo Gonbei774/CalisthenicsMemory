@@ -64,6 +64,7 @@
     <string name="exercise">Exercise</string>
     <string name="group_name">Group Name</string>
     <string name="already_exists">This %s name already exists</string>
+    <string name="add_exercise_to_group">Add New Exercise to Group</string>
     <string name="rename_group">Rename Group</string>
     <string name="delete_group">Delete Group</string>
     <string name="delete_group_warning">Delete \"%s\"?\nExercises in this group will be moved to \"No Group\".</string>
