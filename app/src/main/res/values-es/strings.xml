@@ -762,4 +762,13 @@
     <string name="stats_total_minutes_format">%d min</string>
     <string name="stats_total_min_sec_format">%1$d min %2$d seg</string>
     <string name="stats_total_sets">Total de conjuntos</string>
+    <string name="set_now_badge">AHORA</string>
+    <string name="set_done_label">LISTO</string>
+    <string name="set_complete_button">Establecer completo %1$d</string>
+    <string name="previous_value_label">Ant.</string>
+    <string name="set_status_check_desc">Establecer el estado de finalización</string>
+    <string name="set_uncheck_desc">Marcar como «no completado»</string>
+    <string name="record_done_count">%1$d/%2$d</string>
+    <string name="record_incomplete_title">Establecer incompleto</string>
+    <string name="record_incomplete_message">%2$d de %1$d conjuntos no están completos. ¿Quieres guardar solo los %3$d conjuntos completados?</string>
 </resources>
