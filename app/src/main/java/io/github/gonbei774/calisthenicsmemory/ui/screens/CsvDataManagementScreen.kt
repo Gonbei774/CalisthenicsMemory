@@ -24,6 +24,7 @@ import io.github.gonbei774.calisthenicsmemory.ui.theme.*
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import io.github.gonbei774.calisthenicsmemory.viewmodel.CsvImportReport
 import io.github.gonbei774.calisthenicsmemory.viewmodel.CsvType
+import io.github.gonbei774.calisthenicsmemory.viewmodel.parseCsvRecords
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -174,8 +175,8 @@ fun CsvDataManagementScreen(
                             val detectedType = detectCsvType(csvData)
 
                             if (detectedType != null) {
-                                val lines = csvData.lines().filter { it.isNotBlank() && !it.startsWith("#") }
-                                val dataCount = if (lines.size > 1) lines.size - 1 else 0
+                                val records = parseCsvRecords(csvData)
+                                val dataCount = if (records.size > 1) records.size - 1 else 0
 
                                 withContext(Dispatchers.Main) {
                                     csvImportType = detectedType
