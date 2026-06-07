@@ -54,6 +54,9 @@ interface TrainingRecordDao {
     @Query("SELECT EXISTS(SELECT 1 FROM training_records WHERE exerciseId = :exerciseId AND date = :date LIMIT 1)")
     suspend fun hasRecordOnDate(exerciseId: Long, date: String): Boolean
 
+    @Query("SELECT COUNT(*) FROM training_records WHERE exerciseId = :exerciseId")
+    suspend fun countByExercise(exerciseId: Long): Int
+
     @Query("DELETE FROM training_records")
     suspend fun deleteAll()
 }
