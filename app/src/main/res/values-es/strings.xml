@@ -781,4 +781,5 @@
     <string name="delete_exercise_used_in_programs">• Programas: %s</string>
     <string name="delete_exercise_used_in_intervals">• Intervalos: %s</string>
     <string name="delete_exercise_removed_note">También se eliminará de estos.</string>
+    <string name="add_exercise_to_group">Añadir un nuevo ejercicio al grupo</string>
 </resources>
