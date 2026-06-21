@@ -729,4 +729,7 @@
     <string name="delete_exercise_record_count">Буде видалено записів: %d</string>
     <string name="delete_exercise_removed_note">звідки її також буде видалено.</string>
     <string name="add_exercise_to_group">Додати нову вправу до групи</string>
+    <string name="legend_weight">Вага</string>
+    <string name="save_and_exit_button">Зберегти і вийти</string>
+    <string name="record_set_to_target">Встановити цільове значення (%1$d %2$s)</string>
 </resources>
