@@ -1,0 +1,17 @@
+Aggiunto:
+- Peso/distanza/assistenza per serie (manuale)
+- "Imposta su obiettivo" nel registro
+- Scorrimento auto alla serie successiva
+
+Migliorato:
+- Chip opzioni nell'elenco
+- Termina e salva in preparazione/riposo (singolo)
+- Il programma precompila le serie precedenti
+- Modifica/elimina nel menu ⋮
+- Descrizione: 60→120 caratteri, 3→5 righe
+
+Corretto:
+- Crash registrando un esercizio unilaterale
+- Impossibile spostare esercizio fuori dal ciclo (editor)
+
+Contributors: @SomeTr, @gallegonovato
