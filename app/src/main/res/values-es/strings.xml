@@ -782,4 +782,7 @@
     <string name="delete_exercise_used_in_intervals">• Intervalos: %s</string>
     <string name="delete_exercise_removed_note">También se eliminará de estos.</string>
     <string name="add_exercise_to_group">Añadir un nuevo ejercicio al grupo</string>
+    <string name="save_and_exit_button">Guardar y salir</string>
+    <string name="legend_weight">Peso</string>
+    <string name="record_set_to_target">Establecer como objetivo (%1$d %2$s)</string>
 </resources>
