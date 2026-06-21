@@ -303,6 +303,7 @@
     <string name="legend_distance_inverted">Distance (inverted)</string>
     <string name="legend_volume">Volume</string>
     <string name="legend_assistance">Assistance</string>
+    <string name="legend_weight">Weight</string>
     <string name="record_weight_for_graph">Record weight for this exercise</string>
     <string name="record_assistance_for_graph">Record assistance for this exercise</string>
     <string name="max_daily_volume">Max daily volume</string>
