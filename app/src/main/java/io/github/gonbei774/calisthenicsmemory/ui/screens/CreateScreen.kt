@@ -613,8 +613,9 @@ fun ExpandableGroupCard(
                                     Spacer(modifier = Modifier.width(8.dp))
                                 }
 
-                                // 種目アイテム
+                                // 種目アイテム（カードのタップで編集）
                                 Card(
+                                    onClick = { onExerciseEdit(exercise) },
                                     modifier = Modifier.weight(1f),
                                     colors = CardDefaults.cardColors(
                                         containerColor = if (isDragging) appColors.cardBackgroundSecondary.copy(alpha = 0.9f) else appColors.cardBackgroundSecondary
@@ -725,12 +726,33 @@ fun ExerciseItemCompactContent(
             }
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            IconButton(onClick = onEdit) {
-                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit), tint = Blue600)
+        Box {
+            var menuExpanded by remember { mutableStateOf(false) }
+            IconButton(onClick = { menuExpanded = true }) {
+                Icon(
+                    Icons.Default.MoreVert,
+                    contentDescription = stringResource(R.string.menu),
+                    tint = appColors.textSecondary
+                )
             }
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete), tint = Red600)
+            DropdownMenu(
+                expanded = menuExpanded,
+                onDismissRequest = { menuExpanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.edit)) },
+                    onClick = {
+                        menuExpanded = false
+                        onEdit()
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.delete), color = Red600) },
+                    onClick = {
+                        menuExpanded = false
+                        onDelete()
+                    }
+                )
             }
         }
     }
