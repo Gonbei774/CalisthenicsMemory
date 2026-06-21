@@ -243,6 +243,7 @@
     <string name="pause_button">Pause</string>
     <string name="resume_button">Resume</string>
     <string name="stop_button">Stop</string>
+    <string name="save_and_exit_button">Save &amp; exit</string>
     <string name="retry_set_button">Retry Set</string>
     <string name="interval_label">Interval</string>
     <string name="loop_round_rest">Round Rest</string>
