@@ -1,0 +1,17 @@
+Añadido:
+- Peso/distancia/asistencia por serie (manual)
+- "Fijar al objetivo" en el diálogo
+- Auto-desplazamiento a la siguiente serie
+
+Mejorado:
+- Chips de opciones en la lista
+- Guardar y salir en preparación/descanso (único)
+- Programa rellena series del último registro
+- Editar/eliminar al menú ⋮
+- Descripción: 60→120 caracteres, 3→5 líneas
+
+Corregido:
+- Fallo al registrar un ejercicio unilateral
+- No se podía sacar ejercicio de un bucle (editor)
+
+Contributors: @SomeTr, @gallegonovato

@@ -669,14 +669,26 @@ fun ProgramEditScreen(
                 availableLoops = programLoops,
                 onDismiss = { showExerciseSettingsDialog = null },
                 onSave = { updatedPe ->
-                    // If moving to a loop, update sortOrder within that loop
-                    val finalPe = if (updatedPe.loopId != null && updatedPe.loopId != pe.loopId) {
-                        val loopExerciseCount = programExercises.count {
-                            it.loopId == updatedPe.loopId && it.id != updatedPe.id
+                    val finalPe = when {
+                        // Moving into a loop (or to a different loop): append to that loop
+                        updatedPe.loopId != null && updatedPe.loopId != pe.loopId -> {
+                            val loopExerciseCount = programExercises.count {
+                                it.loopId == updatedPe.loopId && it.id != updatedPe.id
+                            }
+                            updatedPe.copy(sortOrder = loopExerciseCount)
                         }
-                        updatedPe.copy(sortOrder = loopExerciseCount)
-                    } else {
-                        updatedPe
+                        // Moving out of a loop: append to the end of the standalone list
+                        // (standalone exercises and loops share the same sortOrder space)
+                        updatedPe.loopId == null && pe.loopId != null -> {
+                            val maxStandaloneOrder = (
+                                programExercises
+                                    .filter { it.loopId == null && it.id != updatedPe.id }
+                                    .map { it.sortOrder } +
+                                    programLoops.map { it.sortOrder }
+                                ).maxOrNull() ?: -1
+                            updatedPe.copy(sortOrder = maxStandaloneOrder + 1)
+                        }
+                        else -> updatedPe
                     }
                     programExercises = programExercises.map {
                         if (it.id == finalPe.id) finalPe else it

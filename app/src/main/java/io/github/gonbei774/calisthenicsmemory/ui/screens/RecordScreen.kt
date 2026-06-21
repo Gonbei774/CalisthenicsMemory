@@ -532,6 +532,7 @@ fun HierarchicalExerciseGroup(
 }
 
 // 記録画面用の種目選択アイテム
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ExerciseSelectionItem(
     exercise: Exercise,
@@ -559,9 +560,9 @@ fun ExerciseSelectionItem(
                     color = appColors.textPrimary
                 )
 
-                Row(
+                FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier.padding(top = 4.dp)
                 ) {
                     // お気に入り
@@ -599,6 +600,32 @@ fun ExerciseSelectionItem(
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = Purple600
+                        )
+                    }
+
+                    // 有効化している記録オプション（荷重/距離/アシスト）
+                    if (exercise.weightTrackingEnabled) {
+                        Text(
+                            text = stringResource(R.string.legend_weight),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Amber500
+                        )
+                    }
+                    if (exercise.distanceTrackingEnabled) {
+                        Text(
+                            text = stringResource(R.string.legend_distance),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Cyan600
+                        )
+                    }
+                    if (exercise.assistanceTrackingEnabled) {
+                        Text(
+                            text = stringResource(R.string.legend_assistance),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Pink600
                         )
                     }
                 }
@@ -672,6 +699,8 @@ fun WorkoutInputScreen(
     // セット追加時に新セットへ自動スクロールするための状態
     val recordListState = rememberLazyListState()
     var pendingScrollToNewSet by remember { mutableStateOf(false) }
+    // セット完了で次セットが実行中に昇格したとき、そのセットへ自動スクロールするための状態
+    var pendingScrollToSetIndex by remember { mutableStateOf<Int?>(null) }
 
     // Unilateral用の左右別の値管理（プリフィルデータで初期化）
     var setValuesRight by remember(prefillData) {
@@ -753,6 +782,7 @@ fun WorkoutInputScreen(
     val completeCurrent: () -> Unit = {
         val ci = setStatuses.indexOfFirst { it == SetStatus.CURRENT }
         if (ci >= 0) {
+            val nextPromoted = ci + 1 < numberOfSets && setStatuses[ci + 1] == SetStatus.PENDING
             setStatuses = setStatuses.mapIndexed { i, s ->
                 when {
                     i == ci -> SetStatus.DONE
@@ -760,6 +790,8 @@ fun WorkoutInputScreen(
                     else -> s
                 }
             }
+            // 次セットが実行中になった場合のみ、そのセットへスクロール
+            if (nextPromoted) pendingScrollToSetIndex = ci + 1
         }
     }
 
@@ -928,6 +960,18 @@ fun WorkoutInputScreen(
             val newSetIndex = headerCount + numberOfSets - 1
             recordListState.animateScrollToItem(newSetIndex)
             pendingScrollToNewSet = false
+        }
+    }
+
+    // 「セット完了」で次セットが実行中になったら、そのセットへ自動スクロール
+    LaunchedEffect(pendingScrollToSetIndex) {
+        val target = pendingScrollToSetIndex
+        if (target != null) {
+            val hasTargetCard = exercise.targetSets != null && exercise.targetValue != null
+            val hasApplyButton = exercise.targetSets != null || exercise.targetValue != null
+            val headerCount = (if (hasTargetCard) 1 else 0) + (if (hasApplyButton) 1 else 0)
+            recordListState.animateScrollToItem(headerCount + target)
+            pendingScrollToSetIndex = null
         }
     }
 

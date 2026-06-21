@@ -568,7 +568,7 @@
     <string name="paused_label">Pausado</string>
     <string name="elapsed_target_format">Transcurrido: %1$ds / Objetivo: %2$ds</string>
     <string name="complete_with_time">✓ Completar (%ds)</string>
-    <string name="previous_value_format">Anterior: %d</string>
+    <string name="previous_value_format">Anterior: %s</string>
     <string name="previous_reps_format">Anterior: %d reps</string>
     <string name="previous_time_format">Anterior: %ds</string>
     <string name="reps_unit">reps</string>
@@ -782,4 +782,7 @@
     <string name="delete_exercise_used_in_intervals">• Intervalos: %s</string>
     <string name="delete_exercise_removed_note">También se eliminará de estos.</string>
     <string name="add_exercise_to_group">Añadir un nuevo ejercicio al grupo</string>
+    <string name="save_and_exit_button">Guardar y salir</string>
+    <string name="legend_weight">Peso</string>
+    <string name="record_set_to_target">Establecer como objetivo (%1$d %2$s)</string>
 </resources>

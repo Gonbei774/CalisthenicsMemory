@@ -1,0 +1,17 @@
+Added:
+- Per-set weight/distance/assist (manual mode)
+- "Set to target" in record confirm dialog
+- Auto-scroll to next set
+
+Improved:
+- Record option chips on exercise list
+- Finish & save during prep/rest (single mode)
+- Program mode prefills set count from last record
+- Edit/delete moved to ⋮ menu
+- Description: 60→120 chars, 3→5 lines
+
+Fixed:
+- Crash recording a unilateral exercise w/ record
+- Couldn't move exercise out of loop (program editor)
+
+Contributors: @SomeTr, @gallegonovato

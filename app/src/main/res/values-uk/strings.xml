@@ -558,7 +558,7 @@
     <string name="auto_mode_description">Натискати кнопку «Завершити» вручну</string>
     <string name="timer_mode_off_description">Ручне завершення кнопкою «Готово»</string>
     <string name="timer_mode_on_description">Автоматичне завершення при досягненні мети</string>
-    <string name="previous_value_format">Попереднє: %d</string>
+    <string name="previous_value_format">Попереднє: %s</string>
     <string name="previous_reps_format">Попереднє: %d разів</string>
     <string name="previous_time_format">Попереднє: %d с</string>
     <string name="last_record_short">Останній: %s</string>
@@ -728,4 +728,8 @@
     <string name="stat_previous_label">Попереднє</string>
     <string name="delete_exercise_record_count">Буде видалено записів: %d</string>
     <string name="delete_exercise_removed_note">звідки її також буде видалено.</string>
+    <string name="add_exercise_to_group">Додати нову вправу до групи</string>
+    <string name="legend_weight">Вага</string>
+    <string name="save_and_exit_button">Зберегти і вийти</string>
+    <string name="record_set_to_target">Встановити цільове значення (%1$d %2$s)</string>
 </resources>

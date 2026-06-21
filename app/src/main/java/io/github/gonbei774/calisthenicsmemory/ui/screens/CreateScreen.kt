@@ -613,8 +613,9 @@ fun ExpandableGroupCard(
                                     Spacer(modifier = Modifier.width(8.dp))
                                 }
 
-                                // 種目アイテム
+                                // 種目アイテム（カードのタップで編集）
                                 Card(
+                                    onClick = { onExerciseEdit(exercise) },
                                     modifier = Modifier.weight(1f),
                                     colors = CardDefaults.cardColors(
                                         containerColor = if (isDragging) appColors.cardBackgroundSecondary.copy(alpha = 0.9f) else appColors.cardBackgroundSecondary
@@ -638,6 +639,7 @@ fun ExpandableGroupCard(
 }
 
 // 種目アイテムの内容部分（Card内で使用）
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ExerciseItemCompactContent(
     exercise: Exercise,
@@ -659,9 +661,9 @@ fun ExerciseItemCompactContent(
                 fontWeight = FontWeight.Bold,
                 color = appColors.textPrimary
             )
-            Row(
+            FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier.padding(top = 4.dp)
             ) {
                 // お気に入り
@@ -701,6 +703,32 @@ fun ExerciseItemCompactContent(
                         color = Purple600
                     )
                 }
+
+                // 有効化している記録オプション（荷重/距離/アシスト）
+                if (exercise.weightTrackingEnabled) {
+                    Text(
+                        text = stringResource(R.string.legend_weight),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Amber500
+                    )
+                }
+                if (exercise.distanceTrackingEnabled) {
+                    Text(
+                        text = stringResource(R.string.legend_distance),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Cyan600
+                    )
+                }
+                if (exercise.assistanceTrackingEnabled) {
+                    Text(
+                        text = stringResource(R.string.legend_assistance),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Pink600
+                    )
+                }
             }
 
             // 課題バッジ
@@ -725,12 +753,33 @@ fun ExerciseItemCompactContent(
             }
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            IconButton(onClick = onEdit) {
-                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit), tint = Blue600)
+        Box {
+            var menuExpanded by remember { mutableStateOf(false) }
+            IconButton(onClick = { menuExpanded = true }) {
+                Icon(
+                    Icons.Default.MoreVert,
+                    contentDescription = stringResource(R.string.menu),
+                    tint = appColors.textSecondary
+                )
             }
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete), tint = Red600)
+            DropdownMenu(
+                expanded = menuExpanded,
+                onDismissRequest = { menuExpanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.edit)) },
+                    onClick = {
+                        menuExpanded = false
+                        onEdit()
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.delete), color = Red600) },
+                    onClick = {
+                        menuExpanded = false
+                        onDelete()
+                    }
+                )
             }
         }
     }
@@ -1552,13 +1601,13 @@ fun UnifiedAddDialog(
                                 )
                                 OutlinedTextField(
                                     value = description,
-                                    onValueChange = { if (it.length <= 60) description = it },
+                                    onValueChange = { if (it.length <= 120) description = it },
                                     modifier = Modifier.fillMaxWidth(),
                                     minLines = 2,
-                                    maxLines = 3,
+                                    maxLines = 5,
                                     supportingText = {
                                         Text(
-                                            stringResource(R.string.character_count, description.length, 60),
+                                            stringResource(R.string.character_count, description.length, 120),
                                             color = appColors.textSecondary
                                         )
                                     }

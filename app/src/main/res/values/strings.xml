@@ -243,6 +243,7 @@
     <string name="pause_button">Pause</string>
     <string name="resume_button">Resume</string>
     <string name="stop_button">Stop</string>
+    <string name="save_and_exit_button">Save &amp; exit</string>
     <string name="retry_set_button">Retry Set</string>
     <string name="interval_label">Interval</string>
     <string name="loop_round_rest">Round Rest</string>
@@ -303,6 +304,7 @@
     <string name="legend_distance_inverted">Distance (inverted)</string>
     <string name="legend_volume">Volume</string>
     <string name="legend_assistance">Assistance</string>
+    <string name="legend_weight">Weight</string>
     <string name="record_weight_for_graph">Record weight for this exercise</string>
     <string name="record_assistance_for_graph">Record assistance for this exercise</string>
     <string name="max_daily_volume">Max daily volume</string>
@@ -609,7 +611,7 @@
     <string name="complete_with_time">✓ Complete (%ds)</string>
     <string name="complete_with_reps">✓ Complete (%d reps)</string>
     <string name="target_reps_format">Target: %d reps</string>
-    <string name="previous_value_format">Previous: %d</string>
+    <string name="previous_value_format">Previous: %s</string>
     <string name="previous_reps_format">Previous: %d reps</string>
     <string name="previous_time_format">Previous: %ds</string>
     <!-- Executing screen: previous/target stats and rep pace -->
@@ -617,6 +619,7 @@
     <string name="stat_target_label">Target</string>
     <string name="rep_pace_format">Pace: %d s / rep</string>
     <string name="record_confirm_title">Save this record?</string>
+    <string name="record_set_to_target">Set to target (%1$d %2$s)</string>
     <!-- Exit Workout Confirmation -->
     <string name="exit_workout_title">Exit workout?</string>
     <string name="exit_workout_message">Progress will not be saved.</string>

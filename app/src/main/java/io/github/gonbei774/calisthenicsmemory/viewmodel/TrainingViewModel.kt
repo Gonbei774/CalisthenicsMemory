@@ -2649,7 +2649,7 @@ class TrainingViewModel(application: Application) : AndroidViewModel(application
                         distanceTrackingEnabled = shareExercise.distanceTrackingEnabled,
                         weightTrackingEnabled = shareExercise.weightTrackingEnabled,
                         assistanceTrackingEnabled = shareExercise.assistanceTrackingEnabled,
-                        description = shareExercise.description?.take(60)
+                        description = shareExercise.description?.take(120)
                     )
                     val newId = exerciseDao.insertExercise(newExercise)
                     exerciseIdMap[key] = newId

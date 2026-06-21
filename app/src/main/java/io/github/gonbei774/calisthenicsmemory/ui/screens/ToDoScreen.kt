@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+
 package io.github.gonbei774.calisthenicsmemory.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
@@ -1831,9 +1833,9 @@ fun AddExerciseGroup(
                                     color = appColors.textPrimary
                                 )
                                 // Badges row
-                                Row(
+                                FlowRow(
                                     horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
+                                    verticalArrangement = Arrangement.spacedBy(2.dp),
                                     modifier = Modifier.padding(top = 2.dp)
                                 ) {
                                     if (exercise.isFavorite) {
@@ -1848,6 +1850,15 @@ fun AddExerciseGroup(
                                     )
                                     if (exercise.laterality == "Unilateral") {
                                         Text(text = stringResource(R.string.one_sided), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Purple600)
+                                    }
+                                    if (exercise.weightTrackingEnabled) {
+                                        Text(text = stringResource(R.string.legend_weight), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Amber500)
+                                    }
+                                    if (exercise.distanceTrackingEnabled) {
+                                        Text(text = stringResource(R.string.legend_distance), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Cyan600)
+                                    }
+                                    if (exercise.assistanceTrackingEnabled) {
+                                        Text(text = stringResource(R.string.legend_assistance), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Pink600)
                                     }
                                 }
                                 if (exercise.targetSets != null && exercise.targetValue != null) {
@@ -1904,9 +1915,9 @@ fun SearchResultExerciseItem(
                     fontWeight = FontWeight.Bold,
                     color = appColors.textPrimary
                 )
-                Row(
+                FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
                     modifier = Modifier.padding(top = 2.dp)
                 ) {
                     if (exercise.isFavorite) {
@@ -1921,6 +1932,15 @@ fun SearchResultExerciseItem(
                     )
                     if (exercise.laterality == "Unilateral") {
                         Text(text = stringResource(R.string.one_sided), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Purple600)
+                    }
+                    if (exercise.weightTrackingEnabled) {
+                        Text(text = stringResource(R.string.legend_weight), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Amber500)
+                    }
+                    if (exercise.distanceTrackingEnabled) {
+                        Text(text = stringResource(R.string.legend_distance), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Cyan600)
+                    }
+                    if (exercise.assistanceTrackingEnabled) {
+                        Text(text = stringResource(R.string.legend_assistance), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Pink600)
                     }
                 }
                 if (exercise.targetSets != null && exercise.targetValue != null) {
