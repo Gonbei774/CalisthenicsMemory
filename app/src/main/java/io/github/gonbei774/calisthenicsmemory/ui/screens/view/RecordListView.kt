@@ -11,9 +11,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -167,19 +166,32 @@ fun SessionCard(
                     )
                 }
 
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    IconButton(onClick = onSessionLongPress) {
+                Box {
+                    var menuExpanded by remember { mutableStateOf(false) }
+                    IconButton(onClick = { menuExpanded = true }) {
                         Icon(
-                            Icons.Default.Edit,
-                            contentDescription = stringResource(R.string.edit),
-                            tint = Blue600
+                            Icons.Default.MoreVert,
+                            contentDescription = stringResource(R.string.menu),
+                            tint = appColors.textSecondary
                         )
                     }
-                    IconButton(onClick = onDeleteClick) {
-                        Icon(
-                            Icons.Default.Delete,
-                            contentDescription = stringResource(R.string.delete),
-                            tint = Red600
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.edit)) },
+                            onClick = {
+                                menuExpanded = false
+                                onSessionLongPress()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.delete), color = Red600) },
+                            onClick = {
+                                menuExpanded = false
+                                onDeleteClick()
+                            }
                         )
                     }
                 }
@@ -618,19 +630,32 @@ fun IntervalRecordCard(
                         color = appColors.textSecondary
                     )
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    IconButton(onClick = onEditClick) {
+                Box {
+                    var menuExpanded by remember { mutableStateOf(false) }
+                    IconButton(onClick = { menuExpanded = true }) {
                         Icon(
-                            Icons.Default.Edit,
-                            contentDescription = stringResource(R.string.edit),
-                            tint = Blue600
+                            Icons.Default.MoreVert,
+                            contentDescription = stringResource(R.string.menu),
+                            tint = appColors.textSecondary
                         )
                     }
-                    IconButton(onClick = onDeleteClick) {
-                        Icon(
-                            Icons.Default.Delete,
-                            contentDescription = stringResource(R.string.delete),
-                            tint = Red600
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.edit)) },
+                            onClick = {
+                                menuExpanded = false
+                                onEditClick()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.delete), color = Red600) },
+                            onClick = {
+                                menuExpanded = false
+                                onDeleteClick()
+                            }
                         )
                     }
                 }
