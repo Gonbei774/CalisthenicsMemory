@@ -182,7 +182,84 @@ fun ProgramExecutionScreen(
             isLastExerciseInRound: Boolean = false
         ) {
             val latestRecords = previousRecordsMap[exercise.id] ?: emptyList()
+            // プリフィルON かつ 前回記録あり →「前回」タブと同じく前回記録のセット数・値で構築する。
+            // （従来はプログラム設定のセット数 pe.sets を使っており、前回タブと食い違っていた）
+            val usePreviousLayout = isPrefillEnabled && latestRecords.isNotEmpty()
 
+            if (usePreviousLayout) {
+                latestRecords.forEachIndexed { recordIdx, record ->
+                    val isLastSetOfExercise = recordIdx == latestRecords.size - 1
+                    val actualLoopRestAfter = if (isLastExerciseInRound && isLastSetOfExercise) loopRestAfterSeconds else 0
+
+                    if (exercise.laterality == "Unilateral") {
+                        val valueRight = record.valueRight
+                        val valueLeft = record.valueLeft ?: record.valueRight
+                        // 前回値は左右の平均値を使用（目標値も平均値に設定）
+                        val prevAverage = (valueRight + valueLeft) / 2
+                        allSets.add(
+                            ProgramWorkoutSet(
+                                exerciseIndex = exerciseIndex,
+                                setNumber = record.setNumber,
+                                side = "Right",
+                                targetValue = prevAverage,
+                                intervalSeconds = pe.intervalSeconds,
+                                previousValue = prevAverage,
+                                loopId = loopId,
+                                roundNumber = roundNumber,
+                                totalRounds = totalRounds,
+                                loopRestAfterSeconds = 0,  // Rightの後はLeftが来るので0
+                                weightG = record.weightG,
+                                distanceCm = record.distanceCm,
+                                assistanceG = record.assistanceG,
+                                previousWeightG = record.weightG,
+                                previousDistanceCm = record.distanceCm,
+                                previousAssistanceG = record.assistanceG
+                            )
+                        )
+                        allSets.add(
+                            ProgramWorkoutSet(
+                                exerciseIndex = exerciseIndex,
+                                setNumber = record.setNumber,
+                                side = "Left",
+                                targetValue = prevAverage,
+                                intervalSeconds = pe.intervalSeconds,
+                                previousValue = prevAverage,
+                                loopId = loopId,
+                                roundNumber = roundNumber,
+                                totalRounds = totalRounds,
+                                loopRestAfterSeconds = actualLoopRestAfter,
+                                weightG = record.weightG,
+                                distanceCm = record.distanceCm,
+                                assistanceG = record.assistanceG,
+                                previousWeightG = record.weightG,
+                                previousDistanceCm = record.distanceCm,
+                                previousAssistanceG = record.assistanceG
+                            )
+                        )
+                    } else {
+                        allSets.add(
+                            ProgramWorkoutSet(
+                                exerciseIndex = exerciseIndex,
+                                setNumber = record.setNumber,
+                                side = null,
+                                targetValue = record.valueRight,
+                                intervalSeconds = pe.intervalSeconds,
+                                previousValue = record.valueRight,
+                                loopId = loopId,
+                                roundNumber = roundNumber,
+                                totalRounds = totalRounds,
+                                loopRestAfterSeconds = actualLoopRestAfter,
+                                weightG = record.weightG,
+                                distanceCm = record.distanceCm,
+                                assistanceG = record.assistanceG,
+                                previousWeightG = record.weightG,
+                                previousDistanceCm = record.distanceCm,
+                                previousAssistanceG = record.assistanceG
+                            )
+                        )
+                    }
+                }
+            } else {
             for (setNum in 1..pe.sets) {
                 val matchingRecord = latestRecords.find { it.setNumber == setNum }
                 val isLastSetOfExercise = setNum == pe.sets
@@ -264,6 +341,7 @@ fun ProgramExecutionScreen(
                         )
                     )
                 }
+            }
             }
         }
 
