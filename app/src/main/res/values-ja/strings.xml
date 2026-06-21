@@ -472,6 +472,7 @@
     <!-- Volume/Weight/Assistance Statistics -->
     <string name="legend_volume">ボリューム</string>
     <string name="legend_assistance">アシスト</string>
+    <string name="legend_weight">荷重</string>
     <string name="record_assistance_for_graph">この種目のアシストを記録してください</string>
     <string name="max_daily_volume">最大日ボリューム</string>
     <string name="avg_daily_volume">平均日ボリューム</string>

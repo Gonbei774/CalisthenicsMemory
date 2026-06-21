@@ -800,6 +800,7 @@ fun WorkoutHierarchicalGroup(
 }
 
 // ワークアウト用種目アイテム
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun WorkoutExerciseItem(
     exercise: Exercise,
@@ -827,9 +828,9 @@ fun WorkoutExerciseItem(
                     color = appColors.textPrimary
                 )
 
-                Row(
+                FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier.padding(top = 4.dp)
                 ) {
                     // お気に入り
@@ -867,6 +868,32 @@ fun WorkoutExerciseItem(
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = Purple600
+                        )
+                    }
+
+                    // 有効化している記録オプション（荷重/距離/アシスト）
+                    if (exercise.weightTrackingEnabled) {
+                        Text(
+                            text = stringResource(R.string.legend_weight),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Amber500
+                        )
+                    }
+                    if (exercise.distanceTrackingEnabled) {
+                        Text(
+                            text = stringResource(R.string.legend_distance),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Cyan600
+                        )
+                    }
+                    if (exercise.assistanceTrackingEnabled) {
+                        Text(
+                            text = stringResource(R.string.legend_assistance),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Pink600
                         )
                     }
                 }
@@ -3126,6 +3153,7 @@ fun ModeSelectionStep(
 }
 
 // 検索結果用種目アイテム（フラットリスト表示）
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun WorkoutSearchResultItem(
     exercise: Exercise,
@@ -3173,9 +3201,9 @@ fun WorkoutSearchResultItem(
                 }
 
                 // バッジ行
-                Row(
+                FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier.padding(top = 4.dp)
                 ) {
                     // お気に入り
@@ -3213,6 +3241,32 @@ fun WorkoutSearchResultItem(
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = Purple600
+                        )
+                    }
+
+                    // 有効化している記録オプション（荷重/距離/アシスト）
+                    if (exercise.weightTrackingEnabled) {
+                        Text(
+                            text = stringResource(R.string.legend_weight),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Amber500
+                        )
+                    }
+                    if (exercise.distanceTrackingEnabled) {
+                        Text(
+                            text = stringResource(R.string.legend_distance),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Cyan600
+                        )
+                    }
+                    if (exercise.assistanceTrackingEnabled) {
+                        Text(
+                            text = stringResource(R.string.legend_assistance),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Pink600
                         )
                     }
                 }

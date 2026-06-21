@@ -639,6 +639,7 @@ fun ExpandableGroupCard(
 }
 
 // 種目アイテムの内容部分（Card内で使用）
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ExerciseItemCompactContent(
     exercise: Exercise,
@@ -660,9 +661,9 @@ fun ExerciseItemCompactContent(
                 fontWeight = FontWeight.Bold,
                 color = appColors.textPrimary
             )
-            Row(
+            FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier.padding(top = 4.dp)
             ) {
                 // お気に入り
@@ -700,6 +701,32 @@ fun ExerciseItemCompactContent(
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Purple600
+                    )
+                }
+
+                // 有効化している記録オプション（荷重/距離/アシスト）
+                if (exercise.weightTrackingEnabled) {
+                    Text(
+                        text = stringResource(R.string.legend_weight),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Amber500
+                    )
+                }
+                if (exercise.distanceTrackingEnabled) {
+                    Text(
+                        text = stringResource(R.string.legend_distance),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Cyan600
+                    )
+                }
+                if (exercise.assistanceTrackingEnabled) {
+                    Text(
+                        text = stringResource(R.string.legend_assistance),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Pink600
                     )
                 }
             }
