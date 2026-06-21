@@ -464,8 +464,9 @@ fun ExerciseSettingsDialog(
     var selectedLoopId by remember { mutableStateOf<Long?>(programExercise.loopId) }
     var loopDropdownExpanded by remember { mutableStateOf(false) }
 
-    // Only show loop selection for standalone exercises (not already in a loop)
-    val showLoopSelection = programExercise.loopId == null && availableLoops.isNotEmpty()
+    // Show loop selection whenever loops exist, so exercises can be moved into,
+    // between, or out of (via "None") a loop
+    val showLoopSelection = availableLoops.isNotEmpty()
 
     AlertDialog(
         onDismissRequest = onDismiss,
