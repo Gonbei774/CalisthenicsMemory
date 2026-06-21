@@ -203,8 +203,17 @@ fun SingleExecutingStepDynamicManual(
                 initialValue = recordValue,
                 unit = stringResource(R.string.unit_reps),
                 targetValue = currentSet.targetValue,
-                onConfirm = { adjusted ->
+                weightTrackingEnabled = session.exercise.weightTrackingEnabled,
+                distanceTrackingEnabled = session.exercise.distanceTrackingEnabled,
+                assistanceTrackingEnabled = session.exercise.assistanceTrackingEnabled,
+                initialWeightG = currentSet.weightG,
+                initialDistanceCm = currentSet.distanceCm,
+                initialAssistanceG = currentSet.assistanceG,
+                onConfirm = { adjusted, weightG, distanceCm, assistanceG ->
                     currentSet.actualValue = adjusted
+                    currentSet.weightG = weightG
+                    currentSet.distanceCm = distanceCm
+                    currentSet.assistanceG = assistanceG
                     currentSet.isCompleted = true
                     showConfirm = false
                     onSetComplete(session)
@@ -714,8 +723,17 @@ fun SingleExecutingStepIsometricManual(
                 initialValue = recordValue,
                 unit = stringResource(R.string.unit_seconds_short),
                 targetValue = currentSet.targetValue,
-                onConfirm = { adjusted ->
+                weightTrackingEnabled = session.exercise.weightTrackingEnabled,
+                distanceTrackingEnabled = session.exercise.distanceTrackingEnabled,
+                assistanceTrackingEnabled = session.exercise.assistanceTrackingEnabled,
+                initialWeightG = currentSet.weightG,
+                initialDistanceCm = currentSet.distanceCm,
+                initialAssistanceG = currentSet.assistanceG,
+                onConfirm = { adjusted, weightG, distanceCm, assistanceG ->
                     currentSet.actualValue = adjusted
+                    currentSet.weightG = weightG
+                    currentSet.distanceCm = distanceCm
+                    currentSet.assistanceG = assistanceG
                     currentSet.isCompleted = true
                     showConfirm = false
                     onSetComplete(session)

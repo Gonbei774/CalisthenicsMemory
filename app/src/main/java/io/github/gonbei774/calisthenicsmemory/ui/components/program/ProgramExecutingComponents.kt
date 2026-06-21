@@ -224,7 +224,19 @@ internal fun ProgramExecutingStepDynamicManual(
                 initialValue = recordValue,
                 unit = stringResource(R.string.unit_reps),
                 targetValue = currentSet.targetValue,
-                onConfirm = { adjusted ->
+                weightTrackingEnabled = exercise.weightTrackingEnabled,
+                distanceTrackingEnabled = exercise.distanceTrackingEnabled,
+                assistanceTrackingEnabled = exercise.assistanceTrackingEnabled,
+                initialWeightG = currentSet.weightG,
+                initialDistanceCm = currentSet.distanceCm,
+                initialAssistanceG = currentSet.assistanceG,
+                previousWeightG = currentSet.previousWeightG,
+                previousDistanceCm = currentSet.previousDistanceCm,
+                previousAssistanceG = currentSet.previousAssistanceG,
+                onConfirm = { adjusted, weightG, distanceCm, assistanceG ->
+                    currentSet.weightG = weightG
+                    currentSet.distanceCm = distanceCm
+                    currentSet.assistanceG = assistanceG
                     showConfirm = false
                     onSetComplete(adjusted)
                 },
@@ -445,7 +457,19 @@ internal fun ProgramExecutingStepIsometricManual(
                 initialValue = recordValue,
                 unit = stringResource(R.string.unit_seconds_short),
                 targetValue = currentSet.targetValue,
-                onConfirm = { adjusted ->
+                weightTrackingEnabled = exercise.weightTrackingEnabled,
+                distanceTrackingEnabled = exercise.distanceTrackingEnabled,
+                assistanceTrackingEnabled = exercise.assistanceTrackingEnabled,
+                initialWeightG = currentSet.weightG,
+                initialDistanceCm = currentSet.distanceCm,
+                initialAssistanceG = currentSet.assistanceG,
+                previousWeightG = currentSet.previousWeightG,
+                previousDistanceCm = currentSet.previousDistanceCm,
+                previousAssistanceG = currentSet.previousAssistanceG,
+                onConfirm = { adjusted, weightG, distanceCm, assistanceG ->
+                    currentSet.weightG = weightG
+                    currentSet.distanceCm = distanceCm
+                    currentSet.assistanceG = assistanceG
                     showConfirm = false
                     onSetComplete(adjusted)
                 },
