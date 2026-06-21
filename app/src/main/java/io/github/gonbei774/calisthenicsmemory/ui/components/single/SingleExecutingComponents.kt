@@ -202,6 +202,7 @@ fun SingleExecutingStepDynamicManual(
             RecordAdjustDialog(
                 initialValue = recordValue,
                 unit = stringResource(R.string.unit_reps),
+                targetValue = currentSet.targetValue,
                 onConfirm = { adjusted ->
                     currentSet.actualValue = adjusted
                     currentSet.isCompleted = true
@@ -712,6 +713,7 @@ fun SingleExecutingStepIsometricManual(
             RecordAdjustDialog(
                 initialValue = recordValue,
                 unit = stringResource(R.string.unit_seconds_short),
+                targetValue = currentSet.targetValue,
                 onConfirm = { adjusted ->
                     currentSet.actualValue = adjusted
                     currentSet.isCompleted = true

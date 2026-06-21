@@ -610,6 +610,7 @@
     <string name="stat_target_label">目標</string>
     <string name="rep_pace_format">ペース %d秒 / レップ</string>
     <string name="record_confirm_title">記録しますか？</string>
+    <string name="record_set_to_target">目標値にセット（%1$d%2$s）</string>
     <!-- Sound Settings (Program Confirm) -->
     <string name="sound_settings_section">サウンド設定</string>
     <string name="dynamic_count_sound_label">カウント音</string>
