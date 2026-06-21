@@ -728,4 +728,5 @@
     <string name="stat_previous_label">Попереднє</string>
     <string name="delete_exercise_record_count">Буде видалено записів: %d</string>
     <string name="delete_exercise_removed_note">звідки її також буде видалено.</string>
+    <string name="add_exercise_to_group">Додати нову вправу до групи</string>
 </resources>
