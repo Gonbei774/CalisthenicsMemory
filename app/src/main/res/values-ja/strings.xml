@@ -239,6 +239,7 @@
     <string name="pause_button">一時停止</string>
     <string name="resume_button">再開</string>
     <string name="stop_button">中断</string>
+    <string name="save_and_exit_button">保存して終了</string>
     <string name="retry_set_button">やり直し</string>
     <string name="interval_label">インターバル</string>
     <string name="next_set_format">次: セット %1$d/%2$d</string>

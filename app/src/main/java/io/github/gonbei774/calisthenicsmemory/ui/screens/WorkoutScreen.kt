@@ -253,8 +253,11 @@ fun WorkoutScreen(
                         color = Color.White
                     )
                     Spacer(modifier = Modifier.weight(1f))
-                    // ナビゲーションボタン（実行中のみ表示）
-                    if (currentStep is WorkoutStep.Executing) {
+                    // ナビゲーションボタン（実行中・準備タイマー中・休憩中に表示）
+                    if (currentStep is WorkoutStep.Executing ||
+                        currentStep is WorkoutStep.StartInterval ||
+                        currentStep is WorkoutStep.Interval
+                    ) {
                         IconButton(onClick = { showNavigationSheet = true }) {
                             Icon(
                                 Icons.Default.Menu,
@@ -314,6 +317,7 @@ fun WorkoutScreen(
                         soundPlayer = soundPlayer,
                         flashController = flashController,
                         isFlashEnabled = isFlashEnabled,
+                        isNavigationOpen = showNavigationSheet,
                         onIntervalComplete = {
                             currentStep = WorkoutStep.Executing(step.session, step.currentSetIndex)
                         },
@@ -321,6 +325,22 @@ fun WorkoutScreen(
                             currentStep = WorkoutStep.Executing(step.session, step.currentSetIndex)
                         }
                     )
+
+                    // ナビゲーションシート（中止：記録を残す）
+                    if (showNavigationSheet) {
+                        TimerAbortSheet(
+                            onDismiss = { showNavigationSheet = false },
+                            onAbort = {
+                                showNavigationSheet = false
+                                // 未実施の現在セット以降をスキップ扱いにして確認画面へ
+                                for (i in step.currentSetIndex until step.session.sets.size) {
+                                    step.session.sets[i].isSkipped = true
+                                    step.session.sets[i].actualValue = 0
+                                }
+                                currentStep = WorkoutStep.Confirmation(step.session)
+                            }
+                        )
+                    }
                 }
                 is WorkoutStep.Executing -> {
                     // 設定に基づいて適切なExecutingコンポーネントを選択
@@ -491,7 +511,7 @@ fun WorkoutScreen(
                                     shape = RoundedCornerShape(12.dp)
                                 ) {
                                     Text(
-                                        text = stringResource(R.string.stop_button),
+                                        text = stringResource(R.string.save_and_exit_button),
                                         fontSize = 16.sp
                                     )
                                 }
@@ -506,6 +526,7 @@ fun WorkoutScreen(
                         soundPlayer = soundPlayer,
                         flashController = flashController,
                         isFlashEnabled = isFlashEnabled,
+                        isNavigationOpen = showNavigationSheet,
                         onIntervalComplete = {
                             // インターバル完了後、準備（StartInterval）を挟む
                             currentStep = if (step.session.startInterval > 0) {
@@ -526,6 +547,22 @@ fun WorkoutScreen(
                             step.session.intervalDuration = newInterval
                         }
                     )
+
+                    // ナビゲーションシート（中止：記録を残す）
+                    if (showNavigationSheet) {
+                        TimerAbortSheet(
+                            onDismiss = { showNavigationSheet = false },
+                            onAbort = {
+                                showNavigationSheet = false
+                                // 未実施の次セット以降をスキップ扱いにして確認画面へ
+                                for (i in step.currentSetIndex until step.session.sets.size) {
+                                    step.session.sets[i].isSkipped = true
+                                    step.session.sets[i].actualValue = 0
+                                }
+                                currentStep = WorkoutStep.Confirmation(step.session)
+                            }
+                        )
+                    }
                 }
                 is WorkoutStep.Confirmation -> {
                     ConfirmationStep(
@@ -1381,6 +1418,39 @@ fun SettingsStep(
     }
 }
 
+// 準備タイマー・休憩中の中止シート（記録を残して確認画面へ）
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TimerAbortSheet(
+    onDismiss: () -> Unit,
+    onAbort: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = Slate800
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Button(
+                onClick = onAbort,
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Red600),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.save_and_exit_button),
+                    fontSize = 16.sp
+                )
+            }
+        }
+    }
+}
+
 // 開始前インターバル
 @Composable
 fun StartIntervalStep(
@@ -1389,6 +1459,7 @@ fun StartIntervalStep(
     soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
+    isNavigationOpen: Boolean = false,
     onIntervalComplete: () -> Unit,
     onSkip: () -> Unit
 ) {
@@ -1397,14 +1468,14 @@ fun StartIntervalStep(
     var isPaused by remember { mutableStateOf(false) }
     val progress = if (session.startInterval > 0) remainingTime.toFloat() / session.startInterval else 0f
 
-    LaunchedEffect(isPaused) {
+    LaunchedEffect(isPaused, isNavigationOpen) {
         while (remainingTime > 0) {
-            if (isPaused) {
+            if (isPaused || isNavigationOpen) {
                 delay(100L)
                 continue
             }
             delay(1000L)
-            if (isPaused) continue
+            if (isPaused || isNavigationOpen) continue
             remainingTime--
             if (remainingTime <= 3 && remainingTime > 0) {
                 soundPlayer.playBeep()
@@ -1765,7 +1836,7 @@ fun ExecutingStep(
                 colors = ButtonDefaults.buttonColors(containerColor = Red600),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text(stringResource(R.string.stop_button))
+                Text(stringResource(R.string.save_and_exit_button))
             }
         }
     }
@@ -1779,6 +1850,7 @@ fun IntervalStep(
     soundPlayer: SoundPlayer,
     flashController: FlashController,
     isFlashEnabled: Boolean,
+    isNavigationOpen: Boolean = false,
     onIntervalComplete: () -> Unit,
     onSkip: () -> Unit,
     onUpdateInterval: (Int) -> Unit
@@ -1788,8 +1860,8 @@ fun IntervalStep(
     var remainingTime by remember { mutableIntStateOf(session.intervalDuration) }
     val progress = if (session.intervalDuration > 0) remainingTime.toFloat() / session.intervalDuration else 0f
 
-    LaunchedEffect(isRunning) {
-        while (remainingTime > 0 && isRunning) {
+    LaunchedEffect(isRunning, isNavigationOpen) {
+        while (remainingTime > 0 && isRunning && !isNavigationOpen) {
             delay(1000L)
             remainingTime--
             if (remainingTime <= 3 && remainingTime > 0) {
