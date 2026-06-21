@@ -568,7 +568,7 @@
     <string name="paused_label">已暂停</string>
     <string name="elapsed_target_format">已用时：%1$d秒 / 目标：%2$d秒</string>
     <string name="complete_with_time">✓ 完成 (%d秒)</string>
-    <string name="previous_value_format">上次：%d</string>
+    <string name="previous_value_format">上次：%s</string>
     <string name="previous_reps_format">上次：%d次</string>
     <string name="previous_time_format">上次：%d秒</string>
     <string name="reps_unit">次</string>

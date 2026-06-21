@@ -609,7 +609,7 @@
     <string name="complete_with_time">✓ Complete (%ds)</string>
     <string name="complete_with_reps">✓ Complete (%d reps)</string>
     <string name="target_reps_format">Target: %d reps</string>
-    <string name="previous_value_format">Previous: %d</string>
+    <string name="previous_value_format">Previous: %s</string>
     <string name="previous_reps_format">Previous: %d reps</string>
     <string name="previous_time_format">Previous: %ds</string>
     <!-- Executing screen: previous/target stats and rep pace -->
