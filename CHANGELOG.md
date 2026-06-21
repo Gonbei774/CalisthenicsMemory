@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.24.0] - 2026-06-22
+
+### Added
+- **Per-set weight/distance/assistance input** when completing a set in manual workout mode
+- **"Set to target"** option in the record confirm dialog
+- **Auto-scroll to the next set** after completing a set in record mode
+
+### Improved
+- **Record option chips** (weight/distance/assistance) shown on the exercise list
+- **Finish and save** during the prep timer or rest period in single mode
+- Program mode prefills the set count to match the previous record
+- Edit/delete actions consolidated into the ⋮ menu (exercise creation and record list)
+- Exercise description limit raised from 60 to 120 characters; input field expanded from 3 to 5 lines
+
+### Fixed
+- Crash when recording a unilateral exercise that has a previous record
+- Could not move an exercise out of a loop in the program editor
+
+This release includes translation contributions from @SomeTr (Ukrainian) and @gallegonovato (Spanish).
+
 ## [1.23.0] - 2026-06-08
 
 ### Added
@@ -515,6 +535,7 @@ This release includes contributions from @unsealed211, @SomeTr, and @balaraz.
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.24.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.24.0
 [1.23.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.23.0
 [1.22.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.22.0
 [1.21.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.21.0

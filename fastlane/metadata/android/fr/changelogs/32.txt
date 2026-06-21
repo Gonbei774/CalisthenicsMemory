@@ -1,0 +1,17 @@
+Ajouté:
+- Poids/distance/assistance par série (manuel)
+- "Définir sur l'objectif" dans le dialogue
+- Défilement auto à la série suivante
+
+Amélioré:
+- Puces d'options dans la liste
+- Terminer et enregistrer en prépa/repos (simple)
+- Le programme préremplit les séries
+- Modifier/supprimer dans le menu ⋮
+- Description: 60→120 caractères, 3→5 lignes
+
+Corrigé:
+- Plantage en enregistrant un exercice unilatéral
+- Impossible de sortir un exercice d'une boucle
+
+Contributors: @SomeTr, @gallegonovato

@@ -1,0 +1,17 @@
+Neu:
+- Gewicht/Distanz/Hilfe pro Satz (manuell)
+- "Auf Ziel setzen" im Dialog
+- Auto-Scroll zum nächsten Satz
+
+Verbessert:
+- Options-Chips in der Übungsliste
+- Beenden & speichern bei Vorbereitung/Pause (Einzel)
+- Programmmodus übernimmt Satzzahl vom letzten Eintrag
+- Bearbeiten/Löschen ins ⋮-Menü
+- Beschreibung: 60→120 Zeichen, 3→5 Zeilen
+
+Behoben:
+- Absturz beim Aufnehmen einseitiger Übung
+- Übung ließ sich nicht aus Schleife ziehen (Editor)
+
+Contributors: @SomeTr, @gallegonovato
