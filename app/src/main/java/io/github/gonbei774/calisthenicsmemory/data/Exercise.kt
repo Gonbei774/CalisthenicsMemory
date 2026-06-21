@@ -25,5 +25,5 @@ data class Exercise(
     val distanceTrackingEnabled: Boolean = false,  // 距離入力を有効化
     val weightTrackingEnabled: Boolean = false,    // 荷重入力を有効化
     val assistanceTrackingEnabled: Boolean = false, // アシスト入力を有効化
-    val description: String? = null               // 種目の説明文（最大60文字）
+    val description: String? = null               // 種目の説明文（最大120文字）
 )

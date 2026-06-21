@@ -1601,13 +1601,13 @@ fun UnifiedAddDialog(
                                 )
                                 OutlinedTextField(
                                     value = description,
-                                    onValueChange = { if (it.length <= 60) description = it },
+                                    onValueChange = { if (it.length <= 120) description = it },
                                     modifier = Modifier.fillMaxWidth(),
                                     minLines = 2,
-                                    maxLines = 3,
+                                    maxLines = 5,
                                     supportingText = {
                                         Text(
-                                            stringResource(R.string.character_count, description.length, 60),
+                                            stringResource(R.string.character_count, description.length, 120),
                                             color = appColors.textSecondary
                                         )
                                     }
