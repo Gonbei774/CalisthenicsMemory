@@ -617,6 +617,7 @@
     <string name="stat_target_label">Target</string>
     <string name="rep_pace_format">Pace: %d s / rep</string>
     <string name="record_confirm_title">Save this record?</string>
+    <string name="record_set_to_target">Set to target (%1$d %2$s)</string>
     <!-- Exit Workout Confirmation -->
     <string name="exit_workout_title">Exit workout?</string>
     <string name="exit_workout_message">Progress will not be saved.</string>

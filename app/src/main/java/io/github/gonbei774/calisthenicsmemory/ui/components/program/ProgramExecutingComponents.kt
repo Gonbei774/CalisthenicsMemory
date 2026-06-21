@@ -223,6 +223,7 @@ internal fun ProgramExecutingStepDynamicManual(
             RecordAdjustDialog(
                 initialValue = recordValue,
                 unit = stringResource(R.string.unit_reps),
+                targetValue = currentSet.targetValue,
                 onConfirm = { adjusted ->
                     showConfirm = false
                     onSetComplete(adjusted)
@@ -443,6 +444,7 @@ internal fun ProgramExecutingStepIsometricManual(
             RecordAdjustDialog(
                 initialValue = recordValue,
                 unit = stringResource(R.string.unit_seconds_short),
+                targetValue = currentSet.targetValue,
                 onConfirm = { adjusted ->
                     showConfirm = false
                     onSetComplete(adjusted)
