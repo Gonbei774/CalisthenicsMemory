@@ -17,7 +17,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -61,6 +69,8 @@ import io.github.gonbei774.calisthenicsmemory.service.WorkoutTimerService
 import io.github.gonbei774.calisthenicsmemory.ui.components.single.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -968,6 +978,215 @@ fun WorkoutExerciseItem(
     }
 }
 
+// ===== シングルワークアウト設定画面: 丸ボタンステッパー部品 =====
+
+// オレンジの丸ステップボタン（長押しで連続増減）
+@Composable
+private fun WorkoutStepButton(
+    label: String,
+    enabled: Boolean,
+    contentDescription: String,
+    onStep: () -> Boolean
+) {
+    val scope = rememberCoroutineScope()
+    val currentOnStep by rememberUpdatedState(onStep)
+    val containerColor = if (enabled) Orange600 else Slate700
+    val textColor = if (enabled) Color.White else Slate500
+    Box(
+        modifier = Modifier
+            .size(44.dp)
+            .background(containerColor, CircleShape)
+            .pointerInput(enabled) {
+                if (!enabled) return@pointerInput
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = false)
+                    val firstResult = currentOnStep()
+                    var repeatJob: Job? = null
+                    try {
+                        if (firstResult) {
+                            repeatJob = scope.launch {
+                                delay(350)
+                                while (isActive) {
+                                    if (!currentOnStep()) break
+                                    delay(80)
+                                }
+                            }
+                        }
+                        waitForUpOrCancellation()
+                    } finally {
+                        repeatJob?.cancel()
+                    }
+                }
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            color = textColor
+        )
+    }
+}
+
+// セクション見出し（オレンジのドット + ラベル + 任意タグ）
+@Composable
+private fun WorkoutSectionHeader(text: String, tag: String? = null) {
+    val appColors = LocalAppColors.current
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(7.dp)
+                .background(Orange600, CircleShape)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = text,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            color = appColors.textTertiary
+        )
+        if (tag != null) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(appColors.cardBackgroundSecondary)
+                    .padding(horizontal = 8.dp, vertical = 2.dp)
+            ) {
+                Text(
+                    text = tag,
+                    fontSize = 11.sp,
+                    color = appColors.textSecondary
+                )
+            }
+        }
+    }
+}
+
+// 設定カード（塗りつぶしの角丸コンテナ）
+@Composable
+private fun WorkoutSettingsCard(content: @Composable ColumnScope.() -> Unit) {
+    val appColors = LocalAppColors.current
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(appColors.cardBackground)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        content = content
+    )
+}
+
+// カード内の項目区切り
+@Composable
+private fun WorkoutStepperDivider() {
+    val appColors = LocalAppColors.current
+    HorizontalDivider(color = appColors.cardBackgroundSecondary, thickness = 1.dp)
+}
+
+// 丸ボタンステッパー1項目（ラベル + − 数値単位 +）
+@Composable
+private fun WorkoutStepperItem(
+    label: String,
+    value: String,
+    unit: String?,
+    accentColor: Color,
+    onValueChange: (String) -> Unit,
+    onDecrement: () -> Boolean,
+    onIncrement: () -> Boolean,
+    decrementEnabled: Boolean = true,
+    enabled: Boolean = true,
+    keyboardType: KeyboardType = KeyboardType.Number
+) {
+    val appColors = LocalAppColors.current
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = label,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
+            color = if (enabled) appColors.textPrimary else appColors.textDisabled
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            WorkoutStepButton(
+                label = "−",
+                enabled = enabled && decrementEnabled,
+                contentDescription = stringResource(R.string.nav_step_decrement),
+                onStep = onDecrement
+            )
+            Row(
+                modifier = Modifier.padding(horizontal = 20.dp),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                BasicTextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    enabled = enabled,
+                    modifier = Modifier.width(72.dp),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                    textStyle = TextStyle(
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (enabled) appColors.textPrimary else appColors.textDisabled,
+                        textAlign = TextAlign.Center
+                    ),
+                    cursorBrush = SolidColor(accentColor)
+                )
+                if (unit != null) {
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text(
+                        text = unit,
+                        fontSize = 13.sp,
+                        color = appColors.textSecondary,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                }
+            }
+            WorkoutStepButton(
+                label = "+",
+                enabled = enabled,
+                contentDescription = stringResource(R.string.nav_step_increment),
+                onStep = onIncrement
+            )
+        }
+    }
+}
+
+// 整数ステップ: 空欄なら default、それ以外は delta 加算して [min, max] にクランプ
+private fun stepIntValue(current: String, delta: Int, min: Int?, max: Int?, default: Int): String {
+    val base = current.toIntOrNull() ?: return default.toString()
+    var next = base + delta
+    if (min != null) next = maxOf(next, min)
+    if (max != null) next = minOf(next, max)
+    return next.toString()
+}
+
+// 整数の減算余地があるか（連続増減の継続・ボタン活性判定用）
+private fun canDecrementInt(current: String, min: Int?): Boolean {
+    if (min == null) return true
+    val base = current.toIntOrNull() ?: return true
+    return base > min
+}
+
+// 0.5刻みの小数ステップ（荷重・アシスト用、空欄は0扱い）
+private fun stepDecimalValue(current: String, delta: Double, min: Double): String {
+    val base = current.toDoubleOrNull() ?: 0.0
+    val next = (Math.round((base + delta) * 10.0) / 10.0).coerceAtLeast(min)
+    return formatDecimalValue(next)
+}
+
+private fun formatDecimalValue(value: Double): String {
+    return if (value == value.toLong().toDouble()) value.toLong().toString()
+    else value.toString()
+}
+
 // Step 2: 設定画面
 @Composable
 fun SettingsStep(
@@ -1075,13 +1294,22 @@ fun SettingsStep(
             color = appColors.textPrimary
         )
 
-        Text(
-            text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
-            fontSize = 14.sp,
-            color = appColors.textSecondary
-        )
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(6.dp))
+                .background(Orange600.copy(alpha = 0.18f))
+                .padding(horizontal = 10.dp, vertical = 3.dp)
+        ) {
+            Text(
+                text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = Orange600
+            )
+        }
 
         // 実行設定セクション（上部に配置）
+        WorkoutSectionHeader(text = stringResource(R.string.settings))
         SingleWorkoutSettingsSection(
             isAutoMode = isAutoMode,
             isDynamicCountSoundEnabled = isDynamicCountSoundEnabled,
@@ -1151,180 +1379,165 @@ fun SettingsStep(
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
-            value = sets,
-            onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) sets = it },
-            label = { Text(stringResource(R.string.target_sets_label)) },
-            placeholder = { Text("3", color = appColors.textSecondary) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Orange600,
-                focusedLabelColor = Orange600
+        val repsUnit = stringResource(R.string.unit_reps)
+        val secUnit = stringResource(R.string.unit_seconds)
+        val cmUnit = stringResource(R.string.unit_cm)
+        val kgUnit = stringResource(R.string.unit_kg)
+
+        // ===== 目標 =====
+        WorkoutSectionHeader(text = stringResource(R.string.workout_section_target))
+        WorkoutSettingsCard {
+            WorkoutStepperItem(
+                label = stringResource(R.string.target_sets_label),
+                value = sets,
+                unit = null,
+                accentColor = Orange600,
+                onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) sets = it },
+                decrementEnabled = canDecrementInt(sets, 1),
+                onDecrement = { sets = stepIntValue(sets, -1, 1, null, 3); canDecrementInt(sets, 1) },
+                onIncrement = { sets = stepIntValue(sets, 1, 1, null, 3); true }
             )
-        )
-
-        OutlinedTextField(
-            value = targetValue,
-            onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) targetValue = it },
-            label = { Text(stringResource(if (exercise.type == "Dynamic") R.string.target_reps_label else R.string.target_duration_label)) },
-            placeholder = { Text("10", color = appColors.textSecondary) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Orange600,
-                focusedLabelColor = Orange600
-            )
-        )
-
-        if (exercise.type == "Dynamic") {
-            OutlinedTextField(
-                value = repDuration,
-                onValueChange = {
-                    if (it.isEmpty() || (it.all { c -> c.isDigit() } && it.toIntOrNull()?.let { num -> num in 1..60 } == true)) {
-                        repDuration = it
-                    }
-                },
-                label = { Text(stringResource(R.string.rep_duration_label)) },
-                placeholder = { Text("5", color = appColors.textSecondary) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                enabled = isDynamicCountSoundEnabled,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Orange600,
-                    focusedLabelColor = Orange600
-                )
+            WorkoutStepperDivider()
+            WorkoutStepperItem(
+                label = stringResource(if (exercise.type == "Dynamic") R.string.target_reps_label else R.string.target_duration_label),
+                value = targetValue,
+                unit = if (exercise.type == "Dynamic") repsUnit else secUnit,
+                accentColor = Orange600,
+                onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) targetValue = it },
+                decrementEnabled = canDecrementInt(targetValue, 1),
+                onDecrement = { targetValue = stepIntValue(targetValue, -1, 1, null, 10); canDecrementInt(targetValue, 1) },
+                onIncrement = { targetValue = stepIntValue(targetValue, 1, 1, null, 10); true }
             )
         }
 
-        OutlinedTextField(
-            value = startInterval,
-            onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) startInterval = it },
-            label = { Text(stringResource(R.string.start_countdown_label)) },
-            placeholder = { Text("5", color = appColors.textSecondary) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Orange600,
-                focusedLabelColor = Orange600
-            )
-        )
-
-        OutlinedTextField(
-            value = interval,
-            onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) interval = it },
-            label = { Text(stringResource(R.string.interval_duration_label)) },
-            placeholder = { Text("240", color = appColors.textSecondary) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Orange600,
-                focusedLabelColor = Orange600
-            )
-        )
-
-        // 距離入力（有効な場合のみ表示）
-        if (exercise.distanceTrackingEnabled) {
-            OutlinedTextField(
-                value = distanceInput,
-                onValueChange = { value ->
-                    // 全角→半角変換
-                    val normalized = value
-                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
-                        .replace("．", ".").replace("－", "-")
-                    // 空、"-"、または整数（負を含む）を許可
-                    if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
-                        distanceInput = normalized
-                    }
-                },
-                label = { Text(stringResource(R.string.distance_input_label)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number
-                ),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Blue600,
-                    unfocusedBorderColor = appColors.border,
-                    focusedLabelColor = Blue600,
-                    unfocusedLabelColor = appColors.textSecondary,
-                    cursorColor = Blue600,
-                    focusedTextColor = appColors.textPrimary,
-                    unfocusedTextColor = appColors.textPrimary
+        // ===== タイマー =====
+        WorkoutSectionHeader(text = stringResource(R.string.workout_section_timer))
+        WorkoutSettingsCard {
+            if (exercise.type == "Dynamic") {
+                WorkoutStepperItem(
+                    label = stringResource(R.string.workout_label_rep_duration),
+                    value = repDuration,
+                    unit = secUnit,
+                    accentColor = Orange600,
+                    enabled = isDynamicCountSoundEnabled,
+                    onValueChange = {
+                        if (it.isEmpty() || (it.all { c -> c.isDigit() } && it.toIntOrNull()?.let { num -> num in 1..60 } == true)) {
+                            repDuration = it
+                        }
+                    },
+                    decrementEnabled = canDecrementInt(repDuration, 1),
+                    onDecrement = { repDuration = stepIntValue(repDuration, -1, 1, 60, 5); canDecrementInt(repDuration, 1) },
+                    onIncrement = { repDuration = stepIntValue(repDuration, 1, 1, 60, 5); (repDuration.toIntOrNull() ?: 0) < 60 }
                 )
+                WorkoutStepperDivider()
+            }
+            WorkoutStepperItem(
+                label = stringResource(R.string.workout_label_start_countdown),
+                value = startInterval,
+                unit = secUnit,
+                accentColor = Orange600,
+                onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) startInterval = it },
+                decrementEnabled = canDecrementInt(startInterval, 0),
+                onDecrement = { startInterval = stepIntValue(startInterval, -1, 0, null, 5); canDecrementInt(startInterval, 0) },
+                onIncrement = { startInterval = stepIntValue(startInterval, 1, 0, null, 5); true }
+            )
+            WorkoutStepperDivider()
+            WorkoutStepperItem(
+                label = stringResource(R.string.workout_label_interval),
+                value = interval,
+                unit = secUnit,
+                accentColor = Orange600,
+                onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() }) interval = it },
+                decrementEnabled = canDecrementInt(interval, 0),
+                onDecrement = { interval = stepIntValue(interval, -10, 0, null, 240); canDecrementInt(interval, 0) },
+                onIncrement = { interval = stepIntValue(interval, 10, 0, null, 240); true }
             )
         }
 
-        // 荷重入力（有効な場合のみ表示）
-        if (exercise.weightTrackingEnabled) {
-            OutlinedTextField(
-                value = weightInput,
-                onValueChange = { value ->
-                    // 全角→半角変換
-                    val normalized = value
-                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
-                        .replace("．", ".")
-                    // 空、または小数（小数点1つまで、小数第1位まで）を許可
-                    val isValidDecimal = normalized.isEmpty() ||
-                        normalized == "." ||
-                        normalized.matches(Regex("^\\d*\\.?\\d?\$"))
-                    if (isValidDecimal) {
-                        weightInput = normalized
-                    }
-                },
-                label = { Text(stringResource(R.string.weight_input_label)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Decimal
-                ),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Orange600,
-                    unfocusedBorderColor = appColors.border,
-                    focusedLabelColor = Orange600,
-                    unfocusedLabelColor = appColors.textSecondary,
-                    cursorColor = Orange600,
-                    focusedTextColor = appColors.textPrimary,
-                    unfocusedTextColor = appColors.textPrimary
-                )
+        // ===== 負荷・距離（トラッキング有効な項目がある場合のみ） =====
+        if (exercise.distanceTrackingEnabled || exercise.weightTrackingEnabled || exercise.assistanceTrackingEnabled) {
+            WorkoutSectionHeader(
+                text = stringResource(R.string.workout_section_load),
+                tag = stringResource(R.string.workout_optional_tag)
             )
-        }
-
-        // アシスト入力（有効な場合のみ表示）
-        if (exercise.assistanceTrackingEnabled) {
-            OutlinedTextField(
-                value = assistanceInput,
-                onValueChange = { value ->
-                    // 全角→半角変換
-                    val normalized = value
-                        .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
-                        .replace("．", ".")
-                    // 空、または小数（小数点1つまで、小数第1位まで）を許可
-                    val isValidDecimal = normalized.isEmpty() ||
-                        normalized == "." ||
-                        normalized.matches(Regex("^\\d*\\.?\\d?\$"))
-                    if (isValidDecimal) {
-                        assistanceInput = normalized
-                    }
-                },
-                label = { Text(stringResource(R.string.assistance_input_label)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Decimal
-                ),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Amber500,
-                    unfocusedBorderColor = appColors.border,
-                    focusedLabelColor = Amber500,
-                    unfocusedLabelColor = appColors.textSecondary,
-                    cursorColor = Amber500,
-                    focusedTextColor = appColors.textPrimary,
-                    unfocusedTextColor = appColors.textPrimary
-                )
-            )
+            WorkoutSettingsCard {
+                var needDivider = false
+                // 距離入力（マイナス値=ディフィシット等も許可。下限なし）
+                if (exercise.distanceTrackingEnabled) {
+                    WorkoutStepperItem(
+                        label = stringResource(R.string.workout_label_distance),
+                        value = distanceInput,
+                        unit = cmUnit,
+                        accentColor = Blue600,
+                        onValueChange = { value ->
+                            val normalized = value
+                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                .replace("．", ".").replace("－", "-")
+                            if (normalized.isEmpty() || normalized == "-" || normalized.toIntOrNull() != null) {
+                                distanceInput = normalized
+                            }
+                        },
+                        decrementEnabled = true,
+                        onDecrement = { distanceInput = ((distanceInput.toIntOrNull() ?: 0) - 1).toString(); true },
+                        onIncrement = { distanceInput = ((distanceInput.toIntOrNull() ?: 0) + 1).toString(); true }
+                    )
+                    needDivider = true
+                }
+                // 荷重入力（最小0kg、0.5kg刻み）
+                if (exercise.weightTrackingEnabled) {
+                    if (needDivider) WorkoutStepperDivider()
+                    WorkoutStepperItem(
+                        label = stringResource(R.string.workout_label_weight),
+                        value = weightInput,
+                        unit = kgUnit,
+                        accentColor = Orange600,
+                        keyboardType = KeyboardType.Decimal,
+                        onValueChange = { value ->
+                            val normalized = value
+                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                .replace("．", ".")
+                            val isValidDecimal = normalized.isEmpty() ||
+                                normalized == "." ||
+                                normalized.matches(Regex("^\\d*\\.?\\d?\$"))
+                            if (isValidDecimal) {
+                                weightInput = normalized
+                            }
+                        },
+                        decrementEnabled = (weightInput.toDoubleOrNull() ?: 0.0) > 0.0,
+                        onDecrement = { weightInput = stepDecimalValue(weightInput, -0.5, 0.0); (weightInput.toDoubleOrNull() ?: 0.0) > 0.0 },
+                        onIncrement = { weightInput = stepDecimalValue(weightInput, 0.5, 0.0); true }
+                    )
+                    needDivider = true
+                }
+                // アシスト入力（最小0kg、0.5kg刻み）
+                if (exercise.assistanceTrackingEnabled) {
+                    if (needDivider) WorkoutStepperDivider()
+                    WorkoutStepperItem(
+                        label = stringResource(R.string.workout_label_assistance),
+                        value = assistanceInput,
+                        unit = kgUnit,
+                        accentColor = Amber500,
+                        keyboardType = KeyboardType.Decimal,
+                        onValueChange = { value ->
+                            val normalized = value
+                                .replace(Regex("[０-９]")) { (it.value[0].code - '０'.code + '0'.code).toChar().toString() }
+                                .replace("．", ".")
+                            val isValidDecimal = normalized.isEmpty() ||
+                                normalized == "." ||
+                                normalized.matches(Regex("^\\d*\\.?\\d?\$"))
+                            if (isValidDecimal) {
+                                assistanceInput = normalized
+                            }
+                        },
+                        decrementEnabled = (assistanceInput.toDoubleOrNull() ?: 0.0) > 0.0,
+                        onDecrement = { assistanceInput = stepDecimalValue(assistanceInput, -0.5, 0.0); (assistanceInput.toDoubleOrNull() ?: 0.0) > 0.0 },
+                        onIncrement = { assistanceInput = stepDecimalValue(assistanceInput, 0.5, 0.0); true }
+                    )
+                    needDivider = true
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -2864,17 +3077,11 @@ fun SingleWorkoutSettingsSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, appColors.cardBackgroundSecondary, RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(14.dp))
+            .background(appColors.cardBackground)
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(
-            text = stringResource(R.string.settings),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            color = appColors.textTertiary
-        )
-
         if (isDynamicExercise) {
             // ダイナミック種目: 数え上げ音を先に表示
             Row(

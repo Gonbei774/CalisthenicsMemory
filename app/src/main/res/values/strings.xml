@@ -230,6 +230,19 @@
     <string name="rep_duration_label">Rep Duration (sec)</string>
     <string name="start_countdown_label">Start Countdown (sec)</string>
     <string name="interval_duration_label">Interval Duration (sec)</string>
+    <!-- Single Workout Setup Redesign -->
+    <string name="workout_section_target">Target</string>
+    <string name="workout_section_timer">Timer</string>
+    <string name="workout_section_load">Load &amp; Distance</string>
+    <string name="workout_optional_tag">Optional</string>
+    <string name="workout_label_rep_duration">Rep Duration</string>
+    <string name="workout_label_start_countdown">Start Countdown</string>
+    <string name="workout_label_interval">Set Interval</string>
+    <string name="workout_label_distance">Distance</string>
+    <string name="workout_label_weight">Weight</string>
+    <string name="workout_label_assistance">Assistance</string>
+    <string name="unit_cm">cm</string>
+    <string name="unit_kg">kg</string>
     <string name="start_workout">Start</string>
     <string name="back_button">Back</string>
     <string name="preparing">Preparing</string>
