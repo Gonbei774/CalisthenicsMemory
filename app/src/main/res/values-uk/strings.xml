@@ -732,4 +732,7 @@
     <string name="legend_weight">Вага</string>
     <string name="save_and_exit_button">Зберегти і вийти</string>
     <string name="record_set_to_target">Встановити цільове значення (%1$d %2$s)</string>
+    <string name="challenge_best">Рекорд</string>
+    <string name="challenge_target_label">Мета</string>
+    <string name="challenge_clear_days">Виконано %1$d/%2$d днів</string>
 </resources>
