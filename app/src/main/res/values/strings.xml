@@ -166,6 +166,9 @@
     <string name="interval_short">Rest:</string>
     <!-- Challenge Screen -->
     <string name="no_challenge_set">No Challenge Set</string>
+    <string name="challenge_best">Best</string>
+    <string name="challenge_target_label">Target</string>
+    <string name="challenge_clear_days">Cleared %1$d/%2$d days</string>
     <string name="last_workout">Last Workout</string>
     <string name="last_workout_none">Last Workout: None</string>
     <string name="last_workout_date">Last Workout: %s</string>
