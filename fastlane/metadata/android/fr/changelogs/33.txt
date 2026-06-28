@@ -1,0 +1,7 @@
+Ajouté :
+- Onglet Défis : bande thermique des jours réussis (réussis/total en un coup d'œil)
+
+Amélioré :
+- Configuration d'entraînement unique repensée avec des boutons pas-à-pas ronds
+
+Contributors: @SomeTr

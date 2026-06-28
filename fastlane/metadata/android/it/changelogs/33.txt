@@ -1,0 +1,7 @@
+Aggiunto:
+- Scheda Sfide: striscia termica dei giorni completati (completati/totali a colpo d'occhio)
+
+Migliorato:
+- Configurazione allenamento singolo ridisegnata con pulsanti stepper rotondi
+
+Contributors: @SomeTr
