@@ -226,6 +226,19 @@
     <string name="rep_duration_label">1レップの時間（秒）</string>
     <string name="start_countdown_label">開始カウントダウン（秒）</string>
     <string name="interval_duration_label">セット間インターバル（秒）</string>
+    <!-- Single Workout Setup Redesign -->
+    <string name="workout_section_target">目標</string>
+    <string name="workout_section_timer">タイマー</string>
+    <string name="workout_section_load">負荷・距離</string>
+    <string name="workout_optional_tag">任意</string>
+    <string name="workout_label_rep_duration">1レップの時間</string>
+    <string name="workout_label_start_countdown">開始カウントダウン</string>
+    <string name="workout_label_interval">セット間インターバル</string>
+    <string name="workout_label_distance">距離</string>
+    <string name="workout_label_weight">荷重</string>
+    <string name="workout_label_assistance">アシスト</string>
+    <string name="unit_cm">cm</string>
+    <string name="unit_kg">kg</string>
     <string name="start_workout">開始</string>
     <string name="back_button">戻る</string>
     <string name="preparing">準備中</string>
