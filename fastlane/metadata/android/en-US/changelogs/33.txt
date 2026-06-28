@@ -1,0 +1,7 @@
+Added:
+- Challenge tab: clear-days heat strip (cleared/total days at a glance)
+
+Improved:
+- Single workout setup redesigned with round stepper buttons
+
+Contributors: @SomeTr
