@@ -1,6 +1,7 @@
 package io.github.gonbei774.calisthenicsmemory.ui.screens.view
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
@@ -21,6 +22,7 @@ import androidx.compose.runtime.*
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import io.github.gonbei774.calisthenicsmemory.R
@@ -1127,32 +1129,12 @@ fun ChallengeExerciseCard(
         }
     } else null
 
-    // 期間内のトレーニング日数を計算
-    val trainingDaysInfo = remember(exercise, records, selectedPeriod) {
-        if (selectedPeriod != null) {
-            val today = java.time.LocalDate.now()
-            val cutoffDate = today.minusDays(selectedPeriod.days.toLong() - 1)
-
-            val trainingDates = records
-                .filter { it.exerciseId == exercise.id }
-                .mapNotNull { record ->
-                    try {
-                        val recordDate = java.time.LocalDate.parse(record.date)
-                        if (recordDate >= cutoffDate && recordDate <= today) {
-                            record.date
-                        } else null
-                    } catch (e: Exception) {
-                        null
-                    }
-                }
-                .distinct()
-                .size
-
-            "$trainingDates/${selectedPeriod.days}"
-        } else {
-            null
+    // 日単位のクリア状況（ヒートストリップ用）
+    val clearData = if (hasChallenge) {
+        remember(exercise, records, selectedPeriod) {
+            calculateClearDays(exercise, records, selectedPeriod)
         }
-    }
+    } else null
 
     // 最終記録日を取得（全期間で固定）
     val lastRecordDate = remember(exercise, records) {
@@ -1209,55 +1191,68 @@ fun ChallengeExerciseCard(
             }
 
             // 課題ありの場合
-            if (hasChallenge && status != null) {
-                // プログレスバー（色を統一）
+            if (hasChallenge && status != null && clearData != null) {
                 val progress = (status.achievementRate / 100f).coerceIn(0f, 1f)
-
-                LinearProgressIndicator(
-                    progress = { progress },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(8.dp),
-                    color = Purple600,  // 統一された色
-                    trackColor = appColors.cardBackground,
-                )
-
-                // 達成率と実績/目標
-                val targetTotal = exercise.targetSets!! * exercise.targetValue!!
                 val actualTotal = calculateActualTotal(exercise, records, selectedPeriod)
                 val unit = stringResource(if (exercise.type == "Dynamic") R.string.unit_reps else R.string.unit_seconds)
 
+                // プログレスバー + 達成率
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(8.dp),
+                        color = Purple600,
+                        trackColor = appColors.cardBackground,
+                    )
+                    Text(
+                        text = "${status.achievementRate}%",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = appColors.textPrimary
+                    )
+                }
+
+                // ベスト / 目標
+                Row {
+                    Text(
+                        text = "${stringResource(R.string.challenge_best)} $actualTotal$unit",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = appColors.textPrimary
+                    )
+                    Text(
+                        text = " / ${stringResource(R.string.challenge_target_label)} ${exercise.targetSets}×${exercise.targetValue}$unit",
+                        fontSize = 13.sp,
+                        color = appColors.textSecondary
+                    )
+                }
+
+                // ヒートストリップ（クリア=濃 / トレしたが未達=中 / 休み=薄）
+                ChallengeHeatStrip(clearData)
+
+                // クリア日数 / 最終記録日
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // 左：達成率
                     Text(
-                        text = "${status.achievementRate}% ($actualTotal/$targetTotal$unit)",
-                        fontSize = 14.sp,
-                        color = appColors.textPrimary,
-                        fontWeight = FontWeight.Bold
+                        text = stringResource(R.string.challenge_clear_days, clearData.clearCount, clearData.totalDays),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = appColors.textPrimary
                     )
-
-                    // 右：最終トレーニング日 (トレーニング日数)
                     if (lastRecordDate != null) {
-                        val rightText = if (trainingDaysInfo != null) {
-                            stringResource(R.string.last_record_short, lastRecordDate) + " ($trainingDaysInfo)"
-                        } else {
-                            stringResource(R.string.last_record_short, lastRecordDate)
-                        }
                         Text(
-                            text = rightText,
-                            fontSize = 14.sp,
-                            color = appColors.textPrimary
-                        )
-                    } else if (trainingDaysInfo != null) {
-                        // 最終トレーニング日がない場合はトレーニング日数のみ
-                        Text(
-                            text = trainingDaysInfo,
-                            fontSize = 14.sp,
-                            color = appColors.textPrimary
+                            text = stringResource(R.string.last_record_short, lastRecordDate),
+                            fontSize = 12.sp,
+                            color = appColors.textSecondary
                         )
                     }
                 }
@@ -1326,6 +1321,136 @@ fun calculateActualTotal(
         }
 
     return sessions.maxOrNull() ?: 0
+}
+
+// 日単位のクリア状態
+enum class DayClearState {
+    Clear,    // その日のいずれかのセッションが目標達成（≧100%）
+    Trained,  // トレーニングはしたが未達
+    Rest      // トレーニングなし
+}
+
+// ヒートストリップ用データ
+data class ClearDayData(
+    val states: List<DayClearState>,  // 期間内の各日（古い順）
+    val clearCount: Int,
+    val totalDays: Int
+)
+
+// 1セッションの達成率を計算（calculateChallengeStatus と同じロジック）
+private fun sessionAchievementRate(
+    exercise: Exercise,
+    sessionRecords: List<TrainingRecord>,
+    targetSets: Int,
+    targetTotal: Int
+): Int {
+    if (targetTotal <= 0) return 0
+    return if (exercise.laterality == "Unilateral") {
+        val topRight = sessionRecords
+            .map { it.valueRight }
+            .sortedDescending()
+            .take(targetSets)
+            .sum()
+        val topLeft = sessionRecords
+            .mapNotNull { it.valueLeft }
+            .sortedDescending()
+            .take(targetSets)
+            .sum()
+        val rateRight = (topRight * 100) / targetTotal
+        val rateLeft = (topLeft * 100) / targetTotal
+        (rateRight + rateLeft) / 2
+    } else {
+        val topValues = sessionRecords
+            .map { it.valueRight }
+            .sortedDescending()
+            .take(targetSets)
+            .sum()
+        (topValues * 100) / targetTotal
+    }
+}
+
+// 期間内の日単位クリア状況を計算
+fun calculateClearDays(
+    exercise: Exercise,
+    records: List<TrainingRecord>,
+    period: Period?
+): ClearDayData {
+    val targetSets = exercise.targetSets
+    val targetValue = exercise.targetValue
+    val today = java.time.LocalDate.now()
+    val exerciseRecords = records.filter { it.exerciseId == exercise.id }
+
+    if (targetSets == null || targetValue == null || exerciseRecords.isEmpty()) {
+        val days = period?.days ?: 0
+        return ClearDayData(List(days) { DayClearState.Rest }, 0, days)
+    }
+    val targetTotal = targetSets * targetValue
+
+    // 開始日：期間指定があればその起点、なければ最初の記録日
+    val startDate = if (period != null) {
+        today.minusDays(period.days.toLong() - 1)
+    } else {
+        exerciseRecords
+            .mapNotNull { try { java.time.LocalDate.parse(it.date) } catch (e: Exception) { null } }
+            .minOrNull() ?: today
+    }
+    val totalDays = (java.time.temporal.ChronoUnit.DAYS.between(startDate, today) + 1)
+        .toInt().coerceAtLeast(0)
+
+    // 日付ごとにグループ化（その日の最良セッションの達成率を見る）
+    val recordsByDate = exerciseRecords.groupBy { it.date }
+
+    val states = ArrayList<DayClearState>(totalDays)
+    var clearCount = 0
+    for (i in 0 until totalDays) {
+        val date = startDate.plusDays(i.toLong()).toString()
+        val dayRecords = recordsByDate[date]
+        if (dayRecords.isNullOrEmpty()) {
+            states.add(DayClearState.Rest)
+        } else {
+            val bestRate = dayRecords
+                .groupBy { it.time }  // 同一時刻＝1セッション
+                .map { (_, sessionRecords) ->
+                    sessionAchievementRate(exercise, sessionRecords, targetSets, targetTotal)
+                }
+                .maxOrNull() ?: 0
+            if (bestRate >= 100) {
+                states.add(DayClearState.Clear)
+                clearCount++
+            } else {
+                states.add(DayClearState.Trained)
+            }
+        }
+    }
+    return ClearDayData(states, clearCount, totalDays)
+}
+
+// ヒートストリップ（期間内の各日を3状態で表示）
+@Composable
+fun ChallengeHeatStrip(data: ClearDayData) {
+    if (data.totalDays <= 0) return
+    val gap = if (data.totalDays > 31) 0.dp else 1.dp
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(gap)
+    ) {
+        data.states.forEach { state ->
+            val color = when (state) {
+                DayClearState.Clear -> Purple600
+                DayClearState.Trained -> Purple600.copy(alpha = 0.40f)
+                DayClearState.Rest -> Purple600.copy(alpha = 0.12f)
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(color)
+            )
+        }
+    }
 }
 
 // 課題ステータス計算関数

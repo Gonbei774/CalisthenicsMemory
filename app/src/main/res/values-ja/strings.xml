@@ -162,6 +162,9 @@
     <string name="unit_seconds">秒</string>
     <!-- Challenge Screen -->
     <string name="no_challenge_set">課題未設定</string>
+    <string name="challenge_best">ベスト</string>
+    <string name="challenge_target_label">目標</string>
+    <string name="challenge_clear_days">クリア %1$d/%2$d日</string>
     <string name="last_workout">最終取り組み</string>
     <string name="last_workout_none">最終取り組み: なし</string>
     <string name="last_workout_date">最終取り組み: %s</string>
