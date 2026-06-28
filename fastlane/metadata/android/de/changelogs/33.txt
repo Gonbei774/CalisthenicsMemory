@@ -1,0 +1,7 @@
+Hinzugefügt:
+- Challenge-Tab: Heatstrip der erledigten Tage (erledigt/gesamt auf einen Blick)
+
+Verbessert:
+- Einzeltraining-Einrichtung mit runden Stepper-Buttons neu gestaltet
+
+Contributors: @SomeTr

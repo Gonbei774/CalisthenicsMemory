@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.25.0] - 2026-06-28
+
+### Added
+- **Clear-days heat strip** on the challenge tab, showing cleared/total days at a glance
+
+### Improved
+- **Single workout setup screen** redesigned with round stepper buttons
+
+This release includes translation contributions from @SomeTr (Ukrainian).
+
 ## [1.24.0] - 2026-06-22
 
 ### Added
@@ -535,6 +545,7 @@ This release includes contributions from @unsealed211, @SomeTr, and @balaraz.
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.25.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.25.0
 [1.24.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.24.0
 [1.23.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.23.0
 [1.22.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.22.0
