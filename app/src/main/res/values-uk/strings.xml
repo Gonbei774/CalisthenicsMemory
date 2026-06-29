@@ -735,4 +735,16 @@
     <string name="challenge_best">Рекорд</string>
     <string name="challenge_target_label">Мета</string>
     <string name="challenge_clear_days">Виконано %1$d/%2$d днів</string>
+    <string name="workout_label_weight">Вага</string>
+    <string name="workout_section_target">Мета</string>
+    <string name="workout_section_timer">Таймер</string>
+    <string name="unit_cm">см</string>
+    <string name="unit_kg">кг</string>
+    <string name="workout_optional_tag">Необов’язково</string>
+    <string name="workout_label_rep_duration">Тривалість повторень</string>
+    <string name="workout_label_start_countdown">Почати відлік</string>
+    <string name="workout_label_interval">Встановити інтервал</string>
+    <string name="workout_label_distance">Відстань</string>
+    <string name="workout_label_assistance">Допомога</string>
+    <string name="workout_section_load">Навантаження і відстань</string>
 </resources>

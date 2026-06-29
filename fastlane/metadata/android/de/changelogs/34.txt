@@ -1,0 +1,4 @@
+Behoben:
+- Die Schleife führt nun alle Übungen jeder Runde aus, bevor zur nächsten Runde gewechselt wird (zuvor wurde eine Übung über alle Runden hinweg ausgeführt)
+
+Contributors: @SomeTr

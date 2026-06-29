@@ -1,0 +1,4 @@
+Corrigé :
+- La boucle effectue désormais tous les exercices de chaque tour avant de passer au tour suivant (auparavant, un exercice était exécuté sur tous les tours en premier)
+
+Contributors: @SomeTr
