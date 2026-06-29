@@ -1,0 +1,4 @@
+Corregido:
+- El bucle ahora completa todos los ejercicios de cada ronda antes de pasar a la siguiente (antes ejecutaba un ejercicio en todas las rondas primero)
+
+Contributors: @SomeTr

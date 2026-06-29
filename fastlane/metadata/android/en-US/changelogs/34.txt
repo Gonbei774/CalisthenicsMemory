@@ -1,0 +1,4 @@
+Fixed:
+- Loop now completes all exercises in each round before moving to the next round (previously it ran one exercise across all rounds first)
+
+Contributors: @SomeTr

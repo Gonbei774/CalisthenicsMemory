@@ -1,0 +1,4 @@
+Corretto:
+- Il loop ora completa tutti gli esercizi di ogni round prima di passare al successivo (prima eseguiva un esercizio su tutti i round)
+
+Contributors: @SomeTr
