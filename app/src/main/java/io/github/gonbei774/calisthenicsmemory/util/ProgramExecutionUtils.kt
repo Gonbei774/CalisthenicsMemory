@@ -117,21 +117,24 @@ fun buildProgramValueSets(
     originalSets: List<ProgramWorkoutSet> = emptyList()
 ): MutableList<ProgramWorkoutSet> {
     val sets = mutableListOf<ProgramWorkoutSet>()
-    exercises.forEachIndexed { index, (pe, exercise) ->
+    // 実行順の (種目index, ラウンド) ブロック並びを originalSets から取得する。
+    // 種目ごとに全ラウンドを展開すると、ループが「種目優先(A×3, B×3...)」の誤った順になるため、
+    // 元のセット列の出現順(=ラウンド優先)をそのまま生成順として使う。
+    val blockOrder = originalSets.map { it.exerciseIndex to it.roundNumber }.distinct()
+    blockOrder.forEach { (index, round) ->
+        val (pe, exercise) = exercises[index]
         // ループ情報を元のセットから取得
         val exerciseSets = originalSets.filter { it.exerciseIndex == index }
         val firstSet = exerciseSets.firstOrNull()
         val loopId = firstSet?.loopId
         val totalRounds = firstSet?.totalRounds ?: 1
 
-        // 各ラウンドのセットを生成
-        for (round in 1..totalRounds) {
-            // このラウンドの既存セットからloopRestAfterSecondsを取得
-            val existingRoundSets = exerciseSets.filter { it.roundNumber == round }
-            val loopRestAfter = existingRoundSets.lastOrNull()?.loopRestAfterSeconds ?: 0
+        // このラウンドの既存セットからloopRestAfterSecondsを取得
+        val existingRoundSets = exerciseSets.filter { it.roundNumber == round }
+        val loopRestAfter = existingRoundSets.lastOrNull()?.loopRestAfterSeconds ?: 0
 
-            for (setNum in 1..pe.sets) {
-                val isLastSetOfRound = setNum == pe.sets
+        for (setNum in 1..pe.sets) {
+            val isLastSetOfRound = setNum == pe.sets
                 if (exercise.laterality == "Unilateral") {
                     val priorRight = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Right" && it.roundNumber == round }
                     val priorLeft = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Left" && it.roundNumber == round }
@@ -195,7 +198,6 @@ fun buildProgramValueSets(
                 }
             }
         }
-    }
     return sets
 }
 
@@ -209,7 +211,12 @@ fun buildChallengeValueSets(
     originalSets: List<ProgramWorkoutSet> = emptyList()
 ): MutableList<ProgramWorkoutSet> {
     val sets = mutableListOf<ProgramWorkoutSet>()
-    exercises.forEachIndexed { index, (pe, exercise) ->
+    // 実行順の (種目index, ラウンド) ブロック並びを originalSets から取得する。
+    // 種目ごとに全ラウンドを展開すると、ループが「種目優先(A×3, B×3...)」の誤った順になるため、
+    // 元のセット列の出現順(=ラウンド優先)をそのまま生成順として使う。
+    val blockOrder = originalSets.map { it.exerciseIndex to it.roundNumber }.distinct()
+    blockOrder.forEach { (index, round) ->
+        val (pe, exercise) = exercises[index]
         val setCount = exercise.targetSets ?: pe.sets
         val targetValue = exercise.targetValue ?: pe.targetValue
         val interval = exercise.restInterval ?: pe.intervalSeconds
@@ -220,14 +227,12 @@ fun buildChallengeValueSets(
         val loopId = firstSet?.loopId
         val totalRounds = firstSet?.totalRounds ?: 1
 
-        // 各ラウンドのセットを生成
-        for (round in 1..totalRounds) {
-            // このラウンドの既存セットからloopRestAfterSecondsを取得
-            val existingRoundSets = exerciseSets.filter { it.roundNumber == round }
-            val loopRestAfter = existingRoundSets.lastOrNull()?.loopRestAfterSeconds ?: 0
+        // このラウンドの既存セットからloopRestAfterSecondsを取得
+        val existingRoundSets = exerciseSets.filter { it.roundNumber == round }
+        val loopRestAfter = existingRoundSets.lastOrNull()?.loopRestAfterSeconds ?: 0
 
-            for (setNum in 1..setCount) {
-                val isLastSetOfRound = setNum == setCount
+        for (setNum in 1..setCount) {
+            val isLastSetOfRound = setNum == setCount
                 if (exercise.laterality == "Unilateral") {
                     val priorRight = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Right" && it.roundNumber == round }
                     val priorLeft = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Left" && it.roundNumber == round }
@@ -291,6 +296,5 @@ fun buildChallengeValueSets(
                 }
             }
         }
-    }
     return sets
 }

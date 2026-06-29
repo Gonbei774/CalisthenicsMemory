@@ -750,18 +750,19 @@ fun ProgramExecutionScreen(
                                 val lastDistanceCm = lastSetOfFirstRound?.distanceCm
                                 val lastAssistanceG = lastSetOfFirstRound?.assistanceG
 
-                                // 他の種目のセットはそのまま、この種目のセットのみ再構築
+                                // 他の種目のセットはそのまま、この種目のセットのみ再構築。
+                                // 実行順 (種目index, ラウンド) のブロック並びで処理し、ループのラウンド優先順を保持する
+                                val blockOrder = step.session.sets.map { it.exerciseIndex to it.roundNumber }.distinct()
                                 val newSets = mutableListOf<ProgramWorkoutSet>()
-                                step.session.exercises.forEachIndexed { idx, (pex, ex) ->
+                                blockOrder.forEach { (idx, round) ->
                                     if (idx == exerciseIndex) {
-                                        // この種目のセットを再構築（各ラウンドごと）
-                                        for (round in 1..totalRounds) {
-                                            val isLastRound = round == totalRounds
-                                            // このラウンドの既存セットからloopRestAfterSecondsを取得
-                                            val existingRoundSets = currentSets.filter { it.roundNumber == round }
-                                            val loopRestAfter = existingRoundSets.lastOrNull()?.loopRestAfterSeconds ?: 0
+                                        val ex = step.session.exercises[idx].second
+                                        // この種目のこのラウンドを再構築
+                                        // このラウンドの既存セットからloopRestAfterSecondsを取得
+                                        val existingRoundSets = currentSets.filter { it.roundNumber == round }
+                                        val loopRestAfter = existingRoundSets.lastOrNull()?.loopRestAfterSeconds ?: 0
 
-                                            for (setNum in 1..newSetCount) {
+                                        for (setNum in 1..newSetCount) {
                                                 val isLastSetOfRound = setNum == newSetCount
                                                 // 既存セットから値を取得（あれば、同じラウンドのもの）
                                                 val existingRight = existingRoundSets.find { it.setNumber == setNum && it.side == "Right" }
@@ -832,10 +833,9 @@ fun ProgramExecutionScreen(
                                                     ))
                                                 }
                                             }
-                                        }
                                     } else {
-                                        // 他の種目はそのまま
-                                        newSets.addAll(step.session.sets.filter { it.exerciseIndex == idx })
+                                        // 他の種目はそのまま（このラウンド分）
+                                        newSets.addAll(step.session.sets.filter { it.exerciseIndex == idx && it.roundNumber == round })
                                     }
                                 }
                                 // 新しいsessionオブジェクトを作成して強制的に再コンポーズ
@@ -859,21 +859,23 @@ fun ProgramExecutionScreen(
                                 scope.launch {
                                     val originalSets = step.session.sets
                                     val newSets = mutableListOf<ProgramWorkoutSet>()
-                                    step.session.exercises.forEachIndexed { index, (pe, exercise) ->
+                                    // 実行順 (種目index, ラウンド) のブロック並びで処理し、ループのラウンド優先順を保持する
+                                    val blockOrder = originalSets.map { it.exerciseIndex to it.roundNumber }.distinct()
+                                    // 前回記録は種目ごとに1回だけ取得してキャッシュ（同一種目が複数ラウンド出てくるため）
+                                    val latestByIndex = mutableMapOf<Int, List<io.github.gonbei774.calisthenicsmemory.data.TrainingRecord>>()
+                                    blockOrder.forEach { (index, round) ->
+                                        val (pe, exercise) = step.session.exercises[index]
                                         // ループ情報を元のセットから取得
                                         val exerciseSets = originalSets.filter { it.exerciseIndex == index }
                                         val firstSet = exerciseSets.firstOrNull()
                                         val loopId = firstSet?.loopId
                                         val totalRounds = firstSet?.totalRounds ?: 1
 
-                                        val latestRecords = viewModel.getLatestSession(exercise.id)
-                                        val setCount = if (latestRecords.isNotEmpty()) latestRecords.size else pe.sets
+                                        val latestRecords = latestByIndex.getOrPut(index) { viewModel.getLatestSession(exercise.id) }
 
-                                        // 各ラウンドのセットを生成
-                                        for (round in 1..totalRounds) {
-                                            // このラウンドの既存セットからloopRestAfterSecondsを取得
-                                            val existingRoundSets = exerciseSets.filter { it.roundNumber == round }
-                                            val loopRestAfter = existingRoundSets.lastOrNull()?.loopRestAfterSeconds ?: 0
+                                        // このラウンドの既存セットからloopRestAfterSecondsを取得
+                                        val existingRoundSets = exerciseSets.filter { it.roundNumber == round }
+                                        val loopRestAfter = existingRoundSets.lastOrNull()?.loopRestAfterSeconds ?: 0
 
                                             if (latestRecords.isNotEmpty()) {
                                                 // 前回記録のセット数を使用
@@ -1009,7 +1011,6 @@ fun ProgramExecutionScreen(
                                                 }
                                             }
                                         }
-                                    }
                                     val newSession = step.session.copy(sets = newSets.toMutableList())
                                     currentStep = ProgramExecutionStep.Confirm(newSession)
                                 }
