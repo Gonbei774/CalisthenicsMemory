@@ -785,4 +785,19 @@
     <string name="save_and_exit_button">Guardar y salir</string>
     <string name="legend_weight">Peso</string>
     <string name="record_set_to_target">Establecer como objetivo (%1$d %2$s)</string>
+    <string name="challenge_best">Mejor</string>
+    <string name="challenge_target_label">Objetivo</string>
+    <string name="challenge_clear_days">Días completados: %1$d/%2$d</string>
+    <string name="workout_section_target">Objetivo</string>
+    <string name="workout_section_timer">Temporizador</string>
+    <string name="workout_section_load">Carga y distancia</string>
+    <string name="workout_optional_tag">Opcional</string>
+    <string name="workout_label_rep_duration">Duración de la repetición</string>
+    <string name="workout_label_start_countdown">Iniciar la cuenta atrás</string>
+    <string name="workout_label_interval">Establecer intervalo</string>
+    <string name="workout_label_distance">Distancia</string>
+    <string name="workout_label_weight">Peso</string>
+    <string name="workout_label_assistance">Ayuda</string>
+    <string name="unit_cm">cm</string>
+    <string name="unit_kg">kg</string>
 </resources>
