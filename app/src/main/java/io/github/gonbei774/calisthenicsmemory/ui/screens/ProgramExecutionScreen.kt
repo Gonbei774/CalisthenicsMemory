@@ -264,10 +264,9 @@ fun ProgramExecutionScreen(
                 }
             } else {
             for (setNum in 1..pe.sets) {
-                // ループ内種目の前回記録はラウンド優先でフラット化されているため、
-                // 該当ラウンドの記録に対応付ける（足りない分はプログラム目標値になる）
-                val prevSetNumber = if (loopId != null) (roundNumber - 1) * pe.sets + setNum else setNum
-                val matchingRecord = latestRecords.find { it.setNumber == prevSetNumber }
+                // ループ内種目は全ラウンドに同じ前回値（＝前回のラウンド1の値）を使う。
+                // 確認画面はラウンド1しか表示しないため、見えない値で実行しないようにする
+                val matchingRecord = latestRecords.find { it.setNumber == setNum }
                 val isLastSetOfExercise = setNum == pe.sets
 
                 // ラウンド間休憩は最後のラウンド以外で、ループの最後の種目の最後のセットに追加
@@ -954,11 +953,11 @@ fun ProgramExecutionScreen(
                                                 }
                                             } else {
                                                 // 前回記録がない場合、およびループ内種目はプログラム設定のセット数を使用。
-                                                // ループ内種目は値のみ前回記録から引き継ぐ（記録はラウンド優先で
-                                                // フラット化されているため、該当ラウンドの記録に対応付ける）
+                                                // ループ内種目は値のみ前回記録から引き継ぐ。全ラウンドに同じ前回値
+                                                // （＝前回のラウンド1の値）を使い、確認画面（ラウンド1表示）と実行値を一致させる
                                                 for (setNum in 1..pe.sets) {
                                                     val isLastSetOfRound = setNum == pe.sets
-                                                    val record = latestRecords.find { it.setNumber == (round - 1) * pe.sets + setNum }
+                                                    val record = latestRecords.find { it.setNumber == setNum }
                                                     if (exercise.laterality == "Unilateral") {
                                                         val priorRight = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Right" && it.roundNumber == round }
                                                         val priorLeft = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Left" && it.roundNumber == round }
