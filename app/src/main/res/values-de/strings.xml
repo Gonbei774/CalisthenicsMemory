@@ -744,4 +744,10 @@
     <string name="exercise_type_dynamic_description">z. B. Liegestütze, Klimmzüge. Aufgezeichnet nach Wiederholungen.</string>
     <string name="exercise_type_isometric_description">z. B. Plank, L-Sit. Aufzeichnung nach Haltezeit.</string>
     <string name="add_extra_set_confirm">Hinzufügen</string>
+    <string name="add_exercise_to_group">Neue Übung zu Gruppe hinzufügen</string>
+    <string name="previous_value_label">Vorher</string>
+    <string name="set_uncheck_desc">Satz als nicht beendet markieren</string>
+    <string name="record_incomplete_title">Nicht beendete Sätze</string>
+    <string name="challenge_best">Beste</string>
+    <string name="challenge_target_label">Ziel</string>
 </resources>
