@@ -673,7 +673,7 @@ fun ShareHubScreen(
                                 }
                                 if (report.errors.size > 10) {
                                     Text(
-                                        text = "... and ${report.errors.size - 10} more",
+                                        text = stringResource(R.string.csv_import_more_items, report.errors.size - 10),
                                         fontSize = 12.sp,
                                         color = Red600.copy(alpha = 0.8f)
                                     )

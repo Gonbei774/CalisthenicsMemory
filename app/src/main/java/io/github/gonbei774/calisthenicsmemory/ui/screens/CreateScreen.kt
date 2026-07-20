@@ -604,7 +604,7 @@ fun ExpandableGroupCard(
                                 if (!isFavoriteGroup) {
                                     Icon(
                                         imageVector = Icons.Default.Menu,
-                                        contentDescription = "Drag to reorder",
+                                        contentDescription = stringResource(R.string.todo_drag_to_reorder),
                                         tint = if (isDragging) appColors.textPrimary else appColors.textSecondary,
                                         modifier = Modifier
                                             .size(24.dp)
@@ -679,7 +679,7 @@ fun ExerciseItemCompactContent(
                 // レベル（課題設定がある場合のみ）
                 if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
                     Text(
-                        text = "Lv.${exercise.sortOrder}",
+                        text = stringResource(R.string.level_format, exercise.sortOrder),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Blue600
