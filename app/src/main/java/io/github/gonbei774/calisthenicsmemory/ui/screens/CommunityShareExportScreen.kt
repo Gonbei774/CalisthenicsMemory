@@ -552,7 +552,7 @@ private fun IntervalsExportTab(
                             )
                             val exCount = exerciseCounts[interval.id] ?: 0
                             Text(
-                                text = "$exCount exercises · ${interval.workSeconds}s/${interval.restSeconds}s · ${interval.rounds} rounds",
+                                text = stringResource(R.string.interval_summary_format, exCount, interval.workSeconds, interval.restSeconds, interval.rounds),
                                 fontSize = 11.sp,
                                 color = appColors.textSecondary,
                                 modifier = Modifier.padding(top = 2.dp)
