@@ -241,6 +241,19 @@ internal fun ProgramConfirmStep(
                         }
                     )
                 }
+                // 選択中の一括適用方法の説明
+                Text(
+                    text = stringResource(
+                        when {
+                            selectedBulkTab == 0 -> R.string.program_use_program_desc
+                            hasChallengeExercise && selectedBulkTab == 1 -> R.string.program_use_challenge_desc
+                            else -> R.string.program_use_previous_desc
+                        }
+                    ),
+                    fontSize = 11.sp,
+                    color = appColors.textSecondary,
+                    modifier = Modifier.padding(top = 6.dp, start = 4.dp)
+                )
             }
         }
 

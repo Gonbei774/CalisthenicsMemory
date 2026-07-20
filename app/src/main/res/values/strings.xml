@@ -612,6 +612,9 @@
     <string name="program_use_program">Program</string>
     <string name="program_use_challenge">Exercise</string>
     <string name="program_use_previous">Previous</string>
+    <string name="program_use_program_desc">Uses the sets and target values defined in the program</string>
+    <string name="program_use_challenge_desc">Uses each exercise\'s challenge settings (program values if not set)</string>
+    <string name="program_use_previous_desc">Uses your previous workout values (program values if no record)</string>
     <string name="all_sets_label">All Sets</string>
     <string name="all_exercises_label">All Exercises</string>
     <string name="program_use_all_program">All Program</string>
