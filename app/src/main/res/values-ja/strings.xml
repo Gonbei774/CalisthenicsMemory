@@ -596,6 +596,9 @@
     <string name="program_use_program">プログラム値</string>
     <string name="program_use_challenge">種目値</string>
     <string name="program_use_previous">前回値</string>
+    <string name="program_use_program_desc">プログラムで設定したセット数・目標値を使います</string>
+    <string name="program_use_challenge_desc">種目の課題設定を使います（未設定の種目はプログラム値）</string>
+    <string name="program_use_previous_desc">前回の記録値を使います（記録がない種目はプログラム値）</string>
     <string name="program_use_all_program">全てプログラム値</string>
     <string name="program_use_all_challenge">全て課題値</string>
     <string name="program_previous_value">前回の値を使用</string>
