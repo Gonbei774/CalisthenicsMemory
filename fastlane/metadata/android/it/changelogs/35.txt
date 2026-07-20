@@ -1,0 +1,12 @@
+Aggiunto:
+- Testo esplicativo per le opzioni di applicazione nella schermata di conferma del programma
+
+Migliorato:
+- Esportazione condivisione: l'elenco esercizi mostra i badge e segue il tuo ordinamento
+
+Corretto:
+- Gli esercizi preferiti apparivano duplicati nella selezione della scheda sfide
+- Il precompilamento "Precedente" gonfiava le serie degli esercizi nei loop
+- Le etichette del livello ora appaiono tradotte
+
+Contributors: @gallegonovato (es), @gl0bix (de)

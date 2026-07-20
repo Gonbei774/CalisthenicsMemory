@@ -1,0 +1,12 @@
+Added:
+- Explanation text for the bulk-apply options on the program confirmation screen
+
+Improved:
+- Community share export: exercise list now shows badges and follows your custom sort order
+
+Fixed:
+- Favorite exercises appeared twice in the challenge tab exercise picker
+- "Previous" prefill inflated set counts for exercises inside loops
+- Level and other labels now appear translated (were hardcoded in English)
+
+Contributors: @gallegonovato (es), @gl0bix (de)

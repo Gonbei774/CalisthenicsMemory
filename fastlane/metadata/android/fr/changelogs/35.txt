@@ -1,0 +1,12 @@
+Ajouté :
+- Texte explicatif pour les options d'application sur l'écran de confirmation du programme
+
+Amélioré :
+- Export de partage : la liste des exercices affiche les badges et suit votre ordre personnalisé
+
+Corrigé :
+- Les exercices favoris apparaissaient en double dans la sélection de l'onglet défis
+- Le préremplissage « Précédent » gonflait les séries des exercices en boucle
+- Les libellés de niveau s'affichent désormais traduits
+
+Contributors: @gallegonovato (es), @gl0bix (de)

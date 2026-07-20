@@ -1,0 +1,12 @@
+Neu:
+- Erklärungstext für die Übernahme-Optionen im Programm-Bestätigungsbildschirm
+
+Verbessert:
+- Community-Export: Übungsliste zeigt jetzt Badges und folgt der eigenen Sortierung
+
+Behoben:
+- Favoriten wurden bei der Übungsauswahl im Aufgaben-Tab doppelt angezeigt
+- „Vorherige“-Vorbefüllung erhöhte die Satzanzahl bei Übungen in Loops
+- Level- und andere Beschriftungen werden jetzt übersetzt angezeigt
+
+Contributors: @gallegonovato (es), @gl0bix (de)
