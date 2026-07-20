@@ -945,7 +945,7 @@ private fun ExerciseTaskCard(
                         Text(text = "★", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFFD700))
                     }
                     if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
-                        Text(text = "Lv.${exercise.sortOrder}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Blue600)
+                        Text(text = stringResource(R.string.level_format, exercise.sortOrder), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Blue600)
                     }
                     Text(
                         text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
@@ -1842,7 +1842,7 @@ fun AddExerciseGroup(
                                         Text(text = "★", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFFD700))
                                     }
                                     if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
-                                        Text(text = "Lv.${exercise.sortOrder}", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Blue600)
+                                        Text(text = stringResource(R.string.level_format, exercise.sortOrder), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Blue600)
                                     }
                                     Text(
                                         text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
@@ -1924,7 +1924,7 @@ fun SearchResultExerciseItem(
                         Text(text = "★", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFFD700))
                     }
                     if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
-                        Text(text = "Lv.${exercise.sortOrder}", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Blue600)
+                        Text(text = stringResource(R.string.level_format, exercise.sortOrder), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Blue600)
                     }
                     Text(
                         text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),

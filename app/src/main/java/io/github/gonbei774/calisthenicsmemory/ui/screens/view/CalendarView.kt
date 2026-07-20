@@ -710,7 +710,7 @@ private fun SessionSummaryRow(
             )
         }
         Text(
-            text = "${setCount}set",
+            text = stringResource(R.string.sets_format, setCount),
             fontSize = 13.sp,
             color = appColors.textTertiary
         )
