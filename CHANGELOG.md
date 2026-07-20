@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.26.0] - 2026-07-20
+
+### Added
+- **Explanation text for the bulk-apply options** (Program/Exercise/Previous) on the program confirmation screen
+
+### Improved
+- **Community share export**: the exercise list now shows badges (favorite, level, type, tracking options, challenge) and follows your custom sort order
+
+### Fixed
+- Favorite exercises appeared twice in the challenge tab exercise picker
+- "Previous" prefill inflated set counts for exercises inside loops ([GitHub #18](https://github.com/Gonbei774/CalisthenicsMemory/issues/18))
+- Level and several other labels were hardcoded in English and now appear translated (Ukrainian, Chinese, Spanish, French, Italian)
+
+This release includes translation contributions from @gallegonovato (Spanish) and @gl0bix (German).
+
 ## [1.25.1] - 2026-06-30
 
 ### Fixed
@@ -552,6 +567,7 @@ This release includes contributions from @unsealed211, @SomeTr, and @balaraz.
 - Multi-language support (Japanese, English)
 - Completely offline, privacy-focused design
 
+[1.26.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.26.0
 [1.25.1]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.25.1
 [1.25.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.25.0
 [1.24.0]: https://codeberg.org/Gonbei774/CalisthenicsMemory/releases/tag/v1.24.0
