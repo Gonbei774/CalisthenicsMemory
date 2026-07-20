@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -62,7 +64,12 @@ import io.github.gonbei774.calisthenicsmemory.data.IntervalProgram
 import io.github.gonbei774.calisthenicsmemory.data.Program
 import io.github.gonbei774.calisthenicsmemory.ui.theme.Amber500
 import io.github.gonbei774.calisthenicsmemory.ui.theme.Amber600
+import io.github.gonbei774.calisthenicsmemory.ui.theme.Blue600
+import io.github.gonbei774.calisthenicsmemory.ui.theme.Cyan600
+import io.github.gonbei774.calisthenicsmemory.ui.theme.Green400
 import io.github.gonbei774.calisthenicsmemory.ui.theme.LocalAppColors
+import io.github.gonbei774.calisthenicsmemory.ui.theme.Pink600
+import io.github.gonbei774.calisthenicsmemory.ui.theme.Purple600
 import io.github.gonbei774.calisthenicsmemory.ui.theme.Slate600
 import io.github.gonbei774.calisthenicsmemory.viewmodel.TrainingViewModel
 import kotlinx.coroutines.Dispatchers
@@ -545,7 +552,7 @@ private fun IntervalsExportTab(
                             )
                             val exCount = exerciseCounts[interval.id] ?: 0
                             Text(
-                                text = "$exCount exercises · ${interval.workSeconds}s/${interval.restSeconds}s · ${interval.rounds} rounds",
+                                text = stringResource(R.string.interval_summary_format, exCount, interval.workSeconds, interval.restSeconds, interval.rounds),
                                 fontSize = 11.sp,
                                 color = appColors.textSecondary,
                                 modifier = Modifier.padding(top = 2.dp)
@@ -558,6 +565,7 @@ private fun IntervalsExportTab(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ExercisesExportTab(
     exercises: List<Exercise>,
@@ -574,7 +582,7 @@ private fun ExercisesExportTab(
         exercises
             .sortedWith(compareBy<Exercise> {
                 if (it.group == null) Int.MAX_VALUE else (groupOrder[it.group] ?: Int.MAX_VALUE)
-            }.thenBy { it.name })
+            }.thenBy { it.displayOrder })
             .groupBy { it.group ?: "" }
     }
 
@@ -635,13 +643,100 @@ private fun ExercisesExportTab(
                                     fontWeight = FontWeight.Bold,
                                     color = if (isIncluded) appColors.textSecondary else appColors.textPrimary
                                 )
-                                Text(
-                                    text = if (isIncluded) stringResource(R.string.share_exercise_auto_included)
-                                           else exercise.type,
-                                    fontSize = 11.sp,
-                                    color = appColors.textSecondary,
-                                    modifier = Modifier.padding(top = 2.dp)
-                                )
+                                if (isIncluded) {
+                                    Text(
+                                        text = stringResource(R.string.share_exercise_auto_included),
+                                        fontSize = 11.sp,
+                                        color = appColors.textSecondary,
+                                        modifier = Modifier.padding(top = 2.dp)
+                                    )
+                                } else {
+                                    FlowRow(
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                                        modifier = Modifier.padding(top = 2.dp)
+                                    ) {
+                                        // お気に入り
+                                        if (exercise.isFavorite) {
+                                            Text(
+                                                text = "★",
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color(0xFFFFD700)
+                                            )
+                                        }
+
+                                        // レベル（課題設定がある場合のみ）
+                                        if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
+                                            Text(
+                                                text = stringResource(R.string.level_format, exercise.sortOrder),
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Blue600
+                                            )
+                                        }
+
+                                        // タイプ（回数制/時間制）
+                                        Text(
+                                            text = stringResource(if (exercise.type == "Dynamic") R.string.dynamic_type else R.string.isometric_type),
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = appColors.textSecondary
+                                        )
+
+                                        // Unilateral
+                                        if (exercise.laterality == "Unilateral") {
+                                            Text(
+                                                text = stringResource(R.string.one_sided),
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Purple600
+                                            )
+                                        }
+
+                                        // 有効化している記録オプション（荷重/距離/アシスト）
+                                        if (exercise.weightTrackingEnabled) {
+                                            Text(
+                                                text = stringResource(R.string.legend_weight),
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Amber500
+                                            )
+                                        }
+                                        if (exercise.distanceTrackingEnabled) {
+                                            Text(
+                                                text = stringResource(R.string.legend_distance),
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Cyan600
+                                            )
+                                        }
+                                        if (exercise.assistanceTrackingEnabled) {
+                                            Text(
+                                                text = stringResource(R.string.legend_assistance),
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Pink600
+                                            )
+                                        }
+                                    }
+
+                                    // 課題バッジ
+                                    if (exercise.targetSets != null && exercise.targetValue != null) {
+                                        Text(
+                                            text = stringResource(
+                                                if (exercise.laterality == "Unilateral") R.string.target_format_unilateral else R.string.target_format,
+                                                exercise.targetSets!!,
+                                                exercise.targetValue!!,
+                                                stringResource(if (exercise.type == "Dynamic") R.string.unit_reps else R.string.unit_seconds)
+                                            ),
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Green400,
+                                            modifier = Modifier.padding(top = 2.dp)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }

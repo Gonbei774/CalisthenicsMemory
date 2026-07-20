@@ -898,7 +898,7 @@ fun FilterExerciseItem(
                     // レベル
                     if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
                         Text(
-                            text = "Lv.${exercise.sortOrder}",
+                            text = stringResource(R.string.level_format, exercise.sortOrder),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = Blue600
@@ -1053,6 +1053,12 @@ fun ChallengeView(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             hierarchicalData.forEach { group ->
+                // 種目を1つに絞り込んでいるときは、お気に入りグループには出さず
+                // その種目が属する実グループのみに表示する（重複表示の防止）
+                if (selectedExerciseFilter != null && group.groupName == TrainingViewModel.FAVORITE_GROUP_KEY) {
+                    return@forEach
+                }
+
                 // グループ内の種目で期間フィルターを通過したものを抽出
                 val groupFilteredExercises = group.exercises.filter { it in filteredExercises }
 
@@ -1165,7 +1171,7 @@ fun ChallengeExerciseCard(
                 // レベル（左側）
                 if (exercise.sortOrder > 0) {
                     Text(
-                        text = "Lv.${exercise.sortOrder}",
+                        text = stringResource(R.string.level_format, exercise.sortOrder),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Blue600

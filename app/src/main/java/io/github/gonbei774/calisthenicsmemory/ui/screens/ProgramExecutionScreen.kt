@@ -184,7 +184,10 @@ fun ProgramExecutionScreen(
             val latestRecords = previousRecordsMap[exercise.id] ?: emptyList()
             // プリフィルON かつ 前回記録あり →「前回」タブと同じく前回記録のセット数・値で構築する。
             // （従来はプログラム設定のセット数 pe.sets を使っており、前回タブと食い違っていた）
-            val usePreviousLayout = isPrefillEnabled && latestRecords.isNotEmpty()
+            // ただしループ内種目は対象外: 前回記録は全ラウンドの完了セットがフラット化されて
+            // 保存されているため、記録件数をセット数にするとラウンド数分の掛け算で膨張する
+            // (GitHub issue 18)。ループはセット数を pe.sets に固定し、値のみ前回から引き継ぐ。
+            val usePreviousLayout = isPrefillEnabled && latestRecords.isNotEmpty() && loopId == null
 
             if (usePreviousLayout) {
                 latestRecords.forEachIndexed { recordIdx, record ->
@@ -261,6 +264,8 @@ fun ProgramExecutionScreen(
                 }
             } else {
             for (setNum in 1..pe.sets) {
+                // ループ内種目は全ラウンドに同じ前回値（＝前回のラウンド1の値）を使う。
+                // 確認画面はラウンド1しか表示しないため、見えない値で実行しないようにする
                 val matchingRecord = latestRecords.find { it.setNumber == setNum }
                 val isLastSetOfExercise = setNum == pe.sets
 
@@ -877,7 +882,10 @@ fun ProgramExecutionScreen(
                                         val existingRoundSets = exerciseSets.filter { it.roundNumber == round }
                                         val loopRestAfter = existingRoundSets.lastOrNull()?.loopRestAfterSeconds ?: 0
 
-                                            if (latestRecords.isNotEmpty()) {
+                                            // ループ内種目は前回記録のセット数を使わない: 記録は全ラウンドの
+                                            // 完了セットがフラット化されており、件数をセット数にすると
+                                            // ラウンド数分の掛け算で膨張する (GitHub issue 18)
+                                            if (latestRecords.isNotEmpty() && loopId == null) {
                                                 // 前回記録のセット数を使用
                                                 latestRecords.forEachIndexed { recordIdx, record ->
                                                     val isLastSetOfRound = recordIdx == latestRecords.size - 1
@@ -944,48 +952,53 @@ fun ProgramExecutionScreen(
                                                     }
                                                 }
                                             } else {
-                                                // 前回記録がない場合はプログラム設定を使用（元のpreviousValueを引き継ぐ）
+                                                // 前回記録がない場合、およびループ内種目はプログラム設定のセット数を使用。
+                                                // ループ内種目は値のみ前回記録から引き継ぐ。全ラウンドに同じ前回値
+                                                // （＝前回のラウンド1の値）を使い、確認画面（ラウンド1表示）と実行値を一致させる
                                                 for (setNum in 1..pe.sets) {
                                                     val isLastSetOfRound = setNum == pe.sets
+                                                    val record = latestRecords.find { it.setNumber == setNum }
                                                     if (exercise.laterality == "Unilateral") {
                                                         val priorRight = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Right" && it.roundNumber == round }
                                                         val priorLeft = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == "Left" && it.roundNumber == round }
                                                         val priorTracking = priorRight ?: priorLeft
+                                                        // 前回値は左右の平均値を使用（目標値も平均値に設定）
+                                                        val prevAverage = record?.let { (it.valueRight + (it.valueLeft ?: it.valueRight)) / 2 }
                                                         newSets.add(ProgramWorkoutSet(
                                                             exerciseIndex = index,
                                                             setNumber = setNum,
                                                             side = "Right",
-                                                            targetValue = pe.targetValue,
+                                                            targetValue = prevAverage ?: pe.targetValue,
                                                             intervalSeconds = pe.intervalSeconds,
-                                                            previousValue = priorRight?.previousValue,
+                                                            previousValue = prevAverage ?: priorRight?.previousValue,
                                                             loopId = loopId,
                                                             roundNumber = round,
                                                             totalRounds = totalRounds,
                                                             loopRestAfterSeconds = 0,  // Rightの後はLeftが来る
-                                                            weightG = priorTracking?.weightG,
-                                                            distanceCm = priorTracking?.distanceCm,
-                                                            assistanceG = priorTracking?.assistanceG,
-                                                            previousWeightG = priorTracking?.previousWeightG,
-                                                            previousDistanceCm = priorTracking?.previousDistanceCm,
-                                                            previousAssistanceG = priorTracking?.previousAssistanceG
+                                                            weightG = if (record != null) record.weightG else priorTracking?.weightG,
+                                                            distanceCm = if (record != null) record.distanceCm else priorTracking?.distanceCm,
+                                                            assistanceG = if (record != null) record.assistanceG else priorTracking?.assistanceG,
+                                                            previousWeightG = if (record != null) record.weightG else priorTracking?.previousWeightG,
+                                                            previousDistanceCm = if (record != null) record.distanceCm else priorTracking?.previousDistanceCm,
+                                                            previousAssistanceG = if (record != null) record.assistanceG else priorTracking?.previousAssistanceG
                                                         ))
                                                         newSets.add(ProgramWorkoutSet(
                                                             exerciseIndex = index,
                                                             setNumber = setNum,
                                                             side = "Left",
-                                                            targetValue = pe.targetValue,
+                                                            targetValue = prevAverage ?: pe.targetValue,
                                                             intervalSeconds = pe.intervalSeconds,
-                                                            previousValue = priorLeft?.previousValue,
+                                                            previousValue = prevAverage ?: priorLeft?.previousValue,
                                                             loopId = loopId,
                                                             roundNumber = round,
                                                             totalRounds = totalRounds,
                                                             loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0,
-                                                            weightG = priorTracking?.weightG,
-                                                            distanceCm = priorTracking?.distanceCm,
-                                                            assistanceG = priorTracking?.assistanceG,
-                                                            previousWeightG = priorTracking?.previousWeightG,
-                                                            previousDistanceCm = priorTracking?.previousDistanceCm,
-                                                            previousAssistanceG = priorTracking?.previousAssistanceG
+                                                            weightG = if (record != null) record.weightG else priorTracking?.weightG,
+                                                            distanceCm = if (record != null) record.distanceCm else priorTracking?.distanceCm,
+                                                            assistanceG = if (record != null) record.assistanceG else priorTracking?.assistanceG,
+                                                            previousWeightG = if (record != null) record.weightG else priorTracking?.previousWeightG,
+                                                            previousDistanceCm = if (record != null) record.distanceCm else priorTracking?.previousDistanceCm,
+                                                            previousAssistanceG = if (record != null) record.assistanceG else priorTracking?.previousAssistanceG
                                                         ))
                                                     } else {
                                                         val priorSet = originalSets.find { it.exerciseIndex == index && it.setNumber == setNum && it.side == null && it.roundNumber == round }
@@ -993,19 +1006,19 @@ fun ProgramExecutionScreen(
                                                             exerciseIndex = index,
                                                             setNumber = setNum,
                                                             side = null,
-                                                            targetValue = pe.targetValue,
+                                                            targetValue = record?.valueRight ?: pe.targetValue,
                                                             intervalSeconds = pe.intervalSeconds,
-                                                            previousValue = priorSet?.previousValue,
+                                                            previousValue = record?.valueRight ?: priorSet?.previousValue,
                                                             loopId = loopId,
                                                             roundNumber = round,
                                                             totalRounds = totalRounds,
                                                             loopRestAfterSeconds = if (isLastSetOfRound) loopRestAfter else 0,
-                                                            weightG = priorSet?.weightG,
-                                                            distanceCm = priorSet?.distanceCm,
-                                                            assistanceG = priorSet?.assistanceG,
-                                                            previousWeightG = priorSet?.previousWeightG,
-                                                            previousDistanceCm = priorSet?.previousDistanceCm,
-                                                            previousAssistanceG = priorSet?.previousAssistanceG
+                                                            weightG = if (record != null) record.weightG else priorSet?.weightG,
+                                                            distanceCm = if (record != null) record.distanceCm else priorSet?.distanceCm,
+                                                            assistanceG = if (record != null) record.assistanceG else priorSet?.assistanceG,
+                                                            previousWeightG = if (record != null) record.weightG else priorSet?.previousWeightG,
+                                                            previousDistanceCm = if (record != null) record.distanceCm else priorSet?.previousDistanceCm,
+                                                            previousAssistanceG = if (record != null) record.assistanceG else priorSet?.previousAssistanceG
                                                         ))
                                                     }
                                                 }

@@ -936,7 +936,7 @@ private fun IntervalExerciseSelectItem(
                     }
                     if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
                         Text(
-                            text = "Lv.${exercise.sortOrder}",
+                            text = stringResource(R.string.level_format, exercise.sortOrder),
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = Blue600
@@ -1104,7 +1104,7 @@ private fun IntervalSelectExerciseGroup(
                                     }
                                     if (exercise.targetSets != null && exercise.targetValue != null && exercise.sortOrder > 0) {
                                         Text(
-                                            text = "Lv.${exercise.sortOrder}",
+                                            text = stringResource(R.string.level_format, exercise.sortOrder),
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = Blue600

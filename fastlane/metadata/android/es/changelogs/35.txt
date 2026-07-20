@@ -1,0 +1,12 @@
+Añadido:
+- Texto explicativo para las opciones de aplicación en la pantalla de confirmación del programa
+
+Mejorado:
+- Exportación para compartir: la lista de ejercicios muestra insignias y sigue tu orden personalizado
+
+Corregido:
+- Los ejercicios favoritos aparecían duplicados en la selección de la pestaña de desafíos
+- El prellenado "Anterior" inflaba las series de ejercicios dentro de bucles
+- Las etiquetas de nivel ahora aparecen traducidas
+
+Contributors: @gallegonovato (es), @gl0bix (de)
